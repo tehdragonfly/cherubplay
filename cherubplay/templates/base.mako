@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>CHERUBPLAY</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="/static/cherubplay.css">
+</head>
+<body>
+
+<header>
+% if request.user:
+  <nav>
+    <p>${request.user.username}</p>
+    <p>
+      <form action="${request.route_path("log_out")}" method="post"><button type="submit">Log out</button></form>
+    </p>
+  </nav>
+% endif
+  <h1><a href="${request.route_path("home")}"><img src="/static/logo.png" alt="CHERUBPLAY"></a></h1>
+  <br class="clear">
+</header>
+
+<main>
+${next.body()}\
+</main>
+
+</body>
+</html>

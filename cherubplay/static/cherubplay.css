@@ -1,0 +1,82 @@
+body {
+	margin: 0;
+	background-color: #eee;
+	font-family: sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	text-align: center;
+	color: #090;
+}
+
+h2 {
+	font-size: 2em;
+	text-transform: uppercase;
+}
+
+p {
+	max-width: 70ex;
+	margin-left: auto;
+	margin-right: auto;
+	line-height: 1.5em;
+}
+
+a {
+	color: #090;
+}
+
+a:hover {
+	text-decoration: none;
+}
+
+.clear {
+	clear: both;
+}
+
+header {
+	padding: 10px;
+	background-color: #393;
+	color: #fff;
+}
+
+header nav {
+	float: right;
+	margin-bottom: 5px;
+	text-align: right;
+}
+
+header p {
+	margin: 0;
+}
+
+header form {
+	display: inline;
+}
+
+header h1 {
+	float: left;
+	max-width: 100%;
+	margin: 0;
+}
+
+header img {
+	display: block;
+	max-width: 100%;
+}
+
+main {
+	display: block;
+	margin: 50px;
+}
+
+@media (max-width: 600px) {
+	main {
+		margin: 20px;
+	}
+}
+
+/* Homepage */
+
+.account_form {
+	text-align: center;
+}
