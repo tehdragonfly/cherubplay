@@ -17,7 +17,8 @@ requires = [
     'transaction',
     'zope.sqlalchemy',
     'waitress',
-    ]
+    'psycopg2',
+]
 
 setup(name='cherubplay',
       version='0.0',
