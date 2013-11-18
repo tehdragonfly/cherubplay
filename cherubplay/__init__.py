@@ -1,5 +1,6 @@
 from pyramid.config import Configurator
 from redis import Redis, ConnectionPool, UnixDomainSocketConnection
+from redis.exceptions import ConnectionError
 from sqlalchemy import engine_from_config
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -13,7 +14,10 @@ from .models import (
 def request_user(request):
     if "cherubplay" not in request.cookies:
         return None
-    user_id = request.login_store.get("session:"+request.cookies["cherubplay"])
+    try:
+        user_id = request.login_store.get("session:"+request.cookies["cherubplay"])
+    except ConnectionError:
+        return None
     if user_id is not None:
         try:
             return Session.query(User).filter(User.id==user_id).one()

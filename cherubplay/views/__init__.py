@@ -6,6 +6,7 @@ from bcrypt import gensalt, hashpw
 from pyramid.httpexceptions import HTTPFound
 from pyramid.renderers import render_to_response
 from pyramid.view import view_config
+from redis.exceptions import ConnectionError
 from sqlalchemy.orm.exc import NoResultFound
 
 from ..models import (
@@ -44,7 +45,10 @@ def sign_up(request):
     Session.flush()
     # Generate session ID and add it to the login store.
     new_session_id = str(uuid.uuid4())
-    request.login_store.set("session:"+new_session_id, new_user.id)
+    try:
+        request.login_store.set("session:"+new_session_id, new_user.id)
+    except ConnectionError:
+        return { "sign_up_error": "We can't create your account because we're having problems with the login server. Please try again later." }
     # Set cookie for session ID.
     response = HTTPFound(request.route_path("home"))
     response.set_cookie("cherubplay", new_session_id, 31536000)
@@ -61,7 +65,10 @@ def log_in(request):
         return { "log_in_error": "Username and/or password not recognised." }
     # Generate session ID and add it to the login store.
     new_session_id = str(uuid.uuid4())
-    request.login_store.set("session:"+new_session_id, user.id)
+    try:
+        request.login_store.set("session:"+new_session_id, user.id)
+    except ConnectionError:
+        return { "log_in_error": "We can't log you in because we're having problems with the login server. Please try again later." }
     # Set cookie for session ID.
     response = HTTPFound(request.route_path("home"))
     response.set_cookie("cherubplay", new_session_id, 31536000)
