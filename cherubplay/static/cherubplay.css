@@ -1,3 +1,5 @@
+/* Generic elements/classes */
+
 body {
 	margin: 0;
 	background-color: #eee;
@@ -33,6 +35,19 @@ a:hover {
 	clear: both;
 }
 
+.tile {
+	position: relative;
+	overflow: hidden;
+	max-width: 70ex;
+	margin: 20px auto;
+	padding: 10px;
+	background-color: #fff;
+	border-radius: 2px;
+	box-shadow: 0 1px 2px #999;
+}
+
+/* Header */
+
 header {
 	padding: 10px;
 	background-color: #393;
@@ -64,6 +79,31 @@ header img {
 	max-width: 100%;
 }
 
+.tile {
+	position: relative;
+	overflow: hidden;
+	max-width: 70ex;
+	margin: 20px auto;
+	padding: 10px;
+	background-color: #fff;
+	border-radius: 2px;
+	box-shadow: 0 1px 2px #999;
+}
+
+.tile p {
+	margin: 10px 0;
+}
+
+.tile :first-child {
+	margin-top: 0;
+}
+
+.tile :last-child {
+	margin-bottom: 0;
+}
+
+/* Main */
+
 main {
 	display: block;
 	margin: 50px;
@@ -79,4 +119,50 @@ main {
 
 .account_form {
 	text-align: center;
+}
+
+/* Chat window */
+
+#messages {
+	margin: 20px 0;
+	padding: 0;
+	list-style-type: none;
+}
+
+.message_ooc {
+	opacity: 0.5;
+}
+
+.message_ooc:hover {
+	opacity: 1;
+}
+
+#status_bar {
+	max-width: 70ex;
+	margin: -5px auto;
+	color: #666;
+	text-align: center;
+	font-size: 10pt;
+}
+
+#message_form input {
+	vertical-align: middle;
+}
+
+#message_form textarea {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	width: 100%;
+	height: 100px;
+	font: inherit;
+	resize: vertical;
+}
+
+#message_form button {
+	float: left;
+}
+
+#end_form {
+	text-align: right;
 }
