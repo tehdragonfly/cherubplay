@@ -60,7 +60,11 @@ def main(global_config, **settings):
     config.add_route("chat_list_archive", "/chats/archive/")
 
     config.add_route("chat", "/chats/{url}/")
-    config.add_route("chat_archive", "/chats/url}/archive/")
+    config.add_route("chat_archive", "/chats/{url}/archive/")
+
+    config.add_route("chat_send", "/chats/{url}/send/")
+    config.add_route("chat_end", "/chats/{url}/end/")
+    config.add_route("chat_delete", "/chats/url}/delete/")
 
     config.add_route("account", "/account/")
 
