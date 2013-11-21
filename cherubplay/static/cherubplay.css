@@ -137,6 +137,10 @@ main {
 	opacity: 1;
 }
 
+.message_system {
+	text-align: center;
+}
+
 #status_bar {
 	max-width: 70ex;
 	margin: -5px auto;

@@ -2,11 +2,15 @@
   <ul id="messages">
 % for message in messages:
     <li class="tile message_${message.type}">
-      <p style="color: #${message.colour};">\
 % if message.symbol is not None:
-${symbols[message.symbol]}: \
+% if message.type=="system":
+      <p style="color: #${message.colour};">${message.text % symbols[message.symbol]}</p>
+% else:
+      <p style="color: #${message.colour};">${symbols[message.symbol]}: ${message.text}</p>
 % endif
-${message.text}</p>
+% else:
+      <p style="color: #${message.colour};">${message.text}</p>
+% endif
     </li>
 % endfor
   </ul>
