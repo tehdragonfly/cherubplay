@@ -1,5 +1,4 @@
 import datetime
-import re
 import transaction
 
 from pyramid.httpexceptions import (
@@ -12,14 +11,13 @@ from pyramid.view import view_config
 from sqlalchemy import and_
 from sqlalchemy.orm.exc import NoResultFound
 
+from ..lib import colour_validator, symbols
 from ..models import (
     Session,
     Chat,
     ChatUser,
     Message,
 )
-
-colour_validator = re.compile("^[A-Fa-f0-9]{6}$")
 
 @view_config(route_name="chat", renderer="chat.mako")
 def chat(request):
@@ -39,23 +37,18 @@ def chat(request):
         except NoResultFound:
             pass
     continuable = (chat.status=="ongoing" and own_chat_user is not None)
-    messages = Session.query(Message, ChatUser).filter(
+    messages = Session.query(Message).filter(
         Message.chat_id==chat.id
     )
     # Hide OOC messages if the chat doesn't belong to us.
     if own_chat_user is None:
         messages = messages.filter(Message.type!="ooc")
-    messages = messages.outerjoin(
-        ChatUser,
-        and_(
-            Message.chat_id==ChatUser.chat_id,
-            Message.user_id==ChatUser.user_id,
-        ),
-    ).order_by(Message.id.asc()).all()
+    messages = messages.order_by(Message.id.asc()).all()
     return {
         "own_chat_user": own_chat_user,
         "continuable": continuable,
         "messages": messages,
+        "symbols": symbols,
     }
 
 @view_config(route_name="chat_send", request_method="POST")
@@ -100,6 +93,7 @@ def chat_send(request):
         user_id=request.user.id,
         type=message_type,
         colour=colour,
+        symbol=own_chat_user.symbol,
         text=request.POST["message_text"],
     ))
     chat.updated = datetime.datetime.now()

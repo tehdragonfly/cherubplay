@@ -56,6 +56,7 @@ class Message(Base):
     user_id = Column(Integer, ForeignKey("users.id"))
     type = Column(Enum(u"ic", u"ooc", u"system", name="message_type"), nullable=False, default=u"ic")
     colour = Column(String(6), nullable=False, default="000000")
+    symbol = Column(Integer)
     text = Column(UnicodeText, nullable=False)
     posted = Column(DateTime, nullable=False, default=datetime.datetime.now)
     edited = Column(DateTime, nullable=False, default=datetime.datetime.now)
@@ -63,13 +64,13 @@ class Message(Base):
 
 class ChatUser(Base):
     __tablename__ = "chat_users"
-    __table_args__ = (UniqueConstraint('chat_id', 'counter', name='chat_user_counter_unique'),)
+    __table_args__ = (UniqueConstraint('chat_id', 'symbol', name='chat_user_symbol_unique'),)
     chat_id = Column(Integer, ForeignKey("chats.id"), primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    counter = Column(Integer, nullable=False)
+    symbol = Column(Integer, nullable=False)
     anonymous = Column(Boolean, nullable=False, default=True)
     status = Column(Enum(u"active", u"archived", name="chat_user_status"), nullable=False, default=u"active")
-    notes = Column(UnicodeText, nullable=False)
+    notes = Column(UnicodeText, nullable=False, default=u"")
 
 
 Message.chat = relationship(Chat, backref="messages")

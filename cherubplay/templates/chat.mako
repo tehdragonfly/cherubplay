@@ -1,17 +1,21 @@
 <%inherit file="base.mako" />\
   <ul id="messages">
-% for message, chat_user in messages:
+% for message in messages:
     <li class="tile message_${message.type}">
       <p style="color: #${message.colour};">\
-% if chat_user is not None:
-${chat_user.counter}: \
+% if message.symbol is not None:
+${symbols[message.symbol]}: \
 % endif
 ${message.text}</p>
     </li>
 % endfor
   </ul>
 % if continuable:
-  <section id="status_bar">Last message: ${messages[-1][0].posted}.</section>
+  <section id="status_bar">\
+% if len(messages)>0:
+Last message: ${messages[-1].posted}.\
+% endif
+</section>
   <section id="message_form_container" class="tile">
     <form id="message_form" action="${request.route_path("chat_send", url=request.matchdict["url"])}" method="post">
       <p>

@@ -1,4 +1,3 @@
-import re
 import transaction
 import uuid
 
@@ -9,14 +8,11 @@ from pyramid.view import view_config
 from redis.exceptions import ConnectionError
 from sqlalchemy.orm.exc import NoResultFound
 
+from ..lib import username_validator, reserved_usernames
 from ..models import (
     Session,
     User,
 )
-
-username_validator = re.compile("^[-a-z0-9_]+$")
-
-reserved_usernames = ()
 
 @view_config(route_name="home")
 def home(request):
