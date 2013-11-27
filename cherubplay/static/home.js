@@ -1,3 +1,24 @@
+// Modes
+
+function change_mode(new_mode) {
+	var body = $(document.body);
+	body.removeClass("answer_mode").removeClass("prompt_mode");
+	if (ws.readyState==1 && new_mode=="answer_mode") {
+		ws.send('{"action":"search"}');
+		body.addClass("answer_mode");
+	} else if (ws.readyState==1 && new_mode=="prompt_mode") {
+		ws.send('{"action":"idle"}');
+		body.addClass("prompt_mode");
+	} else if (ws.readyState==3) {
+		body.addClass("connection_error");
+	}
+}
+
+$(".prompt_button").click(function() { change_mode("prompt_mode") });
+$(".answer_button").click(function() { change_mode("answer_mode") });
+
+// Answer mode
+
 var prompt_list = document.getElementById("prompt_list");
 
 function render_prompt(prompt) {
@@ -6,6 +27,35 @@ function render_prompt(prompt) {
 	//$("<button>").text("Answer").appendTo(li);
 	li.appendTo(prompt_list);
 }
+
+// Prompt mode
+
+var colour_regex = /#[0-9a-f]{6}/i;
+var prompt_form = $("#prompt_mode form").submit(function(e) {
+	if (!colour_regex.test(prompt_colour.val())) {
+		alert("The colour needs to be a valid hex code, for example \"#0715CD\" or \"#416600\".");
+		return false;
+	}
+	if (prompt_textarea.val()=="") {
+		alert("You can't submit a blank prompt.")
+		return false;
+	}
+	ws.send(JSON.stringify({
+		"action": "prompt",
+		"colour": prompt_colour.val(),
+		"prompt": prompt_textarea.val(),
+	}));
+	return false;
+});
+var prompt_colour = $("#prompt_colour").change(function() {
+	prompt_textarea.css("color", this.value);
+});
+var prompt_colour_presets = $("#prompt_colour_presets").change(function() {
+	prompt_colour.val(this.value).change();
+});
+var prompt_textarea = $("#prompt_textarea");
+
+// Communication
 
 function ping() {
 	if (ws.readyState==1) {
@@ -19,7 +69,7 @@ var ws = new WebSocket("ws://www.cherubplay.tk/search/");
 
 ws.onopen = function(e) {
 	window.setTimeout(ping, 8000);
-	ws.send('{"action":"search"}');
+	change_mode("answer_mode");
 }
 
 ws.onmessage = function(e) {
@@ -37,5 +87,5 @@ ws.onmessage = function(e) {
 }
 
 ws.onclose = function(e) {
-	alert("closed");
+	change_mode();
 }
