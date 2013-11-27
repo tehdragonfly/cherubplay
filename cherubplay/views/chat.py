@@ -148,8 +148,25 @@ def chat_end(request):
         symbol=own_chat_user.symbol,
         text=u"%s ended the chat.",
     ))
+    # Create pubsub message here, but wait until we've committed before sending it.
+    chat_id = chat.id
+    pubsub_message = {
+        "action": "end",
+        "message": {
+            "type": "system",
+            "colour": "000000",
+            "symbol": symbols[own_chat_user.symbol],
+            "text": u"%s ended the chat.",
+        },
+    }
     chat.status = "ended"
     chat.updated = datetime.datetime.now()
     transaction.commit()
+    try:
+        request.pubsub.publish("chat:"+str(chat_id), json.dumps(pubsub_message))
+    except ConnectionError:
+        pass
+    if request.is_xhr:
+        raise HTTPNoContent
     raise HTTPFound(request.route_path("chat", url=request.matchdict["url"]))
 

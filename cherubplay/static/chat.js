@@ -3,6 +3,7 @@ var colour_regex = /^#[0-9a-f]{6}$/i;
 
 var messages = $("#messages");
 var status_bar = $("#status_bar");
+var message_form_container = $("#message_form_container");
 var message_form = $("#message_form");
 var message_colour = $("#message_colour").change(function() {
 	message_text.css("color", this.value);
@@ -13,6 +14,7 @@ var message_text = $("#message_text").keypress(function(e) {
 		return false;
 	}
 });
+var end_form = $("#end_form");
 
 function ping() {
 	if (ws.readyState==1) {
@@ -24,7 +26,11 @@ function ping() {
 
 function render_message(message) {
 	if (message.symbol) {
-		var text = message.symbol+": "+message.text;
+		if (message.type=="system") {
+			var text = message.text.replace("%s", message.symbol);
+		} else {
+			var text = message.symbol+": "+message.text;
+		}
 	} else {
 		var text = message.text;
 	}
@@ -67,12 +73,21 @@ ws.onopen = function(e) {
 		message_text.attr("disabled", "disabled");
 		return false;
 	});
+	end_form.submit(function() {
+		$.post(this.action);
+		return false;
+	});
 	window.scroll(0, document.documentElement.scrollHeight-document.documentElement.clientHeight);
 }
 
 ws.onmessage = function(e) {
 	message = JSON.parse(e.data);
 	if (message.action=="message") {
+		render_message(message.message);
+	} else if (message.action=="end") {
+		ws.close();
+		status_bar.remove();
+		message_form_container.remove();
 		render_message(message.message);
 	}
 }
