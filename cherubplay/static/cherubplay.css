@@ -122,11 +122,11 @@ main {
 	text-align: center;
 }
 
-.answer_mode #connecting, .prompt_mode #connecting, .connection_error #connecting, #answer_mode, #prompt_mode, #connection_error {
+.answer_mode #connecting, .prompt_mode #connecting, .wait_mode #connecting, .connection_error #connecting, #answer_mode, #prompt_mode, #wait_mode, #connection_error {
 	display: none;
 }
 
-.answer_mode #answer_mode, .prompt_mode #prompt_mode, .connection_error #connection_error  {
+.answer_mode #answer_mode, .prompt_mode #prompt_mode, .wait_mode #wait_mode, .connection_error #connection_error  {
 	display: block;
 }
 

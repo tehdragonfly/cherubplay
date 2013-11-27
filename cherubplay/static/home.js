@@ -2,13 +2,15 @@
 
 function change_mode(new_mode) {
 	var body = $(document.body);
-	body.removeClass("answer_mode").removeClass("prompt_mode");
+	body.removeClass("answer_mode").removeClass("prompt_mode").removeClass("wait_mode");
 	if (ws.readyState==1 && new_mode=="answer_mode") {
 		ws.send('{"action":"search"}');
 		body.addClass("answer_mode");
 	} else if (ws.readyState==1 && new_mode=="prompt_mode") {
 		ws.send('{"action":"idle"}');
 		body.addClass("prompt_mode");
+	} else if (ws.readyState==1 && new_mode=="wait_mode") {
+		body.addClass("wait_mode");
 	} else if (ws.readyState==3) {
 		body.addClass("connection_error");
 	}
@@ -23,26 +25,28 @@ var prompt_list = document.getElementById("prompt_list");
 
 function render_prompt(prompt) {
 	var li = $("<li>").attr("id", prompt.id).addClass("tile");
-	$("<p>").css("color", prompt.colour).text(prompt.prompt).appendTo(li);
+	$("<p>").css("color", "#"+prompt.colour).text(prompt.prompt).appendTo(li);
 	//$("<button>").text("Answer").appendTo(li);
 	li.appendTo(prompt_list);
 }
 
 // Prompt mode
 
-var colour_regex = /#[0-9a-f]{6}/i;
+var colour_regex = /^#[0-9a-f]{6}$/i;
 var prompt_form = $("#prompt_mode form").submit(function(e) {
 	if (!colour_regex.test(prompt_colour.val())) {
 		alert("The colour needs to be a valid hex code, for example \"#0715CD\" or \"#416600\".");
 		return false;
 	}
+	prompt_textarea.val(prompt_textarea.val().trim());
 	if (prompt_textarea.val()=="") {
 		alert("You can't submit a blank prompt.")
 		return false;
 	}
+	change_mode("wait_mode");
 	ws.send(JSON.stringify({
 		"action": "prompt",
-		"colour": prompt_colour.val(),
+		"colour": prompt_colour.val().substr(1, 6),
 		"prompt": prompt_textarea.val(),
 	}));
 	return false;
@@ -83,6 +87,9 @@ ws.onmessage = function(e) {
 		render_prompt(message);
 	} else if (message.action=="remove_prompt") {
 		$("#"+message.id).remove();
+	} else if (message.action=="prompt_error") {
+		change_mode("prompt_mode");
+		alert(message.error);
 	}
 }
 
