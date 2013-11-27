@@ -8,6 +8,8 @@ from tornado.ioloop import IOLoop
 from tornado.web import Application, HTTPError
 from tornado.websocket import WebSocketHandler
 
+from cherubplay.lib import colour_validator
+
 from db import get_user
 
 prompters = {}
@@ -63,10 +65,21 @@ class SearchHandler(WebSocketHandler):
             }))
         elif message["action"]=="prompt":
             self.reset_state()
+            if colour_validator.match(message["colour"]) is None:
+                self.write_message(json.dumps({
+                    "action": "prompt_error",
+                    "error": "The colour needs to be a valid hex code, for example \"#0715CD\" or \"#A15000\".",
+                }))
+                return
+            if message["prompt"].strip()=="":
+                self.write_message(json.dumps({
+                    "action": "prompt_error",
+                    "error": "You can't submit a blank prompt.",
+                }))
+                return
             self.state = "prompting"
             prompters[self.socket_id] = self
             print "PROMPTERS:", prompters
-            # XXX HEX CODE VALIDATION
             self.colour = message["colour"]
             self.prompt = message["prompt"]
             write_message_to_searchers(json.dumps({
