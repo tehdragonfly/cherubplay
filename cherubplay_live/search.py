@@ -9,8 +9,9 @@ from tornado.web import Application, HTTPError
 from tornado.websocket import WebSocketHandler
 
 from cherubplay.lib import colour_validator
+from cherubplay.models import Chat, ChatUser, Message
 
-from db import get_user
+from db import get_user, sm
 
 prompters = {}
 searchers = {}
@@ -91,6 +92,44 @@ class SearchHandler(WebSocketHandler):
         elif message["action"]=="idle":
             self.reset_state()
             self.state = "idle"
+        elif message["action"]=="answer":
+            if self.socket_id not in searchers or message["id"] not in prompters:
+                self.write_message(json.dumps({
+                    "action": "answer_error",
+                    "error": "Sorry, either this prompt has already been taken or the prompter has disconnected.",
+                }))
+                return
+            prompter = prompters[message["id"]]
+            # Make a new session for thread safety.
+            Session = sm()
+            new_chat_url = str(uuid4())
+            new_chat = Chat(url=new_chat_url)
+            Session.add(new_chat)
+            Session.flush()
+            Session.add(ChatUser(
+                chat_id=new_chat.id,
+                user_id=prompter.user.id,
+                symbol=0,
+            ))
+            # Only create one ChatUser if prompter and searcher are the same person.
+            if self!=prompter:
+                Session.add(ChatUser(
+                    chat_id=new_chat.id,
+                    user_id=self.user.id,
+                    symbol=1,
+                ))
+            Session.add(Message(
+                chat_id=new_chat.id,
+                user_id=prompter.user.id,
+                colour=prompter.colour,
+                symbol=0,
+                text=prompter.prompt,
+            ))
+            Session.commit()
+            response = json.dumps({ "action": "chat", "url": new_chat_url })
+            prompter.write_message(response)
+            self.write_message(response)
+            del Session
 
     def on_close(self):
         self.reset_state()
