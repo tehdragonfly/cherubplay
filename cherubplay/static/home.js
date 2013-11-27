@@ -26,7 +26,12 @@ var prompt_list = document.getElementById("prompt_list");
 function render_prompt(prompt) {
 	var li = $("<li>").attr("id", prompt.id).addClass("tile");
 	$("<p>").css("color", "#"+prompt.colour).text(prompt.prompt).appendTo(li);
-	//$("<button>").text("Answer").appendTo(li);
+	$("<button>").text("Answer").appendTo(li).click(function(e) {
+		ws.send(JSON.stringify({
+			"action": "answer",
+			"id": this.parentNode.id,
+		}));
+	});
 	li.appendTo(prompt_list);
 }
 
@@ -87,12 +92,20 @@ ws.onmessage = function(e) {
 		render_prompt(message);
 	} else if (message.action=="remove_prompt") {
 		$("#"+message.id).remove();
+	} else if (message.action=="answer_error") {
+		alert(message.error);
+		change_mode("answer_mode");
 	} else if (message.action=="prompt_error") {
 		change_mode("prompt_mode");
 		alert(message.error);
+	} else if (message.action=="chat") {
+		change_mode();
+		window.location.href="/chats/"+message.url+"/";
 	}
 }
 
 ws.onclose = function(e) {
-	change_mode();
+	if (!e.wasClean) {
+		change_mode();
+	}
 }
