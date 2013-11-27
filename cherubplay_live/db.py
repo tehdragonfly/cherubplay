@@ -26,6 +26,7 @@ sm = sessionmaker(
 Session = sm()
 
 login_client = Redis(unix_socket_path=config.get("app:main", "cherubplay.login_store"))
+publish_client = Redis(unix_socket_path=config.get("app:main", "cherubplay.pubsub"))
 
 def get_user(cookies):
     if "cherubplay" not in cookies:

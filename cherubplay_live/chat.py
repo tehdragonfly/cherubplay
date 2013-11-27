@@ -9,10 +9,10 @@ from tornado.websocket import WebSocketHandler
 
 from tornadoredis import Client
 
-from cherubplay.lib import colour_validator
+from cherubplay.lib import colour_validator, symbols
 from cherubplay.models import Chat, ChatUser, Message
 
-from db import config, get_chat, get_chat_user, get_user
+from db import config, get_chat, get_chat_user, get_user, publish_client
 
 class ChatHandler(WebSocketHandler):
 
@@ -32,9 +32,18 @@ class ChatHandler(WebSocketHandler):
             return
         self.socket_id = str(uuid4())
         self.redis_listen()
+        self.ignore_next_message = False
 
     def on_message(self, message_string):
-        pass
+        message = json.loads(message_string)
+        if message["action"] in ("typing", "stopped_typing"):
+            publish_client.publish("chat:"+str(self.chat.id), json.dumps({
+                "action": message["action"],
+                "symbol": symbols[self.chat_user.symbol],
+            }))
+            # Ignore our own typing messages.
+            self.ignore_next_message = True
+        print message
 
     def on_close(self):
         self.redis_client.disconnect()
@@ -47,7 +56,11 @@ class ChatHandler(WebSocketHandler):
 
     def on_redis_message(self, message):
         if message.kind=="message":
-            self.write_message(message.body)
+            if not self.ignore_next_message:
+                self.write_message(message.body)
+                print "redis message:", message.body
+            else:
+                self.ignore_next_message = False
 
 def main():
     application = Application([(r"/(.*)/", ChatHandler)])
