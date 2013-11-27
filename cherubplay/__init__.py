@@ -41,11 +41,19 @@ def main(global_config, **settings):
         path=settings["cherubplay.login_store"],
     )
 
-    # This is defined here because we need the settings to create the connection pool.
+    pubsub_pool = ConnectionPool(
+        connection_class=UnixDomainSocketConnection,
+        path=settings["cherubplay.pubsub"],
+    )
+
+    # These are defined here because we need the settings to create the connection pools.
     def request_login_store(request):
         return Redis(connection_pool=login_pool)
+    def request_pubsub(request):
+        return Redis(connection_pool=pubsub_pool)
 
     config.add_request_method(request_login_store, 'login_store', reify=True)
+    config.add_request_method(request_pubsub, 'pubsub', reify=True)
     config.add_request_method(request_user, 'user', reify=True)
 
     config.add_static_view("static", "static", cache_max_age=3600)

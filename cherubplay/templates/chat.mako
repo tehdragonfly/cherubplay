@@ -24,14 +24,17 @@ Last message: ${messages[-1].posted}.\
     <form id="message_form" action="${request.route_path("chat_send", url=request.matchdict["url"])}" method="post">
       <p>
         <input type="color" id="message_colour" name="message_colour" size="6" value="#000000">
-        <select id="text_colour_presets">
+        <!--<select id="text_colour_presets">
           <option value="#000000">Basic black</option>
           <option value="#FFFFFF">Mysterious white</option>
-        </select>
+        </select>-->
       </p>
       <p><textarea id="message_text" name="message_text" placeholder="Write a message..."></textarea></p>
       <button type="submit" id="send_button">Send</button>
     </form>
     <form id="end_form" action="${request.route_path("chat_end", url=request.matchdict["url"])}" method="post"><button type="submit">End chat</button></form>
   </section>
+  <script>var chat_url = "${request.matchdict["url"]}";</script>
+  <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+  <script src="/static/chat.js"></script>
 % endif

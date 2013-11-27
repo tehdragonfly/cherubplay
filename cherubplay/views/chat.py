@@ -1,13 +1,16 @@
 import datetime
+import json
 import transaction
 
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPForbidden,
     HTTPFound,
+    HTTPNoContent,
     HTTPNotFound,
 )
 from pyramid.view import view_config
+from redis.exceptions import ConnectionError
 from sqlalchemy import and_
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -76,16 +79,17 @@ def chat_send(request):
         colour = colour[1:]
     if colour_validator.match(colour) is None:
         raise HTTPBadRequest("Invalid text colour. The colour needs to be a 6-digit hex code.")
-    if request.POST["message_text"]=="":
+    trimmed_message_text = request.POST["message_text"].strip()
+    if trimmed_message_text=="":
         raise HTTPBadRequest("Message text can't be empty.")
     message_type = "ic"
     if (
-        request.POST["message_text"].startswith("((")
-        or request.POST["message_text"].endswith("))")
-        or request.POST["message_text"].startswith("[[")
-        or request.POST["message_text"].endswith("]]")
-        or request.POST["message_text"].startswith("{{")
-        or request.POST["message_text"].endswith("}}")
+        trimmed_message_text.startswith("((")
+        or trimmed_message_text.endswith("))")
+        or trimmed_message_text.startswith("[[")
+        or trimmed_message_text.endswith("]]")
+        or trimmed_message_text.startswith("{{")
+        or trimmed_message_text.endswith("}}")
     ):
         message_type="ooc"
     Session.add(Message(
@@ -94,11 +98,28 @@ def chat_send(request):
         type=message_type,
         colour=colour,
         symbol=own_chat_user.symbol,
-        text=request.POST["message_text"],
+        text=trimmed_message_text,
     ))
+    # Create pubsub message here, but wait until we've committed before sending it.
+    chat_id = chat.id
+    pubsub_message = {
+        "action": "message",
+        "message": {
+            "type": message_type,
+            "colour": colour,
+            "symbol": symbols[own_chat_user.symbol],
+            "text": trimmed_message_text,
+        },
+    }
     chat.updated = datetime.datetime.now()
     # XXX OWN_CHAT_USER DATE
     transaction.commit()
+    try:
+        request.pubsub.publish("chat:"+str(chat_id), json.dumps(pubsub_message))
+    except ConnectionError:
+        pass
+    if request.is_xhr:
+        raise HTTPNoContent
     raise HTTPFound(request.route_path("chat", url=request.matchdict["url"]))
 
 

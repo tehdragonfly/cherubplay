@@ -62,7 +62,9 @@ var prompt_colour = $("#prompt_colour").change(function() {
 var prompt_colour_presets = $("#prompt_colour_presets").change(function() {
 	prompt_colour.val(this.value).change();
 });
-var prompt_textarea = $("#prompt_textarea");
+var prompt_textarea = $("#prompt_textarea").keypress(function() {
+	this.style.height = this.scrollHeight+"px";
+});
 
 // Communication
 
