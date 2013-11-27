@@ -19,5 +19,6 @@ setup(
     entry_points="""\
     [console_scripts]
     cherubplay_search = cherubplay_live.search:main
+    cherubplay_chat = cherubplay_live.chat:main
     """,
 )

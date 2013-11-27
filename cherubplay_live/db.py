@@ -3,11 +3,11 @@ import sys
 
 from redis import Redis
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
-from cherubplay.models import User
+from cherubplay.models import Chat, ChatUser, User
 
 config_path = sys.argv[1]
 config = ConfigParser()
@@ -35,6 +35,21 @@ def get_user(cookies):
         return None
     try:
         return Session.query(User).filter(User.id==user_id).one()
+    except NoResultFound:
+        return None
+
+def get_chat(chat_url):
+    try:
+        return Session.query(Chat).filter(Chat.url==chat_url).one()
+    except NoResultFound:
+        return None
+
+def get_chat_user(chat_id, user_id):
+    try:
+        return Session.query(ChatUser).filter(and_(
+            ChatUser.chat_id==chat_id,
+            ChatUser.user_id==user_id,
+        )).one()
     except NoResultFound:
         return None
 
