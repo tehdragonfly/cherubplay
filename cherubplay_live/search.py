@@ -112,7 +112,7 @@ class SearchHandler(WebSocketHandler):
                 symbol=0,
             ))
             # Only create one ChatUser if prompter and searcher are the same person.
-            if self!=prompter:
+            if self.user!=prompter.user:
                 Session.add(ChatUser(
                     chat_id=new_chat.id,
                     user_id=self.user.id,
