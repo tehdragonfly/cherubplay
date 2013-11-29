@@ -8,7 +8,7 @@ from pyramid.view import view_config
 from redis.exceptions import ConnectionError
 from sqlalchemy.orm.exc import NoResultFound
 
-from ..lib import username_validator, reserved_usernames
+from ..lib import username_validator, reserved_usernames, preset_colours
 from ..models import (
     Session,
     User,
@@ -17,7 +17,9 @@ from ..models import (
 @view_config(route_name="home")
 def home(request):
     if request.user is not None:
-        return render_to_response("home.mako", {}, request=request)
+        return render_to_response("home.mako", {
+            "preset_colours": preset_colours,
+        }, request=request)
     else:
         return render_to_response("home_guest.mako", {}, request=request)
 

@@ -11,11 +11,14 @@ var message_form = $("#message_form");
 var message_colour = $("#message_colour").change(function() {
 	message_text.css("color", this.value);
 });
+var preset_colours = $("#preset_colours").change(function() {
+	message_colour.val(this.value).change();
+});
 var message_text = $("#message_text").keypress(function(e) {
 	if (e.keyCode==13 && !e.shiftKey) {
 		message_form.submit();
 		return false;
-	} else {
+	} else if (ws.readyState==1) {
 		window.clearTimeout(typing_timeout);
 		if (!typing) {
 			typing = true;
@@ -26,6 +29,9 @@ var message_text = $("#message_text").keypress(function(e) {
 			ws.send("{\"action\":\"stopped_typing\"}");
 		}, 1000);
 	}
+}).keyup(function(e) {
+	this.style.height = this.scrollHeight+"px";
+	window.scroll(0, document.documentElement.scrollHeight-document.documentElement.clientHeight);
 });
 var end_form = $("#end_form");
 
@@ -74,7 +80,7 @@ ws.onopen = function(e) {
 			"method": "POST",
 			"data": message_form.serializeArray(),
 			"success": function() {
-				message_text.val("")
+				message_text.val("").css("height", "100px");
 			},
 			"error": function() {
 				alert("There was an error with your message. Please try again later.");

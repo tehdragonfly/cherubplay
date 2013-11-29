@@ -43,8 +43,8 @@ var prompt_form = $("#prompt_mode form").submit(function(e) {
 		alert("The colour needs to be a valid hex code, for example \"#0715CD\" or \"#416600\".");
 		return false;
 	}
-	prompt_textarea.val(prompt_textarea.val().trim());
-	if (prompt_textarea.val()=="") {
+	prompt_text.val(prompt_text.val().trim());
+	if (prompt_text.val()=="") {
 		alert("You can't submit a blank prompt.")
 		return false;
 	}
@@ -52,17 +52,17 @@ var prompt_form = $("#prompt_mode form").submit(function(e) {
 	ws.send(JSON.stringify({
 		"action": "prompt",
 		"colour": prompt_colour.val().substr(1, 6),
-		"prompt": prompt_textarea.val(),
+		"prompt": prompt_text.val(),
 	}));
 	return false;
 });
 var prompt_colour = $("#prompt_colour").change(function() {
-	prompt_textarea.css("color", this.value);
+	prompt_text.css("color", this.value);
 });
-var prompt_colour_presets = $("#prompt_colour_presets").change(function() {
+var preset_colours = $("#preset_colours").change(function() {
 	prompt_colour.val(this.value).change();
 });
-var prompt_textarea = $("#prompt_textarea").keypress(function() {
+var prompt_text = $("#prompt_text").keyup(function() {
 	this.style.height = this.scrollHeight+"px";
 });
 

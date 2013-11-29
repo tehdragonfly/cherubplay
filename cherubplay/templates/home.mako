@@ -17,8 +17,13 @@
     <form class="tile">
       <p>
         <input type="color" id="prompt_colour" size="6" value="#000000" maxlength="7">
+        <select id="preset_colours" name="preset_colours">
+% for hex, name in preset_colours:
+          <option value="#${hex}">${name}</option>
+% endfor
+        </select>
       </p>
-      <p><textarea id="prompt_textarea" placeholder="Enter your prompt..."></textarea></p>
+      <p><textarea id="prompt_text" placeholder="Enter your prompt..."></textarea></p>
       <button type="submit">Search</button>
     </form>
     <p><button class="answer_button">Switch to answer mode</button></p>

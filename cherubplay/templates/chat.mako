@@ -24,10 +24,11 @@ Last message: ${messages[-1].posted}.\
     <form id="message_form" action="${request.route_path("chat_send", url=request.matchdict["url"])}" method="post">
       <p>
         <input type="color" id="message_colour" name="message_colour" size="6" value="#000000">
-        <!--<select id="text_colour_presets">
-          <option value="#000000">Basic black</option>
-          <option value="#FFFFFF">Mysterious white</option>
-        </select>-->
+        <select id="preset_colours" name="preset_colours">
+% for hex, name in preset_colours:
+          <option value="#${hex}">${name}</option>
+% endfor
+        </select>
       </p>
       <p><textarea id="message_text" name="message_text" placeholder="Write a message..."></textarea></p>
       <button type="submit" id="send_button">Send</button>

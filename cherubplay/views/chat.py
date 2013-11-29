@@ -14,7 +14,7 @@ from redis.exceptions import ConnectionError
 from sqlalchemy import and_
 from sqlalchemy.orm.exc import NoResultFound
 
-from ..lib import colour_validator, symbols
+from ..lib import colour_validator, symbols, preset_colours
 from ..models import (
     Session,
     Chat,
@@ -52,6 +52,7 @@ def chat(request):
         "continuable": continuable,
         "messages": messages,
         "symbols": symbols,
+        "preset_colours": preset_colours,
     }
 
 @view_config(route_name="chat_send", request_method="POST")
