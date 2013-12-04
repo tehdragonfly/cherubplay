@@ -31,6 +31,21 @@ class ChatHandler(WebSocketHandler):
             self.close()
             return
         self.socket_id = str(uuid4())
+        # Fire online message, but only if this is the only tab we have open.
+        online_symbols = publish_client.hvals("online:"+str(self.chat.id))
+        if str(self.chat_user.symbol) not in online_symbols:
+            publish_client.publish("chat:"+str(self.chat.id), json.dumps({
+                "action": "online",
+                "symbol": symbols[self.chat_user.symbol],
+            }))
+        # See if the other person is online.
+        other_symbol = (1, 0)[self.chat_user.symbol]
+        if str(other_symbol) in online_symbols:
+            self.write_message({
+                "action": "online",
+                "symbol": symbols[other_symbol],
+            })
+        publish_client.hset("online:"+str(self.chat.id), self.socket_id, self.chat_user.symbol)
         self.redis_listen()
         self.ignore_next_message = False
 
@@ -47,6 +62,13 @@ class ChatHandler(WebSocketHandler):
 
     def on_close(self):
         self.redis_client.disconnect()
+        publish_client.hdel("online:"+str(self.chat.id), self.socket_id)
+        # Fire offline message, but only if we don't have any other tabs open.
+        if str(self.chat_user.symbol) not in publish_client.hvals("online:"+str(self.chat.id)):
+            publish_client.publish("chat:"+str(self.chat.id), json.dumps({
+                "action": "offline",
+                "symbol": symbols[self.chat_user.symbol],
+            }))
 
     @engine
     def redis_listen(self):
