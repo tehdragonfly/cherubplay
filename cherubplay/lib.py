@@ -12,7 +12,7 @@ symbols = (u"●", u"🌀")
 preset_colours = [
     ("000000", "Preset colours..."),
     ("000000", "Basic black"),
-    ("FFFFFF", "Mysterious white"),
+    ("FFFFFF", "Omniscient asshole white"),
     ("0715CD", "John/Tavrisprite blue"),
     ("B536DA", "Rose/Fefetasprite purple"),
     ("E00707", "Dave/Dirquiusprite red"),
