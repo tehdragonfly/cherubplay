@@ -1,12 +1,14 @@
 from pyramid.config import Configurator
 from redis import Redis, ConnectionPool, UnixDomainSocketConnection
 from redis.exceptions import ConnectionError
-from sqlalchemy import engine_from_config
+from sqlalchemy import and_, engine_from_config, func
 from sqlalchemy.orm.exc import NoResultFound
 
 from .models import (
     Session,
     Base,
+    Chat,
+    ChatUser,
     User,
 )
 
@@ -24,6 +26,14 @@ def request_user(request):
         except NoResultFound:
             return None
     return None
+
+def request_unread_chats(request):
+    if request.user is None:
+        return 0
+    return Session.query(func.count('*')).select_from(ChatUser).join(Chat).filter(and_(
+        ChatUser.user_id==request.user.id,
+        Chat.updated>ChatUser.visited,
+    )).scalar()
 
 
 def main(global_config, **settings):
@@ -55,6 +65,7 @@ def main(global_config, **settings):
     config.add_request_method(request_login_store, 'login_store', reify=True)
     config.add_request_method(request_pubsub, 'pubsub', reify=True)
     config.add_request_method(request_user, 'user', reify=True)
+    config.add_request_method(request_unread_chats, 'unread_chats', reify=True)
 
     config.add_static_view("static", "static", cache_max_age=3600)
 
