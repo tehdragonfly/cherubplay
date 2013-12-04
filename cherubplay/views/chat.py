@@ -107,23 +107,31 @@ def chat_send(request):
         posted=posted_date,
         edited=posted_date,
     ))
-    # Create pubsub message here, but wait until we've committed before sending it.
-    chat_id = chat.id
-    pubsub_message = {
-        "action": "message",
-        "message": {
-            "type": message_type,
-            "colour": colour,
-            "symbol": symbols[own_chat_user.symbol],
-            "text": trimmed_message_text,
-        },
-    }
     chat.updated = posted_date
     own_chat_user.visited = posted_date
     own_chat_user.last_colour = colour
+    try:
+        # See if the other person is online and update their ChatUser too.
+        other_symbol = (1, 0)[own_chat_user.symbol]
+        online_symbols = request.pubsub.hvals("online:"+str(chat.id))
+        if str(other_symbol) in online_symbols:
+            Session.query(ChatUser).filter(and_(
+                ChatUser.chat_id==chat.id,
+                ChatUser.symbol==other_symbol,
+            )).update({ "visited": posted_date })
+    except ConnectionError:
+        pass
     transaction.commit()
     try:
-        request.pubsub.publish("chat:"+str(chat_id), json.dumps(pubsub_message))
+        request.pubsub.publish("chat:"+str(chat.id), json.dumps({
+            "action": "message",
+            "message": {
+                "type": message_type,
+                "colour": colour,
+                "symbol": symbols[own_chat_user.symbol],
+                "text": trimmed_message_text,
+            },
+        }))
     except ConnectionError:
         pass
     if request.is_xhr:
