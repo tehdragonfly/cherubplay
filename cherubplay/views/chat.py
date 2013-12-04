@@ -114,6 +114,7 @@ def chat_send(request):
     }
     chat.updated = datetime.datetime.now()
     # XXX OWN_CHAT_USER DATE
+    own_chat_user.last_colour = colour
     transaction.commit()
     try:
         request.pubsub.publish("chat:"+str(chat_id), json.dumps(pubsub_message))

@@ -67,6 +67,7 @@ class ChatUser(Base):
     __table_args__ = (UniqueConstraint('chat_id', 'symbol', name='chat_user_symbol_unique'),)
     chat_id = Column(Integer, ForeignKey("chats.id"), primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    last_colour = Column(String(6), nullable=False, default="000000")
     symbol = Column(Integer, nullable=False)
     anonymous = Column(Boolean, nullable=False, default=True)
     status = Column(Enum(u"active", u"archived", name="chat_user_status"), nullable=False, default=u"active")
