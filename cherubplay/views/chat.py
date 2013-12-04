@@ -12,6 +12,8 @@ from pyramid.httpexceptions import (
 from pyramid.view import view_config
 from redis.exceptions import ConnectionError
 from sqlalchemy import and_
+from sqlalchemy import func
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from ..lib import colour_validator, symbols, preset_colours
@@ -21,6 +23,20 @@ from ..models import (
     ChatUser,
     Message,
 )
+
+@view_config(route_name="chat_list", renderer="chat_list.mako")
+def chat_list(request):
+    chats = Session.query(ChatUser, Chat, Message).join(Chat).outerjoin(
+        Message,
+        Message.id==Session.query(
+            func.min(Message.id)
+        ).filter(
+            Message.chat_id==Chat.id
+        ).correlate(Chat),
+    ).filter(
+        ChatUser.user_id==request.user.id,
+    ).order_by(Chat.updated.desc()).all()
+    return { "chats": chats}
 
 @view_config(route_name="chat", renderer="chat.mako")
 def chat(request):
