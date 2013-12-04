@@ -5,7 +5,7 @@ var typing_timeout;
 
 var messages = $("#messages");
 var status_bar = $("#status_bar");
-var last_message_time = status_bar.text();
+var last_status_message = status_bar.text();
 var message_form_container = $("#message_form_container");
 var message_form = $("#message_form");
 var message_colour = $("#message_colour").change(function() {
@@ -39,7 +39,6 @@ function ping() {
 	if (ws.readyState==1) {
 		ws.send('{"action":"ping"}');
 		window.setTimeout(ping, 8000);
-		console.log("ping");
 	}
 }
 
@@ -106,8 +105,8 @@ ws.onmessage = function(e) {
 	if (message.action=="message") {
 		render_message(message.message);
 		var d = new Date();
-		last_message_time = "Last message: "+d.toLocaleDateString()+" "+d.toLocaleTimeString()
-		status_bar.text(last_message_time);
+		last_status_message = "Last message: "+d.toLocaleDateString()+" "+d.toLocaleTimeString()
+		status_bar.text(last_status_message);
 	} else if (message.action=="end") {
 		ws.close();
 		status_bar.remove();
@@ -116,7 +115,13 @@ ws.onmessage = function(e) {
 	} else if (message.action=="typing") {
 		status_bar.text(message.symbol+" is typing.");
 	} else if (message.action=="stopped_typing") {
-		status_bar.text(last_message_time);
+		status_bar.text(last_status_message);
+	} else if (message.action=="online") {
+		last_status_message = message.symbol+" is online.";
+		status_bar.text(last_status_message);
+	} else if (message.action=="offline") {
+		last_status_message = message.symbol+" is now offline.";
+		status_bar.text(last_status_message);
 	}
 }
 
