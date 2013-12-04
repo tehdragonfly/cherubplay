@@ -39,6 +39,9 @@ def chat(request):
             ).one()
         except NoResultFound:
             pass
+    if own_chat_user is not None:
+        own_chat_user.visited = datetime.datetime.now()
+        transaction.commit()
     continuable = (chat.status=="ongoing" and own_chat_user is not None)
     messages = Session.query(Message).filter(
         Message.chat_id==chat.id
@@ -93,6 +96,7 @@ def chat_send(request):
         or trimmed_message_text.endswith("}}")
     ):
         message_type="ooc"
+    posted_date = datetime.datetime.now()
     Session.add(Message(
         chat_id=chat.id,
         user_id=request.user.id,
@@ -100,6 +104,8 @@ def chat_send(request):
         colour=colour,
         symbol=own_chat_user.symbol,
         text=trimmed_message_text,
+        posted=posted_date,
+        edited=posted_date,
     ))
     # Create pubsub message here, but wait until we've committed before sending it.
     chat_id = chat.id
@@ -112,8 +118,8 @@ def chat_send(request):
             "text": trimmed_message_text,
         },
     }
-    chat.updated = datetime.datetime.now()
-    # XXX OWN_CHAT_USER DATE
+    chat.updated = posted_date
+    own_chat_user.visited = posted_date
     own_chat_user.last_colour = colour
     transaction.commit()
     try:
@@ -162,7 +168,9 @@ def chat_end(request):
         },
     }
     chat.status = "ended"
-    chat.updated = datetime.datetime.now()
+    update_date = datetime.datetime.now()
+    chat.updated = update_date
+    own_chat_session.visited = update_date
     transaction.commit()
     try:
         request.pubsub.publish("chat:"+str(chat_id), json.dumps(pubsub_message))

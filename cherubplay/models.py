@@ -24,7 +24,10 @@ from sqlalchemy.orm import (
 
 from zope.sqlalchemy import ZopeTransactionExtension
 
-Session = scoped_session(sessionmaker(extension=ZopeTransactionExtension()))
+Session = scoped_session(sessionmaker(
+    extension=ZopeTransactionExtension(),
+    expire_on_commit=False,
+))
 Base = declarative_base()
 
 
@@ -70,6 +73,7 @@ class ChatUser(Base):
     last_colour = Column(String(6), nullable=False, default="000000")
     symbol = Column(Integer, nullable=False)
     anonymous = Column(Boolean, nullable=False, default=True)
+    visited = Column(DateTime, nullable=False, default=datetime.datetime.now)
     status = Column(Enum(u"active", u"archived", name="chat_user_status"), nullable=False, default=u"active")
     notes = Column(UnicodeText, nullable=False, default=u"")
 
