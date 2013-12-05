@@ -2,6 +2,8 @@
 var colour_regex = /^#[0-9a-f]{6}$/i;
 var typing = false;
 var typing_timeout;
+var ended = false;
+var continue_timeout;
 
 var messages = $("#messages");
 var status_bar = $("#status_bar");
@@ -66,6 +68,7 @@ var message_text = $("#message_text").keypress(function(e) {
 	window.scroll(0, document.documentElement.scrollHeight-document.documentElement.clientHeight);
 });
 var end_form = $("#end_form").submit(function() {
+	ended = true;
 	var continue_search_checked = continue_search.length>0 && continue_search[0].checked;
 	if (continue_search_checked) {
 		localStorage.setItem("autoprompt", "yes");
@@ -111,27 +114,40 @@ if (typeof WebSocket!="undefined") {
 		window.scroll(0, document.documentElement.scrollHeight-document.documentElement.clientHeight);
 	}
 	ws.onmessage = function(e) {
-		message = JSON.parse(e.data);
-		if (message.action=="message") {
-			render_message(message.message);
-			var d = new Date();
-			last_status_message = "Last message: "+d.toLocaleDateString()+" "+d.toLocaleTimeString()
-			status_bar.text(last_status_message);
-		} else if (message.action=="end") {
-			ws.close();
-			status_bar.remove();
-			message_form_container.remove();
-			render_message(message.message);
-		} else if (message.action=="typing") {
-			status_bar.text(message.symbol+" is typing.");
-		} else if (message.action=="stopped_typing") {
-			status_bar.text(last_status_message);
-		} else if (message.action=="online") {
-			last_status_message = message.symbol+" is online.";
-			status_bar.text(last_status_message);
-		} else if (message.action=="offline") {
-			last_status_message = message.symbol+" is now offline.";
-			status_bar.text(last_status_message);
+		if (!ended) {
+			message = JSON.parse(e.data);
+			if (message.action=="message") {
+				render_message(message.message);
+				var d = new Date();
+				last_status_message = "Last message: "+d.toLocaleDateString()+" "+d.toLocaleTimeString()
+				status_bar.text(last_status_message);
+			} else if (message.action=="end") {
+				ws.close();
+				if (continue_search.length>0 && continue_search[0].checked) {
+					continue_timeout = window.setTimeout(function() {
+						localStorage.setItem("autoprompt", "yes");
+						window.location = "/";
+					}, 3000);
+					status_bar.text("Searching again in a few seconds. Click to cancel.").click(function() {
+						window.clearTimeout(continue_timeout);
+						status_bar.remove();
+					});
+				} else {
+					status_bar.remove();
+				}
+				message_form_container.remove();
+				render_message(message.message);
+			} else if (message.action=="typing") {
+				status_bar.text(message.symbol+" is typing.");
+			} else if (message.action=="stopped_typing") {
+				status_bar.text(last_status_message);
+			} else if (message.action=="online") {
+				last_status_message = message.symbol+" is online.";
+				status_bar.text(last_status_message);
+			} else if (message.action=="offline") {
+				last_status_message = message.symbol+" is now offline.";
+				status_bar.text(last_status_message);
+			}
 		}
 	}
 	ws.onclose = function(e) {
