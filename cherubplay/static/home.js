@@ -91,12 +91,16 @@ var ws = new WebSocket("ws://www.cherubplay.tk/search/");
 
 ws.onopen = function(e) {
 	window.setTimeout(ping, 8000);
-	last_mode = localStorage.getItem("last_mode");
-	if (last_mode) {
+	var last_mode = localStorage.getItem("last_mode");
+	var autoprompt = localStorage.getItem("autoprompt");
+	if (last_mode=="prompt_mode" && autoprompt && saved_prompt_colour && saved_prompt_text) {
+		prompt_form.submit();
+	} else if (last_mode) {
 		change_mode(last_mode);
 	} else {
 		change_mode("answer_mode");
 	}
+	localStorage.removeItem("autoprompt");
 }
 
 ws.onmessage = function(e) {
