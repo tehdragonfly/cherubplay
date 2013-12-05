@@ -6,9 +6,11 @@ function change_mode(new_mode) {
 	if (ws.readyState==1 && new_mode=="answer_mode") {
 		ws.send('{"action":"search"}');
 		body.addClass("answer_mode");
+		localStorage.setItem("last_mode", "answer_mode");
 	} else if (ws.readyState==1 && new_mode=="prompt_mode") {
 		ws.send('{"action":"idle"}');
 		body.addClass("prompt_mode");
+		localStorage.setItem("last_mode", "prompt_mode");
 	} else if (ws.readyState==1 && new_mode=="wait_mode") {
 		body.addClass("wait_mode");
 	} else if (ws.readyState==3) {
@@ -48,6 +50,8 @@ var prompt_form = $("#prompt_mode form").submit(function(e) {
 		alert("You can't submit a blank prompt.")
 		return false;
 	}
+	localStorage.setItem("prompt_colour", prompt_colour.val());
+	localStorage.setItem("prompt_text", prompt_text.val());
 	change_mode("wait_mode");
 	ws.send(JSON.stringify({
 		"action": "prompt",
@@ -66,6 +70,13 @@ var prompt_text = $("#prompt_text").keyup(function() {
 	this.style.height = this.scrollHeight+"px";
 });
 
+var saved_prompt_colour = localStorage.getItem("prompt_colour");
+var saved_prompt_text = localStorage.getItem("prompt_text");
+if (saved_prompt_colour && saved_prompt_text) {
+	prompt_colour.val(saved_prompt_colour).change();
+	prompt_text.text(saved_prompt_text);
+}
+
 // Communication
 
 function ping() {
@@ -80,7 +91,12 @@ var ws = new WebSocket("ws://www.cherubplay.tk/search/");
 
 ws.onopen = function(e) {
 	window.setTimeout(ping, 8000);
-	change_mode("answer_mode");
+	last_mode = localStorage.getItem("last_mode");
+	if (last_mode) {
+		change_mode(last_mode);
+	} else {
+		change_mode("answer_mode");
+	}
 }
 
 ws.onmessage = function(e) {
