@@ -68,6 +68,10 @@ var message_text = $("#message_text").keypress(function(e) {
 	window.scroll(0, document.documentElement.scrollHeight-document.documentElement.clientHeight);
 });
 var end_form = $("#end_form").submit(function() {
+	var confirm_end = confirm("Are you sure you want to end this chat? Once a chat has ended you can't continue it later. If you'd like to continue this chat later, please click cancel and then close this window/tab.");
+	if (!confirm_end) {
+		return false;
+	}
 	ended = true;
 	var continue_search_checked = continue_search.length>0 && continue_search[0].checked;
 	if (continue_search_checked) {
