@@ -36,6 +36,10 @@ a:hover {
 	text-decoration: none;
 }
 
+input {
+	vertical-align: middle;
+}
+
 textarea {
 	margin: 0;
 	padding: 0;
@@ -204,10 +208,6 @@ main {
 	font-size: 10pt;
 }
 
-#message_form input {
-	vertical-align: middle;
-}
-
 #message_form textarea {
 	height: 100px;
 }
@@ -218,4 +218,9 @@ main {
 
 #end_form {
 	text-align: right;
+}
+
+#continue_search_label {
+	font-size: 10pt;
+	color: #333;
 }

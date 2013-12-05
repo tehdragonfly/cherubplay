@@ -86,10 +86,16 @@ def chat(request):
     if own_chat_user is None:
         messages = messages.filter(Message.type!="ooc")
     messages = messages.order_by(Message.id.asc()).all()
+    # Test if we came here from the homepage, for automatically resuming the search.
+    from_homepage = (
+        "HTTP_REFERER" in request.environ
+        and request.environ["HTTP_REFERER"]==request.route_url("home")
+    )
     return {
         "own_chat_user": own_chat_user,
         "continuable": continuable,
         "messages": messages,
+        "from_homepage": from_homepage,
         "symbols": symbols,
         "preset_colours": preset_colours,
     }
@@ -230,5 +236,7 @@ def chat_end(request):
         pass
     if request.is_xhr:
         raise HTTPNoContent
+    if "continue_search" in request.POST:
+        raise HTTPFound(request.route_path("home"))
     raise HTTPFound(request.route_path("chat", url=request.matchdict["url"]))
 

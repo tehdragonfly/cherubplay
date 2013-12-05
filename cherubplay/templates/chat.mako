@@ -33,7 +33,12 @@ Last message: ${messages[-1].posted}.\
       <p><textarea id="message_text" name="message_text" placeholder="Write a message..." style="color: #${own_chat_user.last_colour}"></textarea></p>
       <button type="submit" id="send_button">Send</button>
     </form>
-    <form id="end_form" action="${request.route_path("chat_end", url=request.matchdict["url"])}" method="post"><button type="submit">End chat</button></form>
+    <form id="end_form" action="${request.route_path("chat_end", url=request.matchdict["url"])}" method="post">
+% if from_homepage:
+		<label id="continue_search_label"><input type="checkbox" id="continue_search" name="continue_search" checked="checked"> Search again</label>
+% endif
+		<button type="submit">End chat</button>
+	</form>
   </section>
   <script>var chat_url = "${request.matchdict["url"]}";</script>
   <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
