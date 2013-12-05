@@ -168,6 +168,10 @@ main {
 
 /* Chat list */
 
+#chat_list {
+	padding: 0;
+}
+
 .unread {
 	box-shadow: 0 1px 2px #090;
 }

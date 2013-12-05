@@ -20,6 +20,7 @@ requires = [
     'waitress',
     'psycopg2',
     'redis',
+    'webhelpers',
 ]
 
 setup(name='cherubplay',

@@ -1,5 +1,10 @@
 <%inherit file="base.mako" />\
   <h2>Your chats</h2>
+% if paginator.page_count!=1:
+  <p class="pager">
+${paginator.pager(format='~5~')}
+  </p>
+% endif
   <ul id="chat_list">
 % for chat_user, chat, prompt in chats:
     <li class="tile\
@@ -18,3 +23,8 @@ ${prompt.text}\
     </li>
 % endfor
   </ul>
+% if paginator.page_count!=1:
+  <p class="pager">
+${paginator.pager(format='~5~')}
+  </p>
+% endif

@@ -15,6 +15,7 @@ from sqlalchemy import and_
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
+from webhelpers import paginate
 
 from ..lib import colour_validator, symbols, preset_colours
 from ..models import (
@@ -26,6 +27,7 @@ from ..models import (
 
 @view_config(route_name="chat_list", renderer="chat_list.mako")
 def chat_list(request):
+    current_page = int(request.GET.get("page", 1))
     chats = Session.query(ChatUser, Chat, Message).join(Chat).outerjoin(
         Message,
         Message.id==Session.query(
@@ -35,8 +37,26 @@ def chat_list(request):
         ).correlate(Chat),
     ).filter(
         ChatUser.user_id==request.user.id,
-    ).order_by(Chat.updated.desc()).all()
-    return { "chats": chats}
+    ).order_by(Chat.updated.desc()).limit(25).offset((current_page-1)*25).all()
+    if len(chats)==0:
+        raise HTTPNotFound
+    chat_count = Session.query(func.count('*')).select_from(ChatUser).filter(
+        ChatUser.user_id==request.user.id
+    ).scalar()
+    paginator = paginate.Page(
+        [],
+        page=current_page,
+        items_per_page=25,
+        item_count=chat_count,
+        url=paginate.PageURL(
+            request.route_path("chat_list"),
+            { "page": current_page }
+        ),
+    )
+    return {
+        "chats": chats,
+        "paginator": paginator,
+    }
 
 @view_config(route_name="chat", renderer="chat.mako")
 def chat(request):
