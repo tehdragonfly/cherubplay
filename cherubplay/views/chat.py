@@ -200,24 +200,32 @@ def chat_end(request):
         symbol=own_chat_user.symbol,
         text=u"%s ended the chat.",
     ))
-    # Create pubsub message here, but wait until we've committed before sending it.
-    chat_id = chat.id
-    pubsub_message = {
-        "action": "end",
-        "message": {
-            "type": "system",
-            "colour": "000000",
-            "symbol": symbols[own_chat_user.symbol],
-            "text": u"%s ended the chat.",
-        },
-    }
     chat.status = "ended"
     update_date = datetime.datetime.now()
     chat.updated = update_date
-    own_chat_session.visited = update_date
+    own_chat_user.visited = update_date
+    try:
+        # See if the other person is online and update their ChatUser too.
+        other_symbol = (1, 0)[own_chat_user.symbol]
+        online_symbols = request.pubsub.hvals("online:"+str(chat.id))
+        if str(other_symbol) in online_symbols:
+            Session.query(ChatUser).filter(and_(
+                ChatUser.chat_id==chat.id,
+                ChatUser.symbol==other_symbol,
+            )).update({ "visited": update_date })
+    except ConnectionError:
+        pass
     transaction.commit()
     try:
-        request.pubsub.publish("chat:"+str(chat_id), json.dumps(pubsub_message))
+        request.pubsub.publish("chat:"+str(chat.id), json.dumps({
+            "action": "end",
+            "message": {
+                "type": "system",
+                "colour": "000000",
+                "symbol": symbols[own_chat_user.symbol],
+                "text": u"%s ended the chat.",
+            },
+        }))
     except ConnectionError:
         pass
     if request.is_xhr:
