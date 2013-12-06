@@ -38,7 +38,8 @@ def chat_list(request):
     ).filter(
         ChatUser.user_id==request.user.id,
     ).order_by(Chat.updated.desc()).limit(25).offset((current_page-1)*25).all()
-    if len(chats)==0:
+    # 404 on empty pages.
+    if current_page!=1 and len(chats)==0:
         raise HTTPNotFound
     chat_count = Session.query(func.count('*')).select_from(ChatUser).filter(
         ChatUser.user_id==request.user.id

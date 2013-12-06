@@ -1,5 +1,8 @@
 <%inherit file="base.mako" />\
   <h2>Your chats</h2>
+% if len(chats)==0:
+  <p>You have no chats. <a href="${request.route_path("home")}">Search for a roleplaying partner to start chatting</a>.</p>
+% else:
 % if paginator.page_count!=1:
   <p class="pager">
 ${paginator.pager(format='~5~')}
@@ -27,4 +30,5 @@ ${prompt.text}\
   <p class="pager">
 ${paginator.pager(format='~5~')}
   </p>
+% endif
 % endif
