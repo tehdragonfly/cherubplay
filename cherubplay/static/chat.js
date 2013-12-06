@@ -112,7 +112,7 @@ function render_message(message) {
 }
 
 if (typeof WebSocket!="undefined") {
-	var ws = new WebSocket("ws://www.cherubplay.tk/live/"+chat_url+"/");
+	var ws = new WebSocket("ws://"+location.host+"/live/"+chat_url+"/");
 	ws.onopen = function(e) {
 		window.setTimeout(ping, 8000);
 		window.scroll(0, document.documentElement.scrollHeight-document.documentElement.clientHeight);

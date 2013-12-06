@@ -87,7 +87,7 @@ function ping() {
 	}
 }
 
-var ws = new WebSocket("ws://www.cherubplay.tk/search/");
+var ws = new WebSocket("ws://"+location.host+"/search/");
 
 ws.onopen = function(e) {
 	window.setTimeout(ping, 8000);
