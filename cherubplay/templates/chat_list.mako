@@ -14,8 +14,8 @@ ${paginator.pager(format='~5~')}
 ">
       <h3><a href="${request.route_path("chat", url=chat.url)}">${chat.url}</a></h3>
       <p style="color: #${prompt.colour};">Prompt: \
-% if len(prompt.text)>150:
-${prompt.text[:150]}...\
+% if len(prompt.text)>250:
+${prompt.text[:250]}...\
 % else:
 ${prompt.text}\
 % endif

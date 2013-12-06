@@ -82,6 +82,10 @@ header p {
 	margin: 0;
 }
 
+header a {
+	color: #fff;
+}
+
 header form {
 	display: inline;
 }
