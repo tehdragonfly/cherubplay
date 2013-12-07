@@ -72,9 +72,9 @@ var end_form = $("#end_form").submit(function() {
 	if (!confirm_end) {
 		return false;
 	}
-	ended = true;
 	var continue_search_checked = continue_search.length>0 && continue_search[0].checked;
 	if (continue_search_checked) {
+		ended = true;
 		localStorage.setItem("autoprompt", "yes");
 	}
 	if (ws.readyState==1) {
