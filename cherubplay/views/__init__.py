@@ -25,6 +25,12 @@ def home(request):
 
 @view_config(route_name="sign_up", renderer="home_guest.mako", request_method="POST")
 def sign_up(request):
+    if "cherubplay.beta" in request.registry.settings:
+        if (
+            "access_code" not in request.POST
+            or not request.login_store.sismember("access_codes", request.POST["access_code"])
+        ):
+            return { "sign_up_error": "Incorrect access code." }
     if request.POST["password"]=="":
         return { "sign_up_error": "Please don't use a blank password." }
     if request.POST["password"]!=request.POST["password_again"]:
@@ -51,6 +57,8 @@ def sign_up(request):
     response = HTTPFound(request.route_path("home"))
     response.set_cookie("cherubplay", new_session_id, 31536000)
     transaction.commit()
+    if "cherubplay.beta" in request.registry.settings:
+        request.login_store.srem("access_codes", request.POST["access_code"])
     raise response
 
 @view_config(route_name="log_in", renderer="home_guest.mako", request_method="POST")

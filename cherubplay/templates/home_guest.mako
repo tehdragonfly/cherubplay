@@ -1,6 +1,8 @@
 <%inherit file="base.mako" />\
 % if forbidden:
   <p>You need to logged in to access this page. Please sign up or log in below:</p>
+% elif "cherubplay.beta" in request.registry.settings:
+  <p>CHERUBPLAY is in beta right now, so you'll need to get an access code before you can join. You can get an access code by sending an ask to the <a href="http://cherubplaybeta.tumblr.com/">CHERUBPLAY beta tumblr</a>.</p>
 % else:
   <p>BLAH BLAH BLAH WRITE SOME TEXT HERE</p>
 % endif
@@ -9,6 +11,9 @@
   <p>${sign_up_error}</p>
 % endif
   <form action="${request.route_path("sign_up")}" method="post" class="account_form">
+% if "cherubplay.beta" in request.registry.settings:
+    <input type="text" name="access_code" placeholder="Access code..." maxlength="100">
+% endif
     <input type="text" name="username" placeholder="Username..." maxlength="100">
     <input type="password" name="password" placeholder="Password...">
     <input type="password" name="password_again" placeholder="Password again...">
