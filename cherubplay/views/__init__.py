@@ -21,7 +21,7 @@ def home(request):
             "preset_colours": preset_colours,
         }, request=request)
     else:
-        return render_to_response("home_guest.mako", {}, request=request)
+        return render_to_response("home_guest.mako", { "forbidden": False }, request=request)
 
 @view_config(route_name="sign_up", renderer="home_guest.mako", request_method="POST")
 def sign_up(request):

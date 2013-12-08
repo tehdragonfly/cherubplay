@@ -1,5 +1,9 @@
 <%inherit file="base.mako" />\
+% if forbidden:
+  <p>You need to logged in to access this page. Please sign up or log in below:</p>
+% else:
   <p>BLAH BLAH BLAH WRITE SOME TEXT HERE</p>
+% endif
   <h2>Create an account</h2>
 % if sign_up_error:
   <p>${sign_up_error}</p>

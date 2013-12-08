@@ -1,4 +1,6 @@
+from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
+from pyramid.security import Allow, Authenticated, Everyone
 from redis import Redis, ConnectionPool, UnixDomainSocketConnection
 from redis.exceptions import ConnectionError
 from sqlalchemy import and_, engine_from_config, func
@@ -11,6 +13,38 @@ from .models import (
     ChatUser,
     User,
 )
+
+
+class CherubplayAuthenticationPolicy(object):
+
+    def authenticated_userid(self, request):
+        if request.user is not None:
+            return request.user.id
+
+    def unauthenticated_userid(self, request):
+        if request.user is not None:
+            return request.user.id
+
+    def effective_principals(self, request):
+        if request.user is not None:
+            return (Everyone, Authenticated)
+        return (Everyone,)
+
+    def remember(self, request, principal, **kw):
+        raise NotImplementedError
+
+    def forget(self, request):
+        raise NotImplementedError
+
+
+class CherubplayRootFactory(object):
+
+    __acl__ = (
+        (Allow, Authenticated, "logged_in"),
+    )
+
+    def __init__(self, *args):
+        pass
 
 
 def request_user(request):
@@ -43,6 +77,9 @@ def main(global_config, **settings):
     Base.metadata.bind = engine
 
     config = Configurator(
+        authentication_policy=CherubplayAuthenticationPolicy(),
+        authorization_policy=ACLAuthorizationPolicy(),
+        root_factory=CherubplayRootFactory,
         settings=settings,
     )
 
