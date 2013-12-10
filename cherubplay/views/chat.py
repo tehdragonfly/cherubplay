@@ -25,7 +25,7 @@ from ..models import (
     Message,
 )
 
-@view_config(route_name="chat_list", renderer="chat_list.mako", permission="logged_in")
+@view_config(route_name="chat_list", renderer="chat_list.mako", permission="view")
 def chat_list(request):
     current_page = int(request.GET.get("page", 1))
     chats = Session.query(ChatUser, Chat, Message).join(Chat).outerjoin(
@@ -66,7 +66,7 @@ def chat(request):
     except NoResultFound:
         raise HTTPNotFound
     own_chat_user = None
-    if request.user is not None:
+    if request.user is not None and request.user.status!="banned":
         try:
             own_chat_user = Session.query(ChatUser).filter(
                 and_(
@@ -101,7 +101,7 @@ def chat(request):
         "preset_colours": preset_colours,
     }
 
-@view_config(route_name="chat_send", request_method="POST", permission="logged_in")
+@view_config(route_name="chat_send", request_method="POST", permission="chat")
 def chat_send(request):
     # Messages can only be sent in ongoing chats.
     try:
@@ -182,7 +182,7 @@ def chat_send(request):
     raise HTTPFound(request.route_path("chat", url=request.matchdict["url"]))
 
 
-@view_config(route_name="chat_end", request_method="POST", permission="logged_in")
+@view_config(route_name="chat_end", request_method="POST", permission="chat")
 def chat_end(request):
     try:
         chat = Session.query(Chat).filter(and_(

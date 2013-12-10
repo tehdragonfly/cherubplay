@@ -1,4 +1,8 @@
 <%inherit file="base.mako" />\
+% if request.user.status=="banned":
+  <h2>Banned</h2>
+  <p>Your account has been banned. If you have seen the error of your ways, please beg for forgiveness in <a href="http://cherubplay.tumblr.com/ask">our ask box</a>.</p>
+% else:
   <section id="connecting">
     <h2>Connecting...</h2>
     <noscript>
@@ -39,3 +43,4 @@
   </section>
   <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
   <script src="/static/home.js"></script>
+% endif

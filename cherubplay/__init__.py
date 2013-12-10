@@ -27,7 +27,11 @@ class CherubplayAuthenticationPolicy(object):
 
     def effective_principals(self, request):
         if request.user is not None:
-            return (Everyone, Authenticated)
+            if request.user.status=="banned":
+                return (Everyone, Authenticated)
+            elif request.user.status=="admin":
+                return (Everyone, Authenticated, "active", "admin")
+            return (Everyone, Authenticated, "active")
         return (Everyone,)
 
     def remember(self, request, principal, **kw):
@@ -40,7 +44,8 @@ class CherubplayAuthenticationPolicy(object):
 class CherubplayRootFactory(object):
 
     __acl__ = (
-        (Allow, Authenticated, "logged_in"),
+        (Allow, Authenticated, "view"),
+        (Allow, "active", "chat"),
     )
 
     def __init__(self, *args):
