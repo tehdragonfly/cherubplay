@@ -85,12 +85,12 @@ def main(global_config, **settings):
 
     login_pool = ConnectionPool(
         connection_class=UnixDomainSocketConnection,
-        path=settings["cherubplay.login_store"],
+        path=settings["cherubplay.socket_login"],
     )
 
     pubsub_pool = ConnectionPool(
         connection_class=UnixDomainSocketConnection,
-        path=settings["cherubplay.pubsub"],
+        path=settings["cherubplay.socket_pubsub"],
     )
 
     # These are defined here because we need the settings to create the connection pools.
