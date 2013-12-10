@@ -3,7 +3,9 @@ import json
 from uuid import uuid4
 
 from tornado.gen import engine, Task
+from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
+from tornado.netutil import bind_unix_socket
 from tornado.web import Application
 from tornado.websocket import WebSocketHandler
 
@@ -72,7 +74,7 @@ class ChatHandler(WebSocketHandler):
 
     @engine
     def redis_listen(self):
-        self.redis_client = Client(unix_socket_path=config.get("app:main", "cherubplay.pubsub"))
+        self.redis_client = Client(unix_socket_path=config.get("app:main", "cherubplay.socket_pubsub"))
         yield Task(self.redis_client.subscribe, "chat:"+str(self.chat.id))
         self.redis_client.listen(self.on_redis_message)
 
@@ -86,6 +88,8 @@ class ChatHandler(WebSocketHandler):
 
 def main():
     application = Application([(r"/(.*)/", ChatHandler)])
-    application.listen(8001)
+    server = HTTPServer(application)
+    socket = bind_unix_socket(config.get("app:main", "cherubplay.socket_chat"), mode=0777)
+    server.add_socket(socket)
     IOLoop.instance().start()
 

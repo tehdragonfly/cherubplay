@@ -4,14 +4,16 @@ from uuid import uuid4
 
 from sqlalchemy.orm.exc import NoResultFound
 from tornado.gen import engine, Task
+from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
+from tornado.netutil import bind_unix_socket
 from tornado.web import Application, HTTPError
 from tornado.websocket import WebSocketHandler
 
 from cherubplay.lib import colour_validator
 from cherubplay.models import Chat, ChatUser, Message
 
-from db import get_user, sm
+from db import config, get_user, sm
 
 prompters = {}
 searchers = {}
@@ -137,6 +139,8 @@ class SearchHandler(WebSocketHandler):
 
 def main():
     application = Application([(r"/", SearchHandler)])
-    application.listen(8000)
+    server = HTTPServer(application)
+    socket = bind_unix_socket(config.get("app:main", "cherubplay.socket_search"), mode=0777)
+    server.add_socket(socket)
     IOLoop.instance().start()
 
