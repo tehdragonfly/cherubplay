@@ -35,7 +35,10 @@ def get_user(cookies):
     if user_id is None:
         return None
     try:
-        return Session.query(User).filter(User.id==user_id).one()
+        return Session.query(User).filter(and_(
+            User.id==user_id,
+            User.status!="banned",
+        )).one()
     except NoResultFound:
         return None
 
