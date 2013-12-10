@@ -149,7 +149,7 @@ if (typeof WebSocket!="undefined") {
 				last_status_message = message.symbol+" is online.";
 				status_bar.text(last_status_message);
 			} else if (message.action=="offline") {
-				last_status_message = message.symbol+" is now offline.";
+				last_status_message = message.symbol+" is now offline. They will be notified of any messages you send when they next visit.";
 				status_bar.text(last_status_message);
 			}
 		}
