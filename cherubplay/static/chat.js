@@ -5,6 +5,14 @@ var typing_timeout;
 var ended = false;
 var continue_timeout;
 
+function is_at_bottom() {
+	return window.scrollY==document.documentElement.scrollHeight-document.documentElement.clientHeight;
+}
+
+function scroll_to_bottom() {
+	window.scroll(0, document.documentElement.scrollHeight-document.documentElement.clientHeight);
+}
+
 var messages = $("#messages");
 var status_bar = $("#status_bar");
 var last_status_message = status_bar.text();
@@ -64,8 +72,12 @@ var message_text = $("#message_text").keypress(function(e) {
 		}, 1000);
 	}
 }).keyup(function(e) {
+	// Check if we're at the bottom before resizing because resizing will mean that we're not.
+	var scroll_after_resize = is_at_bottom();
 	this.style.height = this.scrollHeight+"px";
-	window.scroll(0, document.documentElement.scrollHeight-document.documentElement.clientHeight);
+	if (scroll_after_resize) {
+		scroll_to_bottom();
+	}
 });
 var end_form = $("#end_form").submit(function() {
 	var confirm_end = confirm("Are you sure you want to end this chat? Once a chat has ended you can't continue it later. If you'd like to continue this chat later, please click cancel and then close this window/tab.");
@@ -96,6 +108,8 @@ function ping() {
 }
 
 function render_message(message) {
+	// Check if we're at the bottom before rendering because rendering will mean that we're not.
+	var scroll_after_render = is_at_bottom();
 	if (message.symbol) {
 		if (message.type=="system") {
 			var text = message.text.replace("%s", message.symbol);
@@ -108,14 +122,16 @@ function render_message(message) {
 	var li = $("<li>").addClass("tile message_"+message.type);
 	var p = $("<p>").css("color", "#"+message.colour).text(text).appendTo(li);
 	li.appendTo(messages);
-	window.scroll(0, document.documentElement.scrollHeight-document.documentElement.clientHeight);
+	if (scroll_after_render) {
+		scroll_to_bottom();
+	}
 }
 
 if (typeof WebSocket!="undefined") {
 	var ws = new WebSocket("ws://"+location.host+"/live/"+chat_url+"/");
 	ws.onopen = function(e) {
 		window.setTimeout(ping, 8000);
-		window.scroll(0, document.documentElement.scrollHeight-document.documentElement.clientHeight);
+		scroll_to_bottom();
 	}
 	ws.onmessage = function(e) {
 		if (!ended) {
