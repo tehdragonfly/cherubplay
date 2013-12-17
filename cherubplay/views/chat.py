@@ -131,7 +131,8 @@ def chat_send(request):
         raise HTTPBadRequest("Message text can't be empty.")
     message_type = "ic"
     if (
-        trimmed_message_text.startswith("((")
+        "message_ooc" in request.POST
+        or trimmed_message_text.startswith("((")
         or trimmed_message_text.endswith("))")
         or trimmed_message_text.startswith("[[")
         or trimmed_message_text.endswith("]]")

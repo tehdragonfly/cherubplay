@@ -40,6 +40,10 @@ input {
 	vertical-align: middle;
 }
 
+input[type="checkbox"] {
+	margin: 0;
+}
+
 textarea {
 	margin: 0;
 	padding: 0;
@@ -62,6 +66,24 @@ textarea {
 	background-color: #fff;
 	border-radius: 2px;
 	box-shadow: 0 1px 2px #999;
+	-webkit-column-break-inside: avoid;
+}
+
+.tile :first-child {
+	margin-top: 0;
+}
+
+.tile :last-child {
+	margin-bottom: 0;
+}
+
+.tile p {
+	margin: 10px 0;
+}
+
+.tile label {
+	font-size: 10pt;
+	color: #333;
 }
 
 /* Header */
@@ -99,30 +121,6 @@ header h1 {
 header img {
 	display: block;
 	max-width: 100%;
-}
-
-.tile {
-	position: relative;
-	overflow: hidden;
-	max-width: 70ex;
-	margin: 20px auto;
-	padding: 10px;
-	background-color: #fff;
-	border-radius: 2px;
-	box-shadow: 0 1px 2px #999;
-	-webkit-column-break-inside: avoid;
-}
-
-.tile p {
-	margin: 10px 0;
-}
-
-.tile :first-child {
-	margin-top: 0;
-}
-
-.tile :last-child {
-	margin-bottom: 0;
 }
 
 /* Main */
@@ -220,11 +218,10 @@ main {
 	float: left;
 }
 
-#end_form {
-	text-align: right;
+#message_form label {
+	float: right;
 }
 
-#continue_search_label {
-	font-size: 10pt;
-	color: #333;
+#end_form {
+	text-align: right;
 }

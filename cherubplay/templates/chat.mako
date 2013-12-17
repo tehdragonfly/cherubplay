@@ -29,6 +29,7 @@ Last message: ${messages[-1].posted}.\
           <option value="#${hex}">${name}</option>
 % endfor
         </select>
+        <label title="Talk out of character; use ((double brackets)) to automatically OOC."><input type="checkbox"name="message_ooc"> OOC</label>
       </p>
       <p><textarea id="message_text" name="message_text" placeholder="Write a message..." style="color: #${own_chat_user.last_colour}"></textarea></p>
       <button type="submit" id="send_button">Send</button>
