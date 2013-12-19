@@ -13,6 +13,10 @@ function scroll_to_bottom() {
 	window.scroll(0, document.documentElement.scrollHeight-document.documentElement.clientHeight);
 }
 
+function visibility_handler() {
+	document.title = "CHERUBPLAY";
+}
+
 var messages = $("#messages");
 var status_bar = $("#status_bar");
 var last_status_message = status_bar.text();
@@ -125,6 +129,9 @@ function render_message(message) {
 	if (scroll_after_render) {
 		scroll_to_bottom();
 	}
+	if (document.hidden || document.webkitHidden || document.msHidden) {
+		document.title = "New message - CHERUBPLAY";
+	}
 }
 
 if (typeof WebSocket!="undefined") {
@@ -132,6 +139,9 @@ if (typeof WebSocket!="undefined") {
 	ws.onopen = function(e) {
 		window.setTimeout(ping, 8000);
 		scroll_to_bottom();
+		if (document.hidden || document.webkitHidden || document.msHidden) {
+			document.title = "Connected - CHERUBPLAY";
+		}
 	}
 	ws.onmessage = function(e) {
 		if (!ended) {
@@ -174,6 +184,13 @@ if (typeof WebSocket!="undefined") {
 		if (!e.wasClean) {
 			status_bar.text("Live updates currently unavailable. Please refresh to see new messages.");
 		}
+	}
+	if (typeof document.hidden !== "undefined") {
+		document.addEventListener("visibilitychange", visibility_handler);
+	} else if (typeof document.msHidden !== "undefined") {
+		document.addEventListener("msvisibilitychange", visibility_handler);
+	} else if (typeof document.webkitHidden !== "undefined") {
+		document.addEventListener("webkitvisibilitychange", visibility_handler);
 	}
 } else {
 	var ws = {
