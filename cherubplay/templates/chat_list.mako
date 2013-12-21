@@ -15,7 +15,11 @@ ${paginator.pager(format='~5~')}
  unread" title="Updated since your last visit\
 % endif
 ">
-      <h3><a href="${request.route_path("chat", url=chat.url)}">${chat.url}</a></h3>
+      <h3><a href="${request.route_path("chat", url=chat.url)}">${chat.url}</a>\
+% if chat.updated>chat_user.visited:
+ (unread)\
+% endif
+</h3>
       <p style="color: #${prompt.colour};">Prompt: \
 % if len(prompt.text)>250:
 ${prompt.text[:250]}...\
