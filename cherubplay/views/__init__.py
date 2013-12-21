@@ -64,7 +64,7 @@ def sign_up(request):
 @view_config(route_name="log_in", renderer="home_guest.mako", request_method="POST")
 def log_in(request):
     try:
-        user = Session.query(User).filter(User.username==request.POST["username"]).one()
+        user = Session.query(User).filter(User.username==request.POST["username"].lower()).one()
     except NoResultFound:
         return { "log_in_error": "Username and/or password not recognised." }
     if hashpw(request.POST["password"].encode(), user.password.encode())!=user.password:
