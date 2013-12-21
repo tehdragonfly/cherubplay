@@ -14,7 +14,9 @@ function scroll_to_bottom() {
 }
 
 function visibility_handler() {
-	document.title = "CHERUBPLAY";
+	window.setTimeout(function() {
+		document.title = "CHERUBPLAY";
+	}, 200);
 }
 
 var messages = $("#messages");

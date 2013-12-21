@@ -43,5 +43,5 @@ Last message: ${messages[-1].posted}.\
   </section>
   <script>var chat_url = "${request.matchdict["url"]}";</script>
   <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
-  <script src="/static/chat.js?2"></script>
+  <script src="/static/chat.js?3"></script>
 % endif
