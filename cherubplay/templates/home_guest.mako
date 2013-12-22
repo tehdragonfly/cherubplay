@@ -4,7 +4,7 @@
 % elif "cherubplay.beta" in request.registry.settings:
   <p>CHERUBPLAY is in beta right now, so you'll need to get an access code before you can join. You can get an access code by sending an ask to the <a href="http://cherubplaybeta.tumblr.com/">CHERUBPLAY beta tumblr</a>.</p>
 % else:
-  <p>BLAH BLAH BLAH WRITE SOME TEXT HERE</p>
+  <p>CHERUBPLAY is a paragraph-style roleplaying website for Homestuck fans. Here, you can post your prompts, answer other people's prompts and chat with other roleplayers. To get started, sign up or log in below:</p>
 % endif
   <h2>Create an account</h2>
 % if sign_up_error:
