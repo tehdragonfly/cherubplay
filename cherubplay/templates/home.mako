@@ -41,6 +41,12 @@
     <h2>Connection error</h2>
     <p>The connection to the server has been lost. Please refresh the page to try again.</p>
   </section>
+  <section id="overlay">
+    <section id="overlay_tile" class="tile">
+      <p id="overlay_text"></p>
+      <button id="overlay_answer">Answer</button>
+    </section>
+  </section>
   <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
-  <script src="/static/home.js"></script>
+  <script src="/static/home.js?1"></script>
 % endif

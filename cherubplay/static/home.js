@@ -1,7 +1,8 @@
 // Modes
 
+var body = $(document.body);
+
 function change_mode(new_mode) {
-	var body = $(document.body);
 	body.removeClass("answer_mode").removeClass("prompt_mode").removeClass("wait_mode");
 	if (ws.readyState==1 && new_mode=="answer_mode") {
 		ws.send('{"action":"search"}');
@@ -23,19 +24,41 @@ $(".answer_button").click(function() { change_mode("answer_mode") });
 
 // Answer mode
 
-var prompt_list = document.getElementById("prompt_list");
+var prompt_list = $("#prompt_list");
 
 function render_prompt(prompt) {
-	var li = $("<li>").attr("id", prompt.id).addClass("tile");
+	var li = $("<li>").attr("id", prompt.id).addClass("tile").click(show_overlay);
 	$("<p>").css("color", "#"+prompt.colour).text(prompt.prompt).appendTo(li);
-	$("<button>").text("Answer").appendTo(li).click(function(e) {
-		ws.send(JSON.stringify({
-			"action": "answer",
-			"id": this.parentNode.id,
-		}));
-	});
+	$("<div>").addClass("fade").appendTo(li);
 	li.appendTo(prompt_list);
 }
+
+var overlay_prompt_id;
+var overlay_text = $("#overlay_text");
+
+function show_overlay() {
+	var prompt = $(this).find("p");
+	overlay_prompt_id = this.id;
+	overlay_text.css("color", prompt.css("color")).text(prompt.text());
+	body.addClass("show_overlay");
+}
+
+function hide_overlay() {
+	body.removeClass("show_overlay");
+	overlay_prompt_id = null;
+}
+
+$("#overlay").click(hide_overlay);
+$("#overlay_tile").click(function(e) { e.stopPropagation(); });
+$("#overlay_answer").click(function(e) {
+	if (overlay_prompt_id) {
+		ws.send(JSON.stringify({
+			"action": "answer",
+			"id": overlay_prompt_id,
+		}));
+		hide_overlay();
+	}
+});
 
 // Prompt mode
 
@@ -113,6 +136,10 @@ ws.onmessage = function(e) {
 	} else if (message.action=="new_prompt") {
 		render_prompt(message);
 	} else if (message.action=="remove_prompt") {
+		if (message.id==overlay_prompt_id) {
+			hide_overlay();
+			alert("Sorry, either this prompt has been taken or the prompter has disconnected :(");
+		}
 		$("#"+message.id).remove();
 	} else if (message.action=="answer_error") {
 		alert(message.error);

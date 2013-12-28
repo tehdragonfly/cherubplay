@@ -160,6 +160,11 @@ main {
 	-webkit-column-gap: 20px;
 }
 
+#prompt_list li {
+	max-height: 150px;
+	cursor: pointer;
+}
+
 #prompt_list li:first-child {
 	margin-top: 0;
 }
@@ -168,8 +173,41 @@ main {
 	margin-bottom: 0;
 }
 
+#prompt_list li p {
+	margin: 0;
+}
+
+.fade {
+	display: block;
+	position: absolute;
+	top: 120px;
+	left: 0;
+	right: 0;
+	height: 50px;
+	background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+}
+
 #prompt_mode textarea {
 	height: 150px;
+}
+
+#overlay {
+	display: none;
+}
+
+.show_overlay {
+	overflow: hidden;
+}
+
+.show_overlay #overlay {
+	display: block;
+	position: fixed;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	overflow-y: scroll;
+	background-color: rgba(0, 0, 0, 0.75);
 }
 
 /* Chat list */
