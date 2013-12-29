@@ -44,9 +44,10 @@
   <section id="overlay">
     <section id="overlay_tile" class="tile">
       <p id="overlay_text"></p>
+      <button id="overlay_close">Close</button>
       <button id="overlay_answer">Answer</button>
     </section>
   </section>
   <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
-  <script src="/static/home.js?1"></script>
+  <script src="/static/home.js?2"></script>
 % endif

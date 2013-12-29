@@ -49,6 +49,7 @@ function hide_overlay() {
 }
 
 $("#overlay").click(hide_overlay);
+$("#overlay_close").click(hide_overlay);
 $("#overlay_tile").click(function(e) { e.stopPropagation(); });
 $("#overlay_answer").click(function(e) {
 	if (overlay_prompt_id) {
