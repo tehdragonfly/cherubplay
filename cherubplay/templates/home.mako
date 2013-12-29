@@ -17,7 +17,7 @@
   </section>
   <section id="prompt_mode">
     <h2>Prompt mode</h2>
-    <p>Enter a prompt below, and other people will be able to see it and answer if they're interested. Alternatively you can see and respond to other people's prompts in answer mode.</p>
+    <p>Enter a prompt below, and other people will be able to see it and answer if they're interested. Alternatively you can see and respond to other people's prompts in answer mode. If you have content warnings or specific characters in mind, please put them at the start of your prompt.</p>
     <form class="tile">
       <p>
         <input type="color" id="prompt_colour" size="6" value="#000000" maxlength="7">
