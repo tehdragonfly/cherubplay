@@ -75,6 +75,7 @@ class ChatUser(Base):
     anonymous = Column(Boolean, nullable=False, default=True)
     visited = Column(DateTime, nullable=False, default=datetime.datetime.now)
     status = Column(Enum(u"active", u"archived", name="chat_user_status"), nullable=False, default=u"active")
+    title = Column(Unicode(100), nullable=False, default=u"")
     notes = Column(UnicodeText, nullable=False, default=u"")
 
 

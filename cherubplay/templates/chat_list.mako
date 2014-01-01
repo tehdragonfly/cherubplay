@@ -15,7 +15,7 @@ ${paginator.pager(format='~5~')}
  unread" title="Updated since your last visit\
 % endif
 ">
-      <h3><a href="${request.route_path("chat", url=chat.url)}">${chat.url}</a>\
+      <h3><a href="${request.route_path("chat", url=chat.url)}">${chat_user.title or chat.url}</a>\
 % if chat.updated>chat_user.visited:
  (unread)\
 % endif
@@ -30,7 +30,7 @@ ${prompt.text}\
 % if chat_user.notes!="":
       <p>Notes: ${chat_user.notes}</p>
 % endif
-      <p><a href="${request.route_path("chat_notes", url=chat.url)}">Edit notes</a></p>
+      <p><a href="${request.route_path("chat_notes", url=chat.url)}">Edit title/notes</a></p>
     </li>
 % endfor
   </ul>

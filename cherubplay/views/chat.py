@@ -257,6 +257,7 @@ def chat_notes(request):
     except NoResultFound:
         raise HTTPNotFound
     if "notes" in request.POST:
+        own_chat_user.title = request.POST["title"]
         own_chat_user.notes = request.POST["notes"]
         transaction.commit()
     return { "chat": chat, "own_chat_user": own_chat_user }

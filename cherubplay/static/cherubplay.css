@@ -268,3 +268,15 @@ main {
 #end_form {
 	text-align: right;
 }
+
+/* Chat notes */
+
+#chat_notes_title {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	width: 100%;
+	font: inherit;
+	color: #009900;
+}
+
