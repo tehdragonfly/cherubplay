@@ -27,6 +27,10 @@ ${prompt.text[:250]}...\
 ${prompt.text}\
 % endif
 </p>
+% if chat_user.notes!="":
+      <p>Notes: ${chat_user.notes}</p>
+% endif
+      <p><a href="${request.route_path("chat_notes", url=chat.url)}">Edit notes</a></p>
     </li>
 % endfor
   </ul>

@@ -242,3 +242,22 @@ def chat_end(request):
         raise HTTPFound(request.route_path("home"))
     raise HTTPFound(request.route_path("chat", url=request.matchdict["url"]))
 
+@view_config(route_name="chat_notes", renderer="chat_notes.mako", permission="view")
+def chat_notes(request):
+    try:
+        chat = Session.query(Chat).filter(
+            Chat.url==request.matchdict["url"],
+        ).one()
+        own_chat_user = Session.query(ChatUser).filter(
+            and_(
+                ChatUser.chat_id==chat.id,
+                ChatUser.user_id==request.user.id,
+            )
+        ).one()
+    except NoResultFound:
+        raise HTTPNotFound
+    if "notes" in request.POST:
+        own_chat_user.notes = request.POST["notes"]
+        transaction.commit()
+    return { "chat": chat, "own_chat_user": own_chat_user }
+
