@@ -22,15 +22,11 @@ Last message: ${messages[-1].posted}.\
 </section>
   <section id="message_form_container" class="tile">
     <form id="message_form" action="${request.route_path("chat_send", url=request.matchdict["url"])}" method="post">
-      <p>
-        <input type="color" id="message_colour" name="message_colour" size="6" value="#${own_chat_user.last_colour}">
-        <select id="preset_colours" name="preset_colours">
+      <p><input type="color" id="message_colour" name="message_colour" size="6" value="#${own_chat_user.last_colour}"> <select id="preset_colours" name="preset_colours">
 % for hex, name in preset_colours:
           <option value="#${hex}">${name}</option>
 % endfor
-        </select>
-        <label title="Talk out of character; use ((double brackets)) to automatically OOC."><input type="checkbox"name="message_ooc"> OOC</label>
-      </p>
+        </select><label title="Talk out of character; use ((double brackets)) to automatically OOC."><input type="checkbox"name="message_ooc"> OOC</label></p>
       <p><textarea id="message_text" name="message_text" placeholder="Write a message..." style="color: #${own_chat_user.last_colour}"></textarea></p>
       <button type="submit" id="send_button">Send</button>
     </form>

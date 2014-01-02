@@ -79,6 +79,7 @@ textarea {
 
 .tile p {
 	margin: 10px 0;
+	white-space: pre-line;
 }
 
 .tile label {
