@@ -21,14 +21,13 @@ engine = create_engine(
 sm = sessionmaker(
     autocommit=False,
     autoflush=False,
-    bind=engine
+    bind=engine,
 )
-Session = sm()
 
 login_client = Redis(unix_socket_path=config.get("app:main", "cherubplay.socket_login"))
 publish_client = Redis(unix_socket_path=config.get("app:main", "cherubplay.socket_pubsub"))
 
-def get_user(cookies):
+def get_user(Session, cookies):
     if "cherubplay" not in cookies:
         return None
     user_id = login_client.get("session:"+cookies["cherubplay"].value)
@@ -42,13 +41,13 @@ def get_user(cookies):
     except NoResultFound:
         return None
 
-def get_chat(chat_url):
+def get_chat(Session, chat_url):
     try:
         return Session.query(Chat).filter(Chat.url==chat_url).one()
     except NoResultFound:
         return None
 
-def get_chat_user(chat_id, user_id):
+def get_chat_user(Session, chat_id, user_id):
     try:
         return Session.query(ChatUser).filter(and_(
             ChatUser.chat_id==chat_id,
