@@ -30,6 +30,7 @@ ${prompt.text}\
 % if chat_user.notes!="":
       <p>Notes: ${chat_user.notes}</p>
 % endif
+      <form class="delete_form" action="${request.route_path("chat_delete", url=chat.url)}" method="post"><button type="submit">Delete</button></form>
       <p><a href="${request.route_path("chat_notes", url=chat.url)}">Edit title/notes</a></p>
     </li>
 % endfor
@@ -40,3 +41,5 @@ ${paginator.pager(format='~5~')}
   </p>
 % endif
 % endif
+  <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+  <script src="/static/chat_list.js"></script>

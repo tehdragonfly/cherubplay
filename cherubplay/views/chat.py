@@ -182,25 +182,7 @@ def chat_send(request):
         raise HTTPNoContent
     raise HTTPFound(request.route_path("chat", url=request.matchdict["url"]))
 
-
-@view_config(route_name="chat_end", request_method="POST", permission="chat")
-def chat_end(request):
-    try:
-        chat = Session.query(Chat).filter(and_(
-            Chat.url==request.matchdict["url"],
-            Chat.status=="ongoing",
-        )).one()
-    except NoResultFound:
-        raise HTTPNotFound
-    try:
-        own_chat_user = Session.query(ChatUser).filter(
-            and_(
-                ChatUser.chat_id==chat.id,
-                ChatUser.user_id==request.user.id,
-            )
-        ).one()
-    except NoResultFound:
-        raise HTTPForbidden
+def _post_end_message(request, chat, own_chat_user):
     Session.add(Message(
         chat_id=chat.id,
         type="system",
@@ -236,11 +218,55 @@ def chat_end(request):
         }))
     except ConnectionError:
         pass
+
+@view_config(route_name="chat_end", request_method="POST", permission="chat")
+def chat_end(request):
+    try:
+        chat = Session.query(Chat).filter(and_(
+            Chat.url==request.matchdict["url"],
+            Chat.status=="ongoing",
+        )).one()
+    except NoResultFound:
+        raise HTTPNotFound
+    try:
+        own_chat_user = Session.query(ChatUser).filter(
+            and_(
+                ChatUser.chat_id==chat.id,
+                ChatUser.user_id==request.user.id,
+            )
+        ).one()
+    except NoResultFound:
+        raise HTTPForbidden
+    _post_end_message(request, chat, own_chat_user)
     if request.is_xhr:
         raise HTTPNoContent
     if "continue_search" in request.POST:
         raise HTTPFound(request.route_path("home"))
     raise HTTPFound(request.route_path("chat", url=request.matchdict["url"]))
+
+@view_config(route_name="chat_delete", request_method="POST", permission="view")
+def chat_delete(request):
+    try:
+        chat = Session.query(Chat).filter(
+            Chat.url==request.matchdict["url"],
+        ).one()
+        own_chat_user = Session.query(ChatUser).filter(
+            and_(
+                ChatUser.chat_id==chat.id,
+                ChatUser.user_id==request.user.id,
+            )
+        ).one()
+    except NoResultFound:
+        raise HTTPNotFound
+    if chat.status=="ongoing":
+        _post_end_message(request, chat, own_chat_user)
+    Session.delete(own_chat_user)
+    transaction.commit()
+    if request.is_xhr:
+        raise HTTPNoContent
+    if not "HTTP_REFERER" in request.environ:
+        raise HTTPFound(request.route_path("chat_list"))
+    raise HTTPFound(request.environ["HTTP_REFERER"])
 
 @view_config(route_name="chat_notes", renderer="chat_notes.mako", permission="view")
 def chat_notes(request):

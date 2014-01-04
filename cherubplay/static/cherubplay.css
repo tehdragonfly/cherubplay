@@ -226,6 +226,10 @@ main {
 	box-shadow: 0 2px 4px #090;
 }
 
+.delete_form {
+	float: right;
+}
+
 /* Chat window */
 
 #messages {
