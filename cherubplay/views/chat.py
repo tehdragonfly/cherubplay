@@ -84,7 +84,8 @@ def chat(request):
         Message.chat_id==chat.id
     )
     # Hide OOC messages if the chat doesn't belong to us.
-    if own_chat_user is None:
+    # Also don't hide OOC messages for admins.
+    if own_chat_user is None and (request.user is None or request.user.status!="admin"):
         messages = messages.filter(Message.type!="ooc")
     messages = messages.order_by(Message.id.asc()).all()
     # Test if we came here from the homepage, for automatically resuming the search.
