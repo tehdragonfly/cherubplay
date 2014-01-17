@@ -105,6 +105,7 @@ def chat(request):
         symbol_users = {
             _.symbol: _.user
             for _ in messages
+            if _.user is not None
         }
         if len(symbol_users)<2:
             for chat_user in Session.query(ChatUser).filter(
