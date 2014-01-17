@@ -4,7 +4,7 @@
     <h3>Users</h3>
     <ul>
 % for symbol, user in symbol_users.items():
-      <li>${symbols[symbol]} is <strong>${user.username}</strong>.</li>
+      <li>${symbols[symbol]} is #${user.id} <strong>${user.username}</strong> (${user.status}).</li>
 % endfor
     </ul>
   </section>
