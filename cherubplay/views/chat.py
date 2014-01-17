@@ -88,6 +88,9 @@ def chat(request):
     # Also don't hide OOC messages for admins.
     if own_chat_user is None and (request.user is None or request.user.status!="admin"):
         messages = messages.filter(Message.type!="ooc")
+    # Join users if we're an admin.
+    if request.user is not None and request.user.status=="admin":
+        messages = messages.options(joinedload(Message.user))
     messages = messages.order_by(Message.id.asc()).all()
     # Test if we came here from the homepage, for automatically resuming the search.
     from_homepage = (
@@ -95,13 +98,19 @@ def chat(request):
         and request.environ["HTTP_REFERER"]==request.route_url("home")
     )
     # List users if we're an admin.
-    chat_users = None
+    # If both users have sent messages, we can get their user info from the messages list.
+    # If not, try to get their info from their chat_user objects instead.
+    symbol_users = None
     if request.user is not None and request.user.status=="admin":
-        chat_users = Session.query(ChatUser).filter(
-            ChatUser.chat_id==chat.id
-        ).order_by(
-            ChatUser.symbol.asc()
-        ).options(joinedload(ChatUser.user)).all()
+        symbol_users = {
+            _.symbol: _.user
+            for _ in messages
+        }
+        if len(symbol_users)<2:
+            for chat_user in Session.query(ChatUser).filter(
+                ChatUser.chat_id==chat.id
+            ).options(joinedload(ChatUser.user)):
+                symbol_users[chat_user.symbol] = chat_user.user
     return {
         "own_chat_user": own_chat_user,
         "continuable": continuable,
@@ -109,7 +118,7 @@ def chat(request):
         "from_homepage": from_homepage,
         "symbols": symbols,
         "preset_colours": preset_colours,
-        "chat_users": chat_users,
+        "symbol_users": symbol_users,
     }
 
 @view_config(route_name="chat_send", request_method="POST", permission="chat")

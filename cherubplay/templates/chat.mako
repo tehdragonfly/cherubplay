@@ -1,10 +1,10 @@
 <%inherit file="base.mako" />\
-% if chat_users:
+% if symbol_users:
   <section class="tile">
     <h3>Users</h3>
     <ul>
-% for chat_user in chat_users:
-      <li>${symbols[chat_user.symbol]} is <strong>${chat_user.user.username}</strong>.</li>
+% for symbol, user in symbol_users.items():
+      <li>${symbols[symbol]} is <strong>${user.username}</strong>.</li>
 % endfor
     </ul>
   </section>
