@@ -23,6 +23,7 @@ from ..models import (
     Chat,
     ChatUser,
     Message,
+    User,
 )
 
 @view_config(route_name="chat_list", renderer="chat_list.mako", permission="view")
@@ -93,6 +94,14 @@ def chat(request):
         "HTTP_REFERER" in request.environ
         and request.environ["HTTP_REFERER"]==request.route_url("home")
     )
+    # List users if we're an admin.
+    chat_users = None
+    if request.user.status=="admin":
+        chat_users = Session.query(ChatUser).filter(
+            ChatUser.chat_id==chat.id
+        ).order_by(
+            ChatUser.symbol.asc()
+        ).options(joinedload(ChatUser.user)).all()
     return {
         "own_chat_user": own_chat_user,
         "continuable": continuable,
@@ -100,6 +109,7 @@ def chat(request):
         "from_homepage": from_homepage,
         "symbols": symbols,
         "preset_colours": preset_colours,
+        "chat_users": chat_users,
     }
 
 @view_config(route_name="chat_send", request_method="POST", permission="chat")

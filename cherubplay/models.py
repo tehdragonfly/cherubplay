@@ -83,5 +83,5 @@ Message.chat = relationship(Chat, backref="messages")
 Message.user = relationship(User, backref="messages")
 
 ChatUser.chat = relationship(Chat, backref="users")
-ChatUser.user = relationship(Chat, backref="chats")
+ChatUser.user = relationship(User, backref="chats")
 

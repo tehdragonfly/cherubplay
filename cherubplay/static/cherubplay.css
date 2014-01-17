@@ -87,6 +87,11 @@ textarea {
 	color: #333;
 }
 
+.tile ul {
+	margin: 10px 0;
+	padding: 0 0 0 1em;
+}
+
 /* Header */
 
 header {
