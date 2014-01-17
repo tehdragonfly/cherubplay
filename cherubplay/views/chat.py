@@ -96,7 +96,7 @@ def chat(request):
     )
     # List users if we're an admin.
     chat_users = None
-    if request.user.status=="admin":
+    if request.user is not None and request.user.status=="admin":
         chat_users = Session.query(ChatUser).filter(
             ChatUser.chat_id==chat.id
         ).order_by(
