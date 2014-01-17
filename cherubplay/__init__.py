@@ -46,6 +46,7 @@ class CherubplayRootFactory(object):
     __acl__ = (
         (Allow, Authenticated, "view"),
         (Allow, "active", "chat"),
+        (Allow, "admin", "admin"),
     )
 
     def __init__(self, *args):
@@ -129,6 +130,8 @@ def main(global_config, **settings):
     config.add_route("chat_delete", "/chats/{url}/delete/")
 
     config.add_route("account", "/account/")
+
+    config.add_route("admin_ban", "/admin/ban/")
 
     config.scan()
     return config.make_wsgi_app()
