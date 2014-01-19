@@ -25,14 +25,14 @@ def write_message_to_searchers(message):
 class SearchHandler(WebSocketHandler):
 
     def open(self):
-        Session = sm()
-        self.user = get_user(Session, self.cookies)
+        self.user = get_user(self.cookies)
         if self.user is None:
             self.close()
             return
-        Session.close()
         self.socket_id = str(uuid4())
+        print "NEW SOCKET: ", self.socket_id
         self.state = "idle"
+        self.write_message(json.dumps({ "username": self.user.username}))
 
     def reset_state(self):
         if self.socket_id in prompters:
@@ -41,8 +41,10 @@ class SearchHandler(WebSocketHandler):
                 "action": "remove_prompt",
                 "id": self.socket_id,
             }))
+            print "PROMPTERS:", prompters
         if self.socket_id in searchers:
             searchers.pop(self.socket_id)
+            print "SEARCHERS:", searchers
 
     def on_message(self, message_string):
         try:
@@ -53,6 +55,7 @@ class SearchHandler(WebSocketHandler):
             self.reset_state()
             self.state = "searching"
             searchers[self.socket_id] = self
+            print "SEARCHERS:", searchers
             self.write_message(json.dumps({
                 "action": "prompts",
                 "prompts": [
@@ -79,6 +82,7 @@ class SearchHandler(WebSocketHandler):
                 return
             self.state = "prompting"
             prompters[self.socket_id] = self
+            print "PROMPTERS:", prompters
             self.colour = message["colour"]
             self.prompt = message["prompt"]
             write_message_to_searchers(json.dumps({
@@ -98,6 +102,7 @@ class SearchHandler(WebSocketHandler):
                 }))
                 return
             prompter = prompters[message["id"]]
+            # Make a new session for thread safety.
             Session = sm()
             new_chat_url = str(uuid4())
             new_chat = Chat(url=new_chat_url)
@@ -124,10 +129,10 @@ class SearchHandler(WebSocketHandler):
                 text=prompter.prompt,
             ))
             Session.commit()
-            Session.close()
             response = json.dumps({ "action": "chat", "url": new_chat_url })
             prompter.write_message(response)
             self.write_message(response)
+            del Session
 
     def on_close(self):
         self.reset_state()

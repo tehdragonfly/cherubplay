@@ -14,25 +14,24 @@ from tornadoredis import Client
 from cherubplay.lib import colour_validator, symbols
 from cherubplay.models import Chat, ChatUser, Message
 
-from db import config, get_chat, get_chat_user, get_user, publish_client, sm
+from db import config, get_chat, get_chat_user, get_user, publish_client
 
 class ChatHandler(WebSocketHandler):
 
     def open(self, chat_url):
-        Session = sm()
-        self.user = get_user(Session, self.cookies)
+        print chat_url
+        self.user = get_user(self.cookies)
         if self.user is None:
             self.close()
             return
-        self.chat = get_chat(Session, chat_url)
+        self.chat = get_chat(chat_url)
         if self.chat is None:
             self.close()
             return
-        self.chat_user = get_chat_user(Session, self.chat.id, self.user.id)
+        self.chat_user = get_chat_user(self.chat.id, self.user.id)
         if self.chat_user is None:
             self.close()
             return
-        Session.close()
         self.socket_id = str(uuid4())
         # Fire online message, but only if this is the only tab we have open.
         online_symbols = publish_client.hvals("online:"+str(self.chat.id))
@@ -61,6 +60,7 @@ class ChatHandler(WebSocketHandler):
             }))
             # Ignore our own typing messages.
             self.ignore_next_message = True
+        print message
 
     def on_close(self):
         self.redis_client.disconnect()
@@ -82,6 +82,7 @@ class ChatHandler(WebSocketHandler):
         if message.kind=="message":
             if not self.ignore_next_message:
                 self.write_message(message.body)
+                print "redis message:", message.body
             else:
                 self.ignore_next_message = False
 
