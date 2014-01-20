@@ -12,18 +12,21 @@
   <section id="answer_mode">
     <h2>Answer mode</h2>
     <p>The following people are searching for chats. Answer one of the prompts below or switch to prompt mode to input your own prompt.</p>
-    <p><button class="prompt_button">Switch to prompt mode</button></p>
+    <p>
+      <label><input type="checkbox" id="show_nsfw"> Show NSFW prompts</label>
+      <button class="prompt_button">Switch to prompt mode</button>
+    </p>
     <ul id="prompt_list"></ul>
   </section>
   <section id="prompt_mode">
     <h2>Prompt mode</h2>
-    <p>Enter a prompt below, and other people will be able to see it and answer if they're interested. Alternatively you can see and respond to other people's prompts in answer mode. If you have content warnings or specific characters in mind, please put them at the start of your prompt.</p>
+    <p>Enter a prompt below, and other people will be able to see it and answer if they're interested. Alternatively you can see and respond to other people's prompts in answer mode.</p>
     <form class="tile">
       <p><input type="color" id="prompt_colour" size="6" value="#000000" maxlength="7"> <select id="preset_colours" name="preset_colours">
 % for hex, name in preset_colours:
           <option value="#${hex}">${name}</option>
 % endfor
-        </select></p>
+        </select><label><input type="checkbox" id="prompt_nsfw"> NSFW</label></p>
       <p><textarea id="prompt_text" placeholder="Enter your prompt..."></textarea></p>
       <button type="submit">Search</button>
     </form>
@@ -46,5 +49,5 @@
     </section>
   </section>
   <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
-  <script src="/static/home.js?2"></script>
+  <script src="/static/home.js?3"></script>
 % endif

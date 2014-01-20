@@ -5,7 +5,10 @@ var body = $(document.body);
 function change_mode(new_mode) {
 	body.removeClass("answer_mode").removeClass("prompt_mode").removeClass("wait_mode");
 	if (ws.readyState==1 && new_mode=="answer_mode") {
-		ws.send('{"action":"search"}');
+		ws.send(JSON.stringify({
+			"action": "search",
+			"nsfw": (show_nsfw[0].checked==true),
+		}));
 		body.addClass("answer_mode");
 		localStorage.setItem("last_mode", "answer_mode");
 	} else if (ws.readyState==1 && new_mode=="prompt_mode") {
@@ -23,6 +26,11 @@ $(".prompt_button").click(function() { change_mode("prompt_mode") });
 $(".answer_button").click(function() { change_mode("answer_mode") });
 
 // Answer mode
+
+var show_nsfw = $("#show_nsfw").click(function() {
+	localStorage.setItem("show_nsfw", this.checked);
+	change_mode("answer_mode");
+});
 
 var prompt_list = $("#prompt_list");
 
@@ -76,11 +84,13 @@ var prompt_form = $("#prompt_mode form").submit(function(e) {
 	}
 	localStorage.setItem("prompt_colour", prompt_colour.val());
 	localStorage.setItem("prompt_text", prompt_text.val());
+	localStorage.setItem("prompt_nsfw", prompt_nsfw[0].checked);
 	change_mode("wait_mode");
 	ws.send(JSON.stringify({
 		"action": "prompt",
 		"colour": prompt_colour.val().substr(1, 6),
 		"prompt": prompt_text.val(),
+		"nsfw": prompt_nsfw[0].checked,
 	}));
 	return false;
 });
@@ -93,12 +103,15 @@ var preset_colours = $("#preset_colours").change(function() {
 var prompt_text = $("#prompt_text").keyup(function() {
 	this.style.height = this.scrollHeight+"px";
 });
+var prompt_nsfw = $("#prompt_nsfw");
 
 var saved_prompt_colour = localStorage.getItem("prompt_colour");
 var saved_prompt_text = localStorage.getItem("prompt_text");
+var saved_prompt_nsfw = localStorage.getItem("prompt_nsfw");
 if (saved_prompt_colour && saved_prompt_text) {
 	prompt_colour.val(saved_prompt_colour).change();
 	prompt_text.text(saved_prompt_text);
+	prompt_nsfw[0].checked = (localStorage.getItem("prompt_nsfw")=="true");
 }
 
 // Communication
@@ -115,6 +128,7 @@ var ws = new WebSocket("ws://"+location.host+"/search/");
 
 ws.onopen = function(e) {
 	window.setTimeout(ping, 8000);
+	show_nsfw[0].checked = (localStorage.getItem("show_nsfw")=="true");
 	var last_mode = localStorage.getItem("last_mode");
 	var autoprompt = localStorage.getItem("autoprompt");
 	if (last_mode=="prompt_mode" && autoprompt && saved_prompt_colour && saved_prompt_text) {
