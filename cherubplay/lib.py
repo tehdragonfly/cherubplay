@@ -37,6 +37,6 @@ preset_colours = [
     ("77003C", "Pisces pink"),
     ("929292", "Calliope grey"),
     ("323232", "Caliborn grey"),
-    ("2ED73A", "Felt green"),
+    ("2ED73A", "Hideous dead sister green"),
 ]
 
