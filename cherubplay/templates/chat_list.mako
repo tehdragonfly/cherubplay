@@ -20,6 +20,7 @@ ${paginator.pager(format='~5~')}
  (unread)\
 % endif
 </h3>
+% if prompt is not None:
       <p style="color: #${prompt.colour};">Prompt: \
 % if len(prompt.text)>250:
 ${prompt.text[:250]}...\
@@ -27,6 +28,7 @@ ${prompt.text[:250]}...\
 ${prompt.text}\
 % endif
 </p>
+% endif
 % if chat_user.notes!="":
       <p>Notes: ${chat_user.notes}</p>
 % endif
