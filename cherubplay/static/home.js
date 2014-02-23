@@ -124,7 +124,8 @@ function ping() {
 	}
 }
 
-var ws = new WebSocket("ws://"+location.host+"/search/");
+var ws_protocol = (location.protocol=="https:") ? "wss://" : "ws://";
+var ws = new WebSocket(ws_protocol+location.host+"/search/");
 
 ws.onopen = function(e) {
 	window.setTimeout(ping, 8000);

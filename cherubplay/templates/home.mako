@@ -49,5 +49,5 @@
     </section>
   </section>
   <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
-  <script src="/static/home.js?3"></script>
+  <script src="/static/home.js?4"></script>
 % endif
