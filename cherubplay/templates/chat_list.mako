@@ -43,5 +43,5 @@ ${paginator.pager(format='~5~')}
   </p>
 % endif
 % endif
-  <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+  <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
   <script src="/static/chat_list.js?1"></script>
