@@ -47,7 +47,5 @@ Last message: ${messages[-1].posted}.\
 		<button type="submit">End chat</button>
 	</form>
   </section>
-  <script>var chat_url = "${request.matchdict["url"]}";</script>
-  <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
-  <script src="/static/chat.js?4"></script>
+<%block name="scripts"><script>cherubplay.chat("${request.matchdict["url"]}");</script></%block>
 % endif
