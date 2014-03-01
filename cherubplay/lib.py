@@ -22,6 +22,7 @@ preset_colours = [
     ("F141EF", "Jaspersprite pink"),
     ("F2A400", "Dirk/Davesprite orange"),
     ("1F9400", "Jake/Jadesprite green"),
+    ("4B4B4B", "Dad grey"),
     ("FF0000", "Candy red"),
     ("A10000", "Aries red"),
     ("A15000", "Taurus brown"),
@@ -38,5 +39,6 @@ preset_colours = [
     ("929292", "Calliope grey"),
     ("323232", "Caliborn grey"),
     ("2ED73A", "Hideous dead sister green"),
+    ("FF00EE", "Obnoxious fantroll pink"),
 ]
 
