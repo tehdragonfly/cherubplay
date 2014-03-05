@@ -26,7 +26,6 @@ from zope.sqlalchemy import ZopeTransactionExtension
 
 Session = scoped_session(sessionmaker(
     extension=ZopeTransactionExtension(),
-    expire_on_commit=False,
 ))
 Base = declarative_base()
 

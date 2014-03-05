@@ -79,7 +79,6 @@ def chat(request):
             pass
     if own_chat_user is not None:
         own_chat_user.visited = datetime.datetime.now()
-        transaction.commit()
     continuable = (chat.status=="ongoing" and own_chat_user is not None)
     messages = Session.query(Message).filter(
         Message.chat_id==chat.id
@@ -186,7 +185,6 @@ def chat_send(request):
             )).update({ "visited": posted_date })
     except ConnectionError:
         pass
-    transaction.commit()
     try:
         request.pubsub.publish("chat:"+str(chat.id), json.dumps({
             "action": "message",
@@ -200,8 +198,8 @@ def chat_send(request):
     except ConnectionError:
         pass
     if request.is_xhr:
-        raise HTTPNoContent
-    raise HTTPFound(request.route_path("chat", url=request.matchdict["url"]))
+        return HTTPNoContent()
+    return HTTPFound(request.route_path("chat", url=request.matchdict["url"]))
 
 def _post_end_message(request, chat, own_chat_user):
     Session.add(Message(
@@ -226,7 +224,6 @@ def _post_end_message(request, chat, own_chat_user):
             )).update({ "visited": update_date })
     except ConnectionError:
         pass
-    transaction.commit()
     try:
         request.pubsub.publish("chat:"+str(chat.id), json.dumps({
             "action": "end",
@@ -260,10 +257,10 @@ def chat_end(request):
         raise HTTPForbidden
     _post_end_message(request, chat, own_chat_user)
     if request.is_xhr:
-        raise HTTPNoContent
+        return HTTPNoContent()
     if "continue_search" in request.POST:
-        raise HTTPFound(request.route_path("home"))
-    raise HTTPFound(request.route_path("chat", url=request.matchdict["url"]))
+        return HTTPFound(request.route_path("home"))
+    return HTTPFound(request.route_path("chat", url=request.matchdict["url"]))
 
 @view_config(route_name="chat_delete", request_method="POST", permission="view")
 def chat_delete(request):
@@ -282,12 +279,11 @@ def chat_delete(request):
     if chat.status=="ongoing":
         _post_end_message(request, chat, own_chat_user)
     Session.delete(own_chat_user)
-    transaction.commit()
     if request.is_xhr:
-        raise HTTPNoContent
+        return HTTPNoContent()
     if not "HTTP_REFERER" in request.environ:
-        raise HTTPFound(request.route_path("chat_list"))
-    raise HTTPFound(request.environ["HTTP_REFERER"])
+        return HTTPFound(request.route_path("chat_list"))
+    return HTTPFound(request.environ["HTTP_REFERER"])
 
 @view_config(route_name="chat_notes", renderer="chat_notes.mako", permission="view")
 def chat_notes(request):
@@ -306,6 +302,5 @@ def chat_notes(request):
     if "notes" in request.POST:
         own_chat_user.title = request.POST["title"]
         own_chat_user.notes = request.POST["notes"]
-        transaction.commit()
     return { "chat": chat, "own_chat_user": own_chat_user }
 

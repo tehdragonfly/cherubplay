@@ -25,7 +25,6 @@ def ban_post(request):
     if user.status=="banned":
         return { "feedback": "User %s is already banned." % request.POST["username"] }
     user.status = "banned"
-    transaction.commit()
     return { "feedback": "User %s has now been banned." % request.POST["username"] }
 
 @view_config(route_name="admin_chat", renderer="admin/chat.mako", request_method="GET", permission="admin")
@@ -57,6 +56,5 @@ def chat_post(request):
         symbol=1,
         title="Admin chat"
     ))
-    transaction.commit()
-    raise HTTPFound(request.route_path("chat", url=new_chat.url))
+    return HTTPFound(request.route_path("chat", url=new_chat.url))
 

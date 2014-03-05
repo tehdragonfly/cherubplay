@@ -56,10 +56,9 @@ def sign_up(request):
     # Set cookie for session ID.
     response = HTTPFound(request.route_path("home"))
     response.set_cookie("cherubplay", new_session_id, 31536000)
-    transaction.commit()
     if "cherubplay.beta" in request.registry.settings:
         request.login_store.srem("access_codes", request.POST["access_code"])
-    raise response
+    return response
 
 @view_config(route_name="log_in", renderer="home_guest.mako", request_method="POST")
 def log_in(request):
@@ -78,8 +77,7 @@ def log_in(request):
     # Set cookie for session ID.
     response = HTTPFound(request.route_path("home"))
     response.set_cookie("cherubplay", new_session_id, 31536000)
-    transaction.commit()
-    raise response
+    return response
 
 @view_config(route_name="log_out", renderer="log_out.mako", request_method="POST")
 def log_out(request):
@@ -87,5 +85,5 @@ def log_out(request):
         request.login_store.delete("session:"+request.cookies["cherubplay"])
     response = HTTPFound(request.route_path("home"))
     response.delete_cookie("cherubplay")
-    raise response
+    return response
 
