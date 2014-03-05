@@ -40,6 +40,7 @@ class User(Base):
     email = Column(Unicode(255))
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
     last_online = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    last_ip = Column(String(40))
 
 
 class Chat(Base):

@@ -44,6 +44,7 @@ def sign_up(request):
     new_user = User(
         username=username,
         password=hashpw(request.POST["password"].encode(), gensalt()),
+        last_ip=request.environ["REMOTE_ADDR"],
     )
     Session.add(new_user)
     Session.flush()

@@ -66,6 +66,7 @@ def request_user(request):
         try:
             user = Session.query(User).filter(User.id==user_id).one()
             user.last_online = datetime.datetime.now()
+            user.last_ip = request.environ["REMOTE_ADDR"]
             # The ACL stuff means the user object belongs to a different
             # transaction to the rest of the request, so we have to manually
             # commit it here (and set the Session to not expire on commit).
