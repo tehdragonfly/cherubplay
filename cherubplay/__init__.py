@@ -1,3 +1,6 @@
+import datetime
+import transaction
+
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
 from pyramid.security import Allow, Authenticated, Everyone
@@ -52,7 +55,6 @@ class CherubplayRootFactory(object):
     def __init__(self, *args):
         pass
 
-
 def request_user(request):
     if "cherubplay" not in request.cookies:
         return None
@@ -62,10 +64,17 @@ def request_user(request):
         return None
     if user_id is not None:
         try:
-            return Session.query(User).filter(User.id==user_id).one()
+            user = Session.query(User).filter(User.id==user_id).one()
+            user.last_online = datetime.datetime.now()
+            # The ACL stuff means the user object belongs to a different
+            # transaction to the rest of the request, so we have to manually
+            # commit it here (and set the Session to not expire on commit).
+            transaction.commit()
+            return user
         except NoResultFound:
             return None
     return None
+
 
 def request_unread_chats(request):
     if request.user is None:
