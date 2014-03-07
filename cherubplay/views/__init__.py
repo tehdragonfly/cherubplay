@@ -34,13 +34,6 @@ def sign_up(request):
         return { "sign_up_error": "We can't create your account because we're having problems with the login server. Please try again later." }
     if ip_check is not None:
         return { "sign_up_error": "An account has already been created from your IP address. Please try again in a few hours." }
-    # Beta stuff.
-    if "cherubplay.beta" in request.registry.settings:
-        if (
-            "access_code" not in request.POST
-            or not request.login_store.sismember("access_codes", request.POST["access_code"])
-        ):
-            return { "sign_up_error": "Incorrect access code." }
     # Validate password.
     if request.POST["password"]=="":
         return { "sign_up_error": "Please don't use a blank password." }
@@ -70,8 +63,6 @@ def sign_up(request):
     # Set cookie for session ID.
     response = HTTPFound(request.route_path("home"))
     response.set_cookie("cherubplay", new_session_id, 31536000)
-    if "cherubplay.beta" in request.registry.settings:
-        request.login_store.srem("access_codes", request.POST["access_code"])
     return response
 
 @view_config(route_name="log_in", renderer="home_guest.mako", request_method="POST")
