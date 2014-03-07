@@ -25,22 +25,35 @@ def home(request):
 
 @view_config(route_name="sign_up", renderer="home_guest.mako", request_method="POST")
 def sign_up(request):
+    # Make sure this IP address hasn't created an account recently.
+    # Also don't explode if Redis is down.
+    ip_check_key = "ip:"+request.environ["REMOTE_ADDR"]
+    try:
+        ip_check = request.login_store.get(ip_check_key)
+    except ConnectionError:
+        return { "sign_up_error": "We can't create your account because we're having problems with the login server. Please try again later." }
+    if ip_check is not None:
+        return { "sign_up_error": "An account has already been created from your IP address. Please try again in a few hours." }
+    # Beta stuff.
     if "cherubplay.beta" in request.registry.settings:
         if (
             "access_code" not in request.POST
             or not request.login_store.sismember("access_codes", request.POST["access_code"])
         ):
             return { "sign_up_error": "Incorrect access code." }
+    # Validate password.
     if request.POST["password"]=="":
         return { "sign_up_error": "Please don't use a blank password." }
     if request.POST["password"]!=request.POST["password_again"]:
         return { "sign_up_error": "The two passwords didn't match." }
+    # Make sure username hasn't been taken.
     username = request.POST["username"].lower()[:100]
     if username_validator.match(username) is None:
         return { "sign_up_error": "Usernames can only contain letters, numbers, hyphens and underscores." }
     existing_username = Session.query(User.id).filter(User.username==username).count()
     if existing_username==1 or username in reserved_usernames:
         return { "sign_up_error": "The username \"%s\" has already been taken." % username }
+    # Create the user.
     new_user = User(
         username=username,
         password=hashpw(request.POST["password"].encode(), gensalt()),
@@ -50,10 +63,10 @@ def sign_up(request):
     Session.flush()
     # Generate session ID and add it to the login store.
     new_session_id = str(uuid.uuid4())
-    try:
-        request.login_store.set("session:"+new_session_id, new_user.id)
-    except ConnectionError:
-        return { "sign_up_error": "We can't create your account because we're having problems with the login server. Please try again later." }
+    request.login_store.set("session:"+new_session_id, new_user.id)
+    # Remember their IP address for 12 hours.
+    ip_check = request.login_store.set(ip_check_key, "1")
+    ip_check = request.login_store.expire(ip_check_key, 43200)
     # Set cookie for session ID.
     response = HTTPFound(request.route_path("home"))
     response.set_cookie("cherubplay", new_session_id, 31536000)
