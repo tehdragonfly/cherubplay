@@ -1,4 +1,8 @@
 <%inherit file="base.mako" />\
+% if "cherubplay.read_only" in request.registry.settings:
+  <p>CHERUBPLAY is a paragraph-style roleplaying website for Homestuck fans. Here, you can post your prompts, answer other people's prompts and chat with other roleplayers.</p>
+  <p>The site is currently in read-only mode, so it isn't possible to sign up or log in right now. Please check <a href="http://cherubplay.tumblr.com/">the CHERUBPLAY blog</a> for updates.</p>
+% else:
 % if forbidden:
   <p>You need to be logged in to access this page. Please sign up or log in below:</p>
 % else:
@@ -23,3 +27,4 @@
     <input type="password" name="password" placeholder="Password...">
     <button type="submit">Log in</button>
   </form>
+% endif

@@ -2,7 +2,7 @@ import transaction
 import uuid
 
 from bcrypt import gensalt, hashpw
-from pyramid.httpexceptions import HTTPFound
+from pyramid.httpexceptions import HTTPForbidden, HTTPFound
 from pyramid.renderers import render_to_response
 from pyramid.view import view_config
 from redis.exceptions import ConnectionError
@@ -25,6 +25,9 @@ def home(request):
 
 @view_config(route_name="sign_up", renderer="home_guest.mako", request_method="POST")
 def sign_up(request):
+    # Disable signing up in read-only mode.
+    if "cherubplay.read_only" in request.registry.settings:
+        raise HTTPForbidden
     # Make sure this IP address hasn't created an account recently.
     # Also don't explode if Redis is down.
     ip_check_key = "ip:"+request.environ["REMOTE_ADDR"]
@@ -67,6 +70,9 @@ def sign_up(request):
 
 @view_config(route_name="log_in", renderer="home_guest.mako", request_method="POST")
 def log_in(request):
+    # Disable logging in in read-only mode.
+    if "cherubplay.read_only" in request.registry.settings:
+        raise HTTPForbidden
     try:
         user = Session.query(User).filter(User.username==request.POST["username"].lower()).one()
     except NoResultFound:
