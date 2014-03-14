@@ -7,9 +7,14 @@
   <p>sorry only masters of the sweetest ironies are allowed to see this page</p>
   <p>register or log in below</p>
 % else:
-  <p>CHERUBPLAY is a paragraph-style roleplaying website for Homestuck fans. Here, you can post your prompts, answer other people's prompts and chat with other roleplayers. To get started, sign up or log in below:</p>
+  <p>welcome to striderplay where all the striders hang out</p>
+  <p>a million striders from a million timelines</p>
+  <p>all gathered together to share the illest prompts and have the sweetest roleplays</p>
+  <p>its like one big strider family orgy</p>
+  <p>but without the sex because that would be weird</p>
+  <p>if you have what it takes to get the wicked shit up in this place then sign up or log in below</p>
 % endif
-  <h2>become a coolkid</h2>
+  <h2>join the family</h2>
 % if sign_up_error:
   <p>${sign_up_error}</p>
 % endif

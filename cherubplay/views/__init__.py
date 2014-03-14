@@ -36,19 +36,19 @@ def sign_up(request):
     except ConnectionError:
         return { "sign_up_error": "We can't create your account because we're having problems with the login server. Please try again later." }
     if ip_check is not None:
-        return { "sign_up_error": "An account has already been created from your IP address. Please try again in a few hours." }
+        return { "sign_up_error": "an account has already been created from your ip address, try again in a few hours" }
     # Validate password.
     if request.POST["password"]=="":
-        return { "sign_up_error": "Please don't use a blank password." }
+        return { "sign_up_error": "dude dont use a blank password thats just asking to be hacked" }
     if request.POST["password"]!=request.POST["password_again"]:
-        return { "sign_up_error": "The two passwords didn't match." }
+        return { "sign_up_error": "those two passwords didnt match" }
     # Make sure username hasn't been taken.
     username = request.POST["username"].lower()[:100]
     if username_validator.match(username) is None:
-        return { "sign_up_error": "Usernames can only contain letters, numbers, hyphens and underscores." }
+        return { "sign_up_error": "usernames can only contain letters numbers hyphens and underscores" }
     existing_username = Session.query(User.id).filter(User.username==username).count()
     if existing_username==1 or username in reserved_usernames:
-        return { "sign_up_error": "The username \"%s\" has already been taken." % username }
+        return { "sign_up_error": "sorry someone else is already called %s" % username }
     # Create the user.
     new_user = User(
         username=username,
@@ -76,9 +76,9 @@ def log_in(request):
     try:
         user = Session.query(User).filter(User.username==request.POST["username"].lower()).one()
     except NoResultFound:
-        return { "log_in_error": "Username and/or password not recognised." }
+        return { "log_in_error": "sorry that username and password isnt recognized" }
     if hashpw(request.POST["password"].encode(), user.password.encode())!=user.password:
-        return { "log_in_error": "Username and/or password not recognised." }
+        return { "log_in_error": "sorry that username and password isnt recognized" }
     # Generate session ID and add it to the login store.
     new_session_id = str(uuid.uuid4())
     try:

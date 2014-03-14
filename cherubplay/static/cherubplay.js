@@ -5,7 +5,8 @@ var cherubplay = (function() {
 		"chat_list": function() {
 
 			$(".delete_form").submit(function() {
-				var confirm_end = confirm("Are you sure you want to delete this chat? This cannot be undone.");
+				alert("once you delete this chat its gone forever");
+				var confirm_end = confirm("are you sure you wanna delete it");
 				if (confirm_end) {
 					$.post(this.action);
 					this.parentNode.remove();
@@ -174,7 +175,7 @@ var cherubplay = (function() {
 				} else if (message.action=="remove_prompt") {
 					if (message.id==overlay_prompt_id) {
 						hide_overlay();
-						alert("Sorry, either this prompt has been taken or the prompter has disconnected :(");
+						alert("haha too late this prompt has been taken");
 					}
 					$("#"+message.id).remove();
 				} else if (message.action=="answer_error") {
@@ -231,7 +232,7 @@ var cherubplay = (function() {
 				}
 				message_text.val(message_text.val().trim());
 				if (message_text.val()=="") {
-					alert("You can't submit a blank message.")
+					alert("come on share some sick rhymes with us")
 					return false;
 				}
 				if (ws.readyState==1) {
@@ -243,7 +244,7 @@ var cherubplay = (function() {
 							message_text.val("").css("height", "100px");
 						},
 						"error": function() {
-							alert("There was an error with your message. Please try again later.");
+							alert("sorry your message was too awesome for the server to handle");
 						},
 						"complete": function() {
 							message_colour.removeAttr("disabled");
@@ -285,7 +286,9 @@ var cherubplay = (function() {
 				}
 			});
 			var end_form = $("#end_form").submit(function() {
-				var confirm_end = confirm("Are you sure you want to end this chat? Once a chat has ended you can't continue it later. If you'd like to continue this chat later, please click cancel and then close this window/tab.");
+				alert("once youve ended the chat you cant come back to it");
+				alert("if you wanna continue it later click cancel and just close the tab");
+				var confirm_end = confirm("are you sure you wanna end the chat");
 				if (!confirm_end) {
 					return false;
 				}
@@ -351,7 +354,7 @@ var cherubplay = (function() {
 						if (message.action=="message") {
 							render_message(message.message);
 							var d = new Date();
-							last_status_message = "Last message: "+d.toLocaleDateString()+" "+d.toLocaleTimeString()
+							last_status_message = "last message: "+d.toLocaleDateString()+" "+d.toLocaleTimeString()
 							status_bar.text(last_status_message);
 						} else if (message.action=="end") {
 							ws.close();
@@ -360,7 +363,7 @@ var cherubplay = (function() {
 									localStorage.setItem("autoprompt", "yes");
 									window.location = "/";
 								}, 3000);
-								status_bar.text("Searching again in a few seconds. Click to cancel.").click(function() {
+								status_bar.text("searching again soon click to cancel").click(function() {
 									window.clearTimeout(continue_timeout);
 									status_bar.remove();
 								});
@@ -370,21 +373,21 @@ var cherubplay = (function() {
 							message_form_container.remove();
 							render_message(message.message);
 						} else if (message.action=="typing") {
-							status_bar.text(message.symbol+" is typing.");
+							status_bar.text(message.symbol+" is typing");
 						} else if (message.action=="stopped_typing") {
 							status_bar.text(last_status_message);
 						} else if (message.action=="online") {
-							last_status_message = message.symbol+" is online.";
+							last_status_message = message.symbol+" is online";
 							status_bar.text(last_status_message);
 						} else if (message.action=="offline") {
-							last_status_message = message.symbol+" is now offline. They will be notified of any messages you send when they next visit.";
+							last_status_message = message.symbol+" went offline, dont fret though theyll be around to see your messages later";
 							status_bar.text(last_status_message);
 						}
 					}
 				}
 				ws.onclose = function(e) {
 					if (!e.wasClean) {
-						status_bar.text("Live updates currently unavailable. Please refresh to see new messages.");
+						status_bar.text("live updates arent available right now, refresh to see new messages");
 					}
 				}
 				if (typeof document.hidden !== "undefined") {

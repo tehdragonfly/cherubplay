@@ -207,7 +207,7 @@ def _post_end_message(request, chat, own_chat_user):
         type="system",
         colour="000000",
         symbol=own_chat_user.symbol,
-        text=u"%s ended the chat.",
+        text=u"%s ended the chat",
     ))
     chat.status = "ended"
     update_date = datetime.datetime.now()

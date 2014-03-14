@@ -8,6 +8,7 @@ body {
 	background-position: center;
 	background-size: cover;
 	font-family: Courier New, monospace;
+	color: #e00707;
 }
 
 h1, h2 {
@@ -75,6 +76,7 @@ textarea {
 	border-radius: 2px;
 	box-shadow: 0 1px 2px #999;
 	-webkit-column-break-inside: avoid;
+	color: #000;
 }
 
 .tile :first-child {
