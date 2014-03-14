@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>CHERUBPLAY</title>
+<title>striderplay</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/cherubplay.css?8">
+<link rel="stylesheet" href="/static/cherubplay.css?strider">
 </head>
 <body>
 <header>
@@ -24,7 +24,7 @@
   </nav>
 % endif
 % endif
-  <h1><a href="${request.route_path("home")}"><img src="/static/logo.png" alt="CHERUBPLAY"></a></h1>
+  <h1><a href="${request.route_path("home")}"><img src="/static/strider_logo.png" alt="striderplay"></a></h1>
   <br class="clear">
 </header>
 

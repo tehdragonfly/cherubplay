@@ -3,17 +3,25 @@
 body {
 	margin: 0;
 	background-color: #eee;
-	font-family: sans-serif;
+	background-image: url("/static/watermark.jpg");
+	background-attachment: fixed;
+	background-position: center;
+	background-size: cover;
+	font-family: Courier New, monospace;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1, h2 {
 	text-align: center;
-	color: #090;
+	color: #F2A400;
+}
+
+h3, h3 a, h4, h5, h6 {
+	text-align: center;
+	color: #E00707;
 }
 
 h2 {
 	font-size: 2em;
-	text-transform: uppercase;
 }
 
 h3 {
@@ -29,7 +37,7 @@ p {
 }
 
 a {
-	color: #090;
+	color: #F2A400;
 }
 
 a:hover {
@@ -96,7 +104,7 @@ label {
 
 header {
 	padding: 10px;
-	background-color: #393;
+	background-color: #E00707;
 	color: #fff;
 }
 
@@ -237,7 +245,7 @@ main {
 }
 
 .unread {
-	box-shadow: 0 2px 4px #090;
+	box-shadow: 0 1px 4px #F2A400;
 }
 
 .delete_form {
@@ -296,6 +304,6 @@ main {
 	border: 0;
 	width: 100%;
 	font: inherit;
-	color: #009900;
+	color: #E00707;
 }
 
