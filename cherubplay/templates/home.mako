@@ -22,7 +22,7 @@
     <h2>prompt mode</h2>
     <p>Enter a prompt below, and other people will be able to see it and answer if they're interested. Alternatively you can see and respond to other people's prompts in answer mode.</p>
     <form class="tile">
-      <p><input type="color" id="prompt_colour" size="6" value="#000000" maxlength="7"> <select id="preset_colours" name="preset_colours">
+      <p><input type="color" id="prompt_colour" size="6" value="#E00707" maxlength="7"> <select id="preset_colours" name="preset_colours">
 % for hex, name in preset_colours:
           <option value="#${hex}">${name}</option>
 % endfor

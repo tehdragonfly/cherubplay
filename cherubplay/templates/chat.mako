@@ -32,12 +32,12 @@ last message: ${messages[-1].posted}.\
 </section>
   <section id="message_form_container" class="tile">
     <form id="message_form" action="${request.route_path("chat_send", url=request.matchdict["url"])}" method="post">
-      <p><input type="color" id="message_colour" name="message_colour" size="6" value="#${own_chat_user.last_colour}"> <select id="preset_colours" name="preset_colours">
+      <p><input type="color" id="message_colour" name="message_colour" size="6" value="#${own_chat_user.last_colour if own_chat_user.last_colour.lower() in ("e00707", "f2a400") else "E00707"}"> <select id="preset_colours" name="preset_colours">
 % for hex, name in preset_colours:
           <option value="#${hex}">${name}</option>
 % endfor
         </select><label title="only lame chumps like john tick this"><input type="checkbox"name="message_ooc"> unironic mode</label></p>
-      <p><textarea id="message_text" name="message_text" placeholder="write a message" style="color: #${own_chat_user.last_colour}"></textarea></p>
+      <p><textarea id="message_text" name="message_text" placeholder="write a message" style="color: #${own_chat_user.last_colour if own_chat_user.last_colour.lower() in ("e00707", "f2a400") else "E00707"}"></textarea></p>
       <button type="submit" id="send_button">send</button>
     </form>
     <form id="end_form" action="${request.route_path("chat_end", url=request.matchdict["url"])}" method="post">

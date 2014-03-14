@@ -1,6 +1,6 @@
 var cherubplay = (function() {
 	var body = $(document.body);
-	var colour_regex = /^#[0-9a-f]{6}$/i;
+	var colour_regex = /^#(E0(07){2}|(41[6]{2}|[F][C]{0}2A[4]{1})00)$/i;
 	return {
 		"chat_list": function() {
 
@@ -89,12 +89,13 @@ var cherubplay = (function() {
 
 			var prompt_form = $("#prompt_mode form").submit(function(e) {
 				if (!colour_regex.test(prompt_colour.val())) {
-					alert("The colour needs to be a valid hex code, for example \"#0715CD\" or \"#416600\".");
+					alert("strider colors only");
+					alert("that means #E00707 or #F2A400");
 					return false;
 				}
 				prompt_text.val(prompt_text.val().trim());
 				if (prompt_text.val()=="") {
-					alert("You can't submit a blank prompt.")
+					alert("come on man shaq didnt die for this");
 					return false;
 				}
 				localStorage.setItem("prompt_colour", prompt_colour.val());
@@ -124,7 +125,11 @@ var cherubplay = (function() {
 			var saved_prompt_text = localStorage.getItem("prompt_text");
 			var saved_prompt_nsfw = localStorage.getItem("prompt_nsfw");
 			if (saved_prompt_colour && saved_prompt_text) {
-				prompt_colour.val(saved_prompt_colour).change();
+				if (["#e00707", "#f2a400"].indexOf(saved_prompt_colour.toLowerCase())==-1) {
+					prompt_colour.val("#e00707").change();
+				} else {
+					prompt_colour.val(saved_prompt_colour).change();
+				}
 				prompt_text.text(saved_prompt_text);
 				prompt_nsfw[0].checked = (localStorage.getItem("prompt_nsfw")=="true");
 			}
@@ -208,7 +213,7 @@ var cherubplay = (function() {
 
 			function visibility_handler() {
 				window.setTimeout(function() {
-					document.title = "CHERUBPLAY";
+					document.title = "striderplay";
 				}, 200);
 			}
 
@@ -220,7 +225,8 @@ var cherubplay = (function() {
 				typing = false;
 				window.clearTimeout(typing_timeout);
 				if (!colour_regex.test(message_colour.val())) {
-					alert("The colour needs to be a valid hex code, for example \"#0715CD\" or \"#416600\".");
+					alert("strider colors only");
+					alert("that means #E00707 or #F2A400");
 					return false;
 				}
 				message_text.val(message_text.val().trim());
@@ -325,7 +331,7 @@ var cherubplay = (function() {
 					scroll_to_bottom();
 				}
 				if (document.hidden || document.webkitHidden || document.msHidden) {
-					document.title = "New message - CHERUBPLAY";
+					document.title = "new message - striderplay";
 				}
 			}
 
@@ -336,7 +342,7 @@ var cherubplay = (function() {
 					window.setTimeout(ping, 8000);
 					scroll_to_bottom();
 					if (document.hidden || document.webkitHidden || document.msHidden) {
-						document.title = "Connected - CHERUBPLAY";
+						document.title = "connected - striderplay";
 					}
 				}
 				ws.onmessage = function(e) {
