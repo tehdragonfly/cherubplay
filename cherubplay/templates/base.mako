@@ -10,17 +10,17 @@
 % if request.user:
   <nav>
     <p>${request.user.username}</p>
-    <a href="${request.route_path("chat_list")}">Your chats\
+    <a href="${request.route_path("chat_list")}">your chats\
 % if request.unread_chats>0:
  (${request.unread_chats} unread)\
 % endif
 </a>
-    <form action="${request.route_path("log_out")}" method="post"><button type="submit">Log out</button></form>
+    <form action="${request.route_path("log_out")}" method="post"><button type="submit">log out</button></form>
   </nav>
 % elif request.matched_route.name!="home":
 % if "cherubplay.read_only" not in request.registry.settings:
   <nav>
-    <p><a href="${request.route_path("home")}">Sign up / Log in</a></p>
+    <p><a href="${request.route_path("home")}">sign up or log in</a></p>
   </nav>
 % endif
 % endif

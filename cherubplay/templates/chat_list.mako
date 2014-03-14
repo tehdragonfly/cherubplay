@@ -1,5 +1,5 @@
 <%inherit file="base.mako" />\
-  <h2>Your chats</h2>
+  <h2>your chats</h2>
 % if len(chats)==0:
   <p>You have no chats. <a href="${request.route_path("home")}">Search for a roleplaying partner to start chatting</a>.</p>
 % else:
@@ -12,7 +12,7 @@ ${paginator.pager(format='~5~')}
 % for chat_user, chat, prompt in chats:
     <li class="tile\
 % if chat.updated>chat_user.visited:
- unread" title="Updated since your last visit\
+ unread" title="updated since your last visit\
 % endif
 ">
       <h3><a href="${request.route_path("chat", url=chat.url)}">${chat_user.title or chat.url}</a>\
@@ -21,7 +21,7 @@ ${paginator.pager(format='~5~')}
 % endif
 </h3>
 % if prompt is not None:
-      <p style="color: #${prompt.colour};">Prompt: \
+      <p style="color: #${prompt.colour};">prompt: \
 % if len(prompt.text)>250:
 ${prompt.text[:250]}...\
 % else:
@@ -30,10 +30,10 @@ ${prompt.text}\
 </p>
 % endif
 % if chat_user.notes!="":
-      <p>Notes: ${chat_user.notes}</p>
+      <p>notes: ${chat_user.notes}</p>
 % endif
-      <form class="delete_form" action="${request.route_path("chat_delete", url=chat.url)}" method="post"><button type="submit">Delete</button></form>
-      <p><a href="${request.route_path("chat_notes", url=chat.url)}">Edit title/notes</a></p>
+      <form class="delete_form" action="${request.route_path("chat_delete", url=chat.url)}" method="post"><button type="submit">delete</button></form>
+      <p><a href="${request.route_path("chat_notes", url=chat.url)}">edit title and notes</a></p>
     </li>
 % endfor
   </ul>

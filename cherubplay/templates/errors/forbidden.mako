@@ -1,3 +1,3 @@
 <%inherit file="../base.mako" />\
-  <h2>403 Forbidden</h2>
-  <p>You're not allowed to access this page. You may have been banned, or this page may be reserved for site admins.</p>
+  <h2>403 forbidden</h2>
+  <p>sorry only masters of the sweetest ironies are allowed to see this page</p>

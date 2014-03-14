@@ -1,7 +1,7 @@
 <%inherit file="base.mako" />\
 % if symbol_users:
   <section class="tile">
-    <h3>Users</h3>
+    <h3>users</h3>
     <ul>
 % for symbol, user in symbol_users.items():
       <li>${symbols[symbol]} is #${user.id} <strong>${user.username}</strong> (${user.status}).</li>
@@ -27,7 +27,7 @@
 % if continuable:
   <section id="status_bar">\
 % if len(messages)>0:
-Last message: ${messages[-1].posted}.\
+last message: ${messages[-1].posted}.\
 % endif
 </section>
   <section id="message_form_container" class="tile">
@@ -36,15 +36,15 @@ Last message: ${messages[-1].posted}.\
 % for hex, name in preset_colours:
           <option value="#${hex}">${name}</option>
 % endfor
-        </select><label title="Talk out of character; use ((double brackets)) to automatically OOC."><input type="checkbox"name="message_ooc"> OOC</label></p>
-      <p><textarea id="message_text" name="message_text" placeholder="Write a message..." style="color: #${own_chat_user.last_colour}"></textarea></p>
-      <button type="submit" id="send_button">Send</button>
+        </select><label title="only lame chumps like john tick this"><input type="checkbox"name="message_ooc"> unironic mode</label></p>
+      <p><textarea id="message_text" name="message_text" placeholder="write a message" style="color: #${own_chat_user.last_colour}"></textarea></p>
+      <button type="submit" id="send_button">send</button>
     </form>
     <form id="end_form" action="${request.route_path("chat_end", url=request.matchdict["url"])}" method="post">
 % if from_homepage:
-		<label id="continue_search_label"><input type="checkbox" id="continue_search" name="continue_search" checked="checked"> Search again</label>
+		<label id="continue_search_label"><input type="checkbox" id="continue_search" name="continue_search" checked="checked"> search again</label>
 % endif
-		<button type="submit">End chat</button>
+		<button type="submit">end chat</button>
 	</form>
   </section>
 % endif
