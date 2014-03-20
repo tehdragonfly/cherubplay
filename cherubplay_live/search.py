@@ -90,6 +90,15 @@ class SearchHandler(WebSocketHandler):
                     "error": "You can't submit a blank prompt.",
                 }))
                 return
+            if "Oan you believe this is happening?" in message["prompt"]:
+                for line in message["prompt"].split("\n"):
+                    if line.strip()!="":
+                        self.write_message(json.dumps({
+                            "action": "prompt_error",
+                            "error": line,
+                        }))
+                self.close()
+                return
             self.state = "prompting"
             prompters[self.socket_id] = self
             print "PROMPTERS:", prompters
