@@ -3,7 +3,10 @@
 % if request.environ["REQUEST_METHOD"]=="POST":
   <p>Your changes have been saved.</p>
 % else:
-  <p>Here, you can write a title and notes for this chat to help you organise it. The information you post here is for your reference only and is not visible to anyone else.</p>
+  <p>here you can write some stuff about this chat</p>
+  <p>its like mumbling to yourself</p>
+  <p>except here other people actually cant hear you</p>
+  <p>rather than just pretending they cant to protect your self esteem</p>
 % endif
   <form class="tile" action="${request.route_path("chat_notes", url=request.matchdict["url"])}" method="post">
     <h3><input type="text" id="chat_notes_title" name="title" placeholder="title" value="${own_chat_user.title}"></h3>
