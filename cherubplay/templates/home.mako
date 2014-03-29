@@ -13,9 +13,13 @@
   </section>
   <section id="answer_mode">
     <h2>answer mode</h2>
-    <p>check out these sweet prompts</p>
+    <p>welcome to striderplay where all the striders hang out</p>
+    <p>a million striders from a million timelines</p>
+    <p>all gathered together to share the illest prompts and have the sweetest roleplays</p>
+    <p>check out these prompts below</p>
+    <p>or switch to prompt mode to write your own</p>
     <p>
-      <label><input type="checkbox" id="show_nsfw"> show nsfw prompts</label>
+      <label><input type="checkbox" id="show_nsfw"> show smut prompts</label>
       <button class="prompt_button">switch to prompt mode</button>
     </p>
     <ul id="prompt_list"></ul>
@@ -34,7 +38,7 @@
 % for hex, name in preset_colours:
           <option value="#${hex}">${name}</option>
 % endfor
-        </select><label><input type="checkbox" id="prompt_nsfw"> nsfw</label></p>
+        </select><label><input type="checkbox" id="prompt_nsfw"> smut</label></p>
       <p><textarea id="prompt_text" placeholder="enter your prompt"></textarea></p>
       <button type="submit">search</button>
     </form>
