@@ -15,7 +15,7 @@ preset_colours = [
     ("FFFFFF", "Omniscient asshole white"),
     ("0715CD", "John/Tavrisprite blue"),
     ("B536DA", "Rose/Fefetasprite purple"),
-    ("E00707", "Dave/Dirquiusprite red"),
+    ("E00707", "Dave/ARquiusprite red"),
     ("4AC925", "Jade/Erisolsprite green"),
     ("00D5F2", "Jane/Nannasprite blue"),
     ("FF6FF2", "Roxy pink"),
