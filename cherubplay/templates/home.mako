@@ -21,6 +21,7 @@
   <section id="prompt_mode">
     <h2>Prompt mode</h2>
     <p>Enter a prompt below, and other people will be able to see it and answer if they're interested. Alternatively you can see and respond to other people's prompts in answer mode.</p>
+    <p>Please read <a href="http://cherubplay.tumblr.com/post/78696164387/can-you-get-reported-on-cherubplay-for-your-prompt">the rules</a> before posting a prompt.</p>
     <form class="tile">
       <p><input type="color" id="prompt_colour" size="6" value="#000000" maxlength="7"> <select id="preset_colours" name="preset_colours">
 % for hex, name in preset_colours:
