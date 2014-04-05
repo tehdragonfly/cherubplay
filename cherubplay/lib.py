@@ -2,6 +2,8 @@
 
 import re
 
+from collections import OrderedDict
+
 colour_validator = re.compile("^[A-Fa-f0-9]{6}$")
 username_validator = re.compile("^[-a-z0-9_]+$")
 
@@ -42,3 +44,10 @@ preset_colours = [
     ("FF00EE", "Obnoxious fantroll pink"),
 ]
 
+prompt_categories = OrderedDict([
+    ("default", "Default"),
+    ("not-a-prompt", "Not a prompt"),
+    ("crossover", "Crossover"),
+    ("nsfw", "NSFW"),
+    ("nsfw-extreme", "NSFW Extreme"),
+])

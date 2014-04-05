@@ -13,7 +13,11 @@
     <h2>Answer mode</h2>
     <p>The following people are searching for chats. Answer one of the prompts below or switch to prompt mode to input your own prompt.</p>
     <p>
-      <label><input type="checkbox" id="show_nsfw"> Show NSFW prompts</label>
+      <label>Category: <select id="answer_category" name="answer_category">
+% for id, name in prompt_categories.items():
+        <option value="${id}">${name}</option>
+% endfor
+      </select></label>
       <button class="prompt_button">Switch to prompt mode</button>
     </p>
     <ul id="prompt_list"></ul>
@@ -27,9 +31,13 @@
 % for hex, name in preset_colours:
           <option value="#${hex}">${name}</option>
 % endfor
-        </select><label><input type="checkbox" id="prompt_nsfw"> NSFW</label></p>
+        </select></p>
       <p><textarea id="prompt_text" placeholder="Enter your prompt..."></textarea></p>
-      <button type="submit">Search</button>
+      <p><label>Post to: <select id="prompt_category" name="prompt_category">
+% for id, name in prompt_categories.items():
+        <option value="${id}">${name}</option>
+% endfor
+      </select></label><button type="submit" id="post_button">Post</button></p>
     </form>
     <p><button class="answer_button">Switch to answer mode</button></p>
   </section>

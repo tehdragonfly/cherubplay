@@ -198,10 +198,6 @@ main {
 	background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
 }
 
-#prompt_mode label {
-	float: right;
-}
-
 #prompt_mode textarea {
 	height: 150px;
 }
@@ -226,7 +222,7 @@ main {
 	background-color: rgba(238, 238, 238, 0.75);
 }
 
-#overlay_close {
+#post_button, #overlay_close {
 	float: right;
 }
 

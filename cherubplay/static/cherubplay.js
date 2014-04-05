@@ -23,7 +23,7 @@ var cherubplay = (function() {
 				if (ws.readyState==1 && new_mode=="answer_mode") {
 					ws.send(JSON.stringify({
 						"action": "search",
-						"nsfw": (show_nsfw[0].checked==true),
+						"category": answer_category.val(),
 					}));
 					body.addClass("answer_mode");
 					localStorage.setItem("last_mode", "answer_mode");
@@ -43,8 +43,8 @@ var cherubplay = (function() {
 
 			// Answer mode
 
-			var show_nsfw = $("#show_nsfw").click(function() {
-				localStorage.setItem("show_nsfw", this.checked);
+			var answer_category = $("#answer_category").change(function() {
+				localStorage.setItem("answer_category", this.value);
 				change_mode("answer_mode");
 			});
 
@@ -99,13 +99,13 @@ var cherubplay = (function() {
 				}
 				localStorage.setItem("prompt_colour", prompt_colour.val());
 				localStorage.setItem("prompt_text", prompt_text.val());
-				localStorage.setItem("prompt_nsfw", prompt_nsfw[0].checked);
+				localStorage.setItem("prompt_category", prompt_category.val());
 				change_mode("wait_mode");
 				ws.send(JSON.stringify({
 					"action": "prompt",
 					"colour": prompt_colour.val().substr(1, 6),
 					"prompt": prompt_text.val(),
-					"nsfw": prompt_nsfw[0].checked,
+					"category": prompt_category.val(),
 				}));
 				return false;
 			});
@@ -118,15 +118,17 @@ var cherubplay = (function() {
 			var prompt_text = $("#prompt_text").keyup(function() {
 				this.style.height = this.scrollHeight+"px";
 			});
-			var prompt_nsfw = $("#prompt_nsfw");
+			var prompt_category = $("#prompt_category");
 
 			var saved_prompt_colour = localStorage.getItem("prompt_colour");
 			var saved_prompt_text = localStorage.getItem("prompt_text");
-			var saved_prompt_nsfw = localStorage.getItem("prompt_nsfw");
+			var saved_prompt_category = localStorage.getItem("prompt_category");
 			if (saved_prompt_colour && saved_prompt_text) {
 				prompt_colour.val(saved_prompt_colour).change();
 				prompt_text.text(saved_prompt_text);
-				prompt_nsfw[0].checked = (localStorage.getItem("prompt_nsfw")=="true");
+			}
+			if (saved_prompt_category) {
+				prompt_category.val(saved_prompt_category);
 			}
 
 			// Communication
@@ -144,10 +146,9 @@ var cherubplay = (function() {
 
 			ws.onopen = function(e) {
 				window.setTimeout(ping, 8000);
-				show_nsfw[0].checked = (localStorage.getItem("show_nsfw")=="true");
 				var last_mode = localStorage.getItem("last_mode");
 				var autoprompt = localStorage.getItem("autoprompt");
-				if (last_mode=="prompt_mode" && autoprompt && saved_prompt_colour && saved_prompt_text) {
+				if (last_mode=="prompt_mode" && autoprompt && saved_prompt_colour && saved_prompt_text && saved_prompt_category) {
 					prompt_form.submit();
 				} else if (last_mode) {
 					change_mode(last_mode);
