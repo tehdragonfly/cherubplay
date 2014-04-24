@@ -45,9 +45,9 @@ preset_colours = [
 ]
 
 prompt_categories = OrderedDict([
-    ("default", "Default"),
-    ("not-a-prompt", "Not a prompt"),
-    ("crossover", "Crossover"),
+    ("sfw", "SFW"),
     ("nsfw", "NSFW"),
     ("nsfw-extreme", "NSFW Extreme"),
+    ("crossover", "Crossover"),
+    ("not-a-prompt", "Not a prompt"),
 ])
