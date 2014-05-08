@@ -80,9 +80,25 @@ class ChatUser(Base):
     notes = Column(UnicodeText, nullable=False, default=u"")
 
 
+class PromptReport(Base):
+    __tablename__ = "prompt_reports"
+    id = Column(Integer, primary_key=True)
+    reporting_user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    reported_user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    created = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    colour = Column(String(6), nullable=False)
+    prompt = Column(UnicodeText, nullable=False)
+    category = Column(Unicode(100), nullable=False)
+    reason = Column(UnicodeText, nullable=False)
+    notes = Column(UnicodeText, nullable=False, default=u"")
+
+
 Message.chat = relationship(Chat, backref="messages")
 Message.user = relationship(User, backref="messages")
 
 ChatUser.chat = relationship(Chat, backref="users")
 ChatUser.user = relationship(User, backref="chats")
+
+PromptReport.reporting_user = relationship(User, backref="reports_sent", primaryjoin=PromptReport.reporting_user_id==User.id)
+PromptReport.reported_user = relationship(User, backref="reports_recieved", primaryjoin=PromptReport.reported_user_id==User.id)
 

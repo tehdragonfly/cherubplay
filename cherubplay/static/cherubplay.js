@@ -84,6 +84,20 @@ var cherubplay = (function() {
 					hide_overlay();
 				}
 			});
+			$("#overlay_report").click(function(e) {
+				if (overlay_prompt_id) {
+					var reason = prompt("What's wrong with this prompt?");
+					if (prompt!=null) {
+						ws.send(JSON.stringify({
+							"action": "report",
+							"id": overlay_prompt_id,
+							"reason": reason,
+						}));
+					}
+					hide_overlay();
+					alert("Thanks for the report!");
+				}
+			});
 
 			// Prompt mode
 

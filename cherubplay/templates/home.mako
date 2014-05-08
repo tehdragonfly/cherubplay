@@ -54,6 +54,7 @@
     <section id="overlay_tile" class="tile">
       <p id="overlay_text"></p>
       <button id="overlay_close">Close</button>
+      <button id="overlay_report">Report</button>
       <button id="overlay_answer">Answer</button>
     </section>
   </section>

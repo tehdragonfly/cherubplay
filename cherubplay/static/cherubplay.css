@@ -222,7 +222,7 @@ main {
 	background-color: rgba(238, 238, 238, 0.75);
 }
 
-#post_button, #overlay_close {
+#post_button, #overlay_close, #overlay_report {
 	float: right;
 }
 
