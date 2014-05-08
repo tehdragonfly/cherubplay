@@ -11,7 +11,7 @@ from tornado.web import Application, HTTPError
 from tornado.websocket import WebSocketHandler
 
 from cherubplay.lib import colour_validator, prompt_categories
-from cherubplay.models import Chat, ChatUser, Message
+from cherubplay.models import Chat, ChatUser, Message, PromptReport
 
 from db import config, get_user, sm
 
@@ -113,6 +113,22 @@ class SearchHandler(WebSocketHandler):
         elif message["action"]=="idle":
             self.reset_state()
             self.state = "idle"
+        elif message["action"]=="report":
+            if self.socket_id not in searchers or message["id"] not in prompters:
+                return
+            prompter = prompters[message["id"]]
+            # Make a new session for thread safety.
+            Session = sm()
+            Session.add(PromptReport(
+                reporting_user_id=self.user.id,
+                reported_user_id=prompter.user.id,
+                colour=prompter.colour,
+                prompt=prompter.prompt,
+                category=prompter.category,
+                reason=message["reason"],
+            ))
+            Session.commit()
+            del Session
         elif message["action"]=="answer":
             if self.socket_id not in searchers or message["id"] not in prompters:
                 self.write_message(json.dumps({
