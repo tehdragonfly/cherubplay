@@ -87,7 +87,7 @@ var cherubplay = (function() {
 			$("#overlay_report").click(function(e) {
 				if (overlay_prompt_id) {
 					var reason = prompt("What's wrong with this prompt?");
-					if (prompt!=null) {
+					if (reason!=null) {
 						ws.send(JSON.stringify({
 							"action": "report",
 							"id": overlay_prompt_id,
