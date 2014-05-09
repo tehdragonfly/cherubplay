@@ -93,9 +93,9 @@ var cherubplay = (function() {
 							"id": overlay_prompt_id,
 							"reason": reason,
 						}));
+						alert("Thanks for the report!");
 					}
 					hide_overlay();
-					alert("Thanks for the report!");
 				}
 			});
 
