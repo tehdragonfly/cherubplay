@@ -17,7 +17,7 @@
 % for id, name in prompt_categories.items():
         <option value="${id}">${name}</option>
 % endfor
-      </select> (<a href="http://cherubplay.tumblr.com/post/83725318869/changes-to-the-front-page" target="_blank">?</a>)</label>
+      </select> (<a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under" target="_blank">?</a>)</label>
       <button class="prompt_button">Switch to prompt mode</button>
     </p>
     <ul id="prompt_list"></ul>
@@ -25,7 +25,7 @@
   <section id="prompt_mode">
     <h2>Prompt mode</h2>
     <p>Enter a prompt below, and other people will be able to see it and answer if they're interested. Alternatively you can see and respond to other people's prompts in answer mode.</p>
-    <p>Please read <a href="http://cherubplay.tumblr.com/post/78696164387/can-you-get-reported-on-cherubplay-for-your-prompt" target="_blank">the rules</a> before posting a prompt.</p>
+    <p><strong>We've clarified <a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under">what belongs under each category</a>, so please read this to make sure you're posting in the right place.</strong></p>
     <form class="tile">
       <p><input type="color" id="prompt_colour" size="6" value="#000000" maxlength="7"> <select id="preset_colours" name="preset_colours">
 % for hex, name in preset_colours:
@@ -37,7 +37,7 @@
 % for id, name in prompt_categories.items():
         <option value="${id}">${name}</option>
 % endfor
-      </select> (<a href="http://cherubplay.tumblr.com/post/83725318869/changes-to-the-front-page" target="_blank">?</a>)</label><button type="submit" id="post_button">Post</button></p>
+      </select> (<a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under" target="_blank">?</a>)</label><button type="submit" id="post_button">Post</button></p>
     </form>
     <p><button class="answer_button">Switch to answer mode</button></p>
   </section>
