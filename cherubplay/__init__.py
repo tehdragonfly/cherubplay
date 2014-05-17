@@ -146,6 +146,8 @@ def main(global_config, **settings):
 
     config.add_route("admin_ban", "/admin/ban/")
     config.add_route("admin_chat", "/admin/chat/")
+    config.add_route("admin_report_list", "/admin/reports/")
+    config.add_route("admin_report", "/admin/reports/{id}/")
 
     config.scan()
     return config.make_wsgi_app()
