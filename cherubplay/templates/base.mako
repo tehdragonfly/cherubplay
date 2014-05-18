@@ -9,7 +9,7 @@
 <header>
 % if request.user:
   <nav>
-    <p>${request.user.username}</p>
+    <p><a href="${request.route_path("account")}">${request.user.username}</a></p>
     <a href="${request.route_path("chat_list")}">Your chats\
 % if request.unread_chats>0:
  (${request.unread_chats} unread)\

@@ -143,6 +143,7 @@ def main(global_config, **settings):
     config.add_route("chat_delete", "/chats/{url}/delete/")
 
     config.add_route("account", "/account/")
+    config.add_route("account_password", "/account/password/")
 
     config.add_route("admin_ban", "/admin/ban/")
     config.add_route("admin_chat", "/admin/chat/")
