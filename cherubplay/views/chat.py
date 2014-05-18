@@ -26,6 +26,7 @@ from ..models import (
     User,
 )
 
+
 @view_config(route_name="chat_list", renderer="chat_list.mako", permission="view")
 def chat_list(request):
     current_page = int(request.GET.get("page", 1))
@@ -59,6 +60,7 @@ def chat_list(request):
         "chats": chats,
         "paginator": paginator,
     }
+
 
 @view_config(route_name="chat", renderer="chat.mako")
 def chat(request):
@@ -120,6 +122,7 @@ def chat(request):
         "preset_colours": preset_colours,
         "symbol_users": symbol_users,
     }
+
 
 @view_config(route_name="chat_send", request_method="POST", permission="chat")
 def chat_send(request):
@@ -237,8 +240,45 @@ def _post_end_message(request, chat, own_chat_user):
     except ConnectionError:
         pass
 
+
+@view_config(route_name="chat_end", renderer="chat_end.mako", request_method="GET", permission="chat")
+def chat_end_get(request):
+	# XXX NEEDZ MOAR DECORATORS
+    try:
+        chat = Session.query(Chat).filter(and_(
+            Chat.url==request.matchdict["url"],
+            Chat.status=="ongoing",
+        )).one()
+    except NoResultFound:
+        raise HTTPNotFound
+    try:
+        own_chat_user = Session.query(ChatUser).filter(
+            and_(
+                ChatUser.chat_id==chat.id,
+                ChatUser.user_id==request.user.id,
+            )
+        ).one()
+    except NoResultFound:
+        raise HTTPForbidden
+    prompt = Session.query(Message).filter(
+        Message.chat_id==chat.id,
+    ).order_by(Message.id).first()
+    last_message = Session.query(Message).filter(
+        Message.chat_id==chat.id,
+    ).order_by(Message.id.desc()).first()
+    return {
+        "action": "end",
+        "chat": chat,
+        "own_chat_user": own_chat_user,
+        "prompt": prompt,
+        "last_message": last_message,
+        "symbols": symbols,
+    }
+
+
 @view_config(route_name="chat_end", request_method="POST", permission="chat")
 def chat_end(request):
+	# XXX NEEDZ MOAR DECORATORS
     try:
         chat = Session.query(Chat).filter(and_(
             Chat.url==request.matchdict["url"],
@@ -260,10 +300,43 @@ def chat_end(request):
         return HTTPNoContent()
     if "continue_search" in request.POST:
         return HTTPFound(request.route_path("home"))
-    return HTTPFound(request.route_path("chat", url=request.matchdict["url"]))
+    return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"], _query={ "saved": "end" }))
+
+
+@view_config(route_name="chat_delete", renderer="chat_end.mako", request_method="GET", permission="view")
+def chat_delete_get(request):
+	# XXX NEEDZ MOAR DECORATORS
+    try:
+        chat = Session.query(Chat).filter(
+            Chat.url==request.matchdict["url"],
+        ).one()
+        own_chat_user = Session.query(ChatUser).filter(
+            and_(
+                ChatUser.chat_id==chat.id,
+                ChatUser.user_id==request.user.id,
+            )
+        ).one()
+    except NoResultFound:
+        raise HTTPNotFound
+    prompt = Session.query(Message).filter(
+        Message.chat_id==chat.id,
+    ).order_by(Message.id).first()
+    last_message = Session.query(Message).filter(
+        Message.chat_id==chat.id,
+    ).order_by(Message.id.desc()).first()
+    return {
+        "action": "delete",
+        "chat": chat,
+        "own_chat_user": own_chat_user,
+        "prompt": prompt,
+        "last_message": last_message,
+        "symbols": symbols,
+    }
+
 
 @view_config(route_name="chat_delete", request_method="POST", permission="view")
 def chat_delete(request):
+	# XXX NEEDZ MOAR DECORATORS
     try:
         chat = Session.query(Chat).filter(
             Chat.url==request.matchdict["url"],
@@ -281,12 +354,12 @@ def chat_delete(request):
     Session.delete(own_chat_user)
     if request.is_xhr:
         return HTTPNoContent()
-    if not "HTTP_REFERER" in request.environ:
-        return HTTPFound(request.route_path("chat_list"))
-    return HTTPFound(request.environ["HTTP_REFERER"])
+    return HTTPFound(request.route_path("chat_list"))
 
-@view_config(route_name="chat_info", renderer="chat_info.mako", permission="view")
-def chat_info(request):
+
+@view_config(route_name="chat_info", renderer="chat_info.mako", request_method="GET", permission="view")
+def chat_info_get(request):
+	# XXX NEEDZ MOAR DECORATORS
     try:
         chat = Session.query(Chat).filter(
             Chat.url==request.matchdict["url"],
@@ -303,4 +376,25 @@ def chat_info(request):
         own_chat_user.title = request.POST["title"]
         own_chat_user.notes = request.POST["notes"]
     return { "chat": chat, "own_chat_user": own_chat_user }
+
+
+
+@view_config(route_name="chat_info", renderer="chat_info.mako", request_method="POST", permission="view")
+def chat_info(request):
+	# XXX NEEDZ MOAR DECORATORS
+    try:
+        chat = Session.query(Chat).filter(
+            Chat.url==request.matchdict["url"],
+        ).one()
+        own_chat_user = Session.query(ChatUser).filter(
+            and_(
+                ChatUser.chat_id==chat.id,
+                ChatUser.user_id==request.user.id,
+            )
+        ).one()
+    except NoResultFound:
+        raise HTTPNotFound
+    own_chat_user.title = request.POST["title"]
+    own_chat_user.notes = request.POST["notes"]
+    return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"], _query={ "saved": "info" }))
 

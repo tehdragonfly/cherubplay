@@ -281,15 +281,11 @@ main {
 }
 
 #message_form button {
-	float: left;
+	float: right;
 }
 
 #message_form label {
 	float: right;
-}
-
-#end_form {
-	text-align: right;
 }
 
 /* Chat notes */
@@ -303,3 +299,10 @@ main {
 	color: #009900;
 }
 
+.danger h1, .danger h2, .danger h3, .danger h4, .danger h5, .danger h6, .danger a {
+	color: #f33;
+}
+
+.danger .links {
+	text-align: center;
+}

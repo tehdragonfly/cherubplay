@@ -293,26 +293,9 @@ var cherubplay = (function() {
 					scroll_to_bottom();
 				}
 			});
-			var end_form = $("#end_form").submit(function() {
-				var confirm_end = confirm("Are you sure you want to end this chat? Once a chat has ended you can't continue it later. If you'd like to continue this chat later, please click cancel and then close this window/tab.");
-				if (!confirm_end) {
-					return false;
-				}
-				var continue_search_checked = continue_search.length>0 && continue_search[0].checked;
-				if (continue_search_checked) {
-					ended = true;
-					localStorage.setItem("autoprompt", "yes");
-				}
-				if (ws.readyState==1) {
-					$.post(this.action, {}, function() {
-						if (continue_search_checked) {
-							location.href="/";
-						}
-					});
-					return false;
-				}
+			var search_again = $("#search_again").click(function() {
+				localStorage.setItem("autoprompt", "yes");
 			});
-			var continue_search = $("#continue_search");
 
 			function ping() {
 				if (ws.readyState==1) {
@@ -364,7 +347,7 @@ var cherubplay = (function() {
 							status_bar.text(last_status_message);
 						} else if (message.action=="end") {
 							ws.close();
-							if (continue_search.length>0 && continue_search[0].checked) {
+							if (search_again.length>0) {
 								continue_timeout = window.setTimeout(function() {
 									localStorage.setItem("autoprompt", "yes");
 									window.location = "/";

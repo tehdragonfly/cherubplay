@@ -3,7 +3,7 @@
 <head>
 <title>CHERUBPLAY</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/cherubplay.css?10">
+<link rel="stylesheet" href="/static/cherubplay.css?11">
 </head>
 <body>
 <header>
@@ -33,7 +33,7 @@ ${next.body()}\
 </main>
 
 <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
-<script src="/static/cherubplay.js?3"></script>
+<script src="/static/cherubplay.js?4"></script>
 <%block name="scripts"></%block>
 
 </body>
