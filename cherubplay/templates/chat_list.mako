@@ -20,6 +20,7 @@ ${paginator.pager(format='~5~')}
  (unread)\
 % endif
 </h3>
+      <p class="subtitle">Started ${chat.created.strftime("%a %d %b %Y")}, last message ${chat.updated.strftime("%a %d %b %Y")}. <a href="${request.route_path("chat_info", url=chat.url)}">Edit chat info</a></p>
 % if prompt is not None:
       <p style="color: #${prompt.colour};">Prompt: \
 % if len(prompt.text)>250:
@@ -32,8 +33,6 @@ ${prompt.text}\
 % if chat_user.notes!="":
       <p>Notes: ${chat_user.notes}</p>
 % endif
-      <form class="delete_form" action="${request.route_path("chat_delete", url=chat.url)}" method="post"><button type="submit">Delete</button></form>
-      <p><a href="${request.route_path("chat_notes", url=chat.url)}">Edit title/notes</a></p>
     </li>
 % endfor
   </ul>

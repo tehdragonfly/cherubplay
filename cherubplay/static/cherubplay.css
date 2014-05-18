@@ -78,18 +78,26 @@ textarea {
 }
 
 .tile p {
-	margin: 10px 0;
+	margin: 10px auto;
 	white-space: pre-line;
-}
-
-label {
-	font-size: 10pt;
-	color: #333;
 }
 
 .tile ul {
 	margin: 10px 0;
 	padding: 0 0 0 1em;
+}
+
+.subtitle, label {
+	font-size: 10pt;
+	color: #333;
+}
+
+.subtitle {
+	text-align: center;
+}
+
+h3 + .subtitle {
+	margin-top: 0;
 }
 
 /* Header */

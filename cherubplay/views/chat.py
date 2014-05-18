@@ -285,8 +285,8 @@ def chat_delete(request):
         return HTTPFound(request.route_path("chat_list"))
     return HTTPFound(request.environ["HTTP_REFERER"])
 
-@view_config(route_name="chat_notes", renderer="chat_notes.mako", permission="view")
-def chat_notes(request):
+@view_config(route_name="chat_info", renderer="chat_info.mako", permission="view")
+def chat_info(request):
     try:
         chat = Session.query(Chat).filter(
             Chat.url==request.matchdict["url"],
