@@ -41,7 +41,7 @@ Last message: ${messages[-1].posted}.\
       <button type="submit" id="send_button">Send</button>
     </form>
     <p id="info_link"><a href="${request.route_path("chat_info", url=request.matchdict["url"])}">Edit chat info</a>\
-% if from_homepage or True:
+% if from_homepage:
  · <a href="${request.route_path("home", url=request.matchdict["url"])}" id="search_again">Search again</a>\
 % endif
 </p>
