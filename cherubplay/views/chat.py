@@ -28,31 +28,45 @@ from ..models import (
 
 
 @view_config(route_name="chat_list", renderer="chat_list.mako", permission="view")
+@view_config(route_name="chat_list_ongoing", renderer="chat_list.mako", permission="view")
+@view_config(route_name="chat_list_ended", renderer="chat_list.mako", permission="view")
 def chat_list(request):
     current_page = int(request.GET.get("page", 1))
+    if request.matched_route.name == "chat_list_ongoing":
+        current_status = "ongoing"
+    elif request.matched_route.name == "chat_list_ended":
+        current_status = "ended"
+    else:
+        current_status = None
     chats = Session.query(ChatUser, Chat, Message).join(Chat).outerjoin(
         Message,
         Message.id==Session.query(
-            func.min(Message.id)
+            func.min(Message.id),
         ).filter(
-            Message.chat_id==Chat.id
+            Message.chat_id==Chat.id,
         ).correlate(Chat),
     ).filter(
         ChatUser.user_id==request.user.id,
-    ).order_by(Chat.updated.desc()).limit(25).offset((current_page-1)*25).all()
+    )
+    if current_status is not None:
+        chats = chats.filter(Chat.status==current_status)
+    chats = chats.order_by(Chat.updated.desc()).limit(25).offset((current_page-1)*25).all()
     # 404 on empty pages.
     if current_page!=1 and len(chats)==0:
         raise HTTPNotFound
     chat_count = Session.query(func.count('*')).select_from(ChatUser).filter(
-        ChatUser.user_id==request.user.id
-    ).scalar()
+        ChatUser.user_id==request.user.id,
+    )
+    if current_status is not None:
+        chat_count = chat_count.join(Chat).filter(Chat.status==current_status)
+    chat_count = chat_count.scalar()
     paginator = paginate.Page(
         [],
         page=current_page,
         items_per_page=25,
         item_count=chat_count,
         url=paginate.PageURL(
-            request.route_path("chat_list"),
+            request.route_path(request.matched_route.name),
             { "page": current_page }
         ),
     )

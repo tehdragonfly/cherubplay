@@ -3,7 +3,7 @@
 <head>
 <title>CHERUBPLAY</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="stylesheet" href="/static/cherubplay.css?11">
+<link rel="stylesheet" href="/static/cherubplay.css?12">
 </head>
 <body>
 <header>

@@ -150,6 +150,41 @@ main {
 	}
 }
 
+/* Subnav */
+
+@media (min-width: 1120px) {
+	#subnav {
+		display: block;
+		position: absolute;
+		right: 50%;
+		margin-top: 0;
+		margin-right: calc(35ex + 30px);
+		width: 180px;
+	}
+}
+
+#subnav .tile {
+	background-color: #F8F8F8;
+	box-shadow: 0 1px 2px #BBBBBB;
+}
+
+#subnav :first-child {
+	margin-top: 0;
+}
+
+@media (max-width: 1119px) {
+	#subnav ul {
+		padding: 0;
+		text-align: center;
+	}
+	#subnav li {
+		display: inline;
+	}
+	#subnav li:not(:last-child):after {
+		content: " ·";
+	}
+}
+
 /* Homepage */
 
 .account_form {
@@ -240,12 +275,12 @@ main {
 	padding: 0;
 }
 
-.unread {
-	box-shadow: 0 2px 4px #090;
+.pager {
+	text-align: center;
 }
 
-.delete_form {
-	float: right;
+.unread {
+	box-shadow: 0 2px 4px #090;
 }
 
 /* Chat window */
