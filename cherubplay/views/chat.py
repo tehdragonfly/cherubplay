@@ -122,11 +122,10 @@ def chat(request):
             for _ in messages
             if _.user is not None
         }
-        if len(symbol_users)<2:
-            for chat_user in Session.query(ChatUser).filter(
-                ChatUser.chat_id==chat.id
-            ).options(joinedload(ChatUser.user)):
-                symbol_users[chat_user.symbol] = chat_user.user
+        for chat_user in Session.query(ChatUser).filter(
+            ChatUser.chat_id==chat.id
+        ).options(joinedload(ChatUser.user)):
+            symbol_users[chat_user.symbol] = chat_user.user
     return {
         "own_chat_user": own_chat_user,
         "continuable": continuable,
@@ -189,17 +188,18 @@ def chat_send(request):
         edited=posted_date,
     ))
     chat.updated = posted_date
-    own_chat_user.visited = posted_date
     own_chat_user.last_colour = colour
     try:
-        # See if the other person is online and update their ChatUser too.
-        other_symbol = (1, 0)[own_chat_user.symbol]
-        online_symbols = request.pubsub.hvals("online:"+str(chat.id))
-        if str(other_symbol) in online_symbols:
+        # See if anyone else is online and update their ChatUser too.
+        online_symbols = [
+            int(_) for _ in request.pubsub.hvals("online:"+str(chat.id))
+        ]
+        print online_symbols
+        if len(online_symbols) != 0:
             Session.query(ChatUser).filter(and_(
-                ChatUser.chat_id==chat.id,
-                ChatUser.symbol==other_symbol,
-            )).update({ "visited": posted_date })
+                ChatUser.chat_id == chat.id,
+                ChatUser.symbol.in_(online_symbols),
+            )).update({ "visited": posted_date }, synchronize_session=False)
     except ConnectionError:
         pass
     try:
@@ -231,14 +231,16 @@ def _post_end_message(request, chat, own_chat_user):
     chat.updated = update_date
     own_chat_user.visited = update_date
     try:
-        # See if the other person is online and update their ChatUser too.
-        other_symbol = (1, 0)[own_chat_user.symbol]
-        online_symbols = request.pubsub.hvals("online:"+str(chat.id))
-        if str(other_symbol) in online_symbols:
+        # See if anyone else is online and update their ChatUser too.
+        online_symbols = [
+            int(_) for _ in request.pubsub.hvals("online:"+str(chat.id))
+        ]
+        print online_symbols
+        if len(online_symbols) != 0:
             Session.query(ChatUser).filter(and_(
-                ChatUser.chat_id==chat.id,
-                ChatUser.symbol==other_symbol,
-            )).update({ "visited": update_date })
+                ChatUser.chat_id == chat.id,
+                ChatUser.symbol.in_(online_symbols),
+            )).update({ "visited": posted_date }, synchronize_session=False)
     except ConnectionError:
         pass
     try:

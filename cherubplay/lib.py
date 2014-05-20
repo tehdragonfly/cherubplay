@@ -9,7 +9,7 @@ username_validator = re.compile("^[-a-z0-9_]+$")
 
 reserved_usernames = ()
 
-symbols = (u"●", u"🌀")
+symbols = (u"●", u"🌀", u"♠", u"♣", u"♦", u"♥", u"▲", u"■", u"⬟", u"★")
 
 preset_colours = [
     ("000000", "Preset colours..."),
