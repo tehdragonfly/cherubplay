@@ -279,6 +279,10 @@ main {
 	text-align: center;
 }
 
+.tile.pager {
+	background-color: #f8f8f8;
+}
+
 .unread {
 	box-shadow: 0 2px 4px #090;
 }
@@ -321,6 +325,10 @@ main {
 
 #message_form label {
 	float: right;
+}
+
+.tile.continue {
+	text-align: center;
 }
 
 /* Chat notes */

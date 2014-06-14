@@ -1,16 +1,5 @@
 <%inherit file="base.mako" />\
-% if symbol_users:
-  <section class="tile">
-    <h3>Users</h3>
-    <ul>
-% for symbol, user in symbol_users.items():
-      <li>${symbols[symbol]} is #${user.id} <strong>${user.username}</strong> (${user.status}).</li>
-% endfor
-    </ul>
-  </section>
-% endif
-  <ul id="messages">
-% for message in messages:
+<%def name="render_message(message)">\
     <li class="tile message_${message.type}">
 % if message.symbol is not None:
 % if message.type=="system":
@@ -22,9 +11,26 @@
       <p style="color: #${message.colour};">${message.text}</p>
 % endif
     </li>
+</%def>\
+% if symbol_users:
+  <section class="tile">
+    <h3>Users</h3>
+    <ul>
+% for symbol, user in symbol_users.items():
+      <li>${symbols[symbol]} is #${user.id} <strong>${user.username}</strong> (${user.status}).</li>
+% endfor
+    </ul>
+  </section>
+% endif
+  <ul id="messages">
+% if prompt:
+${render_message(prompt)}
+    <li class="tile pager"><a href="${request.route_path("chat", url=request.matchdict["url"], _query={ "page": 1 })}">${message_count-10} more messages</a></li>
+% endif
+% for message in messages:
+${render_message(message)}\
 % endfor
   </ul>
-% if continuable:
   <section id="status_bar">\
 % if len(messages)>0:
 Last message: ${messages[-1].posted}.\
@@ -46,9 +52,6 @@ Last message: ${messages[-1].posted}.\
 % endif
 </p>
   </section>
-% endif
 <%block name="scripts">
-% if continuable:
 <script>cherubplay.chat("${request.matchdict["url"]}");</script>
-% endif
 </%block>

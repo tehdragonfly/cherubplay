@@ -9,6 +9,7 @@ from pyramid.httpexceptions import (
     HTTPNoContent,
     HTTPNotFound,
 )
+from pyramid.renderers import render_to_response
 from pyramid.view import view_config
 from redis.exceptions import ConnectionError
 from sqlalchemy import and_
@@ -76,12 +77,14 @@ def chat_list(request):
     }
 
 
-@view_config(route_name="chat", renderer="chat.mako")
+@view_config(route_name="chat")
 def chat(request):
+
     try:
         chat = Session.query(Chat).filter(Chat.url==request.matchdict["url"]).one()
     except NoResultFound:
         raise HTTPNotFound
+
     own_chat_user = None
     if request.user is not None and request.user.status!="banned":
         try:
@@ -93,28 +96,116 @@ def chat(request):
             ).one()
         except NoResultFound:
             pass
-    if own_chat_user is not None:
+
+    continuable = chat.status=="ongoing" and own_chat_user is not None
+
+    # If we can continue the chat and there isn't a page number, show the
+    # full chat window.
+    if ("page" not in request.GET and continuable):
+
         own_chat_user.visited = datetime.datetime.now()
-    continuable = (chat.status=="ongoing" and own_chat_user is not None)
+
+        # Test if we came here from the homepage, for automatically resuming the search.
+        from_homepage = (
+            "HTTP_REFERER" in request.environ
+            and request.environ["HTTP_REFERER"]==request.route_url("home")
+        )
+
+        message_count = Session.query(func.count('*')).select_from(Message).filter(
+            Message.chat_id==chat.id,
+        ).scalar()
+
+        if message_count < 12:
+
+            prompt = None
+            messages = Session.query(Message).filter(
+                Message.chat_id==chat.id,
+            ).order_by(Message.id.asc()).all()
+
+        else:
+
+            prompt = Session.query(Message).filter(
+                Message.chat_id==chat.id,
+            ).order_by(Message.id.asc())
+            prompt = prompt.options(joinedload(Message.user))
+            prompt = prompt.first()
+
+            messages = Session.query(Message).filter(
+                Message.chat_id==chat.id,
+            ).order_by(Message.id.desc()).limit(9)
+            messages = messages.options(joinedload(Message.user))
+            messages = messages.all()
+            messages.reverse()
+
+        # List users if we're an admin.
+        # Get this from both message users and chat users, because the latter is
+        # removed if they delete the chat.
+        # XXX DON'T REALLY DELETE CHAT USER WHEN DELETING CHATS.
+        symbol_users = None
+        if request.user is not None and request.user.status=="admin":
+            symbol_users = {
+                _.symbol: _.user
+                for _ in messages
+                if _.user is not None
+            }
+            for chat_user in Session.query(ChatUser).filter(
+                ChatUser.chat_id==chat.id
+            ).options(joinedload(ChatUser.user)):
+                symbol_users[chat_user.symbol] = chat_user.user
+
+        return render_to_response("chat.mako", {
+            "symbols": symbols,
+            "preset_colours": preset_colours,
+            "own_chat_user": own_chat_user,
+            "from_homepage": from_homepage,
+            "message_count": message_count,
+            "prompt": prompt,
+            "messages": messages,
+            "symbol_users": symbol_users,
+        }, request=request)
+
+    # Otherwise show the archive view.
+
+    try:
+        current_page = int(request.GET["page"])
+    except:
+        current_page = 1
+
     messages = Session.query(Message).filter(
-        Message.chat_id==chat.id
+        Message.chat_id==chat.id,
     )
+    message_count = Session.query(func.count('*')).select_from(Message).filter(
+        Message.chat_id==chat.id,
+    )
+
     # Hide OOC messages if the chat doesn't belong to us.
     # Also don't hide OOC messages for admins.
     if own_chat_user is None and (request.user is None or request.user.status!="admin"):
         messages = messages.filter(Message.type!="ooc")
+        message_count = message_count.filter(Message.type!="ooc")
+
     # Join users if we're an admin.
     if request.user is not None and request.user.status=="admin":
         messages = messages.options(joinedload(Message.user))
-    messages = messages.order_by(Message.id.asc()).all()
-    # Test if we came here from the homepage, for automatically resuming the search.
-    from_homepage = (
-        "HTTP_REFERER" in request.environ
-        and request.environ["HTTP_REFERER"]==request.route_url("home")
+
+    messages = messages.order_by(Message.id.asc()).limit(10).offset((current_page-1)*10).all()
+    message_count = message_count.scalar()
+
+    paginator = paginate.Page(
+        [],
+        page=current_page,
+        items_per_page=10,
+        item_count=message_count,
+        url=paginate.PageURL(
+            request.route_path("chat", url=request.matchdict["url"]),
+            { "page": current_page }
+        ),
     )
+
     # List users if we're an admin.
-    # If both users have sent messages, we can get their user info from the messages list.
-    # If not, try to get their info from their chat_user objects instead.
+    # Get this from both message users and chat users, because the latter is
+    # removed if they delete the chat.
+    # XXX DON'T REALLY DELETE CHAT USER WHEN DELETING CHATS.
     symbol_users = None
     if request.user is not None and request.user.status=="admin":
         symbol_users = {
@@ -126,15 +217,14 @@ def chat(request):
             ChatUser.chat_id==chat.id
         ).options(joinedload(ChatUser.user)):
             symbol_users[chat_user.symbol] = chat_user.user
-    return {
-        "own_chat_user": own_chat_user,
+
+    return render_to_response("chat_archive.mako", {
+        "symbols": symbols,
         "continuable": continuable,
         "messages": messages,
-        "from_homepage": from_homepage,
-        "symbols": symbols,
-        "preset_colours": preset_colours,
+        "paginator": paginator,
         "symbol_users": symbol_users,
-    }
+    }, request=request)
 
 
 @view_config(route_name="chat_send", request_method="POST", permission="chat")
@@ -217,6 +307,7 @@ def chat_send(request):
     if request.is_xhr:
         return HTTPNoContent()
     return HTTPFound(request.route_path("chat", url=request.matchdict["url"]))
+
 
 def _post_end_message(request, chat, own_chat_user):
     Session.add(Message(
