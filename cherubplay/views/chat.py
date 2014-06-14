@@ -166,6 +166,12 @@ def chat(request):
 
     # Otherwise show the archive view.
 
+    # Update the visited time in archive view if the chat is ended.
+    # We need to do this because otherwise it's impossible to mark an ended
+    # chat as read.
+    if chat.status=="ended" and own_chat_user is not None:
+        own_chat_user.visited = datetime.datetime.now()
+
     try:
         current_page = int(request.GET["page"])
     except:
