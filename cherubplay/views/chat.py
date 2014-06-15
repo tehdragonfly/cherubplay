@@ -115,7 +115,7 @@ def chat(request):
             Message.chat_id==chat.id,
         ).scalar()
 
-        if message_count < 12:
+        if message_count < 30:
 
             prompt = None
             messages = Session.query(Message).filter(
@@ -132,7 +132,7 @@ def chat(request):
 
             messages = Session.query(Message).filter(
                 Message.chat_id==chat.id,
-            ).order_by(Message.id.desc()).limit(9)
+            ).order_by(Message.id.desc()).limit(25)
             messages = messages.options(joinedload(Message.user))
             messages = messages.all()
             messages.reverse()
@@ -194,13 +194,13 @@ def chat(request):
     if request.user is not None and request.user.status=="admin":
         messages = messages.options(joinedload(Message.user))
 
-    messages = messages.order_by(Message.id.asc()).limit(10).offset((current_page-1)*10).all()
+    messages = messages.order_by(Message.id.asc()).limit(25).offset((current_page-1)*25).all()
     message_count = message_count.scalar()
 
     paginator = paginate.Page(
         [],
         page=current_page,
-        items_per_page=10,
+        items_per_page=25,
         item_count=message_count,
         url=paginate.PageURL(
             request.route_path("chat", url=request.matchdict["url"]),
