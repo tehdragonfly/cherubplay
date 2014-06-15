@@ -337,7 +337,7 @@ def _post_end_message(request, chat, own_chat_user):
             Session.query(ChatUser).filter(and_(
                 ChatUser.chat_id == chat.id,
                 ChatUser.symbol.in_(online_symbols),
-            )).update({ "visited": posted_date }, synchronize_session=False)
+            )).update({ "visited": update_date }, synchronize_session=False)
     except ConnectionError:
         pass
     try:
