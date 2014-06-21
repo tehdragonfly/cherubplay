@@ -271,10 +271,7 @@ var cherubplay = (function() {
 				message_colour.val(this.value).change();
 			});
 			var message_text = $("#message_text").keypress(function(e) {
-				if (e.keyCode==13 && !e.shiftKey) {
-					message_form.submit();
-					return false;
-				} else if (ws.readyState==1) {
+				if (ws.readyState==1) {
 					window.clearTimeout(typing_timeout);
 					if (!typing) {
 						typing = true;
