@@ -2,18 +2,6 @@ var cherubplay = (function() {
 	var body = $(document.body);
 	var colour_regex = /^#[0-9a-f]{6}$/i;
 	return {
-		"chat_list": function() {
-
-			$(".delete_form").submit(function() {
-				var confirm_end = confirm("Are you sure you want to delete this chat? This cannot be undone.");
-				if (confirm_end) {
-					$.post(this.action);
-					this.parentNode.remove();
-				}
-				return false;
-			});
-
-		},
 		"home": function() {
 
 			// Modes

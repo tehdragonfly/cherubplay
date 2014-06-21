@@ -70,4 +70,4 @@ ${paginator.pager(format='~5~')}
 % endif
   </section>
 % endif
-<%block name="scripts"><script>cherubplay.chat_list();</script></%block>
+<%block name="scripts"></%block>
