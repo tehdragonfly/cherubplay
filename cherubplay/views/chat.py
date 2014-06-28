@@ -14,7 +14,7 @@ from pyramid.view import view_config
 from redis.exceptions import ConnectionError
 from sqlalchemy import and_
 from sqlalchemy import func
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import aliased, joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from webhelpers import paginate
 
@@ -27,40 +27,59 @@ from ..models import (
     User,
 )
 
+Message2 = aliased(Message)
+
 
 @view_config(route_name="chat_list", renderer="chat_list.mako", permission="view")
 @view_config(route_name="chat_list_ongoing", renderer="chat_list.mako", permission="view")
 @view_config(route_name="chat_list_ended", renderer="chat_list.mako", permission="view")
 def chat_list(request):
+
     current_page = int(request.GET.get("page", 1))
+
     if request.matched_route.name == "chat_list_ongoing":
         current_status = "ongoing"
     elif request.matched_route.name == "chat_list_ended":
         current_status = "ended"
     else:
         current_status = None
-    chats = Session.query(ChatUser, Chat, Message).join(Chat).outerjoin(
+
+    chats = Session.query(ChatUser, Chat, Message, Message2).join(Chat).outerjoin(
         Message,
         Message.id==Session.query(
             func.min(Message.id),
         ).filter(
             Message.chat_id==Chat.id,
         ).correlate(Chat),
+    ).outerjoin(
+        Message2,
+        Message2.id==Session.query(
+            func.max(Message2.id),
+        ).filter(
+            Message2.chat_id==Chat.id,
+        ).correlate(Chat),
     ).filter(
         ChatUser.user_id==request.user.id,
     )
+
     if current_status is not None:
         chats = chats.filter(Chat.status==current_status)
+
     chats = chats.order_by(Chat.updated.desc()).limit(25).offset((current_page-1)*25).all()
-    # 404 on empty pages.
+
+    # 404 on empty pages, but not on the first page.
     if current_page!=1 and len(chats)==0:
         raise HTTPNotFound
+
     chat_count = Session.query(func.count('*')).select_from(ChatUser).filter(
         ChatUser.user_id==request.user.id,
     )
+
     if current_status is not None:
         chat_count = chat_count.join(Chat).filter(Chat.status==current_status)
+
     chat_count = chat_count.scalar()
+
     paginator = paginate.Page(
         [],
         page=current_page,
@@ -71,6 +90,7 @@ def chat_list(request):
             { "page": current_page }
         ),
     )
+
     return {
         "chats": chats,
         "paginator": paginator,

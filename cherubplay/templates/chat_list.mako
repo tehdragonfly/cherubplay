@@ -32,7 +32,7 @@ ${paginator.pager(format='~5~')}
     </p>
 % endif
     <ul id="chat_list">
-% for chat_user, chat, prompt in chats:
+% for chat_user, chat, prompt, last_message in chats:
       <li class="tile\
 % if chat.updated>chat_user.visited:
  unread" title="Updated since your last visit\
@@ -41,6 +41,8 @@ ${paginator.pager(format='~5~')}
         <h3><a href="${request.route_path("chat", url=chat.url)}">${chat_user.title or chat.url}</a>\
 % if chat.updated>chat_user.visited:
  (unread)\
+% elif last_message is not None and last_message.user_id not in (None, request.user.id):
+ (unanswered)\
 % endif
 </h3>
         <p class="subtitle">\
