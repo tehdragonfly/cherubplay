@@ -123,3 +123,14 @@ def report_post(request):
     }
 
 
+@view_config(route_name="admin_user", renderer="admin/user.mako", request_method="GET", permission="admin")
+def user(request):
+    try:
+        user = Session.query(User).filter(User.username==request.matchdict["username"]).one()
+    except (ValueError, NoResultFound):
+        raise HTTPNotFound
+    return {
+        "user": user,
+    }
+
+
