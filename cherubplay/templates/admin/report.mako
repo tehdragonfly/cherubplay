@@ -3,7 +3,7 @@
   <p>Your changes have been saved.</p>
 % endif
   <div class="tile">
-  <h3>#${report.id}: ${report.reporting_user.username} reported ${report.reported_user.username}</h3>
+  <h3>#${report.id}: <a href="${request.route_path("admin_user", username=report.reporting_user.username)}">${report.reporting_user.username}</a> reported <a href="${request.route_path("admin_user", username=report.reported_user.username)}">${report.reported_user.username}</a></h3>
     <p>Category: ${prompt_categories[report.category]}</p>
     <p style="color: #${report.colour};">Prompt: ${report.prompt}</p>
     <p>Reason: ${report.reason}</p>

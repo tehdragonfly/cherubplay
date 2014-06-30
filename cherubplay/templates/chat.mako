@@ -12,15 +12,18 @@
 % endif
     </li>
 </%def>\
-% if symbol_users:
+<%def name="user_list(symbol_users)">\
   <section class="tile">
     <h3>Users</h3>
     <ul>
 % for symbol, user in symbol_users.items():
-      <li>${symbols[symbol]} is #${user.id} <strong>${user.username}</strong> (${user.status}).</li>
+      <li>${symbols[symbol]} is #${user.id} <a href="${request.route_path("admin_user", username=user.username)}">${user.username}</a> (${user.status}).</li>
 % endfor
     </ul>
   </section>
+</%def>\
+% if symbol_users:
+${user_list(symbol_users)}
 % endif
   <ul id="messages">
 % if prompt:

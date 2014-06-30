@@ -1,14 +1,7 @@
 <%inherit file="base.mako" />\
 <%namespace name="chat" file="chat.mako" />\
 % if symbol_users:
-  <section class="tile">
-    <h3>Users</h3>
-    <ul>
-% for symbol, user in symbol_users.items():
-      <li>${symbols[symbol]} is #${user.id} <strong>${user.username}</strong> (${user.status}).</li>
-% endfor
-    </ul>
-  </section>
+${chat.user_list(symbol_users)}
 % endif
 % if paginator.page_count > 1:
   <p class="pager tile">
