@@ -18,39 +18,6 @@ from ..models import (
 )
 
 
-@view_config(route_name="admin_chat", renderer="admin/chat.mako", request_method="GET", permission="admin")
-def chat_get(request):
-    return { "feedback": None }
-
-
-@view_config(route_name="admin_chat", renderer="admin/chat.mako", request_method="POST", permission="admin")
-def chat_post(request):
-    if request.POST["username"]==request.user.username:
-        return { "feedback": "You can't chat with yourself." }
-    try:
-        user = Session.query(User).filter(User.username==request.POST["username"]).one()
-    except NoResultFound:
-        return { "feedback": "User %s not found." % request.POST["username"] }
-    if user.status=="banned":
-        return { "feedback": "User %s is banned." % request.POST["username"] }
-    new_chat = Chat(url=str(uuid.uuid4()))
-    Session.add(new_chat)
-    Session.flush()
-    Session.add(ChatUser(
-        chat_id=new_chat.id,
-        user_id=request.user.id,
-        symbol=0,
-        title="Chat with %s" % user.username,
-    ))
-    Session.add(ChatUser(
-        chat_id=new_chat.id,
-        user_id=user.id,
-        symbol=1,
-        title="Admin chat"
-    ))
-    return HTTPFound(request.route_path("chat", url=new_chat.url))
-
-
 @view_config(route_name="admin_report_list", renderer="admin/report_list.mako", request_method="GET", permission="admin")
 def report_list(request):
     current_page = int(request.GET.get("page", 1))
@@ -126,5 +93,28 @@ def user_status(request):
     user = _get_user(request)
     user.status = request.POST["status"]
     return HTTPFound(request.route_path("admin_user", username=request.matchdict["username"], _query={ "saved": "status" }))
+
+
+@view_config(route_name="admin_user_chat", request_method="POST", permission="admin")
+def user_chat(request):
+    user = _get_user(request)
+    if user.status == "banned" or user.id == request.user.id:
+        raise HTTPNotFound
+    new_chat = Chat(url=str(uuid.uuid4()))
+    Session.add(new_chat)
+    Session.flush()
+    Session.add(ChatUser(
+        chat_id=new_chat.id,
+        user_id=request.user.id,
+        symbol=0,
+        title="Chat with %s" % user.username,
+    ))
+    Session.add(ChatUser(
+        chat_id=new_chat.id,
+        user_id=user.id,
+        symbol=1,
+        title="Admin chat"
+    ))
+    return HTTPFound(request.route_path("chat", url=new_chat.url))
 
 

@@ -43,4 +43,9 @@
 >Banned</option>
       </select> <button type="submit">Save</button></p>
     </form>
+% if user.status != "banned" and user.id != request.user.id:
+    <form action="${request.route_path("admin_user_chat", username=request.matchdict["username"])}" method="post">
+      <p><button type="submit">Chat with ${user.username}</button></p>
+    </form>
+% endif
   </section>

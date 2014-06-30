@@ -77,8 +77,11 @@ textarea {
 	margin-bottom: 0;
 }
 
-.tile p {
+.tile form, .tile p {
 	margin: 10px auto;
+}
+
+.tile p {
 	white-space: pre-line;
 }
 

@@ -147,11 +147,11 @@ def main(global_config, **settings):
     config.add_route("account", "/account/")
     config.add_route("account_password", "/account/password/")
 
-    config.add_route("admin_chat", "/admin/chat/")
     config.add_route("admin_report_list", "/admin/reports/")
     config.add_route("admin_report", "/admin/reports/{id}/")
     config.add_route("admin_user", "/admin/user/{username}/")
     config.add_route("admin_user_status", "/admin/user/{username}/status/")
+    config.add_route("admin_user_chat", "/admin/user/{username}/chat/")
 
     config.scan()
     return config.make_wsgi_app()
