@@ -18,23 +18,6 @@ from ..models import (
 )
 
 
-@view_config(route_name="admin_ban", renderer="admin/ban.mako", request_method="GET", permission="admin")
-def ban_get(request):
-    return { "feedback": None }
-
-
-@view_config(route_name="admin_ban", renderer="admin/ban.mako", request_method="POST", permission="admin")
-def ban_post(request):
-    try:
-        user = Session.query(User).filter(User.username==request.POST["username"]).one()
-    except NoResultFound:
-        return { "feedback": "User %s not found." % request.POST["username"] }
-    if user.status=="banned":
-        return { "feedback": "User %s is already banned." % request.POST["username"] }
-    user.status = "banned"
-    return { "feedback": "User %s has now been banned." % request.POST["username"] }
-
-
 @view_config(route_name="admin_chat", renderer="admin/chat.mako", request_method="GET", permission="admin")
 def chat_get(request):
     return { "feedback": None }
@@ -123,14 +106,25 @@ def report_post(request):
     }
 
 
-@view_config(route_name="admin_user", renderer="admin/user.mako", request_method="GET", permission="admin")
-def user(request):
+def _get_user(request):
     try:
-        user = Session.query(User).filter(User.username==request.matchdict["username"]).one()
+        return Session.query(User).filter(User.username==request.matchdict["username"]).one()
     except (ValueError, NoResultFound):
         raise HTTPNotFound
+
+
+@view_config(route_name="admin_user", renderer="admin/user.mako", request_method="GET", permission="admin")
+def user(request):
+    user = _get_user(request)
     return {
         "user": user,
     }
+
+
+@view_config(route_name="admin_user_status", request_method="POST", permission="admin")
+def user_status(request):
+    user = _get_user(request)
+    user.status = request.POST["status"]
+    return HTTPFound(request.route_path("admin_user", username=request.matchdict["username"], _query={ "saved": "status" }))
 
 

@@ -1,5 +1,8 @@
 <%inherit file="../base.mako" />\
   <h2>#${user.id} ${user.username}</h2>
+% if request.GET.get("saved") == "status":
+  <p>Status set to <strong>${user.status}</strong>.</p>
+% endif
   <nav id="subnav">
     <section class="tile">
       <ul>
@@ -13,9 +16,31 @@
   </nav>
   <section class="tile">
     <h3>Info</h3>
-    <p>Status: ${user.status}</p>
+    <p>Status: ${user.status.capitalize()}</p>
     <p>E-mail address: ${user.email}</p>
-    <p>Created: ${user.created}</p>
-    <p>Last online: ${user.last_online}</p>
+    <p>Created: ${user.created.strftime("%d %b %Y, %H:%M:%S")}</p>
+    <p>Last online: ${user.last_online.strftime("%d %b %Y, %H:%M:%S")}</p>
     <p>Last IP address: ${user.last_ip}</p>
+  </section>
+  <section class="tile">
+    <h3>Actions</h3>
+    <form action="${request.route_path("admin_user_status", username=request.matchdict["username"])}" method="post">
+      <p>Set status: <select name="status">
+        <option value="active"\
+% if user.status == "active":
+ selected="selected"\
+% endif
+>Active</option>
+        <option value="admin"\
+% if user.status == "admin":
+ selected="selected"\
+% endif
+>Admin</option>
+        <option value="banned"\
+% if user.status == "banned":
+ selected="selected"\
+% endif
+>Banned</option>
+      </select> <button type="submit">Save</button></p>
+    </form>
   </section>
