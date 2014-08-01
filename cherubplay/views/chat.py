@@ -29,13 +29,16 @@ from ..models import (
 
 
 @view_config(route_name="chat_list", renderer="chat_list.mako", permission="view")
+@view_config(route_name="chat_list_unanswered", renderer="chat_list.mako", permission="view")
 @view_config(route_name="chat_list_ongoing", renderer="chat_list.mako", permission="view")
 @view_config(route_name="chat_list_ended", renderer="chat_list.mako", permission="view")
 def chat_list(request):
 
     current_page = int(request.GET.get("page", 1))
 
-    if request.matched_route.name == "chat_list_ongoing":
+    if request.matched_route.name == "chat_list_unanswered":
+        current_status = "unanswered"
+    elif request.matched_route.name == "chat_list_ongoing":
         current_status = "ongoing"
     elif request.matched_route.name == "chat_list_ended":
         current_status = "ended"
@@ -53,21 +56,28 @@ def chat_list(request):
         ChatUser.user_id==request.user.id,
     )
 
-    if current_status is not None:
-        chats = chats.filter(Chat.status==current_status)
-
-    chats = chats.order_by(Chat.updated.desc()).limit(25).offset((current_page-1)*25).all()
-
-    # 404 on empty pages, but not on the first page.
-    if current_page!=1 and len(chats)==0:
-        raise HTTPNotFound
-
     chat_count = Session.query(func.count('*')).select_from(ChatUser).filter(
         ChatUser.user_id==request.user.id,
     )
 
-    if current_status is not None:
+    if current_status == "unanswered":
+        chats = chats.filter(and_(
+            Chat.last_user_id is not None,
+            Chat.last_user_id != request.user.id,
+        ))
+        chat_count = chat_count.join(Chat).filter(and_(
+            Chat.last_user_id is not None,
+            Chat.last_user_id != request.user.id,
+        ))
+    elif current_status is not None:
+        chats = chats.filter(Chat.status==current_status)
         chat_count = chat_count.join(Chat).filter(Chat.status==current_status)
+
+    chats = chats.order_by(Chat.updated.desc()).limit(25).offset((current_page-1)*25).all()
+
+    # 404 on empty pages, unless it's the first page.
+    if current_page!=1 and len(chats)==0:
+        raise HTTPNotFound
 
     chat_count = chat_count.scalar()
 
@@ -85,6 +95,7 @@ def chat_list(request):
     return {
         "chats": chats,
         "paginator": paginator,
+        "current_status": current_status,
     }
 
 
