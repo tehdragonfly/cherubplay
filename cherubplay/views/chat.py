@@ -14,7 +14,7 @@ from pyramid.view import view_config
 from redis.exceptions import ConnectionError
 from sqlalchemy import and_
 from sqlalchemy import func
-from sqlalchemy.orm import aliased, joinedload
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from webhelpers import paginate
 
@@ -26,8 +26,6 @@ from ..models import (
     Message,
     User,
 )
-
-Message2 = aliased(Message)
 
 
 @view_config(route_name="chat_list", renderer="chat_list.mako", permission="view")
@@ -44,19 +42,12 @@ def chat_list(request):
     else:
         current_status = None
 
-    chats = Session.query(ChatUser, Chat, Message, Message2).join(Chat).outerjoin(
+    chats = Session.query(ChatUser, Chat, Message).join(Chat).outerjoin(
         Message,
         Message.id==Session.query(
             func.min(Message.id),
         ).filter(
             Message.chat_id==Chat.id,
-        ).correlate(Chat),
-    ).outerjoin(
-        Message2,
-        Message2.id==Session.query(
-            func.max(Message2.id),
-        ).filter(
-            Message2.chat_id==Chat.id,
         ).correlate(Chat),
     ).filter(
         ChatUser.user_id==request.user.id,
