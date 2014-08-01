@@ -55,7 +55,7 @@ ${paginator.pager(format='~5~')}
 % endif
 </h3>
         <p class="subtitle">\
-% if current_status == "chat_list":
+% if current_status is None:
 ${chat.status.capitalize()}. \
 % endif
 Started ${chat.created.strftime("%a %d %b %Y")}, last message ${chat.updated.strftime("%a %d %b %Y")}. <a href="${request.route_path("chat_info", url=chat.url)}">Edit chat info</a></p>
