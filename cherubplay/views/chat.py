@@ -304,6 +304,7 @@ def chat_send(request):
         edited=posted_date,
     ))
     chat.updated = posted_date
+    chat.last_user_id = request.user.id
     own_chat_user.last_colour = colour
     try:
         # See if anyone else is online and update their ChatUser too.
@@ -346,6 +347,7 @@ def _post_end_message(request, chat, own_chat_user):
     chat.status = "ended"
     update_date = datetime.datetime.now()
     chat.updated = update_date
+    chat.last_user_id = None
     own_chat_user.visited = update_date
     try:
         # See if anyone else is online and update their ChatUser too.

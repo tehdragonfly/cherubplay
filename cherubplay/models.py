@@ -50,6 +50,7 @@ class Chat(Base):
     status = Column(Enum(u"ongoing", u"ended", name="chat_status"), nullable=False, default=u"ongoing")
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
     updated = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    last_user_id = Column(Integer, ForeignKey("users.id"))
 
 
 class Message(Base):
@@ -92,6 +93,8 @@ class PromptReport(Base):
     reason = Column(UnicodeText, nullable=False)
     notes = Column(UnicodeText, nullable=False, default=u"")
 
+
+Chat.last_user = relationship(User)
 
 Message.chat = relationship(Chat, backref="messages")
 Message.user = relationship(User, backref="messages")
