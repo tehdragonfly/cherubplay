@@ -8,7 +8,7 @@ from pyramid.view import view_config
 from redis.exceptions import ConnectionError
 from sqlalchemy.orm.exc import NoResultFound
 
-from ..lib import username_validator, reserved_usernames, preset_colours, prompt_categories
+from ..lib import username_validator, reserved_usernames, preset_colours, prompt_categories, prompt_levels
 from ..models import (
     Session,
     User,
@@ -20,6 +20,7 @@ def home(request):
         return render_to_response("home.mako", {
             "preset_colours": preset_colours,
             "prompt_categories": prompt_categories,
+            "prompt_levels": prompt_levels,
         }, request=request)
     else:
         return render_to_response("home_guest.mako", { "forbidden": False }, request=request)

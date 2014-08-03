@@ -9,9 +9,12 @@ var cherubplay = (function() {
 			function change_mode(new_mode) {
 				body.removeClass("answer_mode").removeClass("prompt_mode").removeClass("wait_mode");
 				if (ws.readyState==1 && new_mode=="answer_mode") {
+					var categories = answer_string(answer_categories);
+					var levels = answer_string(answer_levels);
 					ws.send(JSON.stringify({
 						"action": "search",
-						"category": answer_category.val(),
+						"categories": categories,
+						"levels": levels,
 					}));
 					body.addClass("answer_mode");
 					localStorage.setItem("last_mode", "answer_mode");
@@ -31,10 +34,22 @@ var cherubplay = (function() {
 
 			// Answer mode
 
-			var answer_category = $("#answer_category").change(function() {
-				localStorage.setItem("answer_category", this.value);
+			function change_answer_mode() {
 				change_mode("answer_mode");
-			});
+			}
+
+			var answer_categories = $("#answer_categories input").change(change_answer_mode);
+			var answer_levels = $("#answer_levels input").change(change_answer_mode);
+
+			function answer_string(checkboxes) {
+				var array = []
+				checkboxes.each(function(index, checkbox) {
+					if (checkbox.checked) {
+						array.push(checkbox.name);
+					}
+				});
+				return array.toString();
+			}
 
 			var prompt_list = $("#prompt_list");
 
@@ -102,12 +117,14 @@ var cherubplay = (function() {
 				localStorage.setItem("prompt_colour", prompt_colour.val());
 				localStorage.setItem("prompt_text", prompt_text.val());
 				localStorage.setItem("prompt_category", prompt_category.val());
+				localStorage.setItem("prompt_level", prompt_level.val());
 				change_mode("wait_mode");
 				ws.send(JSON.stringify({
 					"action": "prompt",
 					"colour": prompt_colour.val().substr(1, 6),
 					"prompt": prompt_text.val(),
 					"category": prompt_category.val(),
+					"level": prompt_level.val(),
 				}));
 				return false;
 			});
@@ -121,16 +138,21 @@ var cherubplay = (function() {
 				this.style.height = this.scrollHeight+"px";
 			});
 			var prompt_category = $("#prompt_category");
+			var prompt_level = $("#prompt_level");
 
 			var saved_prompt_colour = localStorage.getItem("prompt_colour");
 			var saved_prompt_text = localStorage.getItem("prompt_text");
 			var saved_prompt_category = localStorage.getItem("prompt_category");
+			var saved_prompt_level = localStorage.getItem("prompt_level");
 			if (saved_prompt_colour && saved_prompt_text) {
 				prompt_colour.val(saved_prompt_colour).change();
 				prompt_text.text(saved_prompt_text);
 			}
 			if (saved_prompt_category) {
 				prompt_category.val(saved_prompt_category);
+			}
+			if (saved_prompt_level) {
+				prompt_level.val(saved_prompt_level);
 			}
 
 			// Communication
@@ -150,7 +172,7 @@ var cherubplay = (function() {
 				window.setTimeout(ping, 8000);
 				var last_mode = localStorage.getItem("last_mode");
 				var autoprompt = localStorage.getItem("autoprompt");
-				if (last_mode=="prompt_mode" && autoprompt && saved_prompt_colour && saved_prompt_text && saved_prompt_category) {
+				if (last_mode=="prompt_mode" && autoprompt && saved_prompt_colour && saved_prompt_text && saved_prompt_category && saved_prompt_level) {
 					prompt_form.submit();
 				} else if (last_mode) {
 					change_mode(last_mode);

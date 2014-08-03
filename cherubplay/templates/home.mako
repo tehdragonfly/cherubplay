@@ -11,20 +11,28 @@
   </section>
   <section id="answer_mode">
     <h2>Answer mode</h2>
-    <p>The following people are searching for chats. Answer one of the prompts below or switch to prompt mode to input your own prompt.</p>
-    <p>
-      <label>Category: <select id="answer_category" name="answer_category">
+    <p>The following people are searching for a roleplaying partner. Answer one of the prompts below or post your own.</p>
+    <section id="categories" class="tile">
+      <ul id="answer_categories">
 % for id, name in prompt_categories.items():
-        <option value="${id}">${name}</option>
+        <li><label><input type="checkbox" name="${id}"> ${name}</label></li>
 % endfor
-      </select> (<a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under" target="_blank">?</a>)</label>
-      <button class="prompt_button">Switch to prompt mode</button>
+      </ul>
+      <ul id="answer_levels">
+% for id, name in prompt_levels.items():
+        <li><label><input type="checkbox" name="${id}"> ${name}</label></li>
+% endfor
+      </ul>
+    </section>
+    <p>
+      <button class="prompt_button">Post a prompt</button>
+      <a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under" target="_blank">Category rules</a>
     </p>
     <ul id="prompt_list"></ul>
   </section>
   <section id="prompt_mode">
     <h2>Prompt mode</h2>
-    <p>Enter a prompt below, and other people will be able to see it and answer if they're interested. Alternatively you can see and respond to other people's prompts in answer mode.</p>
+    <p>Enter a prompt below, and other people will be able to see it and answer if they're interested.</p>
     <p><strong>We've clarified <a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under">what belongs under each category</a>, so please read this to make sure you're posting in the right place.</strong></p>
     <form class="tile">
       <p><input type="color" id="prompt_colour" size="6" value="#000000" maxlength="7"> <select id="preset_colours" name="preset_colours">
@@ -33,18 +41,27 @@
 % endfor
         </select></p>
       <p><textarea id="prompt_text" placeholder="Enter your prompt..."></textarea></p>
-      <p><label>Post to: <select id="prompt_category" name="prompt_category">
+      <div id="prompt_dropdowns">Post to:
+        <select id="prompt_category" name="prompt_category">
 % for id, name in prompt_categories.items():
-        <option value="${id}">${name}</option>
+          <option value="${id}">${name}</option>
 % endfor
-      </select> (<a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under" target="_blank">?</a>)</label><button type="submit" id="post_button">Post</button></p>
+        </select>
+        <select id="prompt_level" name="prompt_level">
+% for id, name in prompt_levels.items():
+          <option value="${id}">${name}</option>
+% endfor
+        </select>
+        (<a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under" target="_blank">?</a>)
+        <button type="submit" id="post_button">Post</button>
+      </div>
     </form>
-    <p><button class="answer_button">Switch to answer mode</button></p>
+    <p><button class="answer_button">Back to available prompts</button></p>
   </section>
   <section id="wait_mode">
-    <h2>Waiting for an answer</h2>
-    <p>Your prompt has been posted. Please wait for an answer.</p>
-    <p><button class="prompt_button">Edit prompt</button> <button class="answer_button">Switch to answer mode</button></p>
+    <h2>Searching...</h2>
+    <p>Your prompt has been posted. Stick around while people look at - it'll only stay up while you have this tab open.</p>
+    <p><button class="prompt_button">Edit prompt</button> <button class="answer_button">Back to available prompts</button></p>
   </section>
   <section id="connection_error">
     <h2>Connection error</h2>

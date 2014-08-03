@@ -90,7 +90,7 @@ textarea {
 	padding: 0 0 0 1em;
 }
 
-.subtitle, label {
+.subtitle, label, #prompt_dropdowns {
 	font-size: 10pt;
 	color: #333;
 }
@@ -201,6 +201,23 @@ main {
 
 .answer_mode #answer_mode, .prompt_mode #prompt_mode, .wait_mode #wait_mode, .connection_error #connection_error  {
 	display: block;
+}
+
+#categories {
+	background-color: #f8f8f8;
+}
+
+#categories ul {
+	padding: 0;
+	text-align: center;
+}
+
+#categories li {
+	display: inline-block;
+}
+
+#categories li:not(:last-child):after {
+	content: " ·";
 }
 
 .answer_mode .prompt_button {
