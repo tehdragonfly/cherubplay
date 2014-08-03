@@ -9,12 +9,10 @@ var cherubplay = (function() {
 			function change_mode(new_mode) {
 				body.removeClass("answer_mode").removeClass("prompt_mode").removeClass("wait_mode");
 				if (ws.readyState==1 && new_mode=="answer_mode") {
-					var categories = answer_string(answer_categories);
-					var levels = answer_string(answer_levels);
 					ws.send(JSON.stringify({
 						"action": "search",
-						"categories": categories,
-						"levels": levels,
+						"categories": answer_string(answer_categories),
+						"levels": answer_string(answer_levels),
 					}));
 					body.addClass("answer_mode");
 					localStorage.setItem("last_mode", "answer_mode");
@@ -38,12 +36,25 @@ var cherubplay = (function() {
 				change_mode("answer_mode");
 			}
 
-			var answer_categories = $("#answer_categories input").change(change_answer_mode);
-			var answer_levels = $("#answer_levels input").change(change_answer_mode);
+			function load_checkboxes(index, checkbox) {
+				var checked = localStorage.getItem("answer_"+checkbox.name);
+				console.log(checkbox.name, checked);
+				// Check Homestuck and SFW by default.
+				// Should we do this as a dict?
+				if (!checked && (checkbox.name == "homestuck" || checkbox.name == "sfw")) {
+					checkbox.checked = true;
+				} else {
+					checkbox.checked = checked == "true";
+				}
+			}
+
+			var answer_categories = $("#answer_categories input").change(change_answer_mode).each(load_checkboxes);
+			var answer_levels = $("#answer_levels input").change(change_answer_mode).each(load_checkboxes);
 
 			function answer_string(checkboxes) {
 				var array = []
 				checkboxes.each(function(index, checkbox) {
+					localStorage.setItem("answer_"+checkbox.name, checkbox.checked);
 					if (checkbox.checked) {
 						array.push(checkbox.name);
 					}
