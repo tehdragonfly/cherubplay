@@ -10,7 +10,7 @@ from tornado.netutil import bind_unix_socket
 from tornado.web import Application, HTTPError
 from tornado.websocket import WebSocketHandler
 
-from cherubplay.lib import colour_validator, prompt_categories
+from cherubplay.lib import colour_validator, prompt_categories, prompt_levels
 from cherubplay.models import Chat, ChatUser, Message, PromptReport
 
 from db import config, get_user, sm
@@ -18,9 +18,9 @@ from db import config, get_user, sm
 prompters = {}
 searchers = {}
 
-def write_message_to_searchers(message, category):
+def write_message_to_searchers(message, category, level):
     for socket in searchers.values():
-        if socket.category==category:
+        if category in socket.categories and level in socket.levels:
             socket.write_message(message)
 
 class SearchHandler(WebSocketHandler):
@@ -41,7 +41,7 @@ class SearchHandler(WebSocketHandler):
             write_message_to_searchers(json.dumps({
                 "action": "remove_prompt",
                 "id": self.socket_id,
-            }), self.category)
+            }), self.category, self.level)
             print "PROMPTERS:", prompters
         if self.socket_id in searchers:
             searchers.pop(self.socket_id)
@@ -55,7 +55,8 @@ class SearchHandler(WebSocketHandler):
         if message["action"]=="search":
             self.reset_state()
             self.state = "searching"
-            self.category = message["category"]
+            self.categories = set(_ for _ in message["categories"].split(",") if _ in prompt_categories)
+            self.levels = set(_ for _ in message["levels"].split(",") if _ in prompt_levels)
             searchers[self.socket_id] = self
             print "SEARCHERS:", searchers
             self.write_message(json.dumps({
@@ -66,9 +67,10 @@ class SearchHandler(WebSocketHandler):
                         "colour": _.colour,
                         "prompt": _.prompt,
                         "category": _.category,
+                        "level": _.level,
                     }
                     for _ in prompters.values()
-                    if _.category==message["category"]
+                    if _.category in self.categories and _.level in self.levels
                 ]
             }))
         elif message["action"]=="prompt":
@@ -91,6 +93,12 @@ class SearchHandler(WebSocketHandler):
                     "error": "The specified category doesn't seem to exist.",
                 }))
                 return
+            if message["level"] not in prompt_levels:
+                self.write_message(json.dumps({
+                    "action": "prompt_error",
+                    "error": "The specified level doesn't seem to exist.",
+                }))
+                return
             for prompter in prompters.values():
                 if message["prompt"]==prompter.prompt:
                     self.write_message(json.dumps({
@@ -103,13 +111,15 @@ class SearchHandler(WebSocketHandler):
             self.colour = message["colour"]
             self.prompt = message["prompt"]
             self.category = message["category"]
+            self.level = message["level"]
             write_message_to_searchers(json.dumps({
                 "action": "new_prompt",
                 "id": self.socket_id,
                 "colour": self.colour,
                 "prompt": self.prompt,
                 "category": self.category,
-            }), self.category)
+                "level": self.level,
+            }), self.category, self.level)
         elif message["action"]=="idle":
             self.reset_state()
             self.state = "idle"
@@ -124,7 +134,7 @@ class SearchHandler(WebSocketHandler):
                 reported_user_id=prompter.user.id,
                 colour=prompter.colour,
                 prompt=prompter.prompt,
-                category=prompter.category,
+                category=prompter.category+" / "+prompter.level,
                 reason=message["reason"],
             ))
             Session.commit()
