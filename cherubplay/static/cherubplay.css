@@ -112,33 +112,52 @@ header {
 	color: #fff;
 }
 
-header nav {
-	float: right;
-	margin-bottom: 5px;
-	text-align: right;
+header h1 {
+	margin: 0;
 }
 
-header p {
-	margin: 0;
+header a, header img {
+	display: block;
+	margin: 0 auto;
 }
 
 header a {
-	color: #fff;
-}
-
-header form {
-	display: inline;
-}
-
-header h1 {
-	float: left;
-	max-width: 100%;
-	margin: 0;
+	max-width: 565px;
 }
 
 header img {
-	display: block;
 	max-width: 100%;
+}
+
+/* Navigation */
+
+#nav {
+	background-color: #262;
+	color: #fff;
+	text-align: center;
+	position: sticky;
+	top: 0;
+	z-index: 1;
+}
+
+#nav a {
+	color: #fff;
+}
+
+#nav ul {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+
+#nav li {
+	display: inline-block;
+	vertical-align: middle;
+	line-height: 1.6em;
+}
+
+#nav li:not(:last-child):after {
+	content: " ·";
 }
 
 /* Main */
