@@ -60,7 +60,7 @@
   </section>
   <section id="wait_mode">
     <h2>Searching...</h2>
-    <p>Your prompt has been posted. Stick around while people look at - it'll only stay up while you have this tab open.</p>
+    <p>Your prompt has been posted. Stick around while people look at it - it'll only stay up while you have this tab open.</p>
     <p><button class="prompt_button">Edit prompt</button> <button class="answer_button">Back to available prompts</button></p>
   </section>
   <section id="connection_error">
