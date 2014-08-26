@@ -1,6 +1,30 @@
 var cherubplay = (function() {
-	var body = $(document.body);
+
 	var colour_regex = /^#[0-9a-f]{6}$/i;
+
+	var body = $(document.body);
+	var header = $("header");
+	var header_height = header.height();
+	var nav = $("#nav");
+
+	// Fallback for sticky navigation.
+	if (nav.css("position") == "static") {
+		console.log("No position:sticky.");
+		$(window).scroll(function() {
+			var nav_position = nav.css("position");
+			if (nav_position == "static" && window.scrollY > header_height) {
+				nav.css("position", "fixed");
+				header.css("padding-bottom", nav.height());
+			} else if (nav_position == "fixed" && window.scrollY < header_height) {
+				nav.css("position", "static");
+				header.css("padding-bottom", 0);
+			}
+		});
+		$(window).resize(function() {
+			header_height = header.height();
+		});
+	}
+
 	return {
 		"home": function() {
 
