@@ -107,13 +107,13 @@ h3 + .subtitle {
 /* Header */
 
 header {
-	padding: 10px;
 	background-color: #393;
 	color: #fff;
 }
 
 header h1 {
 	margin: 0;
+	padding: 10px;
 }
 
 header a, header img {
@@ -135,8 +135,11 @@ header img {
 	background-color: #262;
 	color: #fff;
 	text-align: center;
+	position: -webkit-sticky;
 	position: sticky;
 	top: 0;
+	right: 0;
+	left: 0;
 	z-index: 1;
 }
 
