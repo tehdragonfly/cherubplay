@@ -14,21 +14,21 @@
 % if request.user:
   <nav id="nav">
     <ul>
-      <li><a href="${request.route_path("home")}">Home</a></li>
-      <li><a href="${request.route_path("account")}">${request.user.username}</a></li>
-      <li><a href="${request.route_path("chat_list")}">Your chats\
+      <li><a href="${request.route_path("home")}" id="nav_home">Home</a></li>
+      <li><a href="${request.route_path("chat_list")}" id="nav_chat_list">Your chats\
 % if request.unread_chats>0:
  (${request.unread_chats} unread)\
 % endif
 </a></li>
-      <li><form action="${request.route_path("log_out")}" method="post"><button type="submit">Log out</button></form></li>
+      <li><a href="${request.route_path("account")}" id="nav_account">${request.user.username}</a></li>
+      <li><form action="${request.route_path("log_out")}" method="post"><button type="submit" id="nav_log_out">Log out</button></form></li>
     </ul>
   </nav>
 % elif request.matched_route.name!="home":
 % if "cherubplay.read_only" not in request.registry.settings:
   <nav id="nav">
     <ul>
-      <li><a href="${request.route_path("home")}">Sign up / Log in</a></li>
+      <li><a href="${request.route_path("home")}" id="nav_home">Sign up / Log in</a></li>
     </ul>
   </nav>
 % endif

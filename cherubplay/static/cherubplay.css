@@ -140,10 +140,6 @@ header img {
 	z-index: 1;
 }
 
-#nav a {
-	color: #fff;
-}
-
 #nav ul {
 	margin: 0;
 	padding: 0;
@@ -152,12 +148,59 @@ header img {
 
 #nav li {
 	display: inline-block;
-	vertical-align: middle;
-	line-height: 1.6em;
 }
 
 #nav li:not(:last-child):after {
 	content: " ·";
+}
+
+#nav a {
+	display: inline-block;
+	line-height: 30px;
+	color: #fff;
+}
+
+#nav button {
+	display: inline-block;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none;
+	height: 30px;
+	font: inherit;
+	color: #fff;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+#nav button:hover {
+	text-decoration: none;
+}
+
+@media (max-width: 600px) {
+
+	#nav a, #nav button {
+		width: 40px;
+		/* Cosmo mini icons, from http://www.icojam.com/blog/?p=674 */
+		background-image: url('/static/nav_sprite.png');
+		background-repeat: no-repeat;
+		text-indent: -9000px;
+	}
+
+	#nav a {
+		line-height: 40px;
+	}
+
+	#nav button {
+		height: 40px;
+	}
+
+	#nav_home { background-position: 0 0; }
+	#nav_chat_list { background-position: 0 -40px; }
+	#nav_account { background-position: 0 -80px; }
+	/* Gotta do button here or it gets overridden by #nav button above. */
+	button#nav_log_out { background-position: 0 -120px; }
+
 }
 
 /* Main */
