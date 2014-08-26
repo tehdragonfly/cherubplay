@@ -13,11 +13,11 @@ var cherubplay = (function() {
 		$(window).scroll(function() {
 			var nav_position = nav.css("position");
 			if (nav_position == "static" && window.scrollY > header_height) {
-				nav.css("position", "fixed");
 				header.css("padding-bottom", nav.height());
+				nav.css("position", "fixed");
 			} else if (nav_position == "fixed" && window.scrollY < header_height) {
-				nav.css("position", "static");
 				header.css("padding-bottom", 0);
+				nav.css("position", "static");
 			}
 		});
 		$(window).resize(function() {
