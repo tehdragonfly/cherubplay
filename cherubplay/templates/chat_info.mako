@@ -1,5 +1,6 @@
 <%inherit file="base.mako" />\
-  <h1>${own_chat_user.title or chat.url}</h1>
+<%namespace name="chat_base" file="chat.mako" />\
+${chat_base.render_subnav("info", chat, own_chat_user)}
 % if request.GET.get("saved") == "end":
   <p>This chat has now been ended.</p>
 % elif request.GET.get("saved") == "info":

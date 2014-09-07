@@ -178,6 +178,7 @@ def chat(request):
         return render_to_response("chat.mako", {
             "symbols": symbols,
             "preset_colours": preset_colours,
+            "chat": chat,
             "own_chat_user": own_chat_user,
             "from_homepage": from_homepage,
             "message_count": message_count,
@@ -249,6 +250,8 @@ def chat(request):
     return render_to_response("chat_archive.mako", {
         "symbols": symbols,
         "continuable": continuable,
+        "chat": chat,
+        "own_chat_user": own_chat_user,
         "messages": messages,
         "paginator": paginator,
         "symbol_users": symbol_users,

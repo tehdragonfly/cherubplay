@@ -1,7 +1,10 @@
 <%inherit file="base.mako" />\
-<%namespace name="chat" file="chat.mako" />\
+<%namespace name="chat_base" file="chat.mako" />\
+% if own_chat_user:
+${chat_base.render_subnav("archive", chat, own_chat_user)}
+% endif
 % if symbol_users:
-${chat.user_list(symbol_users)}
+${chat_base.user_list(symbol_users)}
 % endif
 % if paginator.page_count > 1:
   <p class="pager tile">
@@ -11,7 +14,7 @@ ${paginator.pager(format='~5~')}
 % if messages:
   <ul id="messages">
 % for message in messages:
-${chat.render_message(message)}\
+${chat_base.render_message(message)}\
 % endfor
   </ul>
 % else:

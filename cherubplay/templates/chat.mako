@@ -22,6 +22,33 @@
     </ul>
   </section>
 </%def>\
+<%def name="render_subnav(page, chat, own_chat_user)">\
+  <h2>${own_chat_user.title or chat.url}</h2>
+  <nav id="subnav">
+    <section class="tile">
+      <ul>
+% if chat.status == "ongoing":
+% if page == "chat":
+        <li>Chat</li>
+% else:
+        <li><a href="${request.route_path("chat", url=request.matchdict["url"])}">Chat</a></li>
+% endif
+% endif
+% if page == "archive":
+        <li>Archive</li>
+% else:
+        <li><a href="${request.route_path("chat", url=request.matchdict["url"], _query={ "page": 1 })}">Archive</a></li>
+% endif
+% if page == "info":
+        <li>Info</li>
+% else:
+        <li><a href="${request.route_path("chat_info", url=request.matchdict["url"])}">Info</a></li>
+% endif
+      </ul>
+    </section>
+  </nav>
+</%def>\
+${render_subnav("chat", chat, own_chat_user)}
 % if symbol_users:
 ${user_list(symbol_users)}
 % endif
