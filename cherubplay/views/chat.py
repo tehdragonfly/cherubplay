@@ -461,9 +461,10 @@ def chat_delete_get(request):
     prompt = Session.query(Message).filter(
         Message.chat_id==chat.id,
     ).order_by(Message.id).first()
-    last_message = Session.query(Message).filter(
+    last_message = Session.query(Message).filter(and_(
         Message.chat_id==chat.id,
-    ).order_by(Message.id.desc()).first()
+        Message.type!="system",
+    )).order_by(Message.id.desc()).first()
     return {
         "action": "delete",
         "chat": chat,
