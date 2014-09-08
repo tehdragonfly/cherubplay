@@ -1,5 +1,6 @@
 <%inherit file="base.mako" />\
-  <h1>${own_chat_user.title or chat.url}</h1>
+<%namespace name="chat_base" file="chat.mako" />\
+${chat_base.render_subnav(action, chat, own_chat_user)}
   <p>Are you sure you want to ${action} this chat?</p>
 % if prompt:
   <section class="tile message_${prompt.type}">
