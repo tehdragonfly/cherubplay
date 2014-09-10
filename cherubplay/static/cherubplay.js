@@ -62,7 +62,6 @@ var cherubplay = (function() {
 
 			function load_checkboxes(index, checkbox) {
 				var checked = localStorage.getItem("answer_"+checkbox.name);
-				console.log(checkbox.name, checked);
 				// Check Homestuck and SFW by default.
 				// Should we do this as a dict?
 				if (!checked && (checkbox.name == "homestuck" || checkbox.name == "sfw")) {
@@ -86,13 +85,66 @@ var cherubplay = (function() {
 				return array.toString();
 			}
 
+			var filter_toggle = $("#filter_toggle");
+
+			var filter_sites = $("#filter_sites input").each(function(index, checkbox) {
+				checkbox.checked = localStorage.getItem("filter_"+checkbox.name) == "true";
+			});
+
+			var filter_custom = $("#filter_custom");
+			var saved_filter_custom = localStorage.getItem("filter_custom");
+			if (saved_filter_custom) {
+				filter_custom.text(saved_filter_custom);
+			}
+
+			function make_filter_phrases() {
+				// Allow delimiting by comma or linebreak.
+				// Trim and lowercase.
+				// Filter empty phrases.
+				var filter_phrases = $("#filter_custom").val().replace("\n", ",", "g").split(",").map(
+					function(phrase) { return phrase.trim().toLowerCase(); }
+				).filter(
+					function(phrase) { return phrase; }
+				);
+				filter_sites.each(function(index, checkbox) {
+					if (checkbox.checked) {
+						filter_phrases.push(checkbox.name);
+					}
+				});
+				return filter_phrases;
+			}
+			var filter_phrases = make_filter_phrases();
+
+			var filter_form = $("#categories form").submit(function() {
+				filter_sites.each(function(index, checkbox) {
+					localStorage.setItem("filter_"+checkbox.name, checkbox.checked);
+				});
+				localStorage.setItem("filter_custom", filter_custom.val());
+				filter_phrases = make_filter_phrases();
+				filter_toggle[0].checked = false;
+				change_mode("answer_mode");
+				return false;
+			});
+
 			var prompt_list = $("#prompt_list");
 
+			function check_filter_phrases(prompt) {
+				var prompt_text = prompt.prompt.toLowerCase();
+				for (var i=0; i<filter_phrases.length; i++) {
+					if (prompt_text.indexOf(filter_phrases[i]) != -1) {
+						return false;
+					}
+				}
+				return true;
+			}
+
 			function render_prompt(prompt) {
-				var li = $("<li>").attr("id", prompt.id).addClass("tile").click(show_overlay);
-				$("<p>").css("color", "#"+prompt.colour).text(prompt.prompt).appendTo(li);
-				$("<div>").addClass("fade").appendTo(li);
-				li.appendTo(prompt_list);
+				if (filter_phrases.length == 0 || check_filter_phrases(prompt)) {
+					var li = $("<li>").attr("id", prompt.id).addClass("tile").click(show_overlay);
+					$("<p>").css("color", "#"+prompt.colour).text(prompt.prompt).appendTo(li);
+					$("<div>").addClass("fade").appendTo(li);
+					li.appendTo(prompt_list);
+				}
 			}
 
 			var overlay_prompt_id;
@@ -220,7 +272,7 @@ var cherubplay = (function() {
 			ws.onmessage = function(e) {
 				message = JSON.parse(e.data);
 				if (message.action=="prompts") {
-					$(prompt_list).empty()
+					$(prompt_list).empty();
 					for (var i=0; i<message.prompts.length; i++) {
 						render_prompt(message.prompts[i]);
 					}

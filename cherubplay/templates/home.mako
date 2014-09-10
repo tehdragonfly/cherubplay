@@ -23,6 +23,18 @@
         <li><label><input type="checkbox" name="${id}"> ${name}</label></li>
 % endfor
       </ul>
+      <input type="checkbox" id="filter_toggle">
+      <p><label for="filter_toggle">Set custom filters</label></p>
+      <form>
+        <h3>Custom filters</h3>
+        <ul id="filter_sites">
+          <li><label><input type="checkbox" name="msparp"> Hide MSPARP links</label></li>
+          <li><label><input type="checkbox" name="charat"> Hide Charat links</label></li>
+          <li><label><input type="checkbox" name="tumblr"> Hide Tumblr links</label></li>
+        </ul>
+        <p><textarea id="filter_custom" rows="1" placeholder="Hide other phrases..."></textarea></p>
+        <button type="submit" id="filter_button">Apply</button>
+      </form>
     </section>
     <p>
       <button class="prompt_button">Post a prompt</button>

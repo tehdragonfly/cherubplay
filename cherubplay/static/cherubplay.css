@@ -287,7 +287,7 @@ main {
 	display: block;
 }
 
-#categories {
+#categories, #categories textarea {
 	background-color: #f8f8f8;
 }
 
@@ -302,6 +302,34 @@ main {
 
 #categories li:not(:last-child):after {
 	content: " ·";
+}
+
+#filter_toggle {
+	display: none;
+}
+
+#filter_toggle + p {
+	margin-bottom: 0;
+	text-align: center;
+	font-size: 10pt;
+}
+
+label[for="filter_toggle"] {
+	color: #090;
+	text-decoration: underline;
+	cursor: pointer;
+}
+
+label[for="filter_toggle"]:hover {
+	text-decoration: none;
+}
+
+#filter_toggle + p + form, #filter_toggle:checked + p {
+	display: none;
+}
+
+#filter_toggle:checked + p + form {
+	display: block;
 }
 
 .answer_mode .prompt_button {
