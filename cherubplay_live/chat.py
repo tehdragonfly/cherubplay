@@ -35,7 +35,7 @@ class ChatHandler(WebSocketHandler):
         self.socket_id = str(uuid4())
         # Fire online message, but only if this is the only tab we have open.
         online_symbols = set(int(_) for _ in publish_client.hvals("online:"+str(self.chat.id)))
-        if str(self.chat_user.symbol) not in online_symbols:
+        if self.chat_user.symbol not in online_symbols:
             publish_client.publish("chat:"+str(self.chat.id), json.dumps({
                 "action": "online",
                 "symbol": symbols[self.chat_user.symbol],
