@@ -258,17 +258,16 @@ def chat(request):
     }, request=request)
 
 
-@view_config(route_name="chat_send", request_method="POST", permission="chat")
-def chat_send(request):
-    # Messages can only be sent in ongoing chats.
+def _get_chat(request, ongoing=True):
     try:
-        chat = Session.query(Chat).filter(and_(
+        chat = Session.query(Chat).filter(
             Chat.url==request.matchdict["url"],
-            Chat.status=="ongoing",
-        )).one()
+        )
+        if ongoing:
+            chat = chat.filter(Chat.status=="ongoing")
+        chat = chat.one()
     except NoResultFound:
         raise HTTPNotFound
-    # We have to be a member of this chat to send a message.
     try:
         own_chat_user = Session.query(ChatUser).filter(
             and_(
@@ -278,6 +277,10 @@ def chat_send(request):
         ).one()
     except NoResultFound:
         raise HTTPForbidden
+    return chat, own_chat_user
+
+
+def _validate_message_form(request):
     colour = request.POST["message_colour"]
     if colour.startswith("#"):
         colour = colour[1:]
@@ -297,6 +300,13 @@ def chat_send(request):
         or trimmed_message_text.endswith("}}")
     ):
         message_type="ooc"
+    return colour, trimmed_message_text, message_type
+
+
+@view_config(route_name="chat_send", request_method="POST", permission="chat")
+def chat_send(request):
+    chat, own_chat_user = _get_chat(request)
+    colour, trimmed_message_text, message_type = _validate_message_form(request)
     posted_date = datetime.datetime.now()
     Session.add(Message(
         chat_id=chat.id,
@@ -341,6 +351,29 @@ def chat_send(request):
     return HTTPFound(request.route_path("chat", url=request.matchdict["url"]))
 
 
+@view_config(route_name="chat_edit", request_method="POST", permission="chat")
+def chat_edit(request):
+    chat, own_chat_user = _get_chat(request)
+    try:
+        message = Session.query(Message).filter(and_(
+            Message.id == request.matchdict["message_id"],
+            Message.chat_id == chat.id,
+            Message.user_id == request.user.id,
+            # XXX DATE FILTER?
+        )).one()
+    except NoResultFound:
+        raise HTTPNotFound
+    colour, trimmed_message_text, message_type = _validate_message_form(request)
+    message.type = message_type
+    message.colour = colour
+    message.text = trimmed_message_text
+    message.edited = datetime.datetime.now()
+    # XXX PUBSUB
+    if request.is_xhr:
+        return HTTPNoContent()
+    return HTTPFound(request.environ["HTTP_REFERER"])
+
+
 def _post_end_message(request, chat, own_chat_user):
     Session.add(Message(
         chat_id=chat.id,
@@ -383,23 +416,7 @@ def _post_end_message(request, chat, own_chat_user):
 
 @view_config(route_name="chat_end", renderer="chat_end.mako", request_method="GET", permission="chat")
 def chat_end_get(request):
-    # XXX NEEDZ MOAR DECORATORS
-    try:
-        chat = Session.query(Chat).filter(and_(
-            Chat.url==request.matchdict["url"],
-            Chat.status=="ongoing",
-        )).one()
-    except NoResultFound:
-        raise HTTPNotFound
-    try:
-        own_chat_user = Session.query(ChatUser).filter(
-            and_(
-                ChatUser.chat_id==chat.id,
-                ChatUser.user_id==request.user.id,
-            )
-        ).one()
-    except NoResultFound:
-        raise HTTPForbidden
+    chat, own_chat_user = _get_chat(request)
     prompt = Session.query(Message).filter(
         Message.chat_id==chat.id,
     ).order_by(Message.id).first()
@@ -418,23 +435,7 @@ def chat_end_get(request):
 
 @view_config(route_name="chat_end", request_method="POST", permission="chat")
 def chat_end(request):
-    # XXX NEEDZ MOAR DECORATORS
-    try:
-        chat = Session.query(Chat).filter(and_(
-            Chat.url==request.matchdict["url"],
-            Chat.status=="ongoing",
-        )).one()
-    except NoResultFound:
-        raise HTTPNotFound
-    try:
-        own_chat_user = Session.query(ChatUser).filter(
-            and_(
-                ChatUser.chat_id==chat.id,
-                ChatUser.user_id==request.user.id,
-            )
-        ).one()
-    except NoResultFound:
-        raise HTTPForbidden
+    chat, own_chat_user = _get_chat(request)
     _post_end_message(request, chat, own_chat_user)
     if request.is_xhr:
         return HTTPNoContent()
@@ -445,19 +446,7 @@ def chat_end(request):
 
 @view_config(route_name="chat_delete", renderer="chat_end.mako", request_method="GET", permission="view")
 def chat_delete_get(request):
-    # XXX NEEDZ MOAR DECORATORS
-    try:
-        chat = Session.query(Chat).filter(
-            Chat.url==request.matchdict["url"],
-        ).one()
-        own_chat_user = Session.query(ChatUser).filter(
-            and_(
-                ChatUser.chat_id==chat.id,
-                ChatUser.user_id==request.user.id,
-            )
-        ).one()
-    except NoResultFound:
-        raise HTTPNotFound
+    chat, own_chat_user = _get_chat(request, ongoing=False)
     prompt = Session.query(Message).filter(
         Message.chat_id==chat.id,
     ).order_by(Message.id).first()
@@ -477,19 +466,7 @@ def chat_delete_get(request):
 
 @view_config(route_name="chat_delete", request_method="POST", permission="view")
 def chat_delete(request):
-    # XXX NEEDZ MOAR DECORATORS
-    try:
-        chat = Session.query(Chat).filter(
-            Chat.url==request.matchdict["url"],
-        ).one()
-        own_chat_user = Session.query(ChatUser).filter(
-            and_(
-                ChatUser.chat_id==chat.id,
-                ChatUser.user_id==request.user.id,
-            )
-        ).one()
-    except NoResultFound:
-        raise HTTPNotFound
+    chat, own_chat_user = _get_chat(request, ongoing=False)
     if chat.status=="ongoing":
         _post_end_message(request, chat, own_chat_user)
     Session.delete(own_chat_user)
@@ -500,38 +477,13 @@ def chat_delete(request):
 
 @view_config(route_name="chat_info", renderer="chat_info.mako", request_method="GET", permission="view")
 def chat_info_get(request):
-    # XXX NEEDZ MOAR DECORATORS
-    try:
-        chat = Session.query(Chat).filter(
-            Chat.url==request.matchdict["url"],
-        ).one()
-        own_chat_user = Session.query(ChatUser).filter(
-            and_(
-                ChatUser.chat_id==chat.id,
-                ChatUser.user_id==request.user.id,
-            )
-        ).one()
-    except NoResultFound:
-        raise HTTPNotFound
+    chat, own_chat_user = _get_chat(request, ongoing=False)
     return { "chat": chat, "own_chat_user": own_chat_user }
-
 
 
 @view_config(route_name="chat_info", renderer="chat_info.mako", request_method="POST", permission="view")
 def chat_info(request):
-    # XXX NEEDZ MOAR DECORATORS
-    try:
-        chat = Session.query(Chat).filter(
-            Chat.url==request.matchdict["url"],
-        ).one()
-        own_chat_user = Session.query(ChatUser).filter(
-            and_(
-                ChatUser.chat_id==chat.id,
-                ChatUser.user_id==request.user.id,
-            )
-        ).one()
-    except NoResultFound:
-        raise HTTPNotFound
+    chat, own_chat_user = _get_chat(request, ongoing=False)
     own_chat_user.title = request.POST["title"][:100]
     own_chat_user.notes = request.POST["notes"]
     return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"], _query={ "saved": "info" }))

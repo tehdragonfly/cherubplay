@@ -142,6 +142,7 @@ def main(global_config, **settings):
     config.add_route("chat_info", "/chats/{url}/info/")
 
     config.add_route("chat_send", "/chats/{url}/send/")
+    config.add_route("chat_edit", "/chats/{url}/edit/{message_id}/")
     config.add_route("chat_end", "/chats/{url}/end/")
     config.add_route("chat_delete", "/chats/{url}/delete/")
 
