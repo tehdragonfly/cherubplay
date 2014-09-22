@@ -303,7 +303,7 @@ var cherubplay = (function() {
 			}
 
 		},
-		"chat": function(chat_url) {
+		"chat": function(chat_url, own_symbol) {
 
 			var typing = false;
 			var typing_timeout;
@@ -325,12 +325,55 @@ var cherubplay = (function() {
 			}
 
 			var messages = $("#messages");
+
+			var editing_id, pre_edit_color, pre_edit_ooc, pre_edit_text;
+
+			function cancel_editing() {
+				$(".editing").removeClass("editing");
+				editing_id = null;
+				message_form.attr("action", "/chats/"+chat_url+"/send/");
+				message_colour.val(pre_edit_color).change();
+				message_ooc[0].checked = pre_edit_ooc;
+				message_text.css("height", "100px").val(pre_edit_text).change().keyup();
+				message_form.find("button").text("Send");
+				window.scrollTo(0, message_form_container.position()["top"]-50);
+			}
+
+			$("#messages li[data-symbol="+own_symbol+"]").dblclick(function() {
+				var jquery_this = $(this);
+				var editing_this = jquery_this.hasClass("editing");
+				if (editing_this) {
+					cancel_editing();
+				} else {
+					$(".editing").removeClass("editing");
+					if (!editing_id) {
+						pre_edit_color = message_colour.val();
+						pre_edit_ooc = message_ooc[0].checked;
+						pre_edit_text = message_text.val();
+					}
+					editing_id = jquery_this.attr("id").substr(8);
+					message_form.attr("action", "/chats/"+chat_url+"/edit/"+editing_id+"/");
+					jquery_this.addClass("editing");
+					message_form_container.addClass("editing");
+					var paragraph = jquery_this.find("p");
+					message_colour.val(paragraph.css("color")).change();
+					message_ooc[0].checked = jquery_this.hasClass("message_ooc");
+					message_text.css("height", "100px").val(paragraph.text().substr(3)).keyup();
+					message_form.find("button").text("Edit");
+					window.scrollTo(0, message_form_container.position()["top"]-50);
+					message_text.focus();
+				}
+			});
+
 			var status_bar = $("#status_bar");
 			var last_status_message = status_bar.text();
-			var message_form_container = $("#message_form_container");
+
+			var message_form_container = $("#message_form_container").dblclick(function() {
+				if ($(this).hasClass("editing")) {
+					cancel_editing();
+				}
+			});
 			var message_form = $("#message_form").submit(function() {
-				typing = false;
-				window.clearTimeout(typing_timeout);
 				if (!colour_regex.test(message_colour.val())) {
 					alert("The colour needs to be a valid hex code, for example \"#0715CD\" or \"#416600\".");
 					return false;
@@ -340,6 +383,8 @@ var cherubplay = (function() {
 					alert("You can't submit a blank message.")
 					return false;
 				}
+				typing = false;
+				window.clearTimeout(typing_timeout);
 				if (ws.readyState==1) {
 					$.ajax({
 						"url": this.action,
@@ -347,9 +392,16 @@ var cherubplay = (function() {
 						"data": message_form.serializeArray(),
 						"success": function() {
 							message_text.val("").css("height", "100px");
+							if (message_form_container.hasClass("editing")) {
+								cancel_editing();
+							}
 						},
 						"error": function() {
-							alert("There was an error with your message. Please try again later.");
+							if (message_form_container.hasClass("editing")) {
+								alert("There was a problem editing your message.");
+							} else {
+								alert("There was an error with your message. Please try again later.");
+							}
 						},
 						"complete": function() {
 							message_colour.removeAttr("disabled");
@@ -367,6 +419,7 @@ var cherubplay = (function() {
 			var preset_colours = $("#preset_colours").change(function() {
 				message_colour.val(this.value).change();
 			});
+			var message_ooc = $("#message_ooc");
 			var message_text = $("#message_text").keypress(function(e) {
 				if (ws.readyState==1) {
 					window.clearTimeout(typing_timeout);
@@ -387,6 +440,7 @@ var cherubplay = (function() {
 					scroll_to_bottom();
 				}
 			});
+
 			var search_again = $("#search_again").click(function() {
 				localStorage.setItem("autoprompt", "yes");
 			});

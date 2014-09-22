@@ -417,7 +417,7 @@ label[for="filter_toggle"]:hover {
 	background-color: #f8f8f8;
 }
 
-.unread {
+.unread, .editing {
 	box-shadow: 0 2px 4px #090;
 }
 

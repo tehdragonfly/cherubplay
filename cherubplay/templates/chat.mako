@@ -1,13 +1,15 @@
 <%inherit file="base.mako" />\
 <%def name="render_message(message)">\
-    <li class="tile message_${message.type}">
+    <li id="message_${message.id}" class="tile message_${message.type}"\
 % if message.symbol is not None:
+ data-symbol="${symbols[message.symbol]}">
 % if message.type=="system":
       <p style="color: #${message.colour};">${message.text % symbols[message.symbol]}</p>
 % else:
       <p style="color: #${message.colour};">${symbols[message.symbol]}: ${message.text}</p>
 % endif
 % else:
+>
       <p style="color: #${message.colour};">${message.text}</p>
 % endif
     </li>
@@ -72,7 +74,7 @@ Last message: ${messages[-1].posted}.\
 % for hex, name in preset_colours:
           <option value="#${hex}">${name}</option>
 % endfor
-        </select><label title="Talk out of character; use ((double brackets)) to automatically OOC."><input type="checkbox" name="message_ooc"> OOC</label></p>
+        </select><label title="Talk out of character; use ((double brackets)) to automatically OOC."><input id="message_ooc" type="checkbox" name="message_ooc"> OOC</label></p>
       <p><textarea id="message_text" name="message_text" placeholder="Write a message..." style="color: #${own_chat_user.last_colour}"></textarea></p>
       <button type="submit" id="send_button">Send</button>
     </form>
@@ -83,5 +85,5 @@ Last message: ${messages[-1].posted}.\
 </p>
   </section>
 <%block name="scripts">
-<script>cherubplay.chat("${request.matchdict["url"]}");</script>
+<script>cherubplay.chat("${request.matchdict["url"]}", "${symbols[own_chat_user.symbol]}");</script>
 </%block>
