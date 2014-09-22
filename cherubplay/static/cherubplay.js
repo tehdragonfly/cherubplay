@@ -305,6 +305,26 @@ var cherubplay = (function() {
 		},
 		"chat": function(chat_url, own_symbol) {
 
+			// Hook so we can get colours in hex format.
+			$.cssHooks.color = {
+				get: function(elem) {
+					if (elem.currentStyle) {
+						var col = elem.currentStyle["color"];
+					} else if (window.getComputedStyle) {
+						var col = document.defaultView.getComputedStyle(elem, null).getPropertyValue("color");
+					}
+					if (col.search("rgb") == -1) {
+						return col;
+					} else {
+						col = col.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+						function hex(x) {
+							return ("0" + parseInt(x).toString(16)).slice(-2);
+						}
+						return "#" + hex(col[1]) + hex(col[2]) + hex(col[3]);
+					}
+				}
+			}
+
 			var typing = false;
 			var typing_timeout;
 			var ended = false;
@@ -328,18 +348,10 @@ var cherubplay = (function() {
 
 			var editing_id, pre_edit_color, pre_edit_ooc, pre_edit_text;
 
-			function cancel_editing() {
-				$(".editing").removeClass("editing");
-				editing_id = null;
-				message_form.attr("action", "/chats/"+chat_url+"/send/");
-				message_colour.val(pre_edit_color).change();
-				message_ooc[0].checked = pre_edit_ooc;
-				message_text.css("height", "100px").val(pre_edit_text).change().keyup();
-				message_form.find("button").text("Send");
-				window.scrollTo(0, message_form_container.position()["top"]-50);
-			}
-
-			$("#messages li[data-symbol="+own_symbol+"]").dblclick(function() {
+			function start_editing() {
+				if (ended) {
+					return;
+				}
 				var jquery_this = $(this);
 				var editing_this = jquery_this.hasClass("editing");
 				if (editing_this) {
@@ -363,7 +375,20 @@ var cherubplay = (function() {
 					window.scrollTo(0, message_form_container.position()["top"]-50);
 					message_text.focus();
 				}
-			});
+			}
+
+			function cancel_editing() {
+				$(".editing").removeClass("editing");
+				editing_id = null;
+				message_form.attr("action", "/chats/"+chat_url+"/send/");
+				message_colour.val(pre_edit_color).change();
+				message_ooc[0].checked = pre_edit_ooc;
+				message_text.css("height", "100px").val(pre_edit_text).change().keyup();
+				message_form.find("button").text("Send");
+				window.scrollTo(0, message_form_container.position()["top"]-50);
+			}
+
+			$("#messages li[data-symbol="+own_symbol+"]").dblclick(start_editing);
 
 			var status_bar = $("#status_bar");
 			var last_status_message = status_bar.text();
@@ -455,8 +480,13 @@ var cherubplay = (function() {
 			function render_message(message) {
 				// Check if we're at the bottom before rendering because rendering will mean that we're not.
 				var scroll_after_render = is_at_bottom();
+				var li = $("<li>").attr("id", "message_"+message.id).addClass("tile message_"+message.type);
 				if (message.symbol) {
-					if (message.type=="system") {
+					li.attr("data-symbol", message.symbol);
+					if (message.symbol == own_symbol) {
+						li.dblclick(start_editing);
+					}
+					if (message.type == "system") {
 						var text = message.text.replace("%s", message.symbol);
 					} else {
 						var text = message.symbol+": "+message.text;
@@ -464,7 +494,6 @@ var cherubplay = (function() {
 				} else {
 					var text = message.text;
 				}
-				var li = $("<li>").addClass("tile message_"+message.type);
 				var p = $("<p>").css("color", "#"+message.colour).text(text).appendTo(li);
 				li.appendTo(messages);
 				if (scroll_after_render) {
@@ -491,10 +520,19 @@ var cherubplay = (function() {
 						if (message.action=="message") {
 							render_message(message.message);
 							var d = new Date();
-							last_status_message = "Last message: "+d.toLocaleDateString()+" "+d.toLocaleTimeString()
+							last_status_message = "Last message: "+d.toLocaleDateString()+" "+d.toLocaleTimeString();
 							status_bar.text(last_status_message);
+						} else if (message.action=="edit") {
+							var li = $("#message_"+message.message.id);
+							if (li.length == 0) {
+								return;
+							}
+							li.removeClass("message_ic").removeClass("message_ooc").addClass("message_"+message.message.type);
+							var p = li.find("p").css("color", "#"+message.message.colour).text(message.message.symbol+": "+message.message.text);
 						} else if (message.action=="end") {
 							ws.close();
+							ended = true;
+							$(".editing").removeClass("editing");
 							if (search_again.length>0) {
 								continue_timeout = window.setTimeout(function() {
 									localStorage.setItem("autoprompt", "yes");

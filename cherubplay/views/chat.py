@@ -308,7 +308,7 @@ def chat_send(request):
     chat, own_chat_user = _get_chat(request)
     colour, trimmed_message_text, message_type = _validate_message_form(request)
     posted_date = datetime.datetime.now()
-    Session.add(Message(
+    new_message = Message(
         chat_id=chat.id,
         user_id=request.user.id,
         type=message_type,
@@ -317,7 +317,9 @@ def chat_send(request):
         text=trimmed_message_text,
         posted=posted_date,
         edited=posted_date,
-    ))
+    )
+    Session.add(new_message)
+    Session.flush()
     chat.updated = posted_date
     chat.last_user_id = request.user.id
     own_chat_user.last_colour = colour
@@ -338,6 +340,7 @@ def chat_send(request):
         request.pubsub.publish("chat:"+str(chat.id), json.dumps({
             "action": "message",
             "message": {
+                "id": new_message.id,
                 "type": message_type,
                 "colour": colour,
                 "symbol": symbols[own_chat_user.symbol],
@@ -368,7 +371,19 @@ def chat_edit(request):
     message.colour = colour
     message.text = trimmed_message_text
     message.edited = datetime.datetime.now()
-    # XXX PUBSUB
+    try:
+        request.pubsub.publish("chat:"+str(chat.id), json.dumps({
+            "action": "edit",
+            "message": {
+                "id": message.id,
+                "type": message.type,
+                "colour": message.colour,
+                "symbol": symbols[message.symbol],
+                "text": message.text,
+            },
+        }))
+    except ConnectionError:
+        pass
     if request.is_xhr:
         return HTTPNoContent()
     return HTTPFound(request.environ["HTTP_REFERER"])
