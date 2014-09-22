@@ -380,6 +380,7 @@ def chat_edit(request):
                 "colour": message.colour,
                 "symbol": symbols[message.symbol],
                 "text": message.text,
+                "show_edited": message.show_edited(),
             },
         }))
     except ConnectionError:

@@ -66,6 +66,9 @@ class Message(Base):
     posted = Column(DateTime, nullable=False, default=datetime.datetime.now)
     edited = Column(DateTime, nullable=False, default=datetime.datetime.now)
 
+    def show_edited(self):
+        return self.edited - self.posted >= datetime.timedelta(0, 300)
+
 
 class ChatUser(Base):
     __tablename__ = "chat_users"

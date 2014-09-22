@@ -1,6 +1,10 @@
 <%inherit file="base.mako" />\
 <%def name="render_message(message)">\
-    <li id="message_${message.id}" class="tile message_${message.type}"\
+    <li id="message_${message.id}" class="tile message_${message.type}\
+% if message.show_edited():
+ edited\
+% endif
+"\
 % if message.symbol is not None:
  data-symbol="${symbols[message.symbol]}">
 % if message.type=="system":

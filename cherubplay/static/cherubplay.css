@@ -441,6 +441,11 @@ label[for="filter_toggle"]:hover {
 	text-align: center;
 }
 
+.edited p:after {
+	color: #999;
+	content: " (edited)";
+}
+
 #status_bar {
 	max-width: 70ex;
 	margin: -5px auto;

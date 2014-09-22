@@ -528,6 +528,9 @@ var cherubplay = (function() {
 								return;
 							}
 							li.removeClass("message_ic").removeClass("message_ooc").addClass("message_"+message.message.type);
+							if (message.message.show_edited) {
+								li.addClass("edited");
+							}
 							var p = li.find("p").css("color", "#"+message.message.colour).text(message.message.symbol+": "+message.message.text);
 						} else if (message.action=="end") {
 							ws.close();
