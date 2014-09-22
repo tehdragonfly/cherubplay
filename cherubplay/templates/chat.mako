@@ -55,7 +55,7 @@ ${user_list(symbol_users)}
   <ul id="messages">
 % if prompt:
 ${render_message(prompt)}
-    <li class="tile pager"><a href="${request.route_path("chat", url=request.matchdict["url"], _query={ "page": 1 })}">${message_count-10} more messages</a></li>
+    <li class="tile pager"><a href="${request.route_path("chat", url=request.matchdict["url"], _query={ "page": 1 })}">${message_count-26} more messages</a></li>
 % endif
 % for message in messages:
 ${render_message(message)}\
