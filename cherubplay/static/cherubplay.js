@@ -523,6 +523,7 @@ var cherubplay = (function() {
 							last_status_message = "Last message: "+d.toLocaleDateString()+" "+d.toLocaleTimeString();
 							status_bar.text(last_status_message);
 						} else if (message.action=="edit") {
+							status_bar.text(last_status_message);
 							var li = $("#message_"+message.message.id);
 							if (li.length == 0) {
 								return;
