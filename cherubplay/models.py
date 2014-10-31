@@ -42,6 +42,9 @@ class User(Base):
     last_online = Column(DateTime, nullable=False, default=datetime.datetime.now)
     last_ip = Column(String(40))
 
+    def __repr__(self):
+        return "<User #%s: %s>" % (self.id, self.username)
+
 
 class Chat(Base):
     __tablename__ = "chats"
@@ -51,6 +54,9 @@ class Chat(Base):
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
     updated = Column(DateTime, nullable=False, default=datetime.datetime.now)
     last_user_id = Column(Integer, ForeignKey("users.id"))
+
+    def __repr__(self):
+        return "<Chat #%s: %s>" % (self.id, self.url)
 
 
 class Message(Base):
@@ -65,6 +71,13 @@ class Message(Base):
     text = Column(UnicodeText, nullable=False)
     posted = Column(DateTime, nullable=False, default=datetime.datetime.now)
     edited = Column(DateTime, nullable=False, default=datetime.datetime.now)
+
+    def __repr__(self):
+        if len(self.text) < 40:
+            preview = self.text
+        else:
+            preview = self.text[:37] + "..."
+        return "<Message #%s: \"%s\">" % (self.id, preview)
 
     def show_edited(self):
         return self.edited - self.posted >= datetime.timedelta(0, 300)
@@ -82,6 +95,9 @@ class ChatUser(Base):
     status = Column(Enum(u"active", u"archived", name="chat_user_status"), nullable=False, default=u"active")
     title = Column(Unicode(100), nullable=False, default=u"")
     notes = Column(UnicodeText, nullable=False, default=u"")
+
+    def __repr__(self):
+        return "<ChatUser: Chat #%s, User #%s>" % (self.chat_id, self.user_id)
 
 
 class PromptReport(Base):
