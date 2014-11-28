@@ -41,7 +41,7 @@ ${next.body()}\
 </main>
 
 <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
-<script src="/static/cherubplay.js?SPOOKY"></script>
+<script src="/static/cherubplay.js?8"></script>
 <%block name="scripts"></%block>
 
 </body>
