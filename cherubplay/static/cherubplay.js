@@ -345,14 +345,11 @@ var cherubplay = (function() {
 			var continue_timeout;
 
 			function is_at_bottom() {
-				// We have to do this because Chrome doesn't have window.scrollMaxY like Firefox. #googlehatesyou
-				// We have to fuzz this because Chrome's result is 1 pixel off. #googlehatesyoumore
-				console.log((document.documentElement.scrollHeight - document.documentElement.clientHeight) - window.scrollY);
-				return (document.documentElement.scrollHeight - document.documentElement.clientHeight) - window.scrollY < 10;
+				return window.scrollY==document.documentElement.scrollHeight-document.documentElement.clientHeight;
 			}
 
 			function scroll_to_bottom() {
-				window.scroll(0, (document.documentElement.scrollHeight-document.documentElement.clientHeight)+10);
+				window.scroll(0, document.documentElement.scrollHeight-document.documentElement.clientHeight);
 			}
 
 			function visibility_handler() {
