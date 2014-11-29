@@ -303,6 +303,17 @@ var cherubplay = (function() {
 			}
 
 		},
+		"account": function() {
+			$("#sound_notifications").click(function() {
+				localStorage.setItem("sound_notifications", this.checked);
+				if (this.checked) {
+					$("#confirmation").text("Sound notifications are now enabled.");
+				} else {
+					$("#confirmation").text("Sound notifications are now disabled.");
+				}
+				window.scroll(0, 0);
+			});
+		},
 		"chat": function(chat_url, own_symbol) {
 
 			// Hook so we can get colours in hex format.
@@ -470,6 +481,13 @@ var cherubplay = (function() {
 				localStorage.setItem("autoprompt", "yes");
 			});
 
+			var notification_audio;
+			if (localStorage.getItem("sound_notifications") == "true") {
+				var notification_audio = $("<audio>");
+				$("<source>").attr("src", "/static/carne_vale.ogg").appendTo(notification_audio);
+				$("<source>").attr("src", "/static/carne_vale.mp3").appendTo(notification_audio);
+			}
+
 			function ping() {
 				if (ws.readyState==1) {
 					ws.send('{"action":"ping"}');
@@ -501,6 +519,9 @@ var cherubplay = (function() {
 				}
 				if (document.hidden || document.webkitHidden || document.msHidden) {
 					document.title = "New message - CHERUBPLAY";
+					if (notification_audio) {
+						notification_audio[0].play();
+					}
 				}
 			}
 
@@ -512,6 +533,9 @@ var cherubplay = (function() {
 					scroll_to_bottom();
 					if (document.hidden || document.webkitHidden || document.msHidden) {
 						document.title = "Connected - CHERUBPLAY";
+						if (notification_audio) {
+							notification_audio[0].play();
+						}
 					}
 				}
 				ws.onmessage = function(e) {

@@ -1,7 +1,9 @@
 <%inherit file="base.mako" />\
   <h2>${request.user.username}</h2>
 % if request.GET.get("saved")=="password":
-  <p>Your password has been changed.</p>
+  <p id="confirmation">Your password has been changed.</p>
+% else:
+  <p id="confirmation"></p>
 % endif
   <form class="tile" action="${request.route_path("account_password")}" method="post">
     <h3>Password</h3>
@@ -13,3 +15,8 @@
     <p><label>New password again: <input type="password" name="password_again"></label></p>
     <p><button type="submit">Save</button></p>
   </form>
+  <section class="tile">
+    <h3>Notifications</h3>
+    <p><label><input type="checkbox" id="sound_notifications"> Enable sound notifications</label></p>
+  </section>
+<%block name="scripts"><script>cherubplay.account();</script></%block>
