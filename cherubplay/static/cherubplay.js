@@ -304,7 +304,7 @@ var cherubplay = (function() {
 
 		},
 		"account": function() {
-			$("#sound_notifications").click(function() {
+			var sound_notifications = $("#sound_notifications").click(function() {
 				localStorage.setItem("sound_notifications", this.checked);
 				if (this.checked) {
 					$("#confirmation").text("Sound notifications are now enabled.");
@@ -313,6 +313,9 @@ var cherubplay = (function() {
 				}
 				window.scroll(0, 0);
 			});
+			if (localStorage.getItem("sound_notifications") == "true") {
+				sound_notifications.attr("checked", "checked");
+			}
 		},
 		"chat": function(chat_url, own_symbol) {
 
