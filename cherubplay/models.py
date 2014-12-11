@@ -41,9 +41,13 @@ class User(Base):
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
     last_online = Column(DateTime, nullable=False, default=datetime.datetime.now)
     last_ip = Column(String(40))
+    unban_date = Column(DateTime)
 
     def __repr__(self):
         return "<User #%s: %s>" % (self.id, self.username)
+
+    def unban_delta(self):
+        return self.unban_date - datetime.datetime.now()
 
 
 class Chat(Base):

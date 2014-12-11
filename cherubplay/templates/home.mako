@@ -1,7 +1,15 @@
 <%inherit file="base.mako" />\
 % if request.user.status=="banned":
   <h2>Banned</h2>
+% if request.user.unban_date is not None:
+<% unban_delta = request.user.unban_delta() %>
+  <p>Your account has been banned. Time until this ban expires: ${str(unban_delta).split(".")[0]}.</p>
+% if unban_delta.days != 0:
+  <p>If you have seen the error of your ways, please beg for forgiveness in <a href="http://cherubplay.tumblr.com/ask">our ask box</a>.</p>
+% endif
+% else:
   <p>Your account has been banned. If you have seen the error of your ways, please beg for forgiveness in <a href="http://cherubplay.tumblr.com/ask">our ask box</a>.</p>
+% endif
 % else:
   <section id="connecting">
     <h2>Connecting...</h2>
