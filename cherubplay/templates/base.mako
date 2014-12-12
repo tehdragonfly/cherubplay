@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>CHERUBPLAY</title>
+<title><%block name="title"></%block>Cherubplay</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#393">
 <link rel="stylesheet" href="/static/cherubplay.css?20">

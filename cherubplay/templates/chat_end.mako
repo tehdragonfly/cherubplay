@@ -1,5 +1,6 @@
 <%inherit file="base.mako" />\
 <%namespace name="chat_base" file="chat.mako" />\
+<%block name="title">${own_chat_user.title or chat.url} - </%block>
 ${chat_base.render_subnav(action, chat, own_chat_user)}
   <p>Are you sure you want to ${action} this chat?</p>
 % if prompt:

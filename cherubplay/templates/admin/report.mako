@@ -1,4 +1,5 @@
 <%inherit file="../base.mako" />\
+<%block name="title">#${report.id} - Prompt reports - </%block>
 % if request.environ["REQUEST_METHOD"]=="POST":
   <p>Your changes have been saved.</p>
 % endif

@@ -1,4 +1,5 @@
 <%inherit file="base.mako" />\
+<%block name="title">${current_status.capitalize() if current_status is not None else "Your"} chats - </%block>
   <h2>Your chats</h2>
   <nav id="subnav">
     <section class="tile">

@@ -1,4 +1,5 @@
 <%inherit file="../base.mako" />\
+<%block name="title">#${user.id} ${user.username} - </%block>
   <h2>#${user.id} ${user.username}</h2>
 % if request.GET.get("saved") == "status":
   <p>Status set to <strong>${user.status}</strong>.</p>

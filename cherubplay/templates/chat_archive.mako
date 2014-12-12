@@ -1,5 +1,10 @@
 <%inherit file="base.mako" />\
 <%namespace name="chat_base" file="chat.mako" />\
+<%block name="title">\
+% if own_chat_user:
+${"Archive - " if continuable else ""}${own_chat_user.title or chat.url} - \
+% endif
+</%block>
 % if own_chat_user:
 ${chat_base.render_subnav("archive", chat, own_chat_user)}
 % endif

@@ -1,4 +1,5 @@
 <%inherit file="base.mako" />\
+<%block name="title">${own_chat_user.title or chat.url} - </%block>
 <%def name="render_message(message)">\
     <li id="message_${message.id}" class="tile message_${message.type}\
 % if message.show_edited():

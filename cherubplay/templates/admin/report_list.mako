@@ -1,4 +1,5 @@
 <%inherit file="../base.mako" />\
+<%block name="title">Prompt reports - </%block>
   <h2>Prompt reports</h2>
 % if len(reports)==0:
   <p>No reports. <a href="${request.route_path("home")}">Try shitposting until the users decide they're fed up with you</a>.</p>

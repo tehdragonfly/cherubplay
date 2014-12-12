@@ -1,4 +1,5 @@
 <%inherit file="base.mako" />\
+<%block name="title">Account settings - </%block>
   <h2>${request.user.username}</h2>
 % if request.GET.get("saved")=="password":
   <p id="confirmation">Your password has been changed.</p>
