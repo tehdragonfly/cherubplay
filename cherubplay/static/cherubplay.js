@@ -339,6 +339,8 @@ var cherubplay = (function() {
 				}
 			}
 
+			var original_title = document.title;
+
 			var typing = false;
 			var typing_timeout;
 			var ended = false;
@@ -354,7 +356,7 @@ var cherubplay = (function() {
 
 			function visibility_handler() {
 				window.setTimeout(function() {
-					document.title = "CHERUBPLAY";
+					document.title = original_title;
 				}, 200);
 			}
 
@@ -521,7 +523,7 @@ var cherubplay = (function() {
 					scroll_to_bottom();
 				}
 				if (document.hidden || document.webkitHidden || document.msHidden) {
-					document.title = "New message - CHERUBPLAY";
+					document.title = "New message - " + original_title;
 					if (notification_audio) {
 						notification_audio[0].play();
 					}
@@ -535,7 +537,7 @@ var cherubplay = (function() {
 					window.setTimeout(ping, 8000);
 					scroll_to_bottom();
 					if (document.hidden || document.webkitHidden || document.msHidden) {
-						document.title = "Connected - CHERUBPLAY";
+						document.title = "Connected - " + original_title;
 						if (notification_audio) {
 							notification_audio[0].play();
 						}
