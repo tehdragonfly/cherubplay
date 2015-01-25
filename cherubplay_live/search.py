@@ -1,4 +1,5 @@
 import json
+import re
 
 from uuid import uuid4
 
@@ -17,6 +18,8 @@ from db import config, get_user, sm
 
 prompters = {}
 searchers = {}
+
+deduplicate_regex = re.compile("[\W_]+")
 
 def write_message_to_searchers(message, category, level):
     for socket in searchers.values():
@@ -99,8 +102,9 @@ class SearchHandler(WebSocketHandler):
                     "error": "The specified level doesn't seem to exist.",
                 }))
                 return
+            deduplicated_prompt = deduplicate_regex.sub("", message["prompt"])
             for prompter in prompters.values():
-                if message["prompt"]==prompter.prompt:
+                if deduplicated_prompt == prompter.deduplicated_prompt:
                     self.write_message(json.dumps({
                         "action": "prompt_error",
                         "error": "This prompt is already on the front page. Please don't post the same prompt more than once.",
@@ -110,6 +114,7 @@ class SearchHandler(WebSocketHandler):
             print "PROMPTERS:", prompters
             self.colour = message["colour"]
             self.prompt = message["prompt"]
+            self.deduplicated_prompt = deduplicated_prompt
             self.category = message["category"]
             self.level = message["level"]
             write_message_to_searchers(json.dumps({
