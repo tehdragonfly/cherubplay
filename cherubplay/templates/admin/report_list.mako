@@ -23,7 +23,7 @@ ${report.prompt}\
 </p>
       <p>Reason: ${report.reason}</p>
 % if report.notes!="":
-      <p>Notes: ${report.notes}</p>
+      <p class="notes">Notes: ${report.notes}</p>
 % endif
     </li>
 % endfor

@@ -9,7 +9,7 @@
     <p style="color: #${report.colour};">Prompt: ${report.prompt}</p>
     <p>Reason: ${report.reason}</p>
     <form action="${request.route_path("admin_report", id=request.matchdict["id"])}" method="post">
-      <p><textarea id="chat_notes_notes" name="notes" placeholder="Notes..." rows="5">${report.notes}</textarea></p>
+      <p><textarea id="chat_notes_notes" class="notes" name="notes" placeholder="Notes..." rows="5">${report.notes}</textarea></p>
       <button type="submit">Save</button>
     </form>
   </div>

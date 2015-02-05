@@ -421,6 +421,11 @@ label[for="filter_toggle"]:hover {
 	box-shadow: 0 2px 4px #090;
 }
 
+.notes {
+	max-width: none;
+	font-size: 10pt;
+}
+
 /* Chat window */
 
 #messages {

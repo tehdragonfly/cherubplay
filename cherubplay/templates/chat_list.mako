@@ -70,7 +70,7 @@ ${prompt.text}\
 </p>
 % endif
 % if chat_user.notes!="":
-        <p>Notes: ${chat_user.notes}</p>
+        <p class="notes">Notes: ${chat_user.notes}</p>
 % endif
       </li>
 % endfor
