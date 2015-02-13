@@ -72,6 +72,7 @@ def report_post(request):
     return {
         "report": report,
         "prompt_categories": prompt_categories,
+        "prompt_levels": prompt_levels,
     }
 
 

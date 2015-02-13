@@ -5,6 +5,7 @@
 % endif
   <div class="tile">
   <h3>#${report.id}: <a href="${request.route_path("admin_user", username=report.reporting_user.username)}">${report.reporting_user.username}</a> reported <a href="${request.route_path("admin_user", username=report.reported_user.username)}">${report.reported_user.username}</a></h3>
+    <p class="subtitle">${report.created.strftime("%a %d %b %Y, %H:%M")}</p>
     <p>Posted in ${prompt_categories[report.category]}, ${prompt_levels[report.level]}</p>
     <p style="color: #${report.colour};">Prompt: ${report.prompt}</p>
     <p>Reason: \
@@ -22,9 +23,10 @@ Advertising\
 Soliciting real life or out-of-character interactions\
 % endif
 </p>
-    <form action="${request.route_path("admin_report", id=request.matchdict["id"])}" method="post">
-      <p><textarea id="chat_notes_notes" class="notes" name="notes" placeholder="Notes..." rows="5">${report.notes}</textarea></p>
-      <button type="submit">Save</button>
-    </form>
   </div>
+  <form class="tile" action="${request.route_path("admin_report", id=request.matchdict["id"])}" method="post">
+    <h3>Notes</h3>
+    <p><textarea id="chat_notes_notes" class="notes" name="notes" placeholder="Notes..." rows="5">${report.notes}</textarea></p>
+    <button type="submit">Save</button>
+  </form>
   <p><a href="${request.route_path("admin_report_list")}">Back to reports</a></p>
