@@ -132,6 +132,14 @@ class SearchHandler(WebSocketHandler):
             if self.socket_id not in searchers or message["id"] not in prompters:
                 return
             prompter = prompters[message["id"]]
+            # Validate reason
+            if message["reason"] not in PromptReport.reason.type.enums:
+                return
+            if message["reason"] == "wrong_category" and (
+                message["category"] not in prompt_categories
+                or message["level"] not in prompt_levels
+            ):
+                return
             # Make a new session for thread safety.
             Session = sm()
             Session.add(PromptReport(
@@ -139,8 +147,11 @@ class SearchHandler(WebSocketHandler):
                 reported_user_id=prompter.user.id,
                 colour=prompter.colour,
                 prompt=prompter.prompt,
-                category=prompter.category+" / "+prompter.level,
+                category=prompter.category,
+                level=prompter.level,
                 reason=message["reason"],
+                reason_category=message["category"] if message["reason"] == "wrong_category" else None,
+                reason_level=message["level"] if message["reason"] == "wrong_category" else None,
             ))
             Session.commit()
             del Session
