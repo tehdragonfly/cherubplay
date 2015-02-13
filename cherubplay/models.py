@@ -142,7 +142,18 @@ class PromptReport(Base):
     colour = Column(String(6), nullable=False)
     prompt = Column(UnicodeText, nullable=False)
     category = Column(Unicode(100), nullable=False)
-    reason = Column(UnicodeText, nullable=False)
+    level = Column(Unicode(100), nullable=False)
+    reason = Column(Enum(
+        u"wrong_category",
+        u"spam",
+        u"stolen",
+        u"multiple",
+        u"advert",
+        u"ooc",
+        name="prompt_report_reason",
+    ), nullable=False)
+    reason_category = Column(Unicode(100))
+    reason_level = Column(Unicode(100))
     notes = Column(UnicodeText, nullable=False, default=u"")
 
 

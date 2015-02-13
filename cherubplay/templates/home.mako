@@ -88,11 +88,38 @@
     <p>The connection to the server has been lost. Please refresh the page to try again.</p>
   </section>
   <section id="overlay">
-    <section id="overlay_tile" class="tile">
+    <section class="tile">
       <p id="overlay_text"></p>
       <button id="overlay_close">Close</button>
       <button id="overlay_report">Report</button>
       <button id="overlay_answer">Answer</button>
+    </section>
+  </section>
+  <section id="report_overlay">
+    <section class="tile">
+      <p>This prompt is...</p>
+      <ul>
+        <li>
+          <label><input type="radio" name="report_reason" value="wrong_category"> In the wrong category. It should be in</label>
+          <select id="report_category">
+% for id, name in prompt_categories.items():
+            <option value="${id}">${name}</option>
+% endfor
+          </select>
+          <select id="report_level">
+% for id, name in prompt_levels.items():
+            <option value="${id}">${name}</option>
+% endfor
+          </select>
+        </li>
+        <li><label><input type="radio" name="report_reason" value="spam"> Spam</label></li>
+        <li><label><input type="radio" name="report_reason" value="stolen"> Stolen</label></li>
+        <li><label><input type="radio" name="report_reason" value="multiple"> Posted multiple times (if this is the case, please report all instances of it)</label></li>
+        <li><label><input type="radio" name="report_reason" value="advert"> Advertising something not related to roleplay</label></li>
+        <li><label><input type="radio" name="report_reason" value="ooc"> Soliciting real life or out-of-character interactions</label></li>
+      </ul>
+      <button id="report_overlay_close">Close</button>
+      <button id="report_overlay_submit">Submit</button>
     </section>
   </section>
 <%block name="scripts"><script>cherubplay.home();</script></%block>

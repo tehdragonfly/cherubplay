@@ -8,7 +8,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from webhelpers import paginate
 
-from ..lib import prompt_categories
+from ..lib import prompt_categories, prompt_levels
 from ..models import (
     Session,
     Chat,
@@ -45,6 +45,7 @@ def report_list(request):
         "reports": reports,
         "paginator": paginator,
         "prompt_categories": prompt_categories,
+        "prompt_levels": prompt_levels,
     }
 
 
@@ -57,6 +58,7 @@ def report_get(request):
     return {
         "report": report,
         "prompt_categories": prompt_categories,
+        "prompt_levels": prompt_levels,
     }
 
 

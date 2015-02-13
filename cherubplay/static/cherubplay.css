@@ -378,15 +378,15 @@ label[for="filter_toggle"]:hover {
 	height: 150px;
 }
 
-#overlay {
+#overlay, #report_overlay {
 	display: none;
 }
 
-.show_overlay {
+.show_overlay, .show_report_overlay {
 	overflow: hidden;
 }
 
-.show_overlay #overlay {
+.show_overlay #overlay, .show_report_overlay #report_overlay {
 	display: block;
 	position: fixed;
 	top: 0;
@@ -399,7 +399,7 @@ label[for="filter_toggle"]:hover {
 	background-color: rgba(238, 238, 238, 0.75);
 }
 
-#post_button, #overlay_close, #overlay_report {
+#post_button, #overlay_close, #overlay_report, #report_overlay_close {
 	float: right;
 }
 

@@ -164,7 +164,7 @@ var cherubplay = (function() {
 
 			$("#overlay").click(hide_overlay);
 			$("#overlay_close").click(hide_overlay);
-			$("#overlay_tile").click(function(e) { e.stopPropagation(); });
+			$("#overlay .tile").click(function(e) { e.stopPropagation(); });
 			$("#overlay_answer").click(function(e) {
 				if (overlay_prompt_id) {
 					ws.send(JSON.stringify({
@@ -176,18 +176,39 @@ var cherubplay = (function() {
 			});
 			$("#overlay_report").click(function(e) {
 				if (overlay_prompt_id) {
-					var reason = prompt("What's wrong with this prompt?");
-					if (reason!=null) {
-						ws.send(JSON.stringify({
-							"action": "report",
-							"id": overlay_prompt_id,
-							"reason": reason,
-						}));
-						alert("Thanks for the report!");
-					}
-					hide_overlay();
+					$("#report_overlay input").prop("checked", false);
+					report_category.val("homestuck");
+					report_level.val("sfw");
+					body.addClass("show_report_overlay");
 				}
 			});
+
+			function hide_report_overlay() {
+				body.removeClass("show_report_overlay");
+			}
+
+			$("#report_overlay").click(hide_report_overlay);
+			$("#report_overlay_close").click(hide_report_overlay);
+			$("#report_overlay .tile").click(function(e) { e.stopPropagation(); });
+			$("#report_overlay_submit").click(function() {
+				var reason = $("#report_overlay input:checked").val();
+				if (!reason) {
+					alert("Please select a reason.");
+					return;
+				}
+				ws.send(JSON.stringify({
+					"action": "report",
+					"id": overlay_prompt_id,
+					"reason": reason,
+					"category": report_category.val(),
+					"level": report_level.val(),
+				}));
+				hide_report_overlay();
+				hide_overlay();
+				alert("Thanks for the report!");
+			});
+			var report_category = $("#report_category");
+			var report_level = $("#report_level");
 
 			// Prompt mode
 
