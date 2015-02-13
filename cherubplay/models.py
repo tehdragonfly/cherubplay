@@ -136,8 +136,14 @@ class ChatUser(Base):
 class PromptReport(Base):
     __tablename__ = "prompt_reports"
     id = Column(Integer, primary_key=True)
-    reporting_user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    reported_user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    status = Column(Enum(
+        u"open",
+        u"closed",
+        u"invalid",
+        name="prompt_report_status",
+    ), nullable=False, default=u"open")
+    reporting_user_id = Column(Integer, ForeignKey("users.id"))
+    reported_user_id = Column(Integer, ForeignKey("users.id"))
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
     colour = Column(String(6), nullable=False)
     prompt = Column(UnicodeText, nullable=False)

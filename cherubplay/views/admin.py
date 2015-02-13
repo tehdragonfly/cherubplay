@@ -18,19 +18,29 @@ from ..models import (
 )
 
 
+status_filters = {
+    "admin_report_list": "open",
+    "admin_report_list_closed": "closed",
+    "admin_report_list_invalid": "invalid",
+}
+
+
 @view_config(route_name="admin_report_list", renderer="admin/report_list.mako", request_method="GET", permission="admin")
+@view_config(route_name="admin_report_list_closed", renderer="admin/report_list.mako", request_method="GET", permission="admin")
+@view_config(route_name="admin_report_list_invalid", renderer="admin/report_list.mako", request_method="GET", permission="admin")
 def report_list(request):
+    current_status = status_filters[request.matched_route.name]
     current_page = int(request.GET.get("page", 1))
     reports = Session.query(PromptReport).order_by(
-        PromptReport.created.desc()
-    ).options(
+        PromptReport.created.desc(),
+    ).filter(PromptReport.status == current_status).options(
         joinedload(PromptReport.reporting_user),
         joinedload(PromptReport.reported_user),
     ).limit(25).offset((current_page-1)*25).all()
     # 404 on empty pages.
     if current_page!=1 and len(reports)==0:
         raise HTTPNotFound
-    report_count = Session.query(func.count('*')).select_from(PromptReport).scalar()
+    report_count = Session.query(func.count('*')).select_from(PromptReport).filter(PromptReport.status == current_status).scalar()
     paginator = paginate.Page(
         [],
         page=current_page,
@@ -42,6 +52,7 @@ def report_list(request):
         ),
     )
     return {
+        "PromptReport": PromptReport,
         "reports": reports,
         "paginator": paginator,
         "prompt_categories": prompt_categories,
@@ -56,6 +67,7 @@ def report_get(request):
     except (ValueError, NoResultFound):
         raise HTTPNotFound
     return {
+        "PromptReport": PromptReport,
         "report": report,
         "prompt_categories": prompt_categories,
         "prompt_levels": prompt_levels,
@@ -68,8 +80,11 @@ def report_post(request):
         report = Session.query(PromptReport).filter(PromptReport.id==int(request.matchdict["id"])).one()
     except (ValueError, NoResultFound):
         raise HTTPNotFound
+    if request.POST["status"] in PromptReport.status.type.enums:
+        report.status = request.POST["status"]
     report.notes = request.POST["notes"]
     return {
+        "PromptReport": PromptReport,
         "report": report,
         "prompt_categories": prompt_categories,
         "prompt_levels": prompt_levels,
