@@ -1,6 +1,12 @@
 <%inherit file="../base.mako" />\
 <%def name="render_report(report, detail=True)">\
-      <h3>#${report.id}: <a href="${request.route_path("admin_user", username=report.reporting_user.username)}">${report.reporting_user.username}</a> reported <a href="${request.route_path("admin_user", username=report.reported_user.username)}">${report.reported_user.username}</a></h3>
+      <h3>\
+% if detail:
+#${report.id}\
+% else:
+<a href="${request.route_path("admin_report", id=report.id)}">#${report.id}</a>\
+% endif
+: <a href="${request.route_path("admin_user", username=report.reporting_user.username)}">${report.reporting_user.username}</a> reported <a href="${request.route_path("admin_user", username=report.reported_user.username)}">${report.reported_user.username}</a></h3>
       <p class="subtitle">${report.created.strftime("%a %d %b %Y, %H:%M")}</p>
 % if detail:
       <p>Status: <select name="status">
