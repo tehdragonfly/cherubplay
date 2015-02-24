@@ -217,6 +217,10 @@ var cherubplay = (function() {
 					alert("The colour needs to be a valid hex code, for example \"#0715CD\" or \"#416600\".");
 					return false;
 				}
+				if (prompt_category.val() == "" || prompt_level.val() == "") {
+					alert("Please choose a category and level for your prompt.")
+					return false;
+				}
 				prompt_text.val(prompt_text.val().trim());
 				if (prompt_text.val()=="") {
 					alert("You can't submit a blank prompt.")
@@ -243,6 +247,8 @@ var cherubplay = (function() {
 				prompt_colour.val(this.value).change();
 			});
 			var prompt_text = $("#prompt_text").keyup(function() {
+				prompt_category.val("");
+				prompt_level.val("");
 				this.style.height = this.scrollHeight+"px";
 			});
 			var prompt_category = $("#prompt_category");

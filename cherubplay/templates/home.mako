@@ -63,11 +63,13 @@
       <p><textarea id="prompt_text" placeholder="Enter your prompt..."></textarea></p>
       <div id="prompt_dropdowns">Post to:
         <select id="prompt_category" name="prompt_category">
+          <option value="">Category...</option>
 % for id, name in prompt_categories.items():
           <option value="${id}">${name}</option>
 % endfor
         </select>
         <select id="prompt_level" name="prompt_level">
+          <option value="">Level...</option>
 % for id, name in prompt_levels.items():
           <option value="${id}">${name}</option>
 % endfor
