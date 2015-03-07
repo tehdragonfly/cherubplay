@@ -17,7 +17,11 @@
   </nav>
   <section class="tile">
     <h3>Info</h3>
-    <p>Status: ${user.status.capitalize()}</p>
+    <p>Status: ${user.status.capitalize()}\
+% if user.status == "banned" and user.unban_date is not None:
+ (expires ${user.unban_date.strftime("%d %b %Y, %H:%M:%S")})
+% endif
+</p>
     <p>E-mail address: ${user.email}</p>
     <p>Created: ${user.created.strftime("%d %b %Y, %H:%M:%S")}</p>
     <p>Last online: ${user.last_online.strftime("%d %b %Y, %H:%M:%S")}</p>
