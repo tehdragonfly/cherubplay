@@ -52,5 +52,13 @@
     <form action="${request.route_path("admin_user_chat", username=request.matchdict["username"])}" method="post">
       <p><button type="submit">Chat with ${user.username}</button></p>
     </form>
+    <form action="${request.route_path("admin_user_ban", username=request.matchdict["username"])}" method="post">
+      <input type="hidden" name="days" value="1">
+      <p><button type="submit">Ban for 1 day</button></p>
+    </form>
+    <form action="${request.route_path("admin_user_ban", username=request.matchdict["username"])}" method="post">
+      <input type="hidden" name="days" value="7">
+      <p><button type="submit">Ban for 7 days</button></p>
+    </form>
 % endif
   </section>

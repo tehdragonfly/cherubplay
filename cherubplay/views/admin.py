@@ -1,6 +1,7 @@
 import transaction
 import uuid
 
+from datetime import datetime, timedelta
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy import func
@@ -109,6 +110,8 @@ def user(request):
 @view_config(route_name="admin_user_status", request_method="POST", permission="admin")
 def user_status(request):
     user = _get_user(request)
+    if user.status != "banned" and request.POST["status"] == "banned":
+        user.unban_date = None
     user.status = request.POST["status"]
     return HTTPFound(request.route_path("admin_user", username=request.matchdict["username"], _query={ "saved": "status" }))
 
@@ -134,5 +137,17 @@ def user_chat(request):
         title="Admin chat"
     ))
     return HTTPFound(request.route_path("chat", url=new_chat.url))
+
+
+@view_config(route_name="admin_user_ban", request_method="POST", permission="admin")
+def user_ban(request):
+    user = _get_user(request)
+    user.status = "banned"
+    try:
+        days = int(request.POST["days"])
+    except KeyError, ValueError:
+        days = 1
+    user.unban_date = datetime.now() + timedelta(days)
+    return HTTPFound(request.route_path("admin_user", username=request.matchdict["username"], _query={ "saved": "status" }))
 
 
