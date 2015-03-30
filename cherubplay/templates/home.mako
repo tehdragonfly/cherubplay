@@ -48,6 +48,13 @@
       <button class="prompt_button">Post a prompt</button>
       <a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under" target="_blank">Category rules</a>
     </p>
+% if request.user.status == "admin":
+    <section class="tile">
+      <h3>🌟 Lucky dip! 🌟</h3>
+      <p>Tired of reading all these long, boring prompts? Introducing Cherubplay's brand new lucky dip mode. When you press the button below, our servers will carefully analyse your recent chats and pick out a prompt that's right for you. Try it today!</p>
+      <p><button id="lucky_dip_button">The button below</button></p>
+    </section>
+% endif
     <ul id="prompt_list"></ul>
   </section>
   <section id="prompt_mode">

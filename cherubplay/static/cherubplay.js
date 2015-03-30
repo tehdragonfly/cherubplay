@@ -53,6 +53,7 @@ var cherubplay = (function() {
 
 			$(".prompt_button").click(function() { change_mode("prompt_mode") });
 			$(".answer_button").click(function() { change_mode("answer_mode") });
+			$("#lucky_dip_button").click(function() { ws.send(JSON.stringify({"action": "lucky_dip"})) });
 
 			// Answer mode
 
