@@ -12,10 +12,11 @@ from pyramid.httpexceptions import (
 from pyramid.renderers import render_to_response
 from pyramid.view import view_config
 from redis.exceptions import ConnectionError
-from sqlalchemy import and_
-from sqlalchemy import func
+from sqlalchemy import and_, func, Unicode
+from sqlalchemy.dialects.postgres import array, ARRAY
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql.expression import cast
 from webhelpers import paginate
 
 from ..lib import colour_validator, symbols, preset_colours
@@ -27,11 +28,11 @@ from ..models import (
     User,
 )
 
-
 @view_config(route_name="chat_list", renderer="chat_list.mako", permission="view")
 @view_config(route_name="chat_list_unanswered", renderer="chat_list.mako", permission="view")
 @view_config(route_name="chat_list_ongoing", renderer="chat_list.mako", permission="view")
 @view_config(route_name="chat_list_ended", renderer="chat_list.mako", permission="view")
+@view_config(route_name="chat_list_label", renderer="chat_list.mako", permission="view")
 def chat_list(request):
 
     current_page = int(request.GET.get("page", 1))
@@ -44,6 +45,13 @@ def chat_list(request):
         current_status = "ended"
     else:
         current_status = None
+
+    if request.matched_route.name == "chat_list_label":
+        current_label = request.matchdict["label"].lower().strip().replace(" ", "_")
+        if current_label != request.matchdict["label"]:
+            raise HTTPFound(request.route_path("chat_list_label", label=current_label))
+    else:
+        current_label = None
 
     chats = Session.query(ChatUser, Chat, Message).join(Chat).outerjoin(
         Message,
@@ -73,6 +81,11 @@ def chat_list(request):
         chats = chats.filter(Chat.status==current_status)
         chat_count = chat_count.join(Chat).filter(Chat.status==current_status)
 
+    if current_label is not None:
+        label_array = cast([current_label], ARRAY(Unicode(500)))
+        chats = chats.filter(ChatUser.labels.contains(label_array))
+        chat_count = chat_count.filter(ChatUser.labels.contains(label_array))
+
     chats = chats.order_by(Chat.updated.desc()).limit(25).offset((current_page-1)*25).all()
 
     # 404 on empty pages, unless it's the first page.
@@ -87,15 +100,24 @@ def chat_list(request):
         items_per_page=25,
         item_count=chat_count,
         url=paginate.PageURL(
-            request.route_path(request.matched_route.name),
+            request.route_path(request.matched_route.name, label=current_label),
             { "page": current_page }
         ),
+    )
+
+    labels = (
+        Session.query(func.unnest(ChatUser.labels), func.count("*"))
+        .filter(ChatUser.user_id == request.user.id)
+        .group_by(func.unnest(ChatUser.labels))
+        .order_by(func.count("*").desc(), func.unnest(ChatUser.labels).asc()).all()
     )
 
     return {
         "chats": chats,
         "paginator": paginator,
+        "labels": labels,
         "current_status": current_status,
+        "current_label": current_label,
     }
 
 

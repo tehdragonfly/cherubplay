@@ -1,11 +1,20 @@
 <%inherit file="base.mako" />\
-<%block name="title">${current_status.capitalize() if current_status is not None else "Your"} chats - </%block>
-  <h2>Your chats</h2>
+<%def name="render_title()">\
+% if current_status is not None:
+${current_status.capitalize()} chats\
+% elif current_label is not None:
+Chats labelled "${current_label.replace("_", " ")}"\
+% else:
+Your chats\
+% endif
+</%def>
+<%block name="title">${render_title()} - </%block>
+  <h2>${render_title()}</h2>
   <nav id="subnav">
     <section class="tile">
       <h3>Status</h3>
       <ul>
-% if current_status is None:
+% if current_status is None and current_label is None:
         <li>All</li>
 % else:
         <li><a href="${request.route_path("chat_list")}">All</a></li>
@@ -27,6 +36,20 @@
 % endif
       </ul>
     </section>
+% if labels:
+    <section class="tile">
+      <h3>Labels</h3>
+      <ul>
+% for label, chat_count in labels:
+% if current_label == label:
+        <li>${label.replace("_", " ")} (${chat_count})</li>
+% else:
+        <li><a href="${request.route_path("chat_list_label", label=label)}">${label.replace("_", " ")}</a> (${chat_count})</li>
+% endif
+% endfor
+      </ul>
+    </section>
+% endif
   </nav>
 % if len(chats)==0:
 % if current_status is None:
@@ -73,7 +96,15 @@ ${prompt.text}\
         <p class="notes">Notes: ${chat_user.notes}</p>
 % endif
 % if chat_user.labels:
-        <p class="notes">Labels: ${", ".join(_.replace("_", " ") for _ in chat_user.labels)}</p>
+        <p class="notes">Labels: \
+% for label in chat_user.labels:
+% if current_label == label:
+${label.replace("_", " ")}${", " if not loop.last else ""}\
+% else:
+<a href="${request.route_path("chat_list_label", label=label)}">${label.replace("_", " ")}</a>${", " if not loop.last else ""}\
+% endif
+% endfor
+</p>
 % endif
       </li>
 % endfor

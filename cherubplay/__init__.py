@@ -139,7 +139,7 @@ def main(global_config, **settings):
     config.add_route("chat_list_unanswered", "/chats/unanswered/")
     config.add_route("chat_list_ongoing", "/chats/ongoing/")
     config.add_route("chat_list_ended", "/chats/ended/")
-    config.add_route("chat_list_archive", "/chats/archive/")
+    config.add_route("chat_list_label", "/chats/labels/{label}/")
 
     config.add_route("chat", "/chats/{url}/")
     config.add_route("chat_archive", "/chats/{url}/archive/")
