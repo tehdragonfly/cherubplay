@@ -12,6 +12,7 @@ ${chat_base.render_subnav("info", chat, own_chat_user)}
   <form class="tile" action="${request.route_path("chat_info", url=request.matchdict["url"])}" method="post">
     <h3><input type="text" id="chat_notes_title" name="title" placeholder="Title..." value="${own_chat_user.title}" maxlength="100"></h3>
     <p><textarea id="chat_notes_notes" name="notes" placeholder="Notes..." rows="5">${own_chat_user.notes}</textarea></p>
+    <p><input type="text" id="chat_notes_labels" name="labels" placeholder="Labels..." value="${", ".join(_.replace("_", " ") for _ in own_chat_user.labels)}" maxlength="500"></textarea></p>
     <button type="submit">Save</button>
   </form>
 % if chat.status == "ongoing":

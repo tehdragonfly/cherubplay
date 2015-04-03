@@ -13,7 +13,7 @@ from sqlalchemy import (
     Unicode,
     UnicodeText,
 )
-
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.declarative import declarative_base
 
 from sqlalchemy.orm import (
@@ -119,6 +119,7 @@ class ChatUser(Base):
     status = Column(Enum(u"active", u"archived", name="chat_user_status"), nullable=False, default=u"active")
     title = Column(Unicode(100), nullable=False, default=u"")
     notes = Column(UnicodeText, nullable=False, default=u"")
+    labels = Column(ARRAY(Unicode(500)), nullable=False, default=list)
 
     def __repr__(self):
         return "<ChatUser: Chat #%s, User #%s>" % (self.chat_id, self.user_id)

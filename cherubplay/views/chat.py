@@ -502,5 +502,14 @@ def chat_info(request):
     chat, own_chat_user = _get_chat(request, ongoing=False)
     own_chat_user.title = request.POST["title"][:100]
     own_chat_user.notes = request.POST["notes"]
+    labels_set = set()
+    for label in request.POST["labels"].lower().replace("\n", " ").split(","):
+        label = label.strip()
+        if label == "":
+            continue
+        labels_set.add(label.replace(" ", "_"))
+    labels_list = list(labels_set)
+    labels_list.sort()
+    own_chat_user.labels = labels_list
     return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"], _query={ "saved": "info" }))
 

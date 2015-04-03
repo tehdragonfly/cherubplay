@@ -72,6 +72,9 @@ ${prompt.text}\
 % if chat_user.notes!="":
         <p class="notes">Notes: ${chat_user.notes}</p>
 % endif
+% if chat_user.labels:
+        <p class="notes">Labels: ${", ".join(_.replace("_", " ") for _ in chat_user.labels)}</p>
+% endif
       </li>
 % endfor
     </ul>

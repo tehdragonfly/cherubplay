@@ -477,13 +477,13 @@ label[for="filter_toggle"]:hover {
 
 /* Chat notes */
 
-#chat_notes_title {
+#chat_notes_title, #chat_notes_labels {
 	margin: 0;
 	padding: 0;
 	border: 0;
 	width: 100%;
 	font: inherit;
-	color: #009900;
+	color: inherit;
 }
 
 .danger h1, .danger h2, .danger h3, .danger h4, .danger h5, .danger h6, .danger a {
