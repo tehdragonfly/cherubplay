@@ -1,4 +1,6 @@
 import json
+import signal
+import time
 
 from uuid import uuid4
 
@@ -16,12 +18,17 @@ from cherubplay.models import Chat, ChatUser, Message
 
 from db import config, get_chat, get_chat_user, get_user, publish_client
 
+
+sockets = set()
+
+
 class ChatHandler(WebSocketHandler):
 
     def check_origin(self, origin):
         return True
 
     def open(self, chat_url):
+        sockets.add(self)
         print chat_url
         self.user = get_user(self.cookies)
         if self.user is None:
@@ -76,6 +83,7 @@ class ChatHandler(WebSocketHandler):
                 "action": "offline",
                 "symbol": symbols[self.chat_user.symbol],
             }))
+        sockets.remove(self)
 
     @engine
     def redis_listen(self):
@@ -94,10 +102,39 @@ class ChatHandler(WebSocketHandler):
     def on_redis_unsubscribe(self, callback):
         self.redis_client.disconnect()
 
+
+def sig_handler(sig, frame):
+    print "Caught signal %s." % sig
+    ioloop.add_callback_from_signal(shutdown)
+
+
+def shutdown():
+    print "Shutting down."
+    for socket in sockets:
+        ioloop.add_callback(socket.close)
+    deadline = time.time() + 10
+    def stop_loop():
+        now = time.time()
+        if now < deadline and (ioloop._callbacks or ioloop._timeouts):
+            ioloop.add_timeout(now + 0.1, stop_loop)
+        else:
+            ioloop.stop()
+    stop_loop()
+
+
+ioloop = IOLoop.instance()
+
+
 def main():
+
     application = Application([(r"/(.*)/", ChatHandler)])
+
     server = HTTPServer(application)
     socket = bind_unix_socket(config.get("app:main", "cherubplay.socket_chat"), mode=0777)
     server.add_socket(socket)
-    IOLoop.instance().start()
+
+    signal.signal(signal.SIGTERM, sig_handler)
+    signal.signal(signal.SIGINT, sig_handler)
+
+    ioloop.start()
 

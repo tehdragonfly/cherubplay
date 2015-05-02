@@ -621,9 +621,7 @@ var cherubplay = (function() {
 					}
 				}
 				ws.onclose = function(e) {
-					if (!e.wasClean) {
-						status_bar.text("Live updates currently unavailable. Please refresh to see new messages.");
-					}
+					status_bar.text("Live updates currently unavailable. Please refresh to see new messages.");
 				}
 				if (typeof document.hidden !== "undefined") {
 					document.addEventListener("visibilitychange", visibility_handler);
