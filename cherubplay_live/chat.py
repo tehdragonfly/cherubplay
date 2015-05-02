@@ -18,6 +18,9 @@ from db import config, get_chat, get_chat_user, get_user, publish_client
 
 class ChatHandler(WebSocketHandler):
 
+    def check_origin(self, origin):
+        return True
+
     def open(self, chat_url):
         print chat_url
         self.user = get_user(self.cookies)

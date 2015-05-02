@@ -28,6 +28,9 @@ def write_message_to_searchers(message, category, level):
 
 class SearchHandler(WebSocketHandler):
 
+    def check_origin(self, origin):
+        return True
+
     def open(self):
         self.user = get_user(self.cookies)
         if self.user is None:
