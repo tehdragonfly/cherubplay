@@ -558,10 +558,21 @@ var cherubplay = (function() {
 			}
 
 			if (typeof WebSocket!="undefined") {
-				var ws_protocol = (location.protocol=="https:") ? "wss://" : "ws://";
-				var ws = new WebSocket(ws_protocol+location.host+"/live/"+chat_url+"/");
-				ws.onopen = function(e) {
+				var ws;
+				var ws_works = false;
+				var ws_connected_time = 0;
+				function launch_websocket() {
+					var ws_protocol = (location.protocol=="https:") ? "wss://" : "ws://";
+					ws = new WebSocket(ws_protocol+location.host+"/live/"+chat_url+"/");
+					ws.onopen = ws_onopen;
+					ws.onmessage = ws_onmessage;
+					ws.onclose = ws_onclose;
+				}
+				function ws_onopen(e) {
+					ws_works = true;
+					ws_connected_time = Date.now();
 					window.setTimeout(ping, 8000);
+					status_bar.text(last_status_message);
 					scroll_to_bottom();
 					if (document.hidden || document.webkitHidden || document.msHidden) {
 						document.title = "Connected - " + original_title;
@@ -570,7 +581,7 @@ var cherubplay = (function() {
 						}
 					}
 				}
-				ws.onmessage = function(e) {
+				function ws_onmessage(e) {
 					if (!ended) {
 						message = JSON.parse(e.data);
 						if (message.action=="message") {
@@ -620,8 +631,13 @@ var cherubplay = (function() {
 						}
 					}
 				}
-				ws.onclose = function(e) {
+				function ws_onclose(e) {
 					status_bar.text("Live updates currently unavailable. Please refresh to see new messages.");
+					// Only try to re-connect if we've managed to connect before.
+					console.log(Date.now() - ws_connected_time);
+					if (ws_works && (Date.now() - ws_connected_time) >= 5000) {
+						window.setTimeout(launch_websocket, 2000);
+					}
 				}
 				if (typeof document.hidden !== "undefined") {
 					document.addEventListener("visibilitychange", visibility_handler);
@@ -630,6 +646,7 @@ var cherubplay = (function() {
 				} else if (typeof document.webkitHidden !== "undefined") {
 					document.addEventListener("webkitvisibilitychange", visibility_handler);
 				}
+				launch_websocket();
 			} else {
 				var ws = {
 					readyState: 3,
