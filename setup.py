@@ -8,23 +8,6 @@ with open(os.path.join(here, "README.txt")) as f:
 with open(os.path.join(here, "CHANGES.txt")) as f:
     CHANGES = f.read()
 
-requires = [
-    "bcrypt",
-    "psycopg2",
-    "pyramid",
-    "pyramid_chameleon",
-    "pyramid_debugtoolbar",
-    "pyramid_tm",
-    "redis",
-    "SQLAlchemy",
-    "tornado",
-    "tornado-redis",
-    "transaction",
-    "waitress",
-    "webhelpers",
-    "zope.sqlalchemy",
-]
-
 setup(name="cherubplay",
       version="0.0",
       description="cherubplay",
@@ -43,7 +26,8 @@ setup(name="cherubplay",
       include_package_data=True,
       zip_safe=False,
       test_suite="cherubplay",
-      install_requires=requires,
+      # Requirements are in requirements.txt
+      install_requires=[],
       entry_points="""\
       [paste.app_factory]
       main = cherubplay:main
