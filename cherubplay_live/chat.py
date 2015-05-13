@@ -4,6 +4,8 @@ import time
 
 from uuid import uuid4
 
+from sqlalchemy import and_
+
 from tornado.gen import engine, Task
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
@@ -16,7 +18,7 @@ from tornadoredis import Client
 from cherubplay.lib import colour_validator, symbols
 from cherubplay.models import Chat, ChatUser, Message
 
-from db import config, get_chat, get_chat_user, get_user, publish_client
+from db import config, get_chat, get_chat_user, get_user, publish_client, sm
 
 
 sockets = set()
@@ -61,6 +63,30 @@ class ChatHandler(WebSocketHandler):
         publish_client.hset("online:"+str(self.chat.id), self.socket_id, self.chat_user.symbol)
         self.redis_listen()
         self.ignore_next_message = False
+        # Send the backlog if necessary.
+        if "after" in self.request.query_arguments:
+            print "after"
+            try:
+                after = int(self.request.query_arguments["after"][0])
+            except ValueError:
+                return
+            Session = sm()
+            for message in Session.query(Message).filter(and_(
+                Message.chat_id == self.chat.id,
+                Message.id > after,
+            )):
+                print message
+                self.write_message({
+                    "action": "message",
+                    "message": {
+                        "id": message.id,
+                        "type": message.type,
+                        "colour": message.colour,
+                        "symbol": symbols[message.symbol],
+                        "text": message.text,
+                    }
+                })
+            Session.commit()
 
     def on_message(self, message_string):
         message = json.loads(message_string)

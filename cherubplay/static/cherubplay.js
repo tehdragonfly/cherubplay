@@ -346,6 +346,12 @@ var cherubplay = (function() {
 		},
 		"chat": function(chat_url, own_symbol) {
 
+			var latest_message_id;
+			var messages = $("#messages li");
+			if (messages) {
+				latest_message_id = parseInt(messages[messages.length-1].id.substr(8));
+			}
+
 			// Hook so we can get colours in hex format.
 			$.cssHooks.color = {
 				get: function(elem) {
@@ -528,6 +534,7 @@ var cherubplay = (function() {
 			}
 
 			function render_message(message) {
+				latest_message_id = Math.max(latest_message_id, message.id);
 				// Check if we're at the bottom before rendering because rendering will mean that we're not.
 				var scroll_after_render = is_at_bottom();
 				var li = $("<li>").attr("id", "message_"+message.id).addClass("tile message_"+message.type);
@@ -562,8 +569,9 @@ var cherubplay = (function() {
 				var ws_works = false;
 				var ws_connected_time = 0;
 				function launch_websocket() {
-					var ws_protocol = (location.protocol=="https:") ? "wss://" : "ws://";
-					ws = new WebSocket(ws_protocol+location.host+"/live/"+chat_url+"/");
+					var ws_protocol = location.protocol == "https:" ? "wss://" : "ws://";
+					var after = latest_message_id ? "?after=" + latest_message_id : ""
+					ws = new WebSocket(ws_protocol + location.host + "/live/" + chat_url + "/" + after);
 					ws.onopen = ws_onopen;
 					ws.onmessage = ws_onmessage;
 					ws.onclose = ws_onclose;
@@ -634,7 +642,6 @@ var cherubplay = (function() {
 				function ws_onclose(e) {
 					status_bar.text("Live updates currently unavailable. Please refresh to see new messages.");
 					// Only try to re-connect if we've managed to connect before.
-					console.log(Date.now() - ws_connected_time);
 					if (ws_works && (Date.now() - ws_connected_time) >= 5000) {
 						window.setTimeout(launch_websocket, 2000);
 					}
