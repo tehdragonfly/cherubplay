@@ -246,10 +246,19 @@ var cherubplay = (function() {
 			var preset_colours = $("#preset_colours").change(function() {
 				prompt_colour.val(this.value).change();
 			});
+			var key_counter = 0;
 			var prompt_text = $("#prompt_text").keyup(function() {
 				prompt_category.val("");
 				prompt_level.val("");
 				this.style.height = this.scrollHeight+"px";
+				key_counter++;
+				if (key_counter == 10) {
+					key_counter = 0;
+					localStorage.setItem("prompt_colour", prompt_colour.val());
+					localStorage.setItem("prompt_text", prompt_text.val());
+					localStorage.setItem("prompt_category", prompt_category.val());
+					localStorage.setItem("prompt_level", prompt_level.val());
+				}
 			});
 			var prompt_category = $("#prompt_category");
 			var prompt_level = $("#prompt_level");
