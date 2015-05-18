@@ -302,6 +302,13 @@ def _get_chat(request, ongoing=True):
     return chat, own_chat_user
 
 
+@view_config(route_name="chat_draft", request_method="POST", permission="chat")
+def chat_draft(request):
+    chat, own_chat_user = _get_chat(request)
+    own_chat_user.draft = request.POST["message_text"].strip()
+    return HTTPNoContent()
+
+
 def _validate_message_form(request):
     colour = request.POST["message_colour"]
     if colour.startswith("#"):
@@ -345,6 +352,7 @@ def chat_send(request):
     chat.updated = posted_date
     chat.last_user_id = request.user.id
     own_chat_user.last_colour = colour
+    own_chat_user.draft = ""
     try:
         # See if anyone else is online and update their ChatUser too.
         online_symbols = [

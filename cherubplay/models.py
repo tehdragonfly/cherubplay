@@ -120,6 +120,7 @@ class ChatUser(Base):
     title = Column(Unicode(100), nullable=False, default=u"")
     notes = Column(UnicodeText, nullable=False, default=u"")
     labels = Column(ARRAY(Unicode(500)), nullable=False, default=list)
+    draft = Column(UnicodeText, nullable=False, default=u"")
 
     def __repr__(self):
         return "<ChatUser: Chat #%s, User #%s>" % (self.chat_id, self.user_id)
