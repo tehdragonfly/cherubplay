@@ -42,7 +42,7 @@ ${next.body()}\
 </main>
 
 <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
-<script src="/static/cherubplay.js?15"></script>
+<script src="/static/cherubplay.js?16"></script>
 <%block name="scripts"></%block>
 
 </body>

@@ -357,7 +357,7 @@ var cherubplay = (function() {
 
 			var latest_message_id;
 			var messages = $("#messages li");
-			if (messages) {
+			if (messages && messages.length > 0) {
 				latest_message_id = parseInt(messages[messages.length-1].id.substr(8));
 			}
 
@@ -504,6 +504,7 @@ var cherubplay = (function() {
 			});
 			var message_ooc = $("#message_ooc");
 			var message_text = $("#message_text").keypress(function(e) {
+				changed_since_draft = true;
 				if (ws.readyState==1) {
 					window.clearTimeout(typing_timeout);
 					if (!typing) {
@@ -534,6 +535,15 @@ var cherubplay = (function() {
 				$("<source>").attr("src", "/static/carne_vale.ogg").appendTo(notification_audio);
 				$("<source>").attr("src", "/static/carne_vale.mp3").appendTo(notification_audio);
 			}
+
+			var changed_since_draft = false;
+			function save_draft() {
+				if (changed_since_draft) {
+					$.post("/chats/" + chat_url + "/draft/", {message_text: message_text.val().trim()});
+				}
+				changed_since_draft = false;
+			}
+			window.setInterval(save_draft, 15000);
 
 			function ping() {
 				if (ws.readyState==1) {
@@ -649,6 +659,7 @@ var cherubplay = (function() {
 					}
 				}
 				function ws_onclose(e) {
+					if (ended) { return; }
 					status_bar.text("Live updates currently unavailable. Please refresh to see new messages.");
 					// Only try to re-connect if we've managed to connect before.
 					if (ws_works && (Date.now() - ws_connected_time) >= 5000) {
