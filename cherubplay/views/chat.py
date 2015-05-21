@@ -28,11 +28,7 @@ from ..models import (
     User,
 )
 
-@view_config(route_name="chat_list", renderer="chat_list.mako", permission="view")
-@view_config(route_name="chat_list_unanswered", renderer="chat_list.mako", permission="view")
-@view_config(route_name="chat_list_ongoing", renderer="chat_list.mako", permission="view")
-@view_config(route_name="chat_list_ended", renderer="chat_list.mako", permission="view")
-@view_config(route_name="chat_list_label", renderer="chat_list.mako", permission="view")
+
 def chat_list(request):
 
     current_page = int(request.GET.get("page", 1))
@@ -121,7 +117,6 @@ def chat_list(request):
     }
 
 
-@view_config(route_name="chat")
 def chat(request):
 
     try:

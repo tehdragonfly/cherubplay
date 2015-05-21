@@ -16,6 +16,13 @@ from .models import (
     ChatUser,
     User,
 )
+from .views import chat
+
+
+class CherubplayConfigurator(Configurator):
+    def add_route_and_view(self, name, pattern, view, **kwargs):
+        self.add_route(name, pattern)
+        self.add_view(view, route_name=name, **kwargs)
 
 
 class CherubplayAuthenticationPolicy(object):
@@ -99,7 +106,7 @@ def main(global_config, **settings):
     Session.configure(bind=engine)
     Base.metadata.bind = engine
 
-    config = Configurator(
+    config = CherubplayConfigurator(
         authentication_policy=CherubplayAuthenticationPolicy(),
         authorization_policy=ACLAuthorizationPolicy(),
         root_factory=CherubplayRootFactory,
@@ -135,13 +142,13 @@ def main(global_config, **settings):
     config.add_route("log_in", "/log-in/")
     config.add_route("log_out", "/log-out/")
 
-    config.add_route("chat_list", "/chats/")
-    config.add_route("chat_list_unanswered", "/chats/unanswered/")
-    config.add_route("chat_list_ongoing", "/chats/ongoing/")
-    config.add_route("chat_list_ended", "/chats/ended/")
-    config.add_route("chat_list_label", "/chats/labels/{label}/")
+    config.add_route_and_view("chat_list", "/chats/", chat.chat_list, renderer="chat_list.mako", permission="view")
+    config.add_route_and_view("chat_list_unanswered", "/chats/unanswered/", chat.chat_list, renderer="chat_list.mako", permission="view")
+    config.add_route_and_view("chat_list_ongoing", "/chats/ongoing/", chat.chat_list, renderer="chat_list.mako", permission="view")
+    config.add_route_and_view("chat_list_ended", "/chats/ended/", chat.chat_list, renderer="chat_list.mako", permission="view")
+    config.add_route_and_view("chat_list_label", "/chats/labels/{label}/", chat.chat_list, renderer="chat_list.mako", permission="view")
 
-    config.add_route("chat", "/chats/{url}/")
+    config.add_route_and_view("chat", "/chats/{url}/", chat.chat)
     config.add_route("chat_archive", "/chats/{url}/archive/")
     config.add_route("chat_info", "/chats/{url}/info/")
 
