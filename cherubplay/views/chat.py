@@ -96,8 +96,8 @@ def chat_list(request):
             "chats": [{
                 "chat_user": chat_user,
                 "chat": chat,
-                "latest_message": latest_message,
-            } for chat_user, chat, latest_message in chats],
+                "prompt": prompt,
+            } for chat_user, chat, prompt in chats],
             "chat_count": chat_count,
         }, request=request)
 
