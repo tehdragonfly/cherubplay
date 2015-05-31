@@ -23,6 +23,10 @@ class CherubplayConfigurator(Configurator):
     def add_route_and_view(self, name, pattern, view, **kwargs):
         self.add_route(name, pattern)
         self.add_view(view, route_name=name, **kwargs)
+        fmt_name = name + "_fmt"
+        fmt_pattern = (pattern[:-1] if pattern.endswith("/") else pattern) + ".{fmt}"
+        self.add_route(fmt_name, fmt_pattern)
+        self.add_view(view, route_name=fmt_name, **kwargs)
 
 
 class CherubplayAuthenticationPolicy(object):
@@ -142,11 +146,11 @@ def main(global_config, **settings):
     config.add_route("log_in", "/log-in/")
     config.add_route("log_out", "/log-out/")
 
-    config.add_route_and_view("chat_list", "/chats/", chat.chat_list, renderer="chat_list.mako", permission="view")
-    config.add_route_and_view("chat_list_unanswered", "/chats/unanswered/", chat.chat_list, renderer="chat_list.mako", permission="view")
-    config.add_route_and_view("chat_list_ongoing", "/chats/ongoing/", chat.chat_list, renderer="chat_list.mako", permission="view")
-    config.add_route_and_view("chat_list_ended", "/chats/ended/", chat.chat_list, renderer="chat_list.mako", permission="view")
-    config.add_route_and_view("chat_list_label", "/chats/labels/{label}/", chat.chat_list, renderer="chat_list.mako", permission="view")
+    config.add_route_and_view("chat_list", "/chats/", chat.chat_list, permission="view")
+    config.add_route_and_view("chat_list_unanswered", "/chats/unanswered/", chat.chat_list, permission="view")
+    config.add_route_and_view("chat_list_ongoing", "/chats/ongoing/", chat.chat_list, permission="view")
+    config.add_route_and_view("chat_list_ended", "/chats/ended/", chat.chat_list, permission="view")
+    config.add_route_and_view("chat_list_label", "/chats/labels/{label}/", chat.chat_list, permission="view")
 
     config.add_route_and_view("chat", "/chats/{url}/", chat.chat)
     config.add_route("chat_archive", "/chats/{url}/archive/")

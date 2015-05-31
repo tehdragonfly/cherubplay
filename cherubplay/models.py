@@ -62,12 +62,12 @@ class Chat(Base):
     def __repr__(self):
         return "<Chat #%s: %s>" % (self.id, self.url)
 
-    def dict(self):
+    def __json__(self, request=None):
         return {
             "url": self.url,
             "status": self.status,
-            "created": self.created,
-            "updated": self.updated,
+            "created": self.created.isoformat(),
+            "updated": self.updated.isoformat(),
         }
 
 
@@ -91,16 +91,16 @@ class Message(Base):
             preview = self.text[:37] + "..."
         return "<Message #%s: \"%s\">" % (self.id, preview)
 
-    def dict(self):
+    def __json__(self, request=None):
         return {
             "id": self.id,
             "type": self.type,
             "colour": self.colour,
             "symbol": self.symbol,
             "text": self.text,
-            "posted": self.posted,
-            "edited": self.edited,
-            "show_edited": self.show_edited,
+            "posted": self.posted.isoformat(),
+            "edited": self.edited.isoformat(),
+            "show_edited": self.show_edited(),
         }
 
     def show_edited(self):
@@ -125,13 +125,14 @@ class ChatUser(Base):
     def __repr__(self):
         return "<ChatUser: Chat #%s, User #%s>" % (self.chat_id, self.user_id)
 
-    def dict(self):
+    def __json__(self, request=None):
         return {
             "last_colour": self.last_colour,
             "symbol": self.symbol,
-            "visited": self.visited,
+            "visited": self.visited.isoformat(),
             "title": self.title,
             "notes": self.notes,
+            "labels": self.labels,
         }
 
 

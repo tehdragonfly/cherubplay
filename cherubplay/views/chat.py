@@ -19,7 +19,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 from webhelpers import paginate
 
-from ..lib import colour_validator, symbols, preset_colours
+from ..lib import alt_formats, colour_validator, symbols, preset_colours
 from ..models import (
     Session,
     Chat,
@@ -29,20 +29,21 @@ from ..models import (
 )
 
 
+@alt_formats({"json"})
 def chat_list(request):
 
     current_page = int(request.GET.get("page", 1))
 
-    if request.matched_route.name == "chat_list_unanswered":
+    if request.matched_route.name.startswith("chat_list_unanswered"):
         current_status = "unanswered"
-    elif request.matched_route.name == "chat_list_ongoing":
+    elif request.matched_route.name.startswith("chat_list_ongoing"):
         current_status = "ongoing"
-    elif request.matched_route.name == "chat_list_ended":
+    elif request.matched_route.name.startswith("chat_list_ended"):
         current_status = "ended"
     else:
         current_status = None
 
-    if request.matched_route.name == "chat_list_label":
+    if request.matched_route.name.startswith("chat_list_label"):
         current_label = request.matchdict["label"].lower().strip().replace(" ", "_")
         if current_label != request.matchdict["label"]:
             raise HTTPFound(request.route_path("chat_list_label", label=current_label))
@@ -90,6 +91,16 @@ def chat_list(request):
 
     chat_count = chat_count.scalar()
 
+    if request.matchdict.get("fmt") == "json":
+        return render_to_response("json", {
+            "chats": [{
+                "chat_user": chat_user,
+                "chat": chat,
+                "latest_message": latest_message,
+            } for chat_user, chat, latest_message in chats],
+            "chat_count": chat_count,
+        }, request=request)
+
     paginator = paginate.Page(
         [],
         page=current_page,
@@ -108,15 +119,16 @@ def chat_list(request):
         .order_by(func.count("*").desc(), func.unnest(ChatUser.labels).asc()).all()
     )
 
-    return {
+    return render_to_response("chat_list.mako", {
         "chats": chats,
         "paginator": paginator,
         "labels": labels,
         "current_status": current_status,
         "current_label": current_label,
-    }
+    }, request=request)
 
 
+@alt_formats(set())
 def chat(request):
 
     try:

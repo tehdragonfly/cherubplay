@@ -3,6 +3,26 @@
 import re
 
 from collections import OrderedDict
+from functools import wraps
+from pyramid.httpexceptions import HTTPFound, HTTPPreconditionFailed
+
+
+def alt_formats(available_formats):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(request):
+            if "fmt" in request.matchdict:
+                # Redirect to no extension if extension is html.
+                if request.matchdict["fmt"] == "html":
+                    del request.matchdict["fmt"]
+                    plain_route = request.matched_route.name.split("_fmt")[0]
+                    raise HTTPFound(request.route_path(plain_route, **request.matchdict))
+                if request.matchdict["fmt"] not in available_formats:
+                    raise HTTPPreconditionFailed
+            return f(request)
+        return decorated_function
+    return decorator
+
 
 colour_validator = re.compile("^[A-Fa-f0-9]{6}$")
 username_validator = re.compile("^[-a-z0-9_]+$")
