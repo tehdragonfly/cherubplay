@@ -128,7 +128,7 @@ def chat_list(request):
     }, request=request)
 
 
-@alt_formats(set())
+@alt_formats({"json"})
 def chat(request):
 
     try:
@@ -187,6 +187,15 @@ def chat(request):
             messages = messages.options(joinedload(Message.user))
             messages = messages.all()
             messages.reverse()
+
+        if request.matchdict.get("fmt") == "json":
+            return render_to_response("json",{
+                "chat": chat,
+                "chat_user": own_chat_user,
+                "message_count": message_count,
+                "prompt": prompt,
+                "messages": messages,
+            }, request=request)
 
         # List users if we're an admin.
         # Get this from both message users and chat users, because the latter is
@@ -248,6 +257,14 @@ def chat(request):
 
     messages = messages.order_by(Message.id.asc()).limit(25).offset((current_page-1)*25).all()
     message_count = message_count.scalar()
+
+    if request.matchdict.get("fmt") == "json":
+        return render_to_response("json",{
+            "chat": chat,
+            "chat_user": own_chat_user,
+            "message_count": message_count,
+            "messages": messages,
+        }, request=request)
 
     paginator = paginate.Page(
         [],
