@@ -538,7 +538,7 @@ var cherubplay = (function() {
 
 			var changed_since_draft = false;
 			function save_draft() {
-				if (changed_since_draft) {
+				if (!editing_id && changed_since_draft) {
 					$.post("/chats/" + chat_url + "/draft/", {message_text: message_text.val().trim()});
 				}
 				changed_since_draft = false;
