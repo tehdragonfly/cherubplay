@@ -17,7 +17,8 @@
     <p><button type="submit">Save</button></p>
   </form>
   <section class="tile">
-    <h3>Notifications</h3>
+    <h3>Chat options</h3>
     <p><label><input type="checkbox" id="sound_notifications"> Enable sound notifications</label></p>
+    <p><label><input type="checkbox" id="enter_to_send"> Press enter to send</label></p>
   </section>
 <%block name="scripts"><script>cherubplay.account();</script></%block>

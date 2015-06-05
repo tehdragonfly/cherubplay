@@ -349,8 +349,20 @@ var cherubplay = (function() {
 				}
 				window.scroll(0, 0);
 			});
-			if (localStorage.getItem("sound_notifications") == "true") {
-				sound_notifications.attr("checked", "checked");
+			if (localStorage.getItem("enter_to_send") == "true") {
+				enter_to_send.attr("checked", "checked");
+			}
+			var enter_to_send = $("#enter_to_send").click(function() {
+				localStorage.setItem("enter_to_send", this.checked);
+				if (this.checked) {
+					$("#confirmation").text("Pressing enter to send is now enabled.");
+				} else {
+					$("#confirmation").text("Pressing enter to send is now disabled.");
+				}
+				window.scroll(0, 0);
+			});
+			if (localStorage.getItem("enter_to_send") == "true") {
+				enter_to_send.attr("checked", "checked");
 			}
 		},
 		"chat": function(chat_url, own_symbol) {
@@ -505,7 +517,10 @@ var cherubplay = (function() {
 			var message_ooc = $("#message_ooc");
 			var message_text = $("#message_text").keypress(function(e) {
 				changed_since_draft = true;
-				if (ws.readyState==1) {
+				if (enter_to_send && e.keyCode==13 && !e.shiftKey) {
+					message_form.submit();
+					return false;
+				} else if (ws.readyState==1) {
 					window.clearTimeout(typing_timeout);
 					if (!typing) {
 						typing = true;
@@ -535,6 +550,8 @@ var cherubplay = (function() {
 				$("<source>").attr("src", "/static/carne_vale.ogg").appendTo(notification_audio);
 				$("<source>").attr("src", "/static/carne_vale.mp3").appendTo(notification_audio);
 			}
+
+			var enter_to_send = localStorage.getItem("enter_to_send") == "true";
 
 			var changed_since_draft = false;
 			function save_draft() {
