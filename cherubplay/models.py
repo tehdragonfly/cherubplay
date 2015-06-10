@@ -43,6 +43,7 @@ class User(Base):
     last_ip = Column(String(40))
     unban_date = Column(DateTime)
     layout_version = Column(Integer, nullable=False, default=1)
+    timezone = Column(Unicode(255))
 
     def __repr__(self):
         return "<User #%s: %s>" % (self.id, self.username)

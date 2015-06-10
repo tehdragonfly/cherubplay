@@ -45,6 +45,16 @@ ${next.body()}\
 <script src="/static/cherubplay.js?17"></script>
 <%block name="scripts"></%block>
 
+% if request.user and request.user.timezone is None:
+<script src="/static/jstz-1.0.4.min.js"></script>
+<script>
+var timezone = jstz.determine().name();
+if (timezone) {
+	$.post("/account/timezone/", {"timezone": timezone});
+}
+</script>
+% endif
+
 </body>
 </html>
 
