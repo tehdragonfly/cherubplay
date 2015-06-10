@@ -42,6 +42,7 @@ class User(Base):
     last_online = Column(DateTime, nullable=False, default=datetime.datetime.now)
     last_ip = Column(String(40))
     unban_date = Column(DateTime)
+    layout_version = Column(Integer, nullable=False, default=1)
 
     def __repr__(self):
         return "<User #%s: %s>" % (self.id, self.username)
