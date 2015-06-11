@@ -1,5 +1,6 @@
 import datetime
 
+from pytz import timezone, utc
 from sqlalchemy import (
     and_,
     Column,
@@ -50,6 +51,12 @@ class User(Base):
 
     def unban_delta(self):
         return self.unban_date - datetime.datetime.now()
+
+    def localise_time(self, input_datetime):
+        utc_datetime = utc.localize(input_datetime)
+        if self.timezone is None:
+            return utc_datetime
+        return utc_datetime.astimezone(timezone(self.timezone))
 
 
 class Chat(Base):

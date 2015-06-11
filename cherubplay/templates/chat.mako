@@ -70,7 +70,7 @@ ${render_message(message)}\
   </ul>
   <section id="status_bar">\
 % if len(messages)>0:
-Last message: ${messages[-1].posted}.\
+Last message: ${request.user.localise_time(messages[-1].posted).strftime("%Y-%m-%d %H:%M:%S")}.\
 % endif
 </section>
   <section id="message_form_container" class="tile">
