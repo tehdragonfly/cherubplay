@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#393">
 <link rel="stylesheet" href="/static/cherubplay.css?22">
 </head>
-<body>
+<body class="<%block name="body_class"></%block>">
 
 <header>
   <h1><a href="${request.route_path("home")}"><img src="/static/logo.png" alt="CHERUBPLAY"></a></h1>
@@ -37,9 +37,13 @@
 % endif
 % endif
 
+% if request.user and request.user.layout_version == 1:
 <main>
+% endif
 ${next.body()}\
+% if request.user and request.user.layout_version == 1:
 </main>
+% endif
 
 <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
 <script src="/static/cherubplay.js?17"></script>

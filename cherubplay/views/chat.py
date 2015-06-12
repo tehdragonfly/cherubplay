@@ -213,7 +213,8 @@ def chat(request):
             ).options(joinedload(ChatUser.user)):
                 symbol_users[chat_user.symbol] = chat_user.user
 
-        return render_to_response("chat.mako", {
+        template = "layout2/chat.mako" if request.user.layout_version == 2 else "chat.mako"
+        return render_to_response(template, {
             "symbols": symbols,
             "preset_colours": preset_colours,
             "chat": chat,
