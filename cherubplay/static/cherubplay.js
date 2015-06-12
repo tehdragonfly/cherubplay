@@ -349,8 +349,8 @@ var cherubplay = (function() {
 				}
 				window.scroll(0, 0);
 			});
-			if (localStorage.getItem("enter_to_send") == "true") {
-				enter_to_send.attr("checked", "checked");
+			if (localStorage.getItem("sound_notifications") == "true") {
+				sound_notifications.attr("checked", "checked");
 			}
 			var enter_to_send = $("#enter_to_send").click(function() {
 				localStorage.setItem("enter_to_send", this.checked);
