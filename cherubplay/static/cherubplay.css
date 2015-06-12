@@ -581,7 +581,7 @@ label[for="filter_toggle"]:hover {
 	border-top: none;
 }
 
-.layout2 #messages p {
+.layout2 #messages li > p {
 	margin: 0;
 	white-space: pre-line;
 }
@@ -599,3 +599,11 @@ label[for="filter_toggle"]:hover {
 	color: #888;
 }
 
+.layout2 #status_bar {
+	max-width: none;
+	padding: 20px 0;
+}
+
+.layout2 #message_form p:first-child {
+	margin-top: 0;
+}
