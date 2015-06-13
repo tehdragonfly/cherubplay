@@ -507,9 +507,9 @@ label[for="filter_toggle"]:hover {
 .layout2 main { margin: 50px 30px 50px; }
 .layout2 h2 + main { margin-top: 0; }
 
-.layout2 .subnav nav > :first-child { margin-top: 0; }
-.layout2 .subnav h3 { font-size: 14pt; }
-.layout2 .subnav ul { margin: 10px 0; padding: 0; list-style-type: none; text-align: center; }
+.layout2 .side_column nav > :first-child { margin-top: 0; }
+.layout2 .side_column h3 { font-size: 14pt; }
+.layout2 .side_column ul { margin: 10px 0; padding: 0; list-style-type: none; text-align: center; }
 
 .layout2 .tile2 { position: relative; z-index: 2; margin: 20px 0; padding: 20px 30px; background-color: #fff; box-shadow: 0 0 2px #ddd; }
 .layout2 .tile2:first-child, .layout2 .tile2 > :first-child { margin-top: 0; }
