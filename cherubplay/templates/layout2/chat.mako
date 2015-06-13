@@ -1,10 +1,9 @@
-<%inherit file="../base.mako" />\
+<%inherit file="base.mako" />\
 <%block name="title">${own_chat_user.title or chat.url} - </%block>
-<%block name="body_class">layout2</%block>
+<%block name="body_class">layout2 ongoing</%block>
 <%def name="render_subnav(page, chat, own_chat_user)">\
   <div class="subnav">
     <nav>
-      <h3>Navigation</h3>
       <ul>
 % if chat.status == "ongoing":
 % if page == "chat":
@@ -45,7 +44,7 @@
 <main>
 ${render_subnav("chat", chat, own_chat_user)}
   <div id="content">
-    <ul id="messages">
+    <ul id="messages" class="tile2">
 % if prompt:
 ${render_message(prompt)}\
       <li class="message_system pager"><a href="${request.route_path("chat", url=request.matchdict["url"], _query={ "page": 1 })}">${message_count-26} more messages</a></li>
