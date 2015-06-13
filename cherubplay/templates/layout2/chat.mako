@@ -37,7 +37,7 @@
 % else:
         <p>${message.text}</p>
 % endif
-        <div class="timestamp">${request.user.localise_time(message.posted).strftime("%Y-%m-%d %H:%M:%S")}${" · Edited" if message.show_edited() else ""}</div>
+        <div class="timestamp">${request.user.localise_time(message.posted).strftime("%Y-%m-%d %H:%M:%S")}</div>
       </li>
 </%def>\
 <h2>${own_chat_user.title or chat.url}</h2>
@@ -64,7 +64,7 @@ Last message: ${request.user.localise_time(messages[-1].posted).strftime("%Y-%m-
             <option value="#${hex}">${name}</option>
 % endfor
           </select><label title="Talk out of character; use ((double brackets)) to automatically OOC."><input id="message_ooc" type="checkbox" name="message_ooc"> OOC</label></p>
-          <span class="symbol">${symbols[own_chat_user.symbol]}</span>
+          <span class="symbol" style="color: #${own_chat_user.last_colour};">${symbols[own_chat_user.symbol]}</span>
           <p><textarea id="message_text" name="message_text" placeholder="Write a message..." style="color: #${own_chat_user.last_colour}">${own_chat_user.draft}</textarea></p>
           <button type="submit" id="send_button">Send</button>
         </form>
@@ -77,3 +77,6 @@ Last message: ${request.user.localise_time(messages[-1].posted).strftime("%Y-%m-
     </ul>
   </div>
 </main>
+<%block name="scripts">
+<script>cherubplay.chat("${request.matchdict["url"]}", "${symbols[own_chat_user.symbol]}");</script>
+</%block>

@@ -543,19 +543,21 @@ label[for="filter_toggle"]:hover {
 
 .layout2 #messages { margin: 0; padding: 0 30px; list-style-type: none; }
 
-.layout2 #messages li { padding: 20px 0; border-top: 1px solid #ddd; }
+.layout2 #messages li { position: relative; padding: 20px 0; border-top: 1px solid #ddd; }
 .layout2 #messages li:first-child { border-top: none; }
 
 .layout2 #messages li > p { margin: 0; white-space: pre-line; }
-.layout2 .symbol { position: absolute; width: 60px; margin-left: -60px; text-align: center; font-size: 1.5em; }
+.layout2 .edited p::after { content: ""; }
+.layout2 .symbol { position: absolute; width: 60px; left: -60px; text-align: center; font-size: 1.5em; }
 .layout2 .timestamp { font-size: 10pt; color: #888; }
+.layout2 .edited .timestamp::after { content: " · Edited"; }
 
-.layout2 #status_bar { max-width: none; padding: 20px 0; }
+.layout2 #status_bar { max-width: none; margin: 0; }
 .layout2 #message_form p:first-child { margin-top: 0; }
 
 @media (max-width: 640px) {
 	.layout2 #messages { padding: 0 15px; }
 	.layout2 #messages li { padding: 10px 0; }
-	.layout2 .symbol { width: 30px; margin-left: -30px; font-size: 1em; }
+	.layout2 .symbol { width: 30px; left: -30px; font-size: 1em; }
 }
 

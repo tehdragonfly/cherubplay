@@ -458,7 +458,9 @@ var cherubplay = (function() {
 				window.scrollTo(0, message_form_container.position()["top"]-50);
 			}
 
-			$("#messages li[data-symbol="+own_symbol+"]").dblclick(start_editing);
+			if (!body.hasClass("layout2")) {
+				$("#messages li[data-symbol="+own_symbol+"]").dblclick(start_editing);
+			}
 
 			var status_bar = $("#status_bar");
 			var last_status_message = status_bar.text();
@@ -573,22 +575,38 @@ var cherubplay = (function() {
 				latest_message_id = Math.max(latest_message_id, message.id);
 				// Check if we're at the bottom before rendering because rendering will mean that we're not.
 				var scroll_after_render = is_at_bottom();
-				var li = $("<li>").attr("id", "message_"+message.id).addClass("tile message_"+message.type);
-				if (message.symbol) {
-					li.attr("data-symbol", message.symbol);
-					if (message.symbol == own_symbol) {
-						li.dblclick(start_editing);
+				if (body.hasClass("layout2")) {
+					var li = $("<li>").attr("id", "message_"+message.id).addClass("message_"+message.type).css("color", "#"+message.colour);
+					if (message.symbol) {
+						li.attr("data-symbol", message.symbol);
+						$("<span>").addClass("symbol").text(message.symbol).appendTo(li);
 					}
-					if (message.type == "system") {
+					if (message.symbol && message.type == "system") {
 						var text = message.text.replace("%s", message.symbol);
 					} else {
-						var text = message.symbol+": "+message.text;
+						var text = message.text;
 					}
+					$("<p>").text(text).appendTo(li);
+					$("<div>").addClass("timestamp").text(new Date().toLocaleString()).appendTo(li);
+					li.insertBefore(status_bar);
 				} else {
-					var text = message.text;
+					var li = $("<li>").attr("id", "message_"+message.id).addClass("tile message_"+message.type);
+					if (message.symbol) {
+						li.attr("data-symbol", message.symbol);
+						if (message.symbol == own_symbol) {
+							li.dblclick(start_editing);
+						}
+						if (message.type == "system") {
+							var text = message.text.replace("%s", message.symbol);
+						} else {
+							var text = message.symbol+": "+message.text;
+						}
+					} else {
+						var text = message.text;
+					}
+					var p = $("<p>").css("color", "#"+message.colour).text(text).appendTo(li);
+					li.appendTo(messages);
 				}
-				var p = $("<p>").css("color", "#"+message.colour).text(text).appendTo(li);
-				li.appendTo(messages);
 				if (scroll_after_render) {
 					scroll_to_bottom();
 				}
@@ -630,8 +648,7 @@ var cherubplay = (function() {
 						message = JSON.parse(e.data);
 						if (message.action=="message") {
 							render_message(message.message);
-							var d = new Date();
-							last_status_message = "Last message: "+d.toLocaleDateString()+" "+d.toLocaleTimeString();
+							last_status_message = "Last message: "+new Date().toLocaleString();
 							status_bar.text(last_status_message);
 						} else if (message.action=="edit") {
 							status_bar.text(last_status_message);
@@ -643,8 +660,15 @@ var cherubplay = (function() {
 							if (message.message.show_edited) {
 								li.addClass("edited");
 							}
-							var p = li.find("p").css("color", "#"+message.message.colour).text(message.message.symbol+": "+message.message.text);
+							var p = li.find("p")
+							if (body.hasClass("layout2")) {
+								li.css("color", "#"+message.message.colour);
+								p.text(message.message.text);
+							} else {
+								p.css("color", "#"+message.message.colour).text(message.message.symbol+": "+message.message.text);
+							}
 						} else if (message.action=="end") {
+							$(body).removeClass("ongoing");
 							ws.close();
 							ended = true;
 							$(".editing").removeClass("editing");
@@ -655,10 +679,10 @@ var cherubplay = (function() {
 								}, 3000);
 								status_bar.text("Searching again in a few seconds. Click to cancel.").click(function() {
 									window.clearTimeout(continue_timeout);
-									status_bar.remove();
+									status_bar.hide();
 								});
 							} else {
-								status_bar.remove();
+								status_bar.hide();
 							}
 							message_form_container.remove();
 							render_message(message.message);
