@@ -261,9 +261,11 @@ main {
 }
 
 @media (max-width: 1119px) {
+	#subnav {
+		text-align: center;
+	}
 	#subnav ul {
 		padding: 0;
-		text-align: center;
 	}
 	#subnav li {
 		display: inline;
@@ -510,6 +512,7 @@ label[for="filter_toggle"]:hover {
 .layout2 .side_column nav > :first-child { margin-top: 0; }
 .layout2 .side_column h3 { font-size: 14pt; }
 .layout2 .side_column ul { margin: 10px 0; padding: 0; list-style-type: none; text-align: center; }
+.layout2 .side_column p:first-of-type { margin-top: 0; }
 
 .layout2 .tile2 { position: relative; z-index: 2; margin: 20px 0; padding: 20px 30px; background-color: #fff; box-shadow: 0 0 2px #ddd; }
 .layout2 .tile2:first-child, .layout2 .tile2 > :first-child { margin-top: 0; }
@@ -524,8 +527,7 @@ label[for="filter_toggle"]:hover {
 }
 
 @media (max-width: 1024px) {
-	.layout2 .side_column { max-width: 650px; margin: 20px auto; }
-	.layout2 .side_column ul { text-align: center; }
+	.layout2 .side_column { max-width: 650px; margin: 20px auto; text-align: center; }
 	.layout2 .side_column li { display: inline; }
 	.layout2 .side_column li:not(:last-child):after { content: " ·"; }
 	.layout2 #content { max-width: 650px; margin: 0 auto; }

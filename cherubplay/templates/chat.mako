@@ -53,6 +53,12 @@
 % endif
       </ul>
     </section>
+    <form action="${request.route_path("account_layout_version")}" method="post">
+      <input type="hidden" name="layout_version" value="2">
+      <section class="tile">
+        <p>This is the old chat layout. <button type="submit">Try the new layout</button></p>
+      </section>
+    </form>
   </nav>
 </%def>\
 ${render_subnav("chat", chat, own_chat_user)}

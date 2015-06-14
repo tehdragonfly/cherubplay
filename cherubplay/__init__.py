@@ -165,6 +165,7 @@ def main(global_config, **settings):
     config.add_route("account", "/account/")
     config.add_route("account_password", "/account/password/")
     config.add_route("account_timezone", "/account/timezone/")
+    config.add_route("account_layout_version", "/account/layout_version/")
 
     config.add_route("admin_report_list", "/admin/reports/")
     config.add_route("admin_report_list_closed", "/admin/reports/closed/")

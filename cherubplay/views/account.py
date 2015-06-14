@@ -62,3 +62,12 @@ def account_timezone(request):
         })
     return HTTPNoContent()
 
+
+@view_config(route_name="account_layout_version", request_method="POST")
+def account_layout_version(request):
+    if request.POST["layout_version"] in ("1", "2"):
+        Session.query(User).filter(User.id==request.user.id).update({
+            "layout_version": int(request.POST["layout_version"]),
+        })
+    return HTTPFound(request.environ["HTTP_REFERER"])
+
