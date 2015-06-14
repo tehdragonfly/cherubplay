@@ -551,10 +551,11 @@ def chat_delete(request):
     return HTTPFound(request.route_path("chat_list"))
 
 
-@view_config(route_name="chat_info", renderer="chat_info.mako", request_method="GET", permission="view")
+@view_config(route_name="chat_info", request_method="GET", permission="view")
 def chat_info_get(request):
     chat, own_chat_user = _get_chat(request, ongoing=False)
-    return { "chat": chat, "own_chat_user": own_chat_user }
+    template = "layout2/chat_info.mako" if request.user.layout_version == 2 else "chat_info.mako"
+    return render_to_response(template, { "page": "info", "chat": chat, "own_chat_user": own_chat_user }, request)
 
 
 @view_config(route_name="chat_info", renderer="chat_info.mako", request_method="POST", permission="view")

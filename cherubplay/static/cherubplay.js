@@ -601,7 +601,7 @@ var cherubplay = (function() {
 					}
 					$("<p>").text(text).appendTo(li);
 					$("<div>").addClass("timestamp").text(new Date().toLocaleString()).appendTo(li);
-					li.insertBefore(status_bar);
+					li.appendTo(messages);
 				} else {
 					var li = $("<li>").attr("id", "message_"+message.id).addClass("tile message_"+message.type);
 					if (message.symbol) {

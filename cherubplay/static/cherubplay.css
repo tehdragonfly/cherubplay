@@ -504,6 +504,8 @@ label[for="filter_toggle"]:hover {
 .layout2 { overflow-y: scroll; line-height: 1.5em; }
 .layout2 h2 { margin: 50px 50px 20px; line-height: normal; }
 
+.layout2 p { max-width: none; }
+
 .layout2 ul { padding-left: 1em; }
 
 .layout2 main { margin: 50px 30px 50px; }
@@ -514,9 +516,12 @@ label[for="filter_toggle"]:hover {
 .layout2 .side_column ul { margin: 10px 0; padding: 0; list-style-type: none; text-align: center; }
 .layout2 .side_column p:first-of-type { margin-top: 0; }
 
-.layout2 .tile2 { position: relative; z-index: 2; margin: 20px 0; padding: 20px 30px; background-color: #fff; box-shadow: 0 0 2px #ddd; }
-.layout2 .tile2:first-child, .layout2 .tile2 > :first-child { margin-top: 0; }
-.layout2 .tile2:last-child, .layout2 .tile2 > :last-child { margin-bottom: 0; }
+.layout2 #content > :first-child { margin-top: 0; }
+.layout2 #content > :last-child { margin-bottom: 0; }
+
+.layout2 .tile2 { position: relative; z-index: 2; margin: 20px 0; padding: 20px 30px; background-color: #fff; box-shadow: 0 0 2px #ccc; }
+.layout2 .tile2 > :first-child { margin-top: 0; }
+.layout2 .tile2 > :last-child { margin-bottom: 0; }
 
 .layout2 .tile2.pager { z-index: 1; margin: 0; padding-top: 10px; padding-bottom: 10px; background-color: #f8f8f8; }
 
@@ -550,18 +555,20 @@ label[for="filter_toggle"]:hover {
 
 .layout2.ongoing main { margin-bottom: 0; }
 
-.layout2 #messages { margin: 0; padding: 0 30px; list-style-type: none; }
+.layout2 #messages { margin: 0; padding: 0 25px; list-style-type: none; }
 
 .layout2 #messages li { position: relative; padding: 20px 0; border-top: 1px solid #ddd; }
 .layout2 #messages li:first-child { border-top: none; }
 
 .layout2 #messages li > p { margin: 0; white-space: pre-line; }
 .layout2 .edited p::after { content: ""; }
-.layout2 .symbol { position: absolute; width: 60px; left: -60px; text-align: center; font-size: 1.5em; }
+.layout2 .symbol { position: absolute; width: 50px; left: -50px; text-align: center; font-size: 1.5em; }
 .layout2 .timestamp { font-size: 10pt; color: #888; }
 .layout2 .edited .timestamp::after { content: " · Edited"; }
 
 .layout2 #status_bar { max-width: none; margin: 0; }
+.layout2 #message_form_container { margin-top: 0; }
+.layout2 #message_form { position: relative; }
 .layout2 #message_form p:first-child { margin-top: 0; }
 
 @media (max-width: 640px) {
