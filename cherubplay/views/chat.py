@@ -490,7 +490,7 @@ def _post_end_message(request, chat, own_chat_user):
         pass
 
 
-@view_config(route_name="chat_end", renderer="chat_end.mako", request_method="GET", permission="chat")
+@view_config(route_name="chat_end", request_method="GET", permission="chat")
 def chat_end_get(request):
     chat, own_chat_user = _get_chat(request)
     prompt = Session.query(Message).filter(
@@ -499,14 +499,15 @@ def chat_end_get(request):
     last_message = Session.query(Message).filter(
         Message.chat_id==chat.id,
     ).order_by(Message.id.desc()).first()
-    return {
+    template = "layout2/chat_end.mako" if request.user.layout_version == 2 else "chat_end.mako"
+    return render_to_response(template, {
         "action": "end",
         "chat": chat,
         "own_chat_user": own_chat_user,
         "prompt": prompt,
         "last_message": last_message,
         "symbols": symbols,
-    }
+    }, request)
 
 
 @view_config(route_name="chat_end", request_method="POST", permission="chat")
@@ -520,7 +521,7 @@ def chat_end(request):
     return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"], _query={ "saved": "end" }))
 
 
-@view_config(route_name="chat_delete", renderer="chat_end.mako", request_method="GET", permission="view")
+@view_config(route_name="chat_delete", request_method="GET", permission="view")
 def chat_delete_get(request):
     chat, own_chat_user = _get_chat(request, ongoing=False)
     prompt = Session.query(Message).filter(
@@ -530,14 +531,15 @@ def chat_delete_get(request):
         Message.chat_id==chat.id,
         Message.type!="system",
     )).order_by(Message.id.desc()).first()
-    return {
+    template = "layout2/chat_end.mako" if request.user.layout_version == 2 else "chat_end.mako"
+    return render_to_response(template, {
         "action": "delete",
         "chat": chat,
         "own_chat_user": own_chat_user,
         "prompt": prompt,
         "last_message": last_message,
         "symbols": symbols,
-    }
+    }, request)
 
 
 @view_config(route_name="chat_delete", request_method="POST", permission="view")
