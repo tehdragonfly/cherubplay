@@ -525,11 +525,13 @@ var cherubplay = (function() {
 			});
 			var message_colour = $("#message_colour").change(function() {
 				message_text.css("color", this.value);
+				message_symbol.css("color", this.value);
 			});
 			var preset_colours = $("#preset_colours").change(function() {
 				message_colour.val(this.value).change();
 			});
 			var message_ooc = $("#message_ooc");
+			var message_symbol = $("#message_form .symbol");
 			var message_text = $("#message_text").keypress(function(e) {
 				changed_since_draft = true;
 				if (enter_to_send && e.keyCode==13 && !e.shiftKey) {
@@ -590,17 +592,20 @@ var cherubplay = (function() {
 				var scroll_after_render = is_at_bottom();
 				if (body.hasClass("layout2")) {
 					var li = $("<li>").attr("id", "message_"+message.id).addClass("message_"+message.type).css("color", "#"+message.colour);
+					var timestamp = $("<div>").addClass("timestamp").text(new Date().toLocaleString())
 					if (message.symbol) {
 						li.attr("data-symbol", message.symbol);
+						if (message.symbol == own_symbol) {
+							timestamp.text(timestamp.text() + " · ");
+							$("<a>").attr("href", "#").addClass("edit_link").text("Edit").click(start_editing).appendTo(timestamp);
+						}
 						$("<span>").addClass("symbol").text(message.symbol).appendTo(li);
-					}
-					if (message.symbol && message.type == "system") {
-						var text = message.text.replace("%s", message.symbol);
+						var text = message.type == "system" ? message.text.replace("%s", message.symbol) : message.text;
 					} else {
 						var text = message.text;
 					}
 					$("<p>").text(text).appendTo(li);
-					$("<div>").addClass("timestamp").text(new Date().toLocaleString()).appendTo(li);
+					timestamp.appendTo(li);
 					li.appendTo(messages);
 				} else {
 					var li = $("<li>").attr("id", "message_"+message.id).addClass("tile message_"+message.type);
