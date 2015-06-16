@@ -1,5 +1,6 @@
 from bcrypt import gensalt, hashpw
 from pyramid.httpexceptions import HTTPFound, HTTPNoContent
+from pyramid.renderers import render_to_response
 from pyramid.view import view_config
 
 from ..models import (
@@ -8,9 +9,10 @@ from ..models import (
 )
 
 
-@view_config(route_name="account", renderer="account.mako", request_method="GET")
+@view_config(route_name="account", request_method="GET")
 def account(request):
-    return {}
+    template = "layout2/account.mako" if request.user.layout_version == 2 else "account.mako"
+    return render_to_response(template, {}, request)
 
 
 @view_config(route_name="account_password", renderer="account.mako", request_method="POST")

@@ -580,3 +580,8 @@ label[for="filter_toggle"]:hover {
 	.layout2 #messages li { padding: 10px 0; }
 	.layout2 .symbol { width: 30px; left: -30px; font-size: 1em; }
 }
+
+/* Account */
+
+.layout2 #confirmation:empty { display: none; }
+.layout2 #confirmation:empty + .tile2 { margin-top: 0; }
