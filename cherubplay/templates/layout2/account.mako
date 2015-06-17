@@ -3,6 +3,15 @@
 <%block name="body_class">layout2</%block>
 <h2>${request.user.username}</h2>
 <main>
+  <div class="side_column"></div>
+  <div class="side_column">
+    <nav>
+      <form action="${request.route_path("account_layout_version")}" method="post">
+        <input type="hidden" name="layout_version" value="1">
+        <p>This is the new layout. <button type="submit">Return to the old layout</button></p>
+      </form>
+    </nav>
+  </div>
   <div id="content">
 % if request.GET.get("saved")=="password":
     <p id="confirmation">Your password has been changed.</p>

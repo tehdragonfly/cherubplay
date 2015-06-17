@@ -56,7 +56,7 @@
     <form action="${request.route_path("account_layout_version")}" method="post">
       <input type="hidden" name="layout_version" value="2">
       <section class="tile">
-        <p>This is the old chat layout. <button type="submit">Try the new layout</button></p>
+        <p>This is the old layout. <button type="submit">Try the new layout</button></p>
       </section>
     </form>
   </nav>

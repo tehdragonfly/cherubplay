@@ -1,6 +1,14 @@
 <%inherit file="base.mako" />\
 <%block name="title">Account settings - </%block>
   <h2>${request.user.username}</h2>
+  <nav id="subnav">
+    <form action="${request.route_path("account_layout_version")}" method="post">
+      <section class="tile">
+        <p>This is the old layout. <button type="submit">Try the new layout</button></p>
+      </section>
+      <input type="hidden" name="layout_version" value="2">
+    </form>
+  </nav>
 % if request.GET.get("saved")=="password":
   <p id="confirmation">Your password has been changed.</p>
 % else:

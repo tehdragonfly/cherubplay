@@ -54,7 +54,7 @@ ${own_chat_user.title or chat.url} -
     <nav>
       <form action="${request.route_path("account_layout_version")}" method="post">
         <input type="hidden" name="layout_version" value="1">
-        <p>This is the new chat layout. <button type="submit">Return to the old layout</button></p>
+        <p>This is the new layout. <button type="submit">Return to the old layout</button></p>
       </form>
     </nav>
   </div>
