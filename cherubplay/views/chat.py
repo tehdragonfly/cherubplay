@@ -119,7 +119,8 @@ def chat_list(request):
         .order_by(func.count("*").desc(), func.unnest(ChatUser.labels).asc()).all()
     )
 
-    return render_to_response("chat_list.mako", {
+    template = "layout2/chat_list.mako" if request.user.layout_version == 2 else "chat_list.mako"
+    return render_to_response(template, {
         "chats": chats,
         "paginator": paginator,
         "labels": labels,

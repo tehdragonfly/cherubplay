@@ -542,7 +542,7 @@ label[for="filter_toggle"]:hover {
 	.layout2 main { display: flex; justify-content: center; }
 	.layout2 .side_column { flex: 0 1 180px; font-size: 10pt; }
 	.layout2 .side_column + .side_column { order: 1; }
-	.layout2 .side_column nav { position: sticky; top: 45px; max-width: 180px; }
+	.layout2 .side_column nav { position: sticky; top: 45px; max-width: 180px; max-height: calc(100vh - 60px); overflow: auto; }
 	.layout2 .side_column:first-child nav { margin-left: auto; }
 	.layout2 .side_column ul { text-align: left; }
 	.layout2 .side_column li { padding: 1px 5px; }
@@ -550,6 +550,12 @@ label[for="filter_toggle"]:hover {
 	.layout2 .side_column li a { display: block; margin: -1px -5px; padding: 1px 5px; }
 	.layout2 #content { flex: 0 1 650px; padding: 0 30px; }
 }
+
+/* Chat list */
+
+.layout2 #chat_list { list-style-type: none; }
+.layout2 #chat_list li:first-child { margin-top: 0; }
+.layout2 #chat_list li:last-child { margin-bottom: 0; }
 
 /* Chat */
 
