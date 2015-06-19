@@ -87,15 +87,18 @@ ${paginator.pager(format='~5~')}
 % if current_status is None:
 ${chat.status.capitalize()}. \
 % endif
-Started ${chat.created.strftime("%a %d %b %Y")}, last message ${chat.updated.strftime("%a %d %b %Y")}. <a href="${request.route_path("chat_info", url=chat.url)}">Edit chat info</a></p>
+Started ${request.user.localise_time(chat.created).strftime("%a %d %b %Y")}, last message ${request.user.localise_time(chat.updated).strftime("%a %d %b %Y")}. <a href="${request.route_path("chat_info", url=chat.url)}">Edit chat info</a></p>
 % if prompt is not None:
-        <p style="color: #${prompt.colour};">Prompt: \
+        <p style="color: #${prompt.colour};">\
 % if len(prompt.text)>250:
 ${prompt.text[:250]}...\
 % else:
 ${prompt.text}\
 % endif
 </p>
+% endif
+% if chat_user.notes!="" or chat_user.labels:
+        <hr>
 % endif
 % if chat_user.notes!="":
         <p class="notes">Notes: ${chat_user.notes}</p>

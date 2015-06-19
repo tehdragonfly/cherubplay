@@ -506,6 +506,8 @@ label[for="filter_toggle"]:hover {
 
 .layout2 p { max-width: none; }
 
+.layout2 hr { margin: 15px 0; border: 0; border-top: 1px solid #ddd; }
+
 .layout2 ul { padding-left: 1em; }
 
 .layout2 main { margin: 50px 30px 50px; }
@@ -516,6 +518,7 @@ label[for="filter_toggle"]:hover {
 .layout2 .side_column ul { margin: 10px 0; padding: 0; list-style-type: none; text-align: center; }
 .layout2 .side_column p:first-of-type { margin-top: 0; }
 
+.layout2 #content { max-width: 650px; }
 .layout2 #content > :first-child { margin-top: 0; }
 .layout2 #content > :last-child { margin-bottom: 0; }
 
@@ -526,6 +529,7 @@ label[for="filter_toggle"]:hover {
 .layout2 .tile2.pager { z-index: 1; margin: 0; padding-top: 10px; padding-bottom: 10px; background-color: #f8f8f8; }
 
 @media (max-width: 640px) {
+	.layout2 hr { margin: 10px 0; }
 	.layout2 h2 { margin-top: 30px; }
 	.layout2 main { margin: 0 15px 15px; }
 	.layout2 .tile2 { padding: 10px 15px; }
@@ -535,14 +539,14 @@ label[for="filter_toggle"]:hover {
 	.layout2 .side_column { max-width: 650px; margin: 20px auto; text-align: center; }
 	.layout2 .side_column li { display: inline; }
 	.layout2 .side_column li:not(:last-child):after { content: " ·"; }
-	.layout2 #content { max-width: 650px; margin: 0 auto; }
+	.layout2 #content { margin: 0 auto; }
 }
 
 @media (min-width: 1025px) {
 	.layout2 main { display: flex; justify-content: center; }
 	.layout2 .side_column { flex: 0 1 180px; font-size: 10pt; }
 	.layout2 .side_column + .side_column { order: 1; }
-	.layout2 .side_column nav { position: sticky; top: 45px; max-width: 180px; max-height: calc(100vh - 60px); overflow: auto; }
+	.layout2 .side_column nav { position: sticky; top: 45px; max-width: 180px; }
 	.layout2 .side_column:first-child nav { margin-left: auto; }
 	.layout2 .side_column ul { text-align: left; }
 	.layout2 .side_column li { padding: 1px 5px; }
@@ -556,6 +560,7 @@ label[for="filter_toggle"]:hover {
 .layout2 #chat_list { list-style-type: none; }
 .layout2 #chat_list li:first-child { margin-top: 0; }
 .layout2 #chat_list li:last-child { margin-bottom: 0; }
+.layout2 .notes { margin: 5px 0 0; }
 
 /* Chat */
 
@@ -586,6 +591,10 @@ label[for="filter_toggle"]:hover {
 	.layout2 #messages li { padding: 10px 0; }
 	.layout2 .symbol { width: 30px; left: -30px; font-size: 1em; }
 }
+
+/* Chat info */
+
+.layout2 #chat_notes_notes, .layout2 #chat_notes_labels { font-size: 10pt; }
 
 /* Account */
 

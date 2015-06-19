@@ -126,6 +126,7 @@ def chat_list(request):
         "labels": labels,
         "current_status": current_status,
         "current_label": current_label,
+        "symbols": symbols,
     }, request=request)
 
 
