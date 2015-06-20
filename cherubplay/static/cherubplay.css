@@ -560,6 +560,7 @@ label[for="filter_toggle"]:hover {
 .layout2 #chat_list { list-style-type: none; }
 .layout2 #chat_list li:first-child { margin-top: 0; }
 .layout2 #chat_list li:last-child { margin-bottom: 0; }
+.layout2 .unread { box-shadow: 0 1px 4px #090; }
 .layout2 .notes { margin: 5px 0 0; }
 
 /* Chat */
