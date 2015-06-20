@@ -503,9 +503,9 @@ label[for="filter_toggle"]:hover {
 
 .layout2 { overflow-y: scroll; line-height: 1.5em; }
 .layout2 h2 { margin: 50px 50px 20px; line-height: normal; }
+.layout2 h3 + .subtitle { margin-top: 5px; }
 
-.layout2 p { max-width: none; }
-
+.layout2 p { max-width: none; margin: 15px auto; }
 .layout2 hr { margin: 15px 0; border: 0; border-top: 1px solid #ddd; }
 
 .layout2 ul { padding-left: 1em; }
@@ -529,6 +529,7 @@ label[for="filter_toggle"]:hover {
 .layout2 .tile2.pager { z-index: 1; margin: 0; padding-top: 10px; padding-bottom: 10px; background-color: #f8f8f8; }
 
 @media (max-width: 640px) {
+	.layout2 p { margin: 10px auto; }
 	.layout2 hr { margin: 10px 0; }
 	.layout2 h2 { margin-top: 30px; }
 	.layout2 main { margin: 0 15px 15px; }
