@@ -2,7 +2,7 @@
 <%block name="title">Account settings - </%block>
 <%block name="body_class">layout2</%block>
 <h2>${request.user.username}</h2>
-<main>
+<main class="flex">
   <div class="side_column"></div>
   <div class="side_column">
     <nav>

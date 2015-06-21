@@ -10,7 +10,7 @@ def forbidden(request):
         resp.status = "403 Forbidden"
         return resp
     else:
-        return render_to_response("home_guest.mako", { "forbidden": True }, request=request)
+        return render_to_response("layout2/home_guest.mako", { "forbidden": True }, request=request)
 
 
 @notfound_view_config(append_slash=True)

@@ -12,7 +12,7 @@ Your chats\
 <%block name="body_class">layout2</%block>
 <h2>${render_title()}</h2>
 
-<main>
+<main class="flex">
   <div class="side_column">
     <nav>
       <h3>Status</h3>

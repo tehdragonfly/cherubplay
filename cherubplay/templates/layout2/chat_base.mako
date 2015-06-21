@@ -25,7 +25,7 @@ ${own_chat_user.title or chat.url} -
 % if own_chat_user:
 <h2>${own_chat_user.title or chat.url}</h2>
 % endif
-<main>
+<main class="flex">
 % if own_chat_user:
   <div class="side_column">
     <nav>
