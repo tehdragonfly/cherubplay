@@ -23,9 +23,9 @@ def home(request):
             "prompt_levels": prompt_levels,
         }, request=request)
     else:
-        return render_to_response("/layout2/home_guest.mako", { "forbidden": False }, request=request)
+        return render_to_response("layout2/home_guest.mako", { "forbidden": False }, request=request)
 
-@view_config(route_name="sign_up", renderer="home_guest.mako", request_method="POST")
+@view_config(route_name="sign_up", renderer="layout2/home_guest.mako", request_method="POST")
 def sign_up(request):
     # Disable signing up in read-only mode.
     if "cherubplay.read_only" in request.registry.settings:
@@ -70,7 +70,7 @@ def sign_up(request):
     response.set_cookie("cherubplay", new_session_id, 31536000)
     return response
 
-@view_config(route_name="log_in", renderer="home_guest.mako", request_method="POST")
+@view_config(route_name="log_in", renderer="layout2/home_guest.mako", request_method="POST")
 def log_in(request):
     # Disable logging in in read-only mode.
     if "cherubplay.read_only" in request.registry.settings:
