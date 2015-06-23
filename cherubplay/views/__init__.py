@@ -17,7 +17,8 @@ from ..models import (
 @view_config(route_name="home")
 def home(request):
     if request.user is not None:
-        return render_to_response("home.mako", {
+        template = "layout2/home.mako" if request.user.layout_version == 2 else "home.mako"
+        return render_to_response(template, {
             "preset_colours": preset_colours,
             "prompt_categories": prompt_categories,
             "prompt_levels": prompt_levels,

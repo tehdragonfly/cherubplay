@@ -138,9 +138,11 @@ var cherubplay = (function() {
 				return true;
 			}
 
+			var tile_class = body.hasClass("layout2") ? "tile2" : tile
+
 			function render_prompt(prompt) {
 				if (filter_phrases.length == 0 || check_filter_phrases(prompt)) {
-					var li = $("<li>").attr("id", prompt.id).addClass("tile").click(show_overlay);
+					var li = $("<li>").attr("id", prompt.id).addClass(tile_class).click(show_overlay);
 					$("<p>").css("color", "#"+prompt.colour).text(prompt.prompt).appendTo(li);
 					$("<div>").addClass("fade").appendTo(li);
 					li.appendTo(prompt_list);
@@ -164,7 +166,7 @@ var cherubplay = (function() {
 
 			$("#overlay").click(hide_overlay);
 			$("#overlay_close").click(hide_overlay);
-			$("#overlay .tile").click(function(e) { e.stopPropagation(); });
+			$("#overlay ." + tile_class).click(function(e) { e.stopPropagation(); });
 			$("#overlay_answer").click(function(e) {
 				if (overlay_prompt_id) {
 					ws.send(JSON.stringify({
@@ -189,7 +191,7 @@ var cherubplay = (function() {
 
 			$("#report_overlay").click(hide_report_overlay);
 			$("#report_overlay_close").click(hide_report_overlay);
-			$("#report_overlay .tile").click(function(e) { e.stopPropagation(); });
+			$("#report_overlay ." + tile_class).click(function(e) { e.stopPropagation(); });
 			$("#report_overlay_submit").click(function() {
 				var reason = $("#report_overlay input:checked").val();
 				if (!reason) {
