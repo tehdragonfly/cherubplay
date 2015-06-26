@@ -175,6 +175,34 @@ class PromptReport(Base):
     notes = Column(UnicodeText, nullable=False, default=u"")
 
 
+class Prompt(Base):
+    __tablename__ = "prompts"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    title = Column(Unicode(100), nullable=False, default=u"")
+    created = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    updated = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    colour = Column(String(6), nullable=False)
+    text = Column(UnicodeText, nullable=False)
+    category = Column(Unicode(100), nullable=False)
+    level = Column(Unicode(100), nullable=False)
+
+    def __repr__(self):
+        return "<Prompt #%s: %s>" % (self.id, self.title)
+
+    def __json__(self, request=None):
+        return {
+            "id": self.id,
+            "title": self.title,
+            "created": self.created.isoformat(),
+            "updated": self.updated.isoformat(),
+            "colour": self.colour,
+            "text": self.text,
+            "category": self.category,
+            "level": self.level,
+        }
+
+
 Chat.last_user = relationship(User)
 
 Message.chat = relationship(Chat, backref="messages")
