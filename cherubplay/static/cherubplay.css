@@ -524,7 +524,6 @@ label[for="filter_toggle"]:hover {
 
 .layout2 .tile2 {
 	position: relative;
-	overflow: hidden;
 	-webkit-column-break-inside: avoid;
 	z-index: 2;
 	box-sizing: border-box;
@@ -583,7 +582,7 @@ label[for="filter_toggle"]:hover {
 .layout2 #answer_categories { margin-bottom: 10px; }
 .layout2 #answer_levels { margin: 10px 0; }
 
-.layout2 #prompt_list li { max-height: 190px; }
+.layout2 #prompt_list li { overflow: hidden; max-height: 190px; }
 .layout2 .fade { top: 140px; }
 
 .layout2 #overlay, .layout2 #report_overlay { padding: 0 30px; }
