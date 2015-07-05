@@ -138,7 +138,7 @@ var cherubplay = (function() {
 				return true;
 			}
 
-			var tile_class = body.hasClass("layout2") ? "tile2" : tile
+			var tile_class = body.hasClass("layout2") ? "tile2" : "tile";
 
 			function render_prompt(prompt) {
 				if (filter_phrases.length == 0 || check_filter_phrases(prompt)) {
