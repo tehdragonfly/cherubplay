@@ -585,6 +585,7 @@ label[for="filter_toggle"]:hover {
 .layout2 #prompt_list li { overflow: hidden; max-height: 190px; }
 .layout2 .fade { top: 140px; }
 
+.layout2.show_overlay, .layout2.show_report_overlay { overflow: hidden; }
 .layout2 #overlay, .layout2 #report_overlay { padding: 0 30px; }
 
 @media (max-width: 640px) {
