@@ -1,5 +1,6 @@
 import json
 import re
+import time
 
 from uuid import uuid4
 
@@ -14,12 +15,23 @@ from tornado.websocket import WebSocketHandler
 from cherubplay.lib import colour_validator, prompt_categories, prompt_levels
 from cherubplay.models import Chat, ChatUser, Message, PromptReport
 
-from db import config, get_user, sm
+from db import config, get_user, login_client, sm
 
 prompters = {}
 searchers = {}
 
 deduplicate_regex = re.compile("[\W_]+")
+
+def check_answer_limit(user_id):
+    key = "answer_limit:%s" % user_id
+    current_time = time.time()
+    if login_client.llen(key) >= 6:
+        if current_time - float(login_client.lindex(key, 0)) < 1800:
+            return False
+    login_client.rpush(key, current_time)
+    login_client.ltrim(key, -6, -1)
+    login_client.expire(key, 1800)
+    return True
 
 def write_message_to_searchers(message, category, level):
     for socket in searchers.values():
@@ -159,6 +171,12 @@ class SearchHandler(WebSocketHandler):
             Session.commit()
             del Session
         elif message["action"]=="answer":
+            if not check_answer_limit(self.user.id):
+                self.write_message(json.dumps({
+                    "action": "answer_error",
+                    "error": "NO NO THAT IS TOO MUCH ANSWER",
+                }))
+                return
             if self.socket_id not in searchers or message["id"] not in prompters:
                 self.write_message(json.dumps({
                     "action": "answer_error",
