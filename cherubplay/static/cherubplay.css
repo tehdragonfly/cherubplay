@@ -539,6 +539,7 @@ label[for="filter_toggle"]:hover {
 .layout2 .tile2 p { white-space: pre-line; }
 
 .layout2 .tile2.pager { z-index: 1; margin: 0; padding-top: 10px; padding-bottom: 10px; background-color: #f8f8f8; }
+.layout2 img.tile2 { display: block; padding: 0; }
 
 @media (max-width: 640px) {
 	.layout2 p { margin: 10px auto; }
@@ -587,6 +588,8 @@ label[for="filter_toggle"]:hover {
 
 .layout2.show_overlay, .layout2.show_report_overlay { overflow: hidden; }
 .layout2 #overlay, .layout2 #report_overlay { padding: 0 30px; }
+
+.layout2 #overlay_images { max-width: 650px; margin: 20px auto; }
 
 @media (max-width: 640px) {
 	.layout2 #prompt_list li { max-height: 170px; }

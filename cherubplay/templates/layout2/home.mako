@@ -94,6 +94,9 @@
   <section id="overlay">
     <section class="tile2">
       <p id="overlay_text"></p>
+    </section>
+    <section id="overlay_images"></section>
+    <section class="tile2">
       <button id="overlay_close">Close</button>
       <button id="overlay_report">Report</button>
       <button id="overlay_answer">Answer</button>

@@ -2,6 +2,7 @@ import json
 import re
 import time
 
+from urlparse import urlparse
 from uuid import uuid4
 
 from sqlalchemy.orm.exc import NoResultFound
@@ -21,6 +22,7 @@ prompters = {}
 searchers = {}
 
 deduplicate_regex = re.compile("[\W_]+")
+url_regex = re.compile("https?:\/\/\S+")
 
 def check_answer_limit(user_id):
     key = "answer_limit:%s" % user_id
@@ -86,6 +88,7 @@ class SearchHandler(WebSocketHandler):
                         "prompt": _.prompt,
                         "category": _.category,
                         "level": _.level,
+                        "images": _.images,
                     }
                     for _ in prompters.values()
                     if _.category in self.categories and _.level in self.levels
@@ -132,6 +135,24 @@ class SearchHandler(WebSocketHandler):
             self.deduplicated_prompt = deduplicated_prompt
             self.category = message["category"]
             self.level = message["level"]
+
+            self.images = []
+            for url in url_regex.findall(self.prompt):
+                parsed_url = urlparse(url)
+                if parsed_url.netloc == "i.imgur.com":
+                    # Rewrite URL to force HTTPS
+                    self.images.append("https://i.imgur.com" + parsed_url.path)
+                elif parsed_url.netloc == "imgur.com":
+                    # Skip album links
+                    if parsed_url.path.rindex("/") != 0:
+                        continue
+                    path_with_extension = parsed_url.path if "." in parsed_url.path else parsed_url.path + ".jpg"
+                    self.images.append("https://i.imgur.com" + path_with_extension)
+                elif parsed_url.netloc.endswith(".media.tumblr.com"):
+                    self.images.append("https://" + parsed_url.netloc + parsed_url.path)
+                if len(self.images) == 3:
+                    break
+
             write_message_to_searchers(json.dumps({
                 "action": "new_prompt",
                 "id": self.socket_id,
@@ -139,6 +160,7 @@ class SearchHandler(WebSocketHandler):
                 "prompt": self.prompt,
                 "category": self.category,
                 "level": self.level,
+                "images": self.images,
             }), self.category, self.level)
         elif message["action"]=="idle":
             self.reset_state()

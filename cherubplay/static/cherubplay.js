@@ -140,8 +140,11 @@ var cherubplay = (function() {
 
 			var tile_class = body.hasClass("layout2") ? "tile2" : "tile";
 
+            var prompt_data = {};
+
 			function render_prompt(prompt) {
 				if (filter_phrases.length == 0 || check_filter_phrases(prompt)) {
+                    prompt_data[prompt.id] = prompt;
 					var li = $("<li>").attr("id", prompt.id).addClass(tile_class).click(show_overlay);
 					$("<p>").css("color", "#"+prompt.colour).text(prompt.prompt).appendTo(li);
 					$("<div>").addClass("fade").appendTo(li);
@@ -151,17 +154,25 @@ var cherubplay = (function() {
 
 			var overlay_prompt_id;
 			var overlay_text = $("#overlay_text");
+			var overlay_images = $("#overlay_images").click(function(e) { e.stopPropagation(); });
 
 			function show_overlay() {
 				var prompt = $(this).find("p");
 				overlay_prompt_id = this.id;
 				overlay_text.css("color", prompt.css("color")).text(prompt.text());
+                if (body.hasClass("layout2") && prompt_data[this.id] && prompt_data[this.id].images) {
+                    var images = prompt_data[this.id].images
+                    for (var i = 0; i < images.length; i++) {
+                        $("<img>").addClass("tile2").attr("src", images[i]).appendTo(overlay_images);
+                    }
+                }
 				body.addClass("show_overlay");
 			}
 
 			function hide_overlay() {
 				body.removeClass("show_overlay");
 				overlay_prompt_id = null;
+                overlay_images.empty();
 			}
 
 			$("#overlay").click(hide_overlay);
@@ -311,12 +322,14 @@ var cherubplay = (function() {
 				message = JSON.parse(e.data);
 				if (message.action=="prompts") {
 					$(prompt_list).empty();
+                    prompt_data = {};
 					for (var i=0; i<message.prompts.length; i++) {
 						render_prompt(message.prompts[i]);
 					}
 				} else if (message.action=="new_prompt") {
 					render_prompt(message);
 				} else if (message.action=="remove_prompt") {
+                    delete prompt_data[message.id];
 					if (message.id==overlay_prompt_id) {
 						hide_overlay();
 						alert("Sorry, either this prompt has been taken or the prompter has disconnected :(");
