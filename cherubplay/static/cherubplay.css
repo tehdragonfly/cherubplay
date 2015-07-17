@@ -590,6 +590,7 @@ label[for="filter_toggle"]:hover {
 .layout2 #overlay, .layout2 #report_overlay { padding: 0 30px; }
 
 .layout2 #overlay_images { max-width: 650px; margin: 20px auto; }
+.layout2 #overlay_images img { max-width: 100%; }
 
 @media (max-width: 640px) {
 	.layout2 #prompt_list li { max-height: 170px; }
