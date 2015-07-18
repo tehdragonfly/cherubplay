@@ -546,7 +546,7 @@ label[for="filter_toggle"]:hover {
 	.layout2 hr { margin: 10px 0; }
 	.layout2 h2 { margin-top: 30px; margin-left: 15px; margin-right: 15px; }
 	.layout2 main { margin: 0 15px 15px; }
-	.layout2 .tile2 { padding: 10px 15px; }
+	.layout2 .tile2 { margin: 15px auto; padding: 10px 15px; }
 }
 
 @media (max-width: 1024px) {
@@ -589,7 +589,7 @@ label[for="filter_toggle"]:hover {
 .layout2.show_overlay, .layout2.show_report_overlay { overflow: hidden; }
 .layout2 #overlay, .layout2 #report_overlay { padding: 0 30px; }
 
-.layout2 #overlay_images { max-width: 650px; margin: 20px auto; }
+.layout2 #overlay_images { max-width: 650px; margin: 0 auto; }
 .layout2 #overlay_images img { max-width: 100%; }
 
 @media (max-width: 640px) {
@@ -600,9 +600,9 @@ label[for="filter_toggle"]:hover {
 
 /* Chat list */
 
-.layout2 #chat_list { list-style-type: none; }
-.layout2 #chat_list li:first-child { margin-top: 0; }
-.layout2 #chat_list li:last-child { margin-bottom: 0; }
+.layout2 #chat_list { margin: 0; list-style-type: none; }
+.layout2 #chat_list:first-child li:first-child { margin-top: 0; }
+.layout2 #chat_list:last-child li:last-child { margin-bottom: 0; }
 .layout2 .unread { box-shadow: 0 1px 4px #090; }
 .layout2 .notes { margin: 5px 0 0; }
 
