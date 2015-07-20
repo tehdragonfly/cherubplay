@@ -150,7 +150,7 @@ class SearchHandler(WebSocketHandler):
                             continue
                         path_with_extension = parsed_url.path if "." in parsed_url.path else parsed_url.path + ".jpg"
                         self.images.append("https://i.imgur.com" + path_with_extension)
-                    elif parsed_url.netloc.endswith(".media.tumblr.com"):
+                    elif parsed_url.netloc.endswith(".media.tumblr.com") or parsed_url.netloc == "media.tumblr.com":
                         self.images.append("https://" + parsed_url.netloc + parsed_url.path)
                     if len(self.images) == 3:
                         break
