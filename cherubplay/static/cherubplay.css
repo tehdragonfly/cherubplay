@@ -39,6 +39,9 @@ a:hover {
 
 input {
 	vertical-align: middle;
+}
+
+input[type="text"] {
 	background-color: #fff;
 }
 
