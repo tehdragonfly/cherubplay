@@ -39,6 +39,7 @@ a:hover {
 
 input {
 	vertical-align: middle;
+	background-color: #fff;
 }
 
 input[type="checkbox"] {
@@ -50,6 +51,7 @@ textarea {
 	padding: 0;
 	border: 0;
 	width: 100%;
+	background-color: #fff;
 	font: inherit;
 	resize: vertical;
 }
