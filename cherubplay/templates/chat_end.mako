@@ -8,9 +8,9 @@ ${chat_base.render_subnav(action, chat, own_chat_user)}
     <h3>Prompt</h3>
 % if prompt.symbol is not None:
 % if prompt.type=="system":
-      <p style="color: #${prompt.colour};">${prompt.text % symbols[prompt.symbol]}</p>
+      <p style="color: #${prompt.colour};">${prompt.text % prompt.symbol_character}</p>
 % else:
-      <p style="color: #${prompt.colour};">${symbols[prompt.symbol]}: ${prompt.text}</p>
+      <p style="color: #${prompt.colour};">${prompt.symbol_character}: ${prompt.text}</p>
 % endif
 % else:
       <p style="color: #${prompt.colour};">${prompt.text}</p>
@@ -22,9 +22,9 @@ ${chat_base.render_subnav(action, chat, own_chat_user)}
     <h3>Last message</h3>
 % if last_message.symbol is not None:
 % if last_message.type=="system":
-      <p style="color: #${last_message.colour};">${last_message.text % symbols[last_message.symbol]}</p>
+      <p style="color: #${last_message.colour};">${last_message.text % last_message.symbol_character}</p>
 % else:
-      <p style="color: #${last_message.colour};">${symbols[last_message.symbol]}: ${last_message.text}</p>
+      <p style="color: #${last_message.colour};">${last_message.symbol_character}: ${last_message.text}</p>
 % endif
 % else:
       <p style="color: #${last_message.colour};">${last_message.text}</p>

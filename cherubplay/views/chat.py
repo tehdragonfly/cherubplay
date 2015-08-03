@@ -19,7 +19,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 from webhelpers import paginate
 
-from ..lib import alt_formats, colour_validator, symbols, preset_colours
+from ..lib import alt_formats, colour_validator, preset_colours
 from ..models import (
     Session,
     Chat,
@@ -126,7 +126,6 @@ def chat_list(request):
         "labels": labels,
         "current_status": current_status,
         "current_label": current_label,
-        "symbols": symbols,
     }, request=request)
 
 
@@ -206,19 +205,18 @@ def chat(request):
         symbol_users = None
         if request.user is not None and request.user.status=="admin":
             symbol_users = {
-                _.symbol: _.user
+                _.symbol_character: _.user
                 for _ in messages
                 if _.user is not None
             }
             for chat_user in Session.query(ChatUser).filter(
                 ChatUser.chat_id==chat.id
             ).options(joinedload(ChatUser.user)):
-                symbol_users[chat_user.symbol] = chat_user.user
+                symbol_users[chat_user.symbol_character] = chat_user.user
 
         template = "layout2/chat.mako" if request.user.layout_version == 2 else "chat.mako"
         return render_to_response(template, {
             "page": "chat",
-            "symbols": symbols,
             "preset_colours": preset_colours,
             "chat": chat,
             "own_chat_user": own_chat_user,
@@ -288,21 +286,20 @@ def chat(request):
     symbol_users = None
     if request.user is not None and request.user.status=="admin":
         symbol_users = {
-            _.symbol: _.user
+            _.symbol_character: _.user
             for _ in messages
             if _.user is not None
         }
         for chat_user in Session.query(ChatUser).filter(
             ChatUser.chat_id==chat.id
         ).options(joinedload(ChatUser.user)):
-            symbol_users[chat_user.symbol] = chat_user.user
+            symbol_users[chat_user.symbol_character] = chat_user.user
 
     template = "layout2/chat_archive.mako" if (
         request.user is None or request.user.layout_version == 2
     ) else "chat_archive.mako"
     return render_to_response(template, {
         "page": "archive",
-        "symbols": symbols,
         "continuable": continuable,
         "chat": chat,
         "own_chat_user": own_chat_user,
@@ -405,7 +402,7 @@ def chat_send(request):
                 "id": new_message.id,
                 "type": message_type,
                 "colour": colour,
-                "symbol": symbols[own_chat_user.symbol],
+                "symbol": own_chat_user.symbol_character,
                 "text": trimmed_message_text,
             },
         }))
@@ -440,7 +437,7 @@ def chat_edit(request):
                 "id": message.id,
                 "type": message.type,
                 "colour": message.colour,
-                "symbol": symbols[message.symbol],
+                "symbol": message.symbol_character,
                 "text": message.text,
                 "show_edited": message.show_edited(),
             },
@@ -484,7 +481,7 @@ def _post_end_message(request, chat, own_chat_user):
             "message": {
                 "type": "system",
                 "colour": "000000",
-                "symbol": symbols[own_chat_user.symbol],
+                "symbol": own_chat_user.symbol_character,
                 "text": u"%s ended the chat.",
             },
         }))
@@ -508,7 +505,6 @@ def chat_end_get(request):
         "own_chat_user": own_chat_user,
         "prompt": prompt,
         "last_message": last_message,
-        "symbols": symbols,
     }, request)
 
 
@@ -540,7 +536,6 @@ def chat_delete_get(request):
         "own_chat_user": own_chat_user,
         "prompt": prompt,
         "last_message": last_message,
-        "symbols": symbols,
     }, request)
 
 

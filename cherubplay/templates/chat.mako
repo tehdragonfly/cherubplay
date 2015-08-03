@@ -7,11 +7,11 @@
 % endif
 "\
 % if message.symbol is not None:
- data-symbol="${symbols[message.symbol]}">
+ data-symbol="${message.symbol_character}">
 % if message.type=="system":
-      <p style="color: #${message.colour};">${message.text % symbols[message.symbol]}</p>
+      <p style="color: #${message.colour};">${message.text % message.symbol_character}</p>
 % else:
-      <p style="color: #${message.colour};">${symbols[message.symbol]}: ${message.text}</p>
+      <p style="color: #${message.colour};">${message.symbol_character}: ${message.text}</p>
 % endif
 % else:
 >
@@ -24,7 +24,7 @@
     <h3>Users</h3>
     <ul>
 % for symbol, user in symbol_users.items():
-      <li>${symbols[symbol]} is #${user.id} <a href="${request.route_path("admin_user", username=user.username)}">${user.username}</a> (${user.status}).</li>
+      <li>${symbol} is #${user.id} <a href="${request.route_path("admin_user", username=user.username)}">${user.username}</a> (${user.status}).</li>
 % endfor
     </ul>
   </section>
@@ -96,5 +96,5 @@ Last message: ${request.user.localise_time(messages[-1].posted).strftime("%Y-%m-
 </p>
   </section>
 <%block name="scripts">
-<script>cherubplay.chat("${request.matchdict["url"]}", "${symbols[own_chat_user.symbol]}");</script>
+<script>cherubplay.chat("${request.matchdict["url"]}", "${own_chat_user.symbol_character}");</script>
 </%block>

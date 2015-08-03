@@ -6,12 +6,12 @@ ${own_chat_user.title or chat.url} -
 </%block>
 <%block name="body_class">layout2</%block>
 <%def name="render_message(message, show_edit=False)">\
-      <li id="message_${message.id}" class="message_${message.type}${" edited" if message.show_edited() else ""}" data-symbol="${symbols[message.symbol] if message.symbol is not None else ""}" style="color: #${message.colour};">
+      <li id="message_${message.id}" class="message_${message.type}${" edited" if message.show_edited() else ""}" data-symbol="${message.symbol_character if message.symbol is not None else ""}" style="color: #${message.colour};">
 % if message.symbol is not None:
-        <span class="symbol">${symbols[message.symbol]}</span>
+        <span class="symbol">${message.symbol_character}</span>
 % endif
 % if message.symbol is not None and message.type=="system":
-        <p>${message.text % symbols[message.symbol]}</p>
+        <p>${message.text % message.symbol_character}</p>
 % else:
         <p>${message.text}</p>
 % endif
@@ -65,7 +65,7 @@ ${own_chat_user.title or chat.url} -
       <h3>Users</h3>
       <ul>
 % for symbol, user in symbol_users.items():
-        <li>${symbols[symbol]} is #${user.id} <a href="${request.route_path("admin_user", username=user.username)}">${user.username}</a> (${user.status}).</li>
+        <li>${symbol} is #${user.id} <a href="${request.route_path("admin_user", username=user.username)}">${user.username}</a> (${user.status}).</li>
 % endfor
       </ul>
     </section>

@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import datetime
 
 from pytz import timezone, utc
@@ -24,6 +26,9 @@ from sqlalchemy.orm import (
 )
 
 from zope.sqlalchemy import ZopeTransactionExtension
+
+from lib import symbols
+
 
 Session = scoped_session(sessionmaker(
     extension=ZopeTransactionExtension(),
@@ -106,6 +111,7 @@ class Message(Base):
             "type": self.type,
             "colour": self.colour,
             "symbol": self.symbol,
+            "symbol_character": self.symbol_character,
             "text": self.text,
             "posted": self.posted.isoformat(),
             "edited": self.edited.isoformat(),
@@ -114,6 +120,10 @@ class Message(Base):
 
     def show_edited(self):
         return self.edited - self.posted >= datetime.timedelta(0, 300)
+
+    @property
+    def symbol_character(self):
+        return symbols[self.symbol] if self.symbol is not None else None
 
 
 class ChatUser(Base):
@@ -138,11 +148,16 @@ class ChatUser(Base):
         return {
             "last_colour": self.last_colour,
             "symbol": self.symbol,
+            "symbol_character": self.symbol_character,
             "visited": self.visited.isoformat(),
             "title": self.title,
             "notes": self.notes,
             "labels": self.labels,
         }
+
+    @property
+    def symbol_character(self):
+        return symbols[self.symbol] if self.symbol is not None else None
 
 
 class PromptReport(Base):

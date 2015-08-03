@@ -50,7 +50,7 @@ class ChatHandler(WebSocketHandler):
         if self.chat_user.symbol not in online_symbols:
             publish_client.publish("chat:"+str(self.chat.id), json.dumps({
                 "action": "online",
-                "symbol": symbols[self.chat_user.symbol],
+                "symbol": self.chat_user.symbol_character,
             }))
         # See if the other person is online.
         for symbol in online_symbols:
@@ -82,7 +82,7 @@ class ChatHandler(WebSocketHandler):
                         "id": message.id,
                         "type": message.type,
                         "colour": message.colour,
-                        "symbol": symbols[message.symbol],
+                        "symbol": message.symbol_character,
                         "text": message.text,
                     }
                 })
@@ -93,7 +93,7 @@ class ChatHandler(WebSocketHandler):
         if message["action"] in ("typing", "stopped_typing"):
             publish_client.publish("chat:"+str(self.chat.id), json.dumps({
                 "action": message["action"],
-                "symbol": symbols[self.chat_user.symbol],
+                "symbol": self.chat_user.symbol_character,
             }))
             # Ignore our own typing messages.
             self.ignore_next_message = True
@@ -107,7 +107,7 @@ class ChatHandler(WebSocketHandler):
         if str(self.chat_user.symbol) not in publish_client.hvals("online:"+str(self.chat.id)):
             publish_client.publish("chat:"+str(self.chat.id), json.dumps({
                 "action": "offline",
-                "symbol": symbols[self.chat_user.symbol],
+                "symbol": self.chat_user.symbol_character,
             }))
         sockets.remove(self)
 
