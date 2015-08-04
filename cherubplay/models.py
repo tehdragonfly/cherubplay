@@ -115,9 +115,10 @@ class Message(Base):
             "text": self.text,
             "posted": self.posted.isoformat(),
             "edited": self.edited.isoformat(),
-            "show_edited": self.show_edited(),
+            "show_edited": self.show_edited,
         }
 
+    @property
     def show_edited(self):
         return self.edited - self.posted >= datetime.timedelta(0, 300)
 

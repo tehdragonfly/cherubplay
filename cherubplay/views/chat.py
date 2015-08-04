@@ -439,7 +439,7 @@ def chat_edit(request):
                 "colour": message.colour,
                 "symbol": message.symbol_character,
                 "text": message.text,
-                "show_edited": message.show_edited(),
+                "show_edited": message.show_edited,
             },
         }))
     except ConnectionError:
