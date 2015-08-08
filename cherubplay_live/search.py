@@ -3,6 +3,7 @@ import re
 import time
 
 from datetime import datetime, timedelta
+from hashlib import sha256
 from urlparse import urlparse
 from uuid import uuid4
 
@@ -25,21 +26,42 @@ searchers = {}
 deduplicate_regex = re.compile("[\W_]+")
 url_regex = re.compile("https?:\/\/\S+")
 
+
+def prompt_hash(text):
+    return sha256(deduplicate_regex.sub("", text)).hexdigest()
+
+
+class AnswerDenied(Exception):
+    pass
+
+
+ANSWER_LIMIT_TIME = 1800 # 30 minutes
+PROMPT_HASH_TIME = 86400 # 24 hours
+
+
 def check_answer_limit(user_id):
     key = "answer_limit:%s" % user_id
     current_time = time.time()
     if login_client.llen(key) >= 6:
-        if current_time - float(login_client.lindex(key, 0)) < 1800:
-            return False
+        if current_time - float(login_client.lindex(key, 0)) < ANSWER_LIMIT_TIME:
+            raise AnswerDenied("User %s has exceeded the answer limit." % user_id)
     login_client.rpush(key, current_time)
     login_client.ltrim(key, -6, -1)
-    login_client.expire(key, 1800)
-    return True
+    login_client.expire(key, ANSWER_LIMIT_TIME)
+
+
+def check_prompt_hash(user_id, prompt_hash):
+    key = "answered:%s:%s" % (user_id, prompt_hash)
+    if login_client.exists(key):
+        raise AnswerDenied("User %s has answered prompt %s too recently." % (user_id, prompt_hash))
+    login_client.setex(key, time=PROMPT_HASH_TIME, value="1")
+
 
 def write_message_to_searchers(message, category, level):
     for socket in searchers.values():
         if category in socket.categories and level in socket.levels:
             socket.write_message(message)
+
 
 class SearchHandler(WebSocketHandler):
 
@@ -121,9 +143,9 @@ class SearchHandler(WebSocketHandler):
                     "error": "The specified level doesn't seem to exist.",
                 }))
                 return
-            deduplicated_prompt = deduplicate_regex.sub("", message["prompt"])
+            message_hash = prompt_hash(message["prompt"])
             for prompter in prompters.values():
-                if deduplicated_prompt == prompter.deduplicated_prompt:
+                if message_hash == prompter.hash:
                     self.write_message(json.dumps({
                         "action": "prompt_error",
                         "error": "This prompt is already on the front page. Please don't post the same prompt more than once.",
@@ -133,7 +155,7 @@ class SearchHandler(WebSocketHandler):
             print "PROMPTERS:", prompters
             self.colour = message["colour"]
             self.prompt = message["prompt"]
-            self.deduplicated_prompt = deduplicated_prompt
+            self.hash = message_hash
             self.category = message["category"]
             self.level = message["level"]
 
@@ -195,12 +217,6 @@ class SearchHandler(WebSocketHandler):
             Session.commit()
             del Session
         elif message["action"]=="answer":
-            if not check_answer_limit(self.user.id):
-                self.write_message(json.dumps({
-                    "action": "answer_error",
-                    "error": "NO NO THAT IS TOO MUCH ANSWER",
-                }))
-                return
             if self.socket_id not in searchers or message["id"] not in prompters:
                 self.write_message(json.dumps({
                     "action": "answer_error",
@@ -208,6 +224,15 @@ class SearchHandler(WebSocketHandler):
                 }))
                 return
             prompter = prompters[message["id"]]
+            try:
+                check_answer_limit(self.user.id)
+                check_prompt_hash(self.user.id, prompter.hash)
+            except AnswerDenied:
+                self.write_message(json.dumps({
+                    "action": "answer_error",
+                    "error": "NO NO THAT IS TOO MUCH ANSWER",
+                }))
+                return
             # Make a new session for thread safety.
             Session = sm()
             new_chat_url = str(uuid4())
