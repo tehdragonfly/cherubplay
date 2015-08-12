@@ -25,7 +25,9 @@
     <p>E-mail address: ${user.email}</p>
     <p>Created: ${user.created.strftime("%d %b %Y, %H:%M:%S")}</p>
     <p>Last online: ${user.last_online.strftime("%d %b %Y, %H:%M:%S")}</p>
+    <p>Time zone: ${user.timezone}</p>
     <p>Last IP address: ${user.last_ip}</p>
+    <p>Layout version: ${user.layout_version}</p>
   </section>
   <section class="tile">
     <h3>Actions</h3>
