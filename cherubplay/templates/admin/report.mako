@@ -7,7 +7,7 @@
 <a href="${request.route_path("admin_report", id=report.id)}">#${report.id}</a>\
 % endif
 : <a href="${request.route_path("admin_user", username=report.reporting_user.username)}">${report.reporting_user.username}</a> reported <a href="${request.route_path("admin_user", username=report.reported_user.username)}">${report.reported_user.username}</a></h3>
-      <p class="subtitle">${report.created.strftime("%a %d %b %Y, %H:%M")}</p>
+      <p class="subtitle">${request.user.localise_time(report.created).strftime("%a %d %b %Y, %H:%M")}</p>
 % if detail:
       <p>Status: <select name="status">
 % for value in PromptReport.status.type.enums:
