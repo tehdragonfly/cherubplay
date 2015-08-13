@@ -23,8 +23,16 @@
 % endif
 </p>
     <p>E-mail address: ${user.email}</p>
-    <p>Created: ${request.user.localise_time(user.created).strftime("%d %b %Y, %H:%M:%S")}</p>
-    <p>Last online: ${request.user.localise_time(user.last_online).strftime("%d %b %Y, %H:%M:%S")}</p>
+    <p>Created: ${request.user.localise_time(user.created).strftime("%d %b %Y, %H:%M:%S")}\
+% if request.user.timezone != user.timezone:
+ (${user.localise_time(user.created).strftime("%d %b %Y, %H:%M:%S")})\
+% endif
+</p>
+    <p>Last online: ${request.user.localise_time(user.last_online).strftime("%d %b %Y, %H:%M:%S")}\
+% if request.user.timezone != user.timezone:
+ (${user.localise_time(user.last_online).strftime("%d %b %Y, %H:%M:%S")})\
+% endif
+</p>
     <p>Time zone: ${user.timezone}</p>
     <p>Last IP address: ${user.last_ip}</p>
     <p>Layout version: ${user.layout_version}</p>
