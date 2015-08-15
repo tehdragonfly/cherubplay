@@ -11,6 +11,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from ..lib import username_validator, reserved_usernames, preset_colours, prompt_categories, prompt_levels
 from ..models import (
     Session,
+    Prompt,
     User,
 )
 
@@ -18,7 +19,9 @@ from ..models import (
 def home(request):
     if request.user is not None:
         template = "layout2/home.mako" if request.user.layout_version == 2 else "home.mako"
+        saved_prompts = Session.query(Prompt).filter(Prompt.user_id == request.user.id).order_by(Prompt.title).all()
         return render_to_response(template, {
+            "saved_prompts": saved_prompts,
             "preset_colours": preset_colours,
             "prompt_categories": prompt_categories,
             "prompt_levels": prompt_levels,

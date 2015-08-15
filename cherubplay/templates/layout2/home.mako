@@ -57,28 +57,43 @@
     <p>Enter a prompt below, and other people will be able to see it and answer if they're interested.</p>
     <p><strong>We've clarified <a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under">what belongs under each category</a>, so please read this to make sure you're posting in the right place.</strong></p>
     <form class="tile2">
-      <p><input type="color" id="prompt_colour" size="6" value="#000000" maxlength="7"> <select id="preset_colours" name="preset_colours">
+% if saved_prompts:
+      <ul>
+        <li><label><input type="radio" id="saved_prompt" name="new_or_saved" value="saved" checked="checked"> Use a saved prompt:</label> <select>
+% for prompt in saved_prompts:
+          <option value="${prompt.id}">${prompt.title}</option>
+% endfor
+        </select></li>
+        <li><label><input type="radio" id="new_prompt" name="new_or_saved" value="new"> Write a new prompt</label></li>
+      </ul>
+      <hr>
+% endif
+      <section id="prompt_info">
+        <p><input type="color" id="prompt_colour" size="6" value="#000000" maxlength="7"> <select id="preset_colours" name="preset_colours">
 % for hex, name in preset_colours:
           <option value="#${hex}">${name}</option>
 % endfor
         </select></p>
-      <p><textarea id="prompt_text" placeholder="Enter your prompt..."></textarea></p>
-      <div id="prompt_dropdowns">Post to:
-        <select id="prompt_category" name="prompt_category">
-          <option value="">Category...</option>
+        <p><textarea id="prompt_text" placeholder="Enter your prompt..."></textarea></p>
+        <div id="prompt_dropdowns">Post to:
+          <select id="prompt_category" name="prompt_category">
+            <option value="">Category...</option>
 % for id, name in prompt_categories.items():
-          <option value="${id}">${name}</option>
+            <option value="${id}">${name}</option>
 % endfor
-        </select>
-        <select id="prompt_level" name="prompt_level">
-          <option value="">Level...</option>
+          </select>
+          <select id="prompt_level" name="prompt_level">
+            <option value="">Level...</option>
 % for id, name in prompt_levels.items():
-          <option value="${id}">${name}</option>
+            <option value="${id}">${name}</option>
 % endfor
-        </select>
-        (<a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under" target="_blank">?</a>)
-        <button type="submit" id="post_button">Post</button>
-      </div>
+          </select>
+          (<a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under" target="_blank">?</a>)
+          <hr>
+        </div>
+      </section>
+      <button type="submit" id="post_button">Post</button>
+      <br class="clear">
     </form>
     <p><button class="answer_button">Back to available prompts</button></p>
   </section>
