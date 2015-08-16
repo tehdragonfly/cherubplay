@@ -99,7 +99,7 @@ def _get_user(request):
         raise HTTPNotFound
 
 
-@view_config(route_name="admin_user", renderer="admin/user.mako", request_method="GET", permission="admin")
+@view_config(route_name="admin_user", renderer="layout2/admin/user.mako", request_method="GET", permission="admin")
 def user(request):
     user = _get_user(request)
     return {
