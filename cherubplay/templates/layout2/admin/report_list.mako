@@ -1,9 +1,11 @@
 <%inherit file="../base.mako" />\
 <%namespace name="report_base" file="report.mako" />\
 <%block name="title">Prompt reports - </%block>
-  <h2>Prompt reports</h2>
-  <nav id="subnav">
-    <section class="tile">
+<%block name="body_class">layout2</%block>
+<h2>Prompt reports</h2>
+<main class="flex">
+  <div class="side_column">
+    <nav>
       <h3>Status</h3>
       <ul>
 % if request.matched_route.name == "admin_report_list":
@@ -22,26 +24,30 @@
         <li><a href="${request.route_path("admin_report_list_invalid")}">Invalid</a></li>
 % endif
       </ul>
-    </section>
-  </nav>
+    </nav>
+  </div>
+  <div class="side_column"></div>
+  <div id="content">
 % if len(reports)==0:
-  <p>No reports. <a href="${request.route_path("home")}">Try shitposting until the users decide they're fed up with you</a>.</p>
+    <p>No reports. <a href="${request.route_path("home")}">Try shitposting until the users decide they're fed up with you</a>.</p>
 % else:
 % if paginator.page_count!=1:
-  <p class="pager">
+    <p class="pager tile2">
 ${paginator.pager(format='~5~')}
-  </p>
+    </p>
 % endif
-  <ul id="chat_list">
+    <ul id="chat_list">
 % for report in reports:
-    <li class="tile">
+      <li class="tile2">
 ${report_base.render_report(report, False)}
-    </li>
+      </li>
 % endfor
-  </ul>
+    </ul>
 % if paginator.page_count!=1:
-  <p class="pager">
+    <p class="pager tile2">
 ${paginator.pager(format='~5~')}
-  </p>
+    </p>
 % endif
 % endif
+  </div>
+</main>

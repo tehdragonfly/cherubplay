@@ -26,9 +26,9 @@ status_filters = {
 }
 
 
-@view_config(route_name="admin_report_list", renderer="admin/report_list.mako", request_method="GET", permission="admin")
-@view_config(route_name="admin_report_list_closed", renderer="admin/report_list.mako", request_method="GET", permission="admin")
-@view_config(route_name="admin_report_list_invalid", renderer="admin/report_list.mako", request_method="GET", permission="admin")
+@view_config(route_name="admin_report_list", renderer="layout2/admin/report_list.mako", request_method="GET", permission="admin")
+@view_config(route_name="admin_report_list_closed", renderer="layout2/admin/report_list.mako", request_method="GET", permission="admin")
+@view_config(route_name="admin_report_list_invalid", renderer="layout2/admin/report_list.mako", request_method="GET", permission="admin")
 def report_list(request):
     current_status = status_filters[request.matched_route.name]
     current_page = int(request.GET.get("page", 1))
@@ -61,7 +61,7 @@ def report_list(request):
     }
 
 
-@view_config(route_name="admin_report", renderer="admin/report.mako", request_method="GET", permission="admin")
+@view_config(route_name="admin_report", renderer="layout2/admin/report.mako", request_method="GET", permission="admin")
 def report_get(request):
     try:
         report = Session.query(PromptReport).filter(PromptReport.id==int(request.matchdict["id"])).one()
@@ -75,7 +75,7 @@ def report_get(request):
     }
 
 
-@view_config(route_name="admin_report", renderer="admin/report.mako", request_method="POST", permission="admin")
+@view_config(route_name="admin_report", renderer="layout2/admin/report.mako", request_method="POST", permission="admin")
 def report_post(request):
     try:
         report = Session.query(PromptReport).filter(PromptReport.id==int(request.matchdict["id"])).one()
