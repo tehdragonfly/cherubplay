@@ -162,6 +162,9 @@ def main(global_config, **settings):
     config.add_route("chat_end", "/chats/{url}/end/")
     config.add_route("chat_delete", "/chats/{url}/delete/")
 
+    config.add_route("prompt_list", "/prompts/")
+    config.add_route("prompt", "/prompts/{id}/")
+
     config.add_route("account", "/account/")
     config.add_route("account_password", "/account/password/")
     config.add_route("account_timezone", "/account/timezone/")

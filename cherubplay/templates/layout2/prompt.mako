@@ -1,0 +1,15 @@
+<%inherit file="base.mako" />\
+<%block name="title">${prompt.title} - </%block>
+<%block name="body_class">layout2</%block>
+<h2>${prompt.title}</h2>
+
+<main class="flex">
+  <div class="side_column"></div>
+  <div class="side_column"></div>
+  <div id="content">
+    <section class="tile2">
+      <p class="subtitle">${prompt_categories[prompt.category]}, ${prompt_levels[prompt.level]}</p>
+      <p style="color: #${prompt.colour};">${prompt.text}</p>
+    </section>
+  </div>
+</main>
