@@ -377,7 +377,7 @@ label[for="filter_toggle"]:hover {
 	background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
 }
 
-#prompt_mode textarea {
+#prompt_text {
 	height: 150px;
 }
 
@@ -481,7 +481,7 @@ label[for="filter_toggle"]:hover {
 
 /* Chat notes */
 
-#chat_notes_title, #chat_notes_labels {
+h3 input, #chat_notes_labels {
 	margin: 0;
 	padding: 0;
 	border: 0;
