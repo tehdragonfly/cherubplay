@@ -18,13 +18,18 @@ def prompt_list(request):
     }
 
 
+def _new_prompt_form(**kwargs):
+    return dict(
+        preset_colours=preset_colours,
+        prompt_categories=prompt_categories,
+        prompt_levels=prompt_levels,
+        **kwargs
+    )
+
+
 @view_config(route_name="new_prompt", request_method="GET", permission="view", renderer="layout2/new_prompt.mako")
 def new_prompt_get(request):
-    return {
-        "preset_colours": preset_colours,
-        "prompt_categories": prompt_categories,
-        "prompt_levels": prompt_levels,
-    }
+    return _new_prompt_form()
 
 
 @view_config(route_name="new_prompt", request_method="POST", permission="view", renderer="layout2/new_prompt.mako")
@@ -32,23 +37,23 @@ def new_prompt_post(request):
 
     trimmed_prompt_title = request.POST.get("prompt_title", "").strip()
     if trimmed_prompt_title == "":
-        raise HTTPBadRequest("Prompt title can't be empty.")
+        return _new_prompt_form(error="blank_title")
 
     colour = request.POST.get("prompt_colour", "")
     if colour.startswith("#"):
         colour = colour[1:]
     if colour_validator.match(colour) is None:
-        raise HTTPBadRequest("Invalid text colour. The colour needs to be a 6-digit hex code.")
+        return _new_prompt_form(error="invalid_colour")
 
     trimmed_prompt_text = request.POST.get("prompt_text", "").strip()
     if trimmed_prompt_text == "":
-        raise HTTPBadRequest("Prompt text can't be empty.")
+        return _new_prompt_form(error="blank_text")
 
     if request.POST.get("prompt_category") not in prompt_categories:
-        raise HTTPBadRequest("Please choose a category for your prompt.")
+        return _new_prompt_form(error="blank_category")
 
     if request.POST.get("prompt_level") not in prompt_levels:
-        raise HTTPBadRequest("Please choose a level for your prompt.")
+        return _new_prompt_form(error="blank_level")
 
     new_prompt = Prompt(
         user_id=request.user.id,

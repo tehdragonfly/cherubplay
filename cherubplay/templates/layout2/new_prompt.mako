@@ -7,13 +7,22 @@
   <div class="side_column"></div>
   <div id="content">
     <form class="tile2" action="${request.route_path("new_prompt")}" method="post">
-      <h3><input type="text" id="prompt_title" name="prompt_title" placeholder="Title..." maxlength="100" required></h3>
-      <p><input type="color" id="prompt_colour" name="prompt_colour" size="6" value="#000000" maxlength="7"> <select id="preset_colours" name="preset_colours">
+      <h3><input type="text" id="prompt_title" name="prompt_title" placeholder="Title..." maxlength="100" required value="${request.POST.get("prompt_title", "")}"></h3>
+% if error == "blank_title":
+      <p class="error">Prompt title can't be empty.</p>
+% endif
+      <p><input type="color" id="prompt_colour" name="prompt_colour" size="6" maxlength="7" value="${request.POST.get("prompt_colour") or "#000000"}"> <select id="preset_colours" name="preset_colours">
 % for hex, name in preset_colours:
         <option value="#${hex}">${name}</option>
 % endfor
       </select></p>
-      <p><textarea id="prompt_text" name="prompt_text" placeholder="Enter your prompt..." required></textarea></p>
+% if error == "invalid_colour":
+      <p class="error">Invalid text colour. The colour needs to be a 6-digit hex code.</p>
+% endif
+      <p><textarea id="prompt_text" name="prompt_text" placeholder="Enter your prompt..." required>${request.POST.get("prompt_text", "")}</textarea></p>
+% if error == "blank_text":
+      <p class="error">Prompt text can't be empty.</p>
+% endif
       <div id="prompt_dropdowns">Post to:
         <select id="prompt_category" name="prompt_category" required>
           <option value="">Category...</option>
@@ -28,10 +37,15 @@
 % endfor
         </select>
         (<a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under" target="_blank">?</a>)
-        <hr>
       </div>
-    <button type="submit" id="post_button">Save</button>
-    <br class="clear">
-  </form>
+% if error == "blank_category":
+      <p class="error">Please choose a category for your prompt.</p>
+% elif error == "blank_level":
+      <p class="error">Please choose a level for your prompt.</p>
+% endif
+      <hr>
+      <button type="submit" id="post_button">Save</button>
+      <br class="clear">
+    </form>
   </div>
 </main>
