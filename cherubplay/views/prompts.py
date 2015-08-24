@@ -4,7 +4,7 @@ from pyramid.view import view_config
 from sqlalchemy import and_
 from sqlalchemy.orm.exc import NoResultFound
 
-from ..lib import colour_validator, preset_colours, prompt_categories, prompt_levels
+from ..lib import alt_formats, colour_validator, preset_colours, prompt_categories, prompt_levels
 from ..models import Session, Prompt
 
 
@@ -69,7 +69,7 @@ def new_prompt_post(request):
     return HTTPFound(request.route_path("prompt_list"))
 
 
-@view_config(route_name="prompt", request_method="GET", permission="view", renderer="layout2/prompt.mako")
+@alt_formats({"json"})
 def prompt(request):
     try:
         prompt = Session.query(Prompt).filter(and_(
@@ -78,9 +78,13 @@ def prompt(request):
         )).one()
     except (ValueError, NoResultFound):
         raise HTTPNotFound
-    return {
+
+    if request.matchdict.get("fmt") == "json":
+        return render_to_response("json", prompt, request=request)
+
+    return render_to_response("layout2/prompt.mako", {
         "prompt": prompt,
         "prompt_categories": prompt_categories,
         "prompt_levels": prompt_levels,
-    }
+    }, request)
 

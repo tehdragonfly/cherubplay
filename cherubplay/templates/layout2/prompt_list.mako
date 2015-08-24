@@ -14,7 +14,7 @@
 % for prompt in prompts:
       <li class="tile2">
         <h3><a href="${request.route_path("prompt", id=prompt.id)}">${prompt.title}</a></h3>
-        <p class="subtitle">${prompt_categories[prompt.category]}, ${prompt_levels[prompt.level]}</p>
+        <p class="subtitle">${prompt_categories[prompt.category]}, ${prompt_levels[prompt.level]}, written ${request.user.localise_time(prompt.created).strftime("%a %d %b %Y")}.</p>
         <p style="color: #${prompt.colour};">\
 % if len(prompt.text)>250:
 ${prompt.text[:250]}...\

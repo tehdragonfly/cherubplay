@@ -8,7 +8,7 @@
   <div class="side_column"></div>
   <div id="content">
     <section class="tile2">
-      <p class="subtitle">${prompt_categories[prompt.category]}, ${prompt_levels[prompt.level]}</p>
+      <p class="subtitle">${prompt_categories[prompt.category]}, ${prompt_levels[prompt.level]}, written ${request.user.localise_time(prompt.created).strftime("%a %d %b %Y")}.</p>
       <p style="color: #${prompt.colour};">${prompt.text}</p>
     </section>
   </div>

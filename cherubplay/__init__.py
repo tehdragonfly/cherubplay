@@ -17,6 +17,7 @@ from .models import (
     User,
 )
 from .views import chat
+from .views import prompts
 
 
 class CherubplayConfigurator(Configurator):
@@ -164,7 +165,7 @@ def main(global_config, **settings):
 
     config.add_route("prompt_list", "/prompts/")
     config.add_route("new_prompt", "/prompts/new/")
-    config.add_route("prompt", "/prompts/{id}/")
+    config.add_route_and_view("prompt", "/prompts/{id}/", prompts.prompt)
 
     config.add_route("account", "/account/")
     config.add_route("account_password", "/account/password/")
