@@ -8,14 +8,19 @@ from ..lib import alt_formats, colour_validator, preset_colours, prompt_categori
 from ..models import Session, Prompt
 
 
-@view_config(route_name="prompt_list", request_method="GET", permission="view", renderer="layout2/prompt_list.mako")
+@alt_formats({"json"})
 def prompt_list(request):
     prompts = Session.query(Prompt).filter(Prompt.user_id == request.user.id).order_by(Prompt.id.desc()).all()
-    return {
+    if request.matchdict["fmt"] == "json":
+        return render_to_response("json", {
+            "prompts": prompts,
+            "prompt_count": len(prompts),
+        }, request)
+    return render_to_response("layout2/prompt_list.mako", {
         "prompts": prompts,
         "prompt_categories": prompt_categories,
         "prompt_levels": prompt_levels,
-    }
+    }, request)
 
 
 def _new_prompt_form(**kwargs):

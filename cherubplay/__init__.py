@@ -163,7 +163,7 @@ def main(global_config, **settings):
     config.add_route("chat_end", "/chats/{url}/end/")
     config.add_route("chat_delete", "/chats/{url}/delete/")
 
-    config.add_route("prompt_list", "/prompts/")
+    config.add_route_and_view("prompt_list", "/prompts/", prompts.prompt_list)
     config.add_route("new_prompt", "/prompts/new/")
     config.add_route_and_view("prompt", "/prompts/{id}/", prompts.prompt)
 
