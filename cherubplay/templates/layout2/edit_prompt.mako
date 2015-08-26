@@ -7,11 +7,11 @@
   <div class="side_column"></div>
   <div id="content">
     <form class="tile2" action="${request.route_path("edit_prompt", id=prompt.id)}" method="post">
-      <h3><input type="text" id="prompt_title" name="prompt_title" placeholder="Title..." maxlength="100" required value="${prompt.title}"></h3>
+      <h3><input type="text" id="prompt_title" name="prompt_title" placeholder="Title..." maxlength="100" required value="${request.POST.get("prompt_title") or prompt.title}"></h3>
 % if error == "blank_title":
       <p class="error">Prompt title can't be empty.</p>
 % endif
-      <p><input type="color" id="prompt_colour" name="prompt_colour" size="6" maxlength="7" value="#${prompt.colour}"> <select id="preset_colours" name="preset_colours">
+      <p><input type="color" id="prompt_colour" name="prompt_colour" size="6" maxlength="7" value="${request.POST.get("prompt_colour") or "#" + prompt.colour}"> <select id="preset_colours" name="preset_colours">
 % for hex, name in preset_colours:
         <option value="#${hex}">${name}</option>
 % endfor
@@ -19,7 +19,7 @@
 % if error == "invalid_colour":
       <p class="error">Invalid text colour. The colour needs to be a 6-digit hex code.</p>
 % endif
-      <p><textarea id="prompt_text" name="prompt_text" placeholder="Enter your prompt..." required>${prompt.text}</textarea></p>
+      <p><textarea id="prompt_text" name="prompt_text" placeholder="Enter your prompt..." required>${request.POST.get("prompt_text") or prompt.text}</textarea></p>
 % if error == "blank_text":
       <p class="error">Prompt text can't be empty.</p>
 % endif
@@ -28,7 +28,7 @@
           <option value="">Category...</option>
 % for id, name in prompt_categories.items():
           <option value="${id}"\
-% if prompt.category == id:
+% if request.POST.get("prompt_category") == id or (not request.POST.get("prompt_category") and prompt.category == id):
  selected="selected"\
 % endif
 >${name}</option>
@@ -38,7 +38,7 @@
           <option value="">Level...</option>
 % for id, name in prompt_levels.items():
           <option value="${id}"\
-% if prompt.level == id:
+% if request.POST.get("prompt_level") == id or (not request.POST.get("prompt_level") and prompt.level == id):
  selected="selected"\
 % endif
 >${name}</option>

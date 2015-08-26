@@ -96,13 +96,50 @@ def prompt(request):
     }, request)
 
 
+def _edit_prompt_form(prompt, **kwargs):
+    return dict(
+        prompt=prompt,
+        preset_colours=preset_colours,
+        prompt_categories=prompt_categories,
+        prompt_levels=prompt_levels,
+        **kwargs
+    )
+
+
 @view_config(route_name="edit_prompt", request_method="GET", permission="view", renderer="layout2/edit_prompt.mako")
 def edit_prompt_get(request):
+    return _edit_prompt_form(_get_prompt(request))
+
+
+@view_config(route_name="edit_prompt", request_method="POST", permission="view", renderer="layout2/edit_prompt.mako")
+def edit_prompt_post(request):
     prompt = _get_prompt(request)
-    return render_to_response("layout2/edit_prompt.mako", {
-        "prompt": prompt,
-        "preset_colours": preset_colours,
-        "prompt_categories": prompt_categories,
-        "prompt_levels": prompt_levels,
-    }, request)
+
+    trimmed_prompt_title = request.POST.get("prompt_title", "").strip()
+    if trimmed_prompt_title == "":
+        return _edit_prompt_form(prompt, error="blank_title")
+
+    colour = request.POST.get("prompt_colour", "")
+    if colour.startswith("#"):
+        colour = colour[1:]
+    if colour_validator.match(colour) is None:
+        return _edit_prompt_form(prompt, error="invalid_colour")
+
+    trimmed_prompt_text = request.POST.get("prompt_text", "").strip()
+    if trimmed_prompt_text == "":
+        return _edit_prompt_form(prompt, error="blank_text")
+
+    if request.POST.get("prompt_category") not in prompt_categories:
+        return _edit_prompt_form(prompt, error="blank_category")
+
+    if request.POST.get("prompt_level") not in prompt_levels:
+        return _edit_prompt_form(prompt, error="blank_level")
+
+    prompt.title = trimmed_prompt_title
+    prompt.colour = colour
+    prompt.text = trimmed_prompt_text
+    prompt.category = request.POST["prompt_category"]
+    prompt.level = request.POST["prompt_level"]
+
+    return HTTPFound(request.route_path("prompt", id=prompt.id))
 
