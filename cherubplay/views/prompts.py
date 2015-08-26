@@ -11,7 +11,7 @@ from ..models import Session, Prompt
 @alt_formats({"json"})
 def prompt_list(request):
     prompts = Session.query(Prompt).filter(Prompt.user_id == request.user.id).order_by(Prompt.id.desc()).all()
-    if request.matchdict["fmt"] == "json":
+    if request.matchdict.get("fmt") == "json":
         return render_to_response("json", {
             "prompts": prompts,
             "prompt_count": len(prompts),
@@ -74,21 +74,34 @@ def new_prompt_post(request):
     return HTTPFound(request.route_path("prompt_list"))
 
 
-@alt_formats({"json"})
-def prompt(request):
+def _get_prompt(request):
     try:
-        prompt = Session.query(Prompt).filter(and_(
+        return Session.query(Prompt).filter(and_(
             Prompt.user_id == request.user.id,
             Prompt.id == int(request.matchdict["id"]),
         )).one()
     except (ValueError, NoResultFound):
         raise HTTPNotFound
 
+
+@alt_formats({"json"})
+def prompt(request):
+    prompt = _get_prompt(request)
     if request.matchdict.get("fmt") == "json":
         return render_to_response("json", prompt, request=request)
-
     return render_to_response("layout2/prompt.mako", {
         "prompt": prompt,
+        "prompt_categories": prompt_categories,
+        "prompt_levels": prompt_levels,
+    }, request)
+
+
+@view_config(route_name="edit_prompt", request_method="GET", permission="view", renderer="layout2/edit_prompt.mako")
+def edit_prompt_get(request):
+    prompt = _get_prompt(request)
+    return render_to_response("layout2/edit_prompt.mako", {
+        "prompt": prompt,
+        "preset_colours": preset_colours,
         "prompt_categories": prompt_categories,
         "prompt_levels": prompt_levels,
     }, request)
