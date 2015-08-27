@@ -202,6 +202,7 @@ header img {
 	}
 
 	#nav_home { background-position: 0 0; }
+	#nav_prompt_list { background-position: 0 -160px; }
 	#nav_chat_list { background-position: 0 -40px; }
 	#nav_account { background-position: 0 -80px; }
 	/* Gotta do button here or it gets overridden by #nav button above. */
