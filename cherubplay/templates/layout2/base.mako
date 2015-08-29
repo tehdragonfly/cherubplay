@@ -4,7 +4,7 @@
 <title><%block name="title"></%block>Cherubplay</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#393">
-<link rel="stylesheet" href="/static/cherubplay.css?25">
+<link rel="stylesheet" href="/static/cherubplay.css?26">
 </head>
 <body class="<%block name="body_class"></%block>">
 
@@ -41,7 +41,7 @@
 ${next.body()}\
 
 <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
-<script src="/static/cherubplay.js?20"></script>
+<script src="/static/cherubplay.js?21"></script>
 <%block name="scripts"></%block>
 
 % if request.user and request.user.timezone is None:
