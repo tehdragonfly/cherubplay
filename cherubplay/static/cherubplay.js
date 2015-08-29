@@ -230,6 +230,8 @@ var cherubplay = (function() {
 					change_mode("wait_mode");
 					$.ajax("/prompts/" + prompt_id.val() + ".json", {
 						success: function(data) {
+							localStorage.setItem("new_or_saved_prompt", "saved_prompt");
+							localStorage.setItem("prompt_id", prompt_id.val());
 							ws.send(JSON.stringify({
 								"action": "prompt",
 								"colour": data.colour,
@@ -245,6 +247,7 @@ var cherubplay = (function() {
 					});
 					return false;
 				}
+				localStorage.setItem("new_or_saved_prompt", "new_prompt");
 				if (!colour_regex.test(prompt_colour.val())) {
 					alert("The colour needs to be a valid hex code, for example \"#0715CD\" or \"#416600\".");
 					return false;
@@ -302,10 +305,20 @@ var cherubplay = (function() {
 			var prompt_category = $("#prompt_category");
 			var prompt_level = $("#prompt_level");
 
+			var saved_new_or_saved_prompt = localStorage.getItem("new_or_saved_prompt");
+			var saved_prompt_id = localStorage.getItem("prompt_id");
 			var saved_prompt_colour = localStorage.getItem("prompt_colour");
 			var saved_prompt_text = localStorage.getItem("prompt_text");
 			var saved_prompt_category = localStorage.getItem("prompt_category");
 			var saved_prompt_level = localStorage.getItem("prompt_level");
+			if (prompt_id.length > 0) {
+				if (saved_new_or_saved_prompt) {
+					$("#" + saved_new_or_saved_prompt).prop("checked", "checked").change();
+				}
+				if (saved_prompt_id) {
+					prompt_id.val(saved_prompt_id);
+				}
+			}
 			if (saved_prompt_colour && saved_prompt_text) {
 				prompt_colour.val(saved_prompt_colour).change();
 				prompt_text.text(saved_prompt_text);
