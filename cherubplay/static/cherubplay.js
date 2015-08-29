@@ -393,6 +393,15 @@ var cherubplay = (function() {
 			}
 
 		},
+		"prompt_form": function() {
+			var prompt_colour = $("#prompt_colour").change(function() {
+				prompt_text.css("color", this.value);
+			});
+			var preset_colours = $("#preset_colours").change(function() {
+				prompt_colour.val(this.value).change();
+			});
+			var prompt_text = $("#prompt_text");
+		},
 		"account": function() {
 			var sound_notifications = $("#sound_notifications").click(function() {
 				localStorage.setItem("sound_notifications", this.checked);

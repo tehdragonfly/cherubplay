@@ -57,3 +57,4 @@
     </form>
   </div>
 </main>
+<%block name="scripts"><script>cherubplay.prompt_form();</script></%block>
