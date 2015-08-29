@@ -59,7 +59,7 @@
     <form class="tile2">
 % if saved_prompts:
       <ul>
-        <li><label><input type="radio" id="saved_prompt" name="new_or_saved" value="saved" checked="checked"> Use a saved prompt:</label> <select>
+        <li><label><input type="radio" id="saved_prompt" name="new_or_saved" value="saved" checked="checked"> Use a saved prompt:</label> <select id="prompt_id">
 % for prompt in saved_prompts:
           <option value="${prompt.id}">${prompt.title}</option>
 % endfor

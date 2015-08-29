@@ -226,6 +226,25 @@ var cherubplay = (function() {
 			// Prompt mode
 
 			var prompt_form = $("#prompt_mode form").submit(function(e) {
+				if (prompt_id.length > 0 && prompt_info.css("display") == "none") {
+					change_mode("wait_mode");
+					$.ajax("/prompts/" + prompt_id.val() + ".json", {
+						success: function(data) {
+							ws.send(JSON.stringify({
+								"action": "prompt",
+								"colour": data.colour,
+								"prompt": data.text,
+								"category": data.category,
+								"level": data.level,
+							}));
+						},
+						error: function() {
+							alert("Sorry, that prompt couldn't be found.");
+							change_mode("prompt_mode");
+						},
+					});
+					return false;
+				}
 				if (!colour_regex.test(prompt_colour.val())) {
 					alert("The colour needs to be a valid hex code, for example \"#0715CD\" or \"#416600\".");
 					return false;
@@ -236,7 +255,7 @@ var cherubplay = (function() {
 				}
 				prompt_text.val(prompt_text.val().trim());
 				if (prompt_text.val()=="") {
-					alert("You can't submit a blank prompt.")
+					alert("You can't submit a blank prompt.");
 					return false;
 				}
 				localStorage.setItem("prompt_colour", prompt_colour.val());
@@ -259,6 +278,7 @@ var cherubplay = (function() {
 					prompt_info.css("display", this.value == "new" ? "block" : "none");
 				}
 			}).change();
+			var prompt_id = $("#prompt_id");
 			var prompt_colour = $("#prompt_colour").change(function() {
 				prompt_text.css("color", this.value);
 			});
