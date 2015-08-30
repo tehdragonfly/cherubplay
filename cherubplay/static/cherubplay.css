@@ -188,7 +188,7 @@ header img {
 		position: relative;
 		width: 40px;
 		/* Cosmo mini icons, from http://www.icojam.com/blog/?p=674 */
-		background-image: url('/static/nav_sprite.png');
+		background-image: url('/static/nav_sprite.png?2');
 		background-repeat: no-repeat;
 		text-indent: -9000px;
 	}
