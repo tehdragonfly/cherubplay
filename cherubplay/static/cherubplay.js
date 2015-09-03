@@ -400,7 +400,9 @@ var cherubplay = (function() {
 			var preset_colours = $("#preset_colours").change(function() {
 				prompt_colour.val(this.value).change();
 			});
-			var prompt_text = $("#prompt_text");
+			var prompt_text = $("#prompt_text").keyup(function() {
+				this.style.height = this.scrollHeight+"px";
+			});
 		},
 		"account": function() {
 			var sound_notifications = $("#sound_notifications").click(function() {
