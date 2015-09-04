@@ -770,7 +770,9 @@ var cherubplay = (function() {
 							message_form_container.remove();
 							render_message(message.message);
 						} else if (message.action=="typing") {
-							status_bar.text(message.symbol+" is typing.");
+							if (message.symbol != own_symbol) {
+								status_bar.text(message.symbol+" is typing.");
+							}
 						} else if (message.action=="stopped_typing") {
 							status_bar.text(last_status_message);
 						} else if (message.action=="online") {
