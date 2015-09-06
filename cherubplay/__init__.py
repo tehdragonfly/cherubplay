@@ -21,13 +21,11 @@ from .views import prompts
 
 
 class CherubplayConfigurator(Configurator):
-    def add_route_and_view(self, name, pattern, view, **kwargs):
-        self.add_route(name, pattern)
-        self.add_view(view, route_name=name, **kwargs)
+    def add_fmt_route(self, name, pattern, **kwargs):
+        self.add_route(name, pattern, **kwargs)
         fmt_name = name + "_fmt"
         fmt_pattern = (pattern[:-1] if pattern.endswith("/") else pattern) + ".{fmt}"
-        self.add_route(fmt_name, fmt_pattern)
-        self.add_view(view, route_name=fmt_name, **kwargs)
+        self.add_route(fmt_name, fmt_pattern, **kwargs)
 
 
 class CherubplayAuthenticationPolicy(object):
@@ -147,13 +145,13 @@ def main(global_config, **settings):
     config.add_route("log_in", "/log-in/")
     config.add_route("log_out", "/log-out/")
 
-    config.add_route_and_view("chat_list", "/chats/", chat.chat_list, permission="view")
-    config.add_route_and_view("chat_list_unanswered", "/chats/unanswered/", chat.chat_list, permission="view")
-    config.add_route_and_view("chat_list_ongoing", "/chats/ongoing/", chat.chat_list, permission="view")
-    config.add_route_and_view("chat_list_ended", "/chats/ended/", chat.chat_list, permission="view")
-    config.add_route_and_view("chat_list_label", "/chats/labels/{label}/", chat.chat_list, permission="view")
+    config.add_fmt_route("chat_list", "/chats/")
+    config.add_fmt_route("chat_list_unanswered", "/chats/unanswered/")
+    config.add_fmt_route("chat_list_ongoing", "/chats/ongoing/")
+    config.add_fmt_route("chat_list_ended", "/chats/ended/")
+    config.add_fmt_route("chat_list_label", "/chats/labels/{label}/")
 
-    config.add_route_and_view("chat", "/chats/{url}/", chat.chat)
+    config.add_fmt_route("chat", "/chats/{url}/")
     config.add_route("chat_archive", "/chats/{url}/archive/")
     config.add_route("chat_info", "/chats/{url}/info/")
 
@@ -163,9 +161,9 @@ def main(global_config, **settings):
     config.add_route("chat_end", "/chats/{url}/end/")
     config.add_route("chat_delete", "/chats/{url}/delete/")
 
-    config.add_route_and_view("prompt_list", "/prompts/", prompts.prompt_list)
+    config.add_fmt_route("prompt_list", "/prompts/")
     config.add_route("new_prompt", "/prompts/new/")
-    config.add_route_and_view("prompt", "/prompts/{id}/", prompts.prompt)
+    config.add_fmt_route("prompt", "/prompts/{id}/")
     config.add_route("edit_prompt", "/prompts/{id}/edit/")
 
     config.add_route("account", "/account/")

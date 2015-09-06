@@ -8,6 +8,8 @@ from ..lib import alt_formats, colour_validator, preset_colours, prompt_categori
 from ..models import Session, Prompt
 
 
+@view_config(route_name="prompt_list", request_method="GET", permission="view")
+@view_config(route_name="prompt_list_fmt", request_method="GET", permission="view")
 @alt_formats({"json"})
 def prompt_list(request):
     prompts = Session.query(Prompt).filter(Prompt.user_id == request.user.id).order_by(Prompt.id.desc()).all()
@@ -84,6 +86,8 @@ def _get_prompt(request):
         raise HTTPNotFound
 
 
+@view_config(route_name="prompt", request_method="GET", permission="view")
+@view_config(route_name="prompt_fmt", request_method="GET", permission="view")
 @alt_formats({"json"})
 def prompt(request):
     prompt = _get_prompt(request)

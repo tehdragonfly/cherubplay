@@ -2,6 +2,7 @@
 
 import datetime
 
+from pyramid.security import Allow, Authenticated, Everyone
 from pytz import timezone, utc
 from sqlalchemy import (
     and_,
@@ -192,6 +193,13 @@ class PromptReport(Base):
 
 
 class Prompt(Base):
+
+    __acl__ = (
+        (Allow, Authenticated, "view"),
+        (Allow, "active", "chat"),
+        (Allow, "admin", "admin"),
+    )
+
     __tablename__ = "prompts"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))

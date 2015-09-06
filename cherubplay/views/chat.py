@@ -29,6 +29,16 @@ from ..models import (
 )
 
 
+@view_config(route_name="chat_list", request_method="GET", permission="view")
+@view_config(route_name="chat_list_fmt", request_method="GET", permission="view")
+@view_config(route_name="chat_list_unanswered", request_method="GET", permission="view")
+@view_config(route_name="chat_list_unanswered_fmt", request_method="GET", permission="view")
+@view_config(route_name="chat_list_ongoing", request_method="GET", permission="view")
+@view_config(route_name="chat_list_ongoing_fmt", request_method="GET", permission="view")
+@view_config(route_name="chat_list_ended", request_method="GET", permission="view")
+@view_config(route_name="chat_list_ended_fmt", request_method="GET", permission="view")
+@view_config(route_name="chat_list_label", request_method="GET", permission="view")
+@view_config(route_name="chat_list_label_fmt", request_method="GET", permission="view")
 @alt_formats({"json"})
 def chat_list(request):
 
@@ -129,6 +139,8 @@ def chat_list(request):
     }, request=request)
 
 
+@view_config(route_name="chat", request_method="GET", permission="view")
+@view_config(route_name="chat_fmt", request_method="GET", permission="view")
 @alt_formats({"json"})
 def chat(request):
 
