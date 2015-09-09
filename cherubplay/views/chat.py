@@ -139,8 +139,8 @@ def chat_list(request):
     }, request=request)
 
 
-@view_config(route_name="chat", request_method="GET", permission="view")
-@view_config(route_name="chat_fmt", request_method="GET", permission="view")
+@view_config(route_name="chat", request_method="GET")
+@view_config(route_name="chat_fmt", request_method="GET")
 @alt_formats({"json"})
 def chat(request):
 
