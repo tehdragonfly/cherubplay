@@ -230,7 +230,7 @@ class SearchHandler(WebSocketHandler):
             except AnswerDenied:
                 self.write_message(json.dumps({
                     "action": "answer_error",
-                    "error": "NO NO THAT IS TOO MUCH ANSWER",
+                    "error": "Sorry, you've answered too many prompts recently. Please try again later.",
                 }))
                 return
             # Make a new session for thread safety.
