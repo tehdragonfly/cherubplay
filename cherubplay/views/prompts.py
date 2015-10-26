@@ -147,3 +147,15 @@ def edit_prompt_post(request):
 
     return HTTPFound(request.route_path("prompt", id=prompt.id))
 
+
+@view_config(route_name="delete_prompt", request_method="GET", permission="view", renderer="layout2/delete_prompt.mako")
+def delete_prompt_get(request):
+    return _edit_prompt_form(_get_prompt(request))
+
+
+@view_config(route_name="delete_prompt", request_method="POST", permission="view")
+def delete_prompt_post(request):
+    prompt = _get_prompt(request)
+    Session.delete(prompt)
+    return HTTPFound(request.route_path("prompt_list"))
+

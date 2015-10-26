@@ -165,6 +165,7 @@ def main(global_config, **settings):
     config.add_route("new_prompt", "/prompts/new/")
     config.add_fmt_route("prompt", "/prompts/{id}/")
     config.add_route("edit_prompt", "/prompts/{id}/edit/")
+    config.add_route("delete_prompt", "/prompts/{id}/delete/")
 
     config.add_route("account", "/account/")
     config.add_route("account_password", "/account/password/")
