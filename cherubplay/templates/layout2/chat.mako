@@ -9,11 +9,7 @@ ${parent.render_message(prompt)}\
 ${parent.render_message(message, show_edit=True)}\
 % endfor
     </ul>
-    <div id="status_bar" class="tile2 pager">\
-% if len(messages)>0:
-Last message: ${request.user.localise_time(messages[-1].posted).strftime("%Y-%m-%d %H:%M:%S")}.\
-% endif
-</div>
+    <div id="status_bar" class="tile2 pager">&nbsp;</div>
     <section id="message_form_container" class="tile2">
       <form id="message_form" action="${request.route_path("chat_send", url=request.matchdict["url"])}" method="post">
         <p><input type="color" id="message_colour" name="message_colour" size="6" value="#${own_chat_user.last_colour}"> <select id="preset_colours" name="preset_colours">

@@ -731,7 +731,9 @@ var cherubplay = (function() {
 						message = JSON.parse(e.data);
 						if (message.action=="message") {
 							render_message(message.message);
-							last_status_message = "Last message: "+new Date().toLocaleString();
+							if (!body.hasClass("layout2")) {
+								last_status_message = "Last message: "+new Date().toLocaleString();
+							}
 							status_bar.text(last_status_message);
 						} else if (message.action=="edit") {
 							status_bar.text(last_status_message);
