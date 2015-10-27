@@ -4,7 +4,7 @@
 <title><%block name="title"></%block>Cherubplay</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#393">
-<link rel="stylesheet" href="/static/cherubplay.css?26">
+<link rel="stylesheet" href="/static/cherubplay.css?27">
 </head>
 <body class="<%block name="body_class"></%block>">
 
