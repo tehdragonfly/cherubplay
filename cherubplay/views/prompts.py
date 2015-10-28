@@ -1,8 +1,9 @@
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
 from pyramid.renderers import render_to_response
 from pyramid.view import view_config
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 from sqlalchemy.orm.exc import NoResultFound
+from webhelpers import paginate
 
 from ..lib import alt_formats, colour_validator, preset_colours, prompt_categories, prompt_levels
 from ..models import Session, Prompt
@@ -12,16 +13,40 @@ from ..models import Session, Prompt
 @view_config(route_name="prompt_list_fmt", request_method="GET", permission="view")
 @alt_formats({"json"})
 def prompt_list(request):
-    prompts = Session.query(Prompt).filter(Prompt.user_id == request.user.id).order_by(Prompt.id.desc()).all()
+
+    current_page = int(request.GET.get("page", 1))
+
+    prompts = (
+        Session.query(Prompt).filter(Prompt.user_id == request.user.id)
+        .order_by(Prompt.id.desc()).limit(25).offset((current_page-1)*25).all()
+    )
+    prompt_count = (
+        Session.query(func.count('*')).select_from(Prompt)
+        .filter(Prompt.user_id==request.user.id).scalar()
+    )
+
     if request.matchdict.get("fmt") == "json":
         return render_to_response("json", {
             "prompts": prompts,
-            "prompt_count": len(prompts),
+            "prompt_count": prompt_count,
         }, request)
+
+    paginator = paginate.Page(
+        [],
+        page=current_page,
+        items_per_page=25,
+        item_count=prompt_count,
+        url=paginate.PageURL(
+            request.route_path(request.matched_route.name),
+            { "page": current_page },
+        ),
+    )
+
     return render_to_response("layout2/prompt_list.mako", {
         "prompts": prompts,
         "prompt_categories": prompt_categories,
         "prompt_levels": prompt_levels,
+        "paginator": paginator,
     }, request)
 
 

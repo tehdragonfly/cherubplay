@@ -10,8 +10,13 @@
 % if len(prompts)==0:
     <p>You have no prompts.</p>
 % else:
+    % if paginator.page_count!=1:
+    <p class="pager tile2">
+      ${paginator.pager(format='~5~')}
+    </p>
+    % endif
     <ul id="chat_list">
-% for prompt in prompts:
+    % for prompt in prompts:
       <li class="tile2">
         <h3><a href="${request.route_path("prompt", id=prompt.id)}">${prompt.title}</a></h3>
         <p class="subtitle">${prompt_categories[prompt.category]}, ${prompt_levels[prompt.level]}, written ${request.user.localise_time(prompt.created).strftime("%a %d %b %Y")}.</p>
@@ -23,8 +28,13 @@ ${prompt.text}\
 % endif
 </p>
       </li>
-% endfor
+    % endfor
     </ul>
-% endif
+    % if paginator.page_count!=1:
+    <p class="pager tile2">
+      ${paginator.pager(format='~5~')}
+    </p>
+    % endif
+  % endif
   </div>
 </main>
