@@ -1,3 +1,4 @@
+from datetime import datetime
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
 from pyramid.renderers import render_to_response
 from pyramid.view import view_config
@@ -169,6 +170,7 @@ def edit_prompt_post(request):
     prompt.text = trimmed_prompt_text
     prompt.category = request.POST["prompt_category"]
     prompt.level = request.POST["prompt_level"]
+    prompt.updated = datetime.now()
 
     return HTTPFound(request.route_path("prompt", id=prompt.id))
 
