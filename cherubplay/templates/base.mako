@@ -42,7 +42,7 @@ ${next.body()}\
 </main>
 
 <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
-<script src="/static/cherubplay.js?22"></script>
+<script src="/static/cherubplay.js?SPOOKY"></script>
 <%block name="scripts"></%block>
 
 % if request.user and request.user.timezone is None:
