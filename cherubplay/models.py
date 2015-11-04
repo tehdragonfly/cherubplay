@@ -8,6 +8,7 @@ from sqlalchemy import (
     and_,
     Column,
     ForeignKey,
+    Index,
     UniqueConstraint,
     Boolean,
     DateTime,
@@ -16,6 +17,7 @@ from sqlalchemy import (
     String,
     Unicode,
     UnicodeText,
+    UniqueConstraint,
 )
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.declarative import declarative_base
@@ -227,6 +229,67 @@ class Prompt(Base):
         }
 
 
+class Request(Base):
+    __tablename__ = "requests"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    status = Column(Enum(u"draft", u"posted", name=u"requests_status"), nullable=False, default=u"draft")
+    posted = Column(DateTime(), nullable=False, default=datetime.datetime.now)
+    edited = Column(DateTime(), nullable=False, default=datetime.datetime.now)
+    colour = Column(Unicode(6), nullable=False, default=u"000000")
+    scenario = Column(UnicodeText, nullable=False, default=u"")
+    prompt = Column(UnicodeText, nullable=False, default=u"")
+
+    def tags_by_type(self):
+        tags = { _: [] for _ in Tag.type_options }
+        for request_tag in self.tags:
+            tags[request_tag.tag.type].append({
+                "type": request_tag.tag.type,
+                "name": request_tag.tag.name,
+                "alias": request_tag.alias,
+            })
+        return tags
+
+    def __json__(self, request=None):
+        rd = {
+            "id": self.id,
+            "status": self.status,
+            "posted": self.posted.isoformat(),
+            "edited": self.edited.isoformat(),
+            "color": self.color,
+            "scenario": self.scenario,
+            "prompt": self.prompt,
+            "tags": self.tags_by_type(),
+        }
+        if user is not None:
+            rd["yours"] = request is not None and request.user.id == self.user_id
+        return rd
+
+
+class RequestTag(Base):
+    __tablename__ = "request_tags"
+    request_id = Column(Integer, ForeignKey("requests.id"), primary_key=True)
+    tag_id = Column(Integer, ForeignKey("tags.id"), primary_key=True)
+    alias = Column(Unicode(50))
+
+
+class Tag(Base):
+    __tablename__ = "tags"
+    __table_args__ = (UniqueConstraint("type", "name", name="tag_unique"),)
+    id = Column(Integer, primary_key=True)
+    type = Column(Enum(
+        u"maturity", u"trigger", u"type", u"fandom", u"fandom_wanted",
+        u"character", u"character_wanted", u"gender", u"gender_wanted", u"misc",
+        name=u"tags_type",
+    ), nullable=False, default=u"misc")
+    name = Column(Unicode(50), nullable=False)
+    synonym_id = Column(Integer, ForeignKey("tags.id"))
+
+    # XXX OrderedDict
+    maturity_names = ["safe_for_work", "not_safe_for_work", "nsfw_extreme"]
+    type_names = ["fluff", "plot-driven", "sexual", "shippy", "violent"]
+
+
 Chat.last_user = relationship(User)
 
 Message.chat = relationship(Chat, backref="messages")
@@ -237,4 +300,17 @@ ChatUser.user = relationship(User, backref="chats")
 
 PromptReport.reporting_user = relationship(User, backref="reports_sent", primaryjoin=PromptReport.reporting_user_id==User.id)
 PromptReport.reported_user = relationship(User, backref="reports_recieved", primaryjoin=PromptReport.reported_user_id==User.id)
+
+Request.user = relationship(User, backref="requests")
+Request.tags = relationship(RequestTag, backref="request", order_by=RequestTag.alias)
+
+Tag.requests = relationship(RequestTag, backref="tag")
+Tag.synonym_of = relationship(Tag, backref="synonyms", remote_side=Tag.id)
+
+
+# XXX indexes on requests table
+# index by user id for your requests?
+
+# Index for searching requests by tag.
+Index("request_tags_tag_id", RequestTag.tag_id)
 
