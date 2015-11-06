@@ -241,7 +241,7 @@ class Request(Base):
     prompt = Column(UnicodeText, nullable=False, default=u"")
 
     def tags_by_type(self):
-        tags = { _: [] for _ in Tag.type_options }
+        tags = { _: [] for _ in Tag.type.type.enums }
         for request_tag in self.tags:
             tags[request_tag.tag.type].append({
                 "type": request_tag.tag.type,
@@ -261,8 +261,8 @@ class Request(Base):
             "prompt": self.prompt,
             "tags": self.tags_by_type(),
         }
-        if user is not None:
-            rd["yours"] = request is not None and request.user.id == self.user_id
+        if request is not None:
+            rd["yours"] = request.user.id == self.user_id
         return rd
 
 

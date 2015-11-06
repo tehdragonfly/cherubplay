@@ -603,6 +603,14 @@ h3 input, #chat_notes_labels {
 	.layout2 #overlay, .layout2 #report_overlay { padding: 0 15px; }
 }
 
+/* Directory */
+
+.layout2 .request h3 { float: left; clear: left; margin: 0 5px 0 0; text-align: left; font: inherit; color: #000; }
+.layout2 .tag_list { margin: 10px 0; padding: 0; }
+.layout2 .tag_list li { display: inline; }
+.layout2 .tag_list li:not(:last-child)::after { content: ","; }
+.layout2 .tag_list li.trigger a { color: #f33; }
+
 /* Chat list */
 
 .layout2 #chat_list { margin: 0; list-style-type: none; }
