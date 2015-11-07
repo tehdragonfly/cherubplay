@@ -572,6 +572,10 @@ h3 input, #chat_notes_labels {
 	.layout2 .flex #content { flex: 0 1 650px; padding: 0 30px; }
 }
 
+/* Forms */
+
+.layout2 input.full { margin: 0; padding: 0; border: 0; width: 100%; background-color: #fff; font-size: 1rem; }
+
 /* Sign up and log in */
 
 #account_forms { text-align: center; }
@@ -605,11 +609,14 @@ h3 input, #chat_notes_labels {
 
 /* Directory */
 
-.layout2 .request h3 { float: left; clear: left; margin: 0 5px 0 0; text-align: left; font: inherit; color: #000; }
+.layout2 .request h3 { margin: 0 5px -8px 0; text-align: left; font-size: 10pt; font-weight: normal; color: #000; }
 .layout2 .tag_list { margin: 10px 0; padding: 0; }
 .layout2 .tag_list li { display: inline; }
 .layout2 .tag_list li:not(:last-child)::after { content: ","; }
 .layout2 .tag_list li.trigger a { color: #f33; }
+
+#new_request_form .types { white-space: unset; }
+#new_request_form .types label { display: inline-block; margin-right: 10px; font-size: 12pt; }
 
 /* Chat list */
 

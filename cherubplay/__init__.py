@@ -168,6 +168,7 @@ def main(global_config, **settings):
     config.add_route("delete_prompt", "/prompts/{id}/delete/")
 
     config.add_fmt_route("directory", "/directory/")
+    config.add_fmt_route("directory_new", "/directory/new/")
     config.add_fmt_route("directory_tag", "/directory/{type}:{name}/")
 
     config.add_route("account", "/account/")
