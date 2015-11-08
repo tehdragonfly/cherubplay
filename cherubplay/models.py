@@ -2,6 +2,7 @@
 
 import datetime
 
+from collections import OrderedDict
 from pyramid.security import Allow, Authenticated, Everyone
 from pytz import timezone, utc
 from sqlalchemy import (
@@ -286,8 +287,18 @@ class Tag(Base):
     synonym_id = Column(Integer, ForeignKey("tags.id"))
 
     # XXX OrderedDict
-    maturity_names = ["safe_for_work", "not_safe_for_work", "nsfw_extreme"]
-    type_names = ["fluff", "plot-driven", "sexual", "shippy", "violent"]
+    maturity_names = OrderedDict([
+        (u"safe_for_work", u"Safe for work"),
+        (u"not_safe_for_work", u"Not safe for work"),
+        (u"nsfw_extreme", u"NSFW extreme"),
+    ])
+    type_names = OrderedDict([
+        (u"fluff", u"Fluff"),
+        (u"plot-driven", u"Plot-driven"),
+        (u"sexual", u"Sexual"),
+        (u"shippy", u"Shippy"),
+        (u"violent", u"Violent"),
+    ])
 
 
 Chat.last_user = relationship(User)
