@@ -25,6 +25,7 @@ def name_from_alias(alias):
 
 def _tags_from_form(form, new_request):
     tag_dict = {}
+    fandoms = set()
     for tag_type in Tag.type.type.enums:
 
         # Enforce preset values for maturity.
@@ -50,6 +51,18 @@ def _tags_from_form(form, new_request):
             if name == "":
                 continue
             tag_dict[(tag_type, name)] = alias
+            if tag_type in (u"fandom", u"fandom_wanted"):
+                fandoms.add(name)
+
+    # Meta types
+    if not new_request.prompt:
+        tag_dict[(u"type", u"not_a_prompt")] = u"Not a prompt"
+
+    if len(fandoms) > 1:
+        tag_dict[(u"type", u"crossover")] = u"Crossover"
+
+    if u"homestuck" not in fandoms:
+        tag_dict[(u"type", u"not_homestuck")] = u"Not Homestuck"
 
     tag_list = []
     used_ids = set()
