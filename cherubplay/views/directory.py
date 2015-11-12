@@ -1,9 +1,9 @@
 import re
 
-from pyramid.httpexceptions import HTTPFound
+from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy import and_
-from sqlalchemy.orm import joinedload_all
+from sqlalchemy.orm import joinedload, joinedload_all
 from sqlalchemy.orm.exc import NoResultFound
 
 from ..lib import colour_validator, preset_colours
@@ -91,6 +91,37 @@ def directory(request):
         .options(joinedload_all(Request.tags, RequestTag.tag))
         .order_by(Request.posted.desc()).all()
     )}
+
+
+@view_config(route_name="directory_tag", request_method="GET", permission="view", renderer="layout2/directory/tag.mako")
+def directory_tag(request):
+
+    if request.matchdict["type"] not in Tag.type.type.enums:
+        raise HTTPNotFound
+
+    replaced_name = name_from_alias(request.matchdict["name"])
+    if replaced_name != request.matchdict["name"]:
+        return HTTPFound(request.current_route_path(name=replaced_name))
+
+    tag = Session.query(Tag).filter(and_(
+        Tag.type == request.matchdict["type"], Tag.name == request.matchdict["name"],
+    )).options(joinedload(Tag.synonym_of)).one()
+    if tag.synonym_of is not None:
+        return HTTPFound(request.current_route_path(type=tag.synonym_of.type, name=tag.synonym_of.name))
+
+    return {
+        "tag": tag,
+        "requests": (
+            Session.query(Request)
+            .join(Request.tags)
+            .filter(and_(
+                Request.status == "posted",
+                RequestTag.tag_id == tag.id,
+            ))
+            .options(joinedload_all(Request.tags, RequestTag.tag))
+            .order_by(Request.posted.desc()).all()
+        ),
+    }
 
 
 @view_config(route_name="directory_new", request_method="GET", permission="chat", renderer="layout2/directory/new.mako")
