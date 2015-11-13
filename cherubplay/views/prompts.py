@@ -6,13 +6,12 @@ from sqlalchemy import and_, func
 from sqlalchemy.orm.exc import NoResultFound
 from webhelpers import paginate
 
-from ..lib import alt_formats, colour_validator, preset_colours, prompt_categories, prompt_levels
+from ..lib import colour_validator, preset_colours, prompt_categories, prompt_levels
 from ..models import Session, Prompt
 
 
 @view_config(route_name="prompt_list", request_method="GET", permission="view")
-@view_config(route_name="prompt_list_fmt", request_method="GET", permission="view")
-@alt_formats({"json"})
+@view_config(route_name="prompt_list_ext", request_method="GET", permission="view", extensions={"json"})
 def prompt_list(request):
 
     current_page = int(request.GET.get("page", 1))
@@ -26,7 +25,7 @@ def prompt_list(request):
         .filter(Prompt.user_id==request.user.id).scalar()
     )
 
-    if request.matchdict.get("fmt") == "json":
+    if request.matchdict.get("ext") == "json":
         return render_to_response("json", {
             "prompts": prompts,
             "prompt_count": prompt_count,
@@ -113,11 +112,10 @@ def _get_prompt(request):
 
 
 @view_config(route_name="prompt", request_method="GET", permission="view")
-@view_config(route_name="prompt_fmt", request_method="GET", permission="view")
-@alt_formats({"json"})
+@view_config(route_name="prompt_ext", request_method="GET", permission="view", extensions={"json"})
 def prompt(request):
     prompt = _get_prompt(request)
-    if request.matchdict.get("fmt") == "json":
+    if request.matchdict.get("ext") == "json":
         return render_to_response("json", prompt, request=request)
     return render_to_response("layout2/prompt.mako", {
         "prompt": prompt,

@@ -3,6 +3,7 @@ import transaction
 
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
+from pyramid.httpexceptions import HTTPFound
 from pyramid.security import Allow, Authenticated, Everyone
 from redis import Redis, ConnectionPool, UnixDomainSocketConnection
 from redis.exceptions import ConnectionError
@@ -20,12 +21,30 @@ from .views import chat
 from .views import prompts
 
 
+class ExtensionPredicate(object):
+    def __init__(self, extensions, config):
+        self.extensions = extensions
+
+    def text(self):
+        return "extensions in %s" % self.extensions
+
+    phash = text
+
+    def __call__(self, context, request):
+        # Redirect to no extension if extension is html.
+        if request.matchdict["ext"] == "html":
+            del request.matchdict["ext"]
+            plain_route = request.matched_route.name.split("_ext")[0]
+            raise HTTPFound(request.route_path(plain_route, **request.matchdict))
+        return request.matchdict["ext"] in self.extensions
+
+
 class CherubplayConfigurator(Configurator):
-    def add_fmt_route(self, name, pattern, **kwargs):
+    def add_ext_route(self, name, pattern, **kwargs):
         self.add_route(name, pattern, **kwargs)
-        fmt_name = name + "_fmt"
-        fmt_pattern = (pattern[:-1] if pattern.endswith("/") else pattern) + ".{fmt}"
-        self.add_route(fmt_name, fmt_pattern, **kwargs)
+        ext_name = name + "_ext"
+        ext_pattern = (pattern[:-1] if pattern.endswith("/") else pattern) + ".{ext}"
+        self.add_route(ext_name, ext_pattern, **kwargs)
 
 
 class CherubplayAuthenticationPolicy(object):
@@ -139,19 +158,21 @@ def main(global_config, **settings):
 
     config.add_static_view("static", "static", cache_max_age=3600)
 
+    config.add_view_predicate("extensions", ExtensionPredicate)
+
     config.add_route("home", "/")
 
     config.add_route("sign_up", "/sign-up/")
     config.add_route("log_in", "/log-in/")
     config.add_route("log_out", "/log-out/")
 
-    config.add_fmt_route("chat_list", "/chats/")
-    config.add_fmt_route("chat_list_unanswered", "/chats/unanswered/")
-    config.add_fmt_route("chat_list_ongoing", "/chats/ongoing/")
-    config.add_fmt_route("chat_list_ended", "/chats/ended/")
-    config.add_fmt_route("chat_list_label", "/chats/labels/{label}/")
+    config.add_ext_route("chat_list", "/chats/")
+    config.add_ext_route("chat_list_unanswered", "/chats/unanswered/")
+    config.add_ext_route("chat_list_ongoing", "/chats/ongoing/")
+    config.add_ext_route("chat_list_ended", "/chats/ended/")
+    config.add_ext_route("chat_list_label", "/chats/labels/{label}/")
 
-    config.add_fmt_route("chat", "/chats/{url}/")
+    config.add_ext_route("chat", "/chats/{url}/")
     config.add_route("chat_archive", "/chats/{url}/archive/")
     config.add_route("chat_info", "/chats/{url}/info/")
 
@@ -161,16 +182,16 @@ def main(global_config, **settings):
     config.add_route("chat_end", "/chats/{url}/end/")
     config.add_route("chat_delete", "/chats/{url}/delete/")
 
-    config.add_fmt_route("prompt_list", "/prompts/")
+    config.add_ext_route("prompt_list", "/prompts/")
     config.add_route("new_prompt", "/prompts/new/")
-    config.add_fmt_route("prompt", "/prompts/{id}/")
+    config.add_ext_route("prompt", "/prompts/{id}/")
     config.add_route("edit_prompt", "/prompts/{id}/edit/")
     config.add_route("delete_prompt", "/prompts/{id}/delete/")
 
-    config.add_fmt_route("directory", "/directory/")
-    config.add_fmt_route("directory_yours", "/directory/yours/")
-    config.add_fmt_route("directory_new", "/directory/new/")
-    config.add_fmt_route("directory_tag", "/directory/{type}:{name}/")
+    config.add_ext_route("directory", "/directory/")
+    config.add_ext_route("directory_yours", "/directory/yours/")
+    config.add_ext_route("directory_new", "/directory/new/")
+    config.add_ext_route("directory_tag", "/directory/{type}:{name}/")
 
     config.add_route("account", "/account/")
     config.add_route("account_password", "/account/password/")
