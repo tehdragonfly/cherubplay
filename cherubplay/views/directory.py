@@ -124,6 +124,16 @@ def directory_tag(request):
     }
 
 
+@view_config(route_name="directory_yours", request_method="GET", permission="view", renderer="layout2/directory/index.mako")
+def directory_yours(request):
+    return {"requests": (
+        Session.query(Request)
+        .filter(Request.user_id == request.user.id)
+        .options(joinedload_all(Request.tags, RequestTag.tag))
+        .order_by(Request.posted.desc()).all()
+    )}
+
+
 @view_config(route_name="directory_new", request_method="GET", permission="chat", renderer="layout2/directory/new.mako")
 def directory_new_get(request):
     return {"preset_colours": preset_colours}

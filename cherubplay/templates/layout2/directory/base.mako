@@ -71,6 +71,11 @@
 % else:
         <li><a href="${request.route_path("directory")}">Directory</a></li>
 % endif
+% if request.matched_route.name == "directory_yours":
+        <li>Your requests</li>
+% else:
+        <li><a href="${request.route_path("directory_yours")}">Your requests</a></li>
+% endif
 % if request.matched_route.name == "directory_new":
         <li>New request</li>
 % else:
