@@ -101,32 +101,19 @@ def new_prompt_post(request):
     return HTTPFound(request.route_path("prompt_list"))
 
 
-def _get_prompt(request):
-    try:
-        return Session.query(Prompt).filter(and_(
-            Prompt.user_id == request.user.id,
-            Prompt.id == int(request.matchdict["id"]),
-        )).one()
-    except (ValueError, NoResultFound):
-        raise HTTPNotFound
-
-
 @view_config(route_name="prompt", request_method="GET", permission="view")
 @view_config(route_name="prompt_ext", request_method="GET", permission="view", extensions={"json"})
-def prompt(request):
-    prompt = _get_prompt(request)
+def prompt(context, request):
     if request.matchdict.get("ext") == "json":
-        return render_to_response("json", prompt, request=request)
+        return render_to_response("json", context, request=request)
     return render_to_response("layout2/prompt.mako", {
-        "prompt": prompt,
         "prompt_categories": prompt_categories,
         "prompt_levels": prompt_levels,
     }, request)
 
 
-def _edit_prompt_form(prompt, **kwargs):
+def _edit_prompt_form(**kwargs):
     return dict(
-        prompt=prompt,
         preset_colours=preset_colours,
         prompt_categories=prompt_categories,
         prompt_levels=prompt_levels,
@@ -135,52 +122,50 @@ def _edit_prompt_form(prompt, **kwargs):
 
 
 @view_config(route_name="edit_prompt", request_method="GET", permission="view", renderer="layout2/edit_prompt.mako")
-def edit_prompt_get(request):
-    return _edit_prompt_form(_get_prompt(request))
+def edit_prompt_get(context, request):
+    return _edit_prompt_form()
 
 
 @view_config(route_name="edit_prompt", request_method="POST", permission="view", renderer="layout2/edit_prompt.mako")
-def edit_prompt_post(request):
-    prompt = _get_prompt(request)
+def edit_prompt_post(context, request):
 
     trimmed_prompt_title = request.POST.get("prompt_title", "").strip()
     if trimmed_prompt_title == "":
-        return _edit_prompt_form(prompt, error="blank_title")
+        return _edit_prompt_form(error="blank_title")
 
     colour = request.POST.get("prompt_colour", "")
     if colour.startswith("#"):
         colour = colour[1:]
     if colour_validator.match(colour) is None:
-        return _edit_prompt_form(prompt, error="invalid_colour")
+        return _edit_prompt_form(error="invalid_colour")
 
     trimmed_prompt_text = request.POST.get("prompt_text", "").strip()
     if trimmed_prompt_text == "":
-        return _edit_prompt_form(prompt, error="blank_text")
+        return _edit_prompt_form(error="blank_text")
 
     if request.POST.get("prompt_category") not in prompt_categories:
-        return _edit_prompt_form(prompt, error="blank_category")
+        return _edit_prompt_form(error="blank_category")
 
     if request.POST.get("prompt_level") not in prompt_levels:
-        return _edit_prompt_form(prompt, error="blank_level")
+        return _edit_prompt_form(error="blank_level")
 
-    prompt.title = trimmed_prompt_title
-    prompt.colour = colour
-    prompt.text = trimmed_prompt_text
-    prompt.category = request.POST["prompt_category"]
-    prompt.level = request.POST["prompt_level"]
-    prompt.updated = datetime.now()
+    context.title = trimmed_prompt_title
+    context.colour = colour
+    context.text = trimmed_prompt_text
+    context.category = request.POST["prompt_category"]
+    context.level = request.POST["prompt_level"]
+    context.updated = datetime.now()
 
-    return HTTPFound(request.route_path("prompt", id=prompt.id))
+    return HTTPFound(request.route_path("prompt", id=context.id))
 
 
 @view_config(route_name="delete_prompt", request_method="GET", permission="view", renderer="layout2/delete_prompt.mako")
-def delete_prompt_get(request):
-    return _edit_prompt_form(_get_prompt(request))
+def delete_prompt_get(context, request):
+    return _edit_prompt_form()
 
 
 @view_config(route_name="delete_prompt", request_method="POST", permission="view")
-def delete_prompt_post(request):
-    prompt = _get_prompt(request)
-    Session.delete(prompt)
+def delete_prompt_post(context, request):
+    Session.delete(context)
     return HTTPFound(request.route_path("prompt_list"))
 

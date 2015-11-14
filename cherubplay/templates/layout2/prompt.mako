@@ -1,17 +1,17 @@
 <%inherit file="base.mako" />\
-<%block name="title">${prompt.title} - </%block>
+<%block name="title">${request.context.title} - </%block>
 <%block name="body_class">layout2</%block>
-<h2>${prompt.title}</h2>
+<h2>${request.context.title}</h2>
 
 <main class="flex">
   <div class="side_column"></div>
   <div class="side_column"></div>
   <div id="content">
     <section class="tile2">
-      <p class="subtitle">${prompt_categories[prompt.category]}, ${prompt_levels[prompt.level]}, written ${request.user.localise_time(prompt.created).strftime("%a %d %b %Y")}.</p>
-      <p style="color: #${prompt.colour};">${prompt.text}</p>
+      <p class="subtitle">${prompt_categories[request.context.category]}, ${prompt_levels[request.context.level]}, written ${request.user.localise_time(request.context.created).strftime("%a %d %b %Y")}.</p>
+      <p style="color: #${request.context.colour};">${request.context.text}</p>
       <hr>
-      <p><a href="${request.route_path("edit_prompt", id=prompt.id)}">Edit</a> · <a href="${request.route_path("delete_prompt", id=prompt.id)}">Delete</a></p>
+      <p><a href="${request.route_path("edit_prompt", id=request.context.id)}">Edit</a> · <a href="${request.route_path("delete_prompt", id=request.context.id)}">Delete</a></p>
     </section>
   </div>
 </main>

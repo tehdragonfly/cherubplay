@@ -17,6 +17,7 @@ from .models import (
     ChatUser,
     User,
 )
+from .resources import prompt_factory
 from .views import chat
 from .views import prompts
 
@@ -184,9 +185,9 @@ def main(global_config, **settings):
 
     config.add_ext_route("prompt_list", "/prompts/")
     config.add_route("new_prompt", "/prompts/new/")
-    config.add_ext_route("prompt", "/prompts/{id}/")
-    config.add_route("edit_prompt", "/prompts/{id}/edit/")
-    config.add_route("delete_prompt", "/prompts/{id}/delete/")
+    config.add_ext_route("prompt", "/prompts/{id}/", factory=prompt_factory)
+    config.add_route("edit_prompt", "/prompts/{id}/edit/", factory=prompt_factory)
+    config.add_route("delete_prompt", "/prompts/{id}/delete/", factory=prompt_factory)
 
     config.add_ext_route("directory", "/directory/")
     config.add_ext_route("directory_yours", "/directory/yours/")
