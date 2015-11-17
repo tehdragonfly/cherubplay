@@ -8,8 +8,7 @@ ${tag["alias"]}\
 % endif
 </li>\
 </%def>
-<%def name="render_request(rq)">\
-      <li class="tile2 request">
+<%def name="render_request(rq, expanded=False)">\
         <% tags_by_type = rq.tags_by_type() %>
         <ul class="tag_list">
           % for tag in tags_by_type["maturity"]:
@@ -60,13 +59,20 @@ ${tag["alias"]}\
         % endif
         % if rq.scenario:
         <hr>
+        % if expanded or len(rq.scenario) <= 250:
         <p>${rq.scenario}</p>
+        % else:
+        <p>${rq.scenario[:247]}... <a href="${request.route_path("directory_request", id=rq.id)}">(more)</a></p>
+        % endif
         % endif
         % if rq.prompt:
         <hr>
+        % if expanded or len(rq.prompt) <= 250:
         <p style="color: #${rq.colour};">${rq.prompt}</p>
+        % else:
+        <p style="color: #${rq.colour};">${rq.prompt[:247]}... <a href="${request.route_path("directory_request", id=rq.id)}">(more)</a></p>
         % endif
-      </li>
+        % endif
 </%def>
 <%block name="title">${next.heading()} - </%block>
 <%block name="body_class">layout2</%block>

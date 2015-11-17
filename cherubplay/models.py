@@ -231,6 +231,13 @@ class Prompt(Base):
 
 
 class Request(Base):
+
+    __acl__ = (
+        (Allow, Authenticated, "view"),
+        (Allow, "active", "chat"),
+        (Allow, "admin", "admin"),
+    )
+
     __tablename__ = "requests"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))

@@ -171,3 +171,8 @@ def directory_new_post(request):
 
     return HTTPFound(request.route_path("directory"))
 
+
+@view_config(route_name="directory_request", request_method="GET", permission="view", renderer="layout2/directory/request.mako")
+def directory_request(context, request):
+    return {}
+

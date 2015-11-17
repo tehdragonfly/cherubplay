@@ -17,7 +17,7 @@ from .models import (
     ChatUser,
     User,
 )
-from .resources import prompt_factory
+from .resources import prompt_factory, request_factory
 from .views import chat
 from .views import prompts
 
@@ -185,14 +185,15 @@ def main(global_config, **settings):
 
     config.add_ext_route("prompt_list", "/prompts/")
     config.add_route("new_prompt", "/prompts/new/")
-    config.add_ext_route("prompt", "/prompts/{id}/", factory=prompt_factory)
-    config.add_route("edit_prompt", "/prompts/{id}/edit/", factory=prompt_factory)
-    config.add_route("delete_prompt", "/prompts/{id}/delete/", factory=prompt_factory)
+    config.add_ext_route("prompt", "/prompts/{id:\d+}/", factory=prompt_factory)
+    config.add_route("edit_prompt", "/prompts/{id:\d+}/edit/", factory=prompt_factory)
+    config.add_route("delete_prompt", "/prompts/{id:\d+}/delete/", factory=prompt_factory)
 
     config.add_ext_route("directory", "/directory/")
     config.add_ext_route("directory_yours", "/directory/yours/")
     config.add_ext_route("directory_new", "/directory/new/")
     config.add_ext_route("directory_tag", "/directory/{type}:{name}/")
+    config.add_ext_route("directory_request", "/directory/{id:\d+}/", factory=request_factory)
 
     config.add_route("account", "/account/")
     config.add_route("account_password", "/account/password/")

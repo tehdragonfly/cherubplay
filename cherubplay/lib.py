@@ -3,8 +3,6 @@
 import re
 
 from collections import OrderedDict
-from functools import wraps
-from pyramid.httpexceptions import HTTPFound, HTTPPreconditionFailed
 
 
 colour_validator = re.compile("^[A-Fa-f0-9]{6}$")

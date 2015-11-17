@@ -2,6 +2,8 @@
 <%block name="heading">Your requests</%block>
     <ul id="chat_list">
       % for rq in requests:
-      ${parent.render_request(rq)}
+      <li class="tile2 request">
+        ${parent.render_request(rq)}
+      </li>
       % endfor
     </ul>
