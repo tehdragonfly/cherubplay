@@ -2,12 +2,26 @@ import re
 
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.view import view_config
-from sqlalchemy import and_
+from sqlalchemy import and_, func
 from sqlalchemy.orm import joinedload, joinedload_all
 from sqlalchemy.orm.exc import NoResultFound
+from webhelpers import paginate
 
 from ..lib import colour_validator, preset_colours
 from ..models import Session, Request, RequestTag, Tag
+
+
+def _paginator(request, item_count, current_page, items_per_page=25):
+    return paginate.Page(
+        [],
+        page=current_page,
+        items_per_page=items_per_page,
+        item_count=item_count,
+        url=paginate.PageURL(
+            request.current_route_path(_query={}),
+            { "page": current_page },
+        ),
+    )
 
 
 special_char_regex = re.compile("[\\ \\./]+")
@@ -85,12 +99,34 @@ def _tags_from_form(form, new_request):
 
 @view_config(route_name="directory", request_method="GET", permission="view", renderer="layout2/directory/index.mako")
 def directory(request):
-    return {"requests": (
+
+    try:
+        current_page = int(request.GET.get("page", 1))
+    except ValueError:
+        raise HTTPNotFound
+
+    requests = (
         Session.query(Request)
         .filter(Request.status == "posted")
         .options(joinedload_all(Request.tags, RequestTag.tag))
-        .order_by(Request.posted.desc()).all()
-    )}
+        .order_by(Request.posted.desc())
+        .limit(25).offset((current_page-1)*25).all()
+    )
+
+    # 404 on empty pages, unless it's the first page.
+    if not requests and current_page != 1:
+        raise HTTPNotFound
+
+    request_count = (
+        Session.query(func.count('*')).select_from(Request)
+        .filter(Request.status == "posted").scalar()
+    )
+
+    return {
+        "requests": requests,
+        "request_count": request_count,
+        "paginator": _paginator(request, request_count, current_page),
+    }
 
 
 @view_config(route_name="directory_tag", request_method="GET", permission="view", renderer="layout2/directory/tag.mako")
