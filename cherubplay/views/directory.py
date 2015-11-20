@@ -162,12 +162,34 @@ def directory_tag(request):
 
 @view_config(route_name="directory_yours", request_method="GET", permission="view", renderer="layout2/directory/index.mako")
 def directory_yours(request):
-    return {"requests": (
+
+    try:
+        current_page = int(request.GET.get("page", 1))
+    except ValueError:
+        raise HTTPNotFound
+
+    requests = (
         Session.query(Request)
         .filter(Request.user_id == request.user.id)
         .options(joinedload_all(Request.tags, RequestTag.tag))
-        .order_by(Request.posted.desc()).all()
-    )}
+        .order_by(Request.posted.desc())
+        .limit(25).offset((current_page-1)*25).all()
+    )
+
+    # 404 on empty pages, unless it's the first page.
+    if not requests and current_page != 1:
+        raise HTTPNotFound
+
+    request_count = (
+        Session.query(func.count('*')).select_from(Request)
+        .filter(Request.user_id == request.user.id).scalar()
+    )
+
+    return {
+        "requests": requests,
+        "request_count": request_count,
+        "paginator": _paginator(request, request_count, current_page),
+    }
 
 
 @view_config(route_name="directory_new", request_method="GET", permission="chat", renderer="layout2/directory/new.mako")
