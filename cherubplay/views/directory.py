@@ -132,6 +132,11 @@ def directory(request):
 @view_config(route_name="directory_tag", request_method="GET", permission="view", renderer="layout2/directory/tag.mako")
 def directory_tag(request):
 
+    try:
+        current_page = int(request.GET.get("page", 1))
+    except ValueError:
+        raise HTTPNotFound
+
     if request.matchdict["type"] not in Tag.type.type.enums:
         raise HTTPNotFound
 
@@ -145,18 +150,33 @@ def directory_tag(request):
     if tag.synonym_of is not None:
         return HTTPFound(request.current_route_path(type=tag.synonym_of.type, name=tag.synonym_of.name))
 
+
+    requests = (
+        Session.query(Request)
+        .join(Request.tags)
+        .filter(and_(
+            Request.status == "posted",
+            RequestTag.tag_id == tag.id,
+        ))
+        .options(joinedload_all(Request.tags, RequestTag.tag))
+        .order_by(Request.posted.desc())
+        .limit(25).offset((current_page-1)*25).all()
+    )
+
+    request_count = (
+        Session.query(func.count('*')).select_from(Request)
+        .join(Request.tags)
+        .filter(and_(
+            Request.status == "posted",
+            RequestTag.tag_id == tag.id,
+        )).scalar()
+    )
+
     return {
         "tag": tag,
-        "requests": (
-            Session.query(Request)
-            .join(Request.tags)
-            .filter(and_(
-                Request.status == "posted",
-                RequestTag.tag_id == tag.id,
-            ))
-            .options(joinedload_all(Request.tags, RequestTag.tag))
-            .order_by(Request.posted.desc()).all()
-        ),
+        "requests": requests,
+        "request_count": request_count,
+        "paginator": _paginator(request, request_count, current_page),
     }
 
 
