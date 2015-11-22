@@ -76,6 +76,7 @@ class Chat(Base):
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
     updated = Column(DateTime, nullable=False, default=datetime.datetime.now)
     last_user_id = Column(Integer, ForeignKey("users.id"))
+    request_id = Column(Integer, ForeignKey("requests.id"))
 
     def __repr__(self):
         return "<Chat #%s: %s>" % (self.id, self.url)

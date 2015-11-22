@@ -73,6 +73,12 @@ ${tag["alias"]}\
         <p style="color: #${rq.colour};">${rq.prompt[:247]}... <a href="${request.route_path("directory_request", id=rq.id)}">(more)</a></p>
         % endif
         % endif
+        % if rq.user_id != request.user.id:
+        <hr>
+        <form action="${request.route_path("directory_request_answer", id=rq.id)}" method="post">
+          <button type="submit">Answer</button>
+        </form>
+        % endif
 </%def>
 <%block name="title">${next.heading()} - </%block>
 <%block name="body_class">layout2</%block>

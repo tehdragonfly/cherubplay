@@ -5,10 +5,11 @@ from pyramid.view import view_config
 from sqlalchemy import and_, func
 from sqlalchemy.orm import joinedload, joinedload_all
 from sqlalchemy.orm.exc import NoResultFound
+from uuid import uuid4
 from webhelpers import paginate
 
 from ..lib import colour_validator, preset_colours
-from ..models import Session, Request, RequestTag, Tag
+from ..models import Session, Chat, ChatUser, Message, Request, RequestTag, Tag
 
 
 def _paginator(request, item_count, current_page, items_per_page=25):
@@ -253,4 +254,24 @@ def directory_new_post(request):
 @view_config(route_name="directory_request", request_method="GET", permission="view", renderer="layout2/directory/request.mako")
 def directory_request(context, request):
     return {}
+
+
+@view_config(route_name="directory_request_answer", request_method="POST", permission="chat")
+def directory_request_answer(context, request):
+
+    # Can't answer your own request.
+    if request.user.id == context.user_id:
+        raise HTTPNotFound
+
+    new_chat = Chat(url=str(uuid4()), request_id=context.id)
+    Session.add(new_chat)
+    Session.flush()
+
+    Session.add(ChatUser(chat_id=new_chat.id, user_id=context.user_id, symbol=0, last_colour=context.colour))
+    Session.add(ChatUser(chat_id=new_chat.id, user_id=request.user.id, symbol=1))
+
+    Session.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=0, text=context.scenario))
+    Session.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=0, colour=context.colour, text=context.prompt))
+
+    return HTTPFound(request.route_path("chat", url=new_chat.url))
 
