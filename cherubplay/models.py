@@ -252,11 +252,7 @@ class Request(Base):
     def tags_by_type(self):
         tags = { _: [] for _ in Tag.type.type.enums }
         for request_tag in self.tags:
-            tags[request_tag.tag.type].append({
-                "type": request_tag.tag.type,
-                "name": request_tag.tag.name,
-                "alias": request_tag.alias,
-            })
+            tags[request_tag.tag.type].append(request_tag)
         return tags
 
     def __json__(self, request=None):
@@ -265,7 +261,7 @@ class Request(Base):
             "status": self.status,
             "posted": self.posted.isoformat(),
             "edited": self.edited.isoformat(),
-            "color": self.color,
+            "colour": self.colour,
             "scenario": self.scenario,
             "prompt": self.prompt,
             "tags": self.tags_by_type(),
@@ -280,6 +276,11 @@ class RequestTag(Base):
     request_id = Column(Integer, ForeignKey("requests.id"), primary_key=True)
     tag_id = Column(Integer, ForeignKey("tags.id"), primary_key=True)
     alias = Column(Unicode(50))
+
+    def __json__(self, request=None):
+        tag_dict = self.tag.__json__(request)
+        tag_dict["alias"] = self.alias
+        return tag_dict
 
 
 class Tag(Base):
@@ -307,6 +308,13 @@ class Tag(Base):
         (u"shippy", u"Shippy"),
         (u"violent", u"Violent"),
     ])
+
+    def __json__(self, request=None):
+        return {
+            "type": self.type,
+            "name": self.name,
+            "alias": self.name,
+        }
 
 
 Chat.last_user = relationship(User)

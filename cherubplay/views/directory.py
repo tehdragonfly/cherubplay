@@ -98,6 +98,7 @@ def _tags_from_form(form, new_request):
     return tag_list
 
 
+@view_config(route_name="directory_ext", request_method="GET", permission="view", extensions=("json",), renderer="json")
 @view_config(route_name="directory", request_method="GET", permission="view", renderer="layout2/directory/index.mako")
 def directory(request):
 
@@ -123,6 +124,9 @@ def directory(request):
         .filter(Request.status == "posted").scalar()
     )
 
+    if "ext" in request.matchdict:
+        return {"requests": requests, "request_count": request_count}
+
     return {
         "requests": requests,
         "request_count": request_count,
@@ -131,6 +135,7 @@ def directory(request):
 
 
 @view_config(route_name="directory_tag", request_method="GET", permission="view", renderer="layout2/directory/tag.mako")
+@view_config(route_name="directory_tag_ext", request_method="GET", permission="view", extensions=("json",), renderer="json")
 def directory_tag(request):
 
     try:
@@ -173,6 +178,9 @@ def directory_tag(request):
         )).scalar()
     )
 
+    if "ext" in request.matchdict:
+        return {"tag": tag, "requests": requests, "request_count": request_count}
+
     return {
         "tag": tag,
         "requests": requests,
@@ -182,6 +190,7 @@ def directory_tag(request):
 
 
 @view_config(route_name="directory_yours", request_method="GET", permission="view", renderer="layout2/directory/index.mako")
+@view_config(route_name="directory_yours_ext", request_method="GET", permission="view", extensions=("json",), renderer="json")
 def directory_yours(request):
 
     try:
@@ -205,6 +214,9 @@ def directory_yours(request):
         Session.query(func.count('*')).select_from(Request)
         .filter(Request.user_id == request.user.id).scalar()
     )
+
+    if "ext" in request.matchdict:
+        return {"requests": requests, "request_count": request_count}
 
     return {
         "requests": requests,
