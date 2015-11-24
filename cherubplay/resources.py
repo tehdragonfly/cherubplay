@@ -17,6 +17,7 @@ def prompt_factory(request):
 
 def request_factory(request):
     try:
+        # XXX joinedload
         return Session.query(Request).filter(and_(
             Request.id == int(request.matchdict["id"]),
             or_(

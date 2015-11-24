@@ -1,10 +1,10 @@
 <%inherit file="/layout2/base.mako" />\
 <%def name="tag_li(tag)">\
-<li${" class=\"trigger\"" if tag["type"] == "trigger" else ""|n}>\
-% if tag["type"] == request.matchdict.get("type") and tag["name"] == request.matchdict.get("name"):
-${tag["alias"]}\
+<li${" class=\"trigger\"" if tag.tag.type == "trigger" else ""|n}>\
+% if tag.tag.type == request.matchdict.get("type") and tag.tag.name == request.matchdict.get("name"):
+${tag.alias}\
 % else:
-<a href="${request.route_path("directory_tag", type=tag["type"], name=tag["name"])}">${tag["alias"]}</a>\
+<a href="${request.route_path("directory_tag", type=tag.tag.type, name=tag.tag.name)}">${tag.alias}</a>\
 % endif
 </li>\
 </%def>
@@ -73,8 +73,10 @@ ${tag["alias"]}\
         <p style="color: #${rq.colour};">${rq.prompt[:247]}... <a href="${request.route_path("directory_request", id=rq.id)}">(more)</a></p>
         % endif
         % endif
-        % if rq.user_id != request.user.id:
         <hr>
+        % if rq.user_id == request.user.id:
+        <p><a href="${request.route_path("directory_request_delete", id=rq.id)}">Delete</a></p>
+        % else:
         <form action="${request.route_path("directory_request_answer", id=rq.id)}" method="post">
           <button type="submit">Answer</button>
         </form>

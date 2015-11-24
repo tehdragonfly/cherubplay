@@ -287,3 +287,15 @@ def directory_request_answer(context, request):
 
     return HTTPFound(request.route_path("chat", url=new_chat.url))
 
+
+@view_config(route_name="directory_request_delete", request_method="GET", permission="chat", renderer="layout2/directory/request_delete.mako")
+def directory_request_delete_get(context, request):
+    return {}
+
+
+@view_config(route_name="directory_request_delete", request_method="POST", permission="chat")
+def directory_request_delete_post(context, request):
+    Session.query(RequestTag).filter(RequestTag.request_id == context.id).delete()
+    Session.query(Request).filter(Request.id == context.id).delete()
+    return HTTPFound(request.route_path("directory_yours"))
+
