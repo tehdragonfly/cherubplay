@@ -1,8 +1,18 @@
 # -*- coding: utf-8 -*-
 
-import re
+import paginate, re
 
 from collections import OrderedDict
+
+
+def make_paginator(request, item_count, current_page, items_per_page=25):
+    return paginate.Page(
+        [],
+        page=current_page,
+        items_per_page=items_per_page,
+        item_count=item_count,
+        url_maker=lambda page: request.current_route_path(_query={"page": page}),
+    )
 
 
 colour_validator = re.compile("^[A-Fa-f0-9]{6}$")

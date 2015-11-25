@@ -1,8 +1,12 @@
 <%inherit file="base.mako" />\
 <%block name="heading">Your requests</%block>
+<%
+    from cherubplay.lib import make_paginator
+    paginator = make_paginator(request, request_count, current_page)
+%>
     % if paginator.page_count!=1:
     <p class="pager tile">
-    ${paginator.pager(format='~5~')}
+    ${paginator.pager(format='~5~')|n}
     </p>
     % endif
     <ul id="chat_list">
@@ -14,6 +18,6 @@
     </ul>
     % if paginator.page_count!=1:
     <p class="pager tile">
-    ${paginator.pager(format='~5~')}
+    ${paginator.pager(format='~5~')|n}
     </p>
     % endif

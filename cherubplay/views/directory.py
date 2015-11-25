@@ -6,23 +6,9 @@ from sqlalchemy import and_, func
 from sqlalchemy.orm import joinedload, joinedload_all
 from sqlalchemy.orm.exc import NoResultFound
 from uuid import uuid4
-from webhelpers import paginate
 
 from ..lib import colour_validator, preset_colours
 from ..models import Session, Chat, ChatUser, Message, Request, RequestTag, Tag
-
-
-def _paginator(request, item_count, current_page, items_per_page=25):
-    return paginate.Page(
-        [],
-        page=current_page,
-        items_per_page=items_per_page,
-        item_count=item_count,
-        url=paginate.PageURL(
-            request.current_route_path(_query={}),
-            { "page": current_page },
-        ),
-    )
 
 
 special_char_regex = re.compile("[\\ \\./]+")
@@ -124,14 +110,7 @@ def directory(request):
         .filter(Request.status == "posted").scalar()
     )
 
-    if "ext" in request.matchdict:
-        return {"requests": requests, "request_count": request_count}
-
-    return {
-        "requests": requests,
-        "request_count": request_count,
-        "paginator": _paginator(request, request_count, current_page),
-    }
+    return {"requests": requests, "request_count": request_count, "current_page": current_page}
 
 
 @view_config(route_name="directory_tag", request_method="GET", permission="view", renderer="layout2/directory/tag.mako")
@@ -178,15 +157,7 @@ def directory_tag(request):
         )).scalar()
     )
 
-    if "ext" in request.matchdict:
-        return {"tag": tag, "requests": requests, "request_count": request_count}
-
-    return {
-        "tag": tag,
-        "requests": requests,
-        "request_count": request_count,
-        "paginator": _paginator(request, request_count, current_page),
-    }
+    return {"tag": tag, "requests": requests, "request_count": request_count, "current_page": current_page}
 
 
 @view_config(route_name="directory_yours", request_method="GET", permission="view", renderer="layout2/directory/index.mako")
@@ -215,14 +186,7 @@ def directory_yours(request):
         .filter(Request.user_id == request.user.id).scalar()
     )
 
-    if "ext" in request.matchdict:
-        return {"requests": requests, "request_count": request_count}
-
-    return {
-        "requests": requests,
-        "request_count": request_count,
-        "paginator": _paginator(request, request_count, current_page),
-    }
+    return {"requests": requests, "request_count": request_count, "current_page": current_page}
 
 
 @view_config(route_name="directory_new", request_method="GET", permission="chat", renderer="layout2/directory/new.mako")
