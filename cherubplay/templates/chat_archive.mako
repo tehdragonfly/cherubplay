@@ -5,6 +5,10 @@
 ${"Archive - " if continuable else ""}${own_chat_user.title or chat.url} - \
 % endif
 </%block>
+<%
+    from cherubplay.lib import make_paginator
+    paginator = make_paginator(request, message_count, current_page)
+%>
 % if own_chat_user:
 ${chat_base.render_subnav("archive", chat, own_chat_user)}
 % endif
@@ -13,7 +17,7 @@ ${chat_base.user_list(symbol_users)}
 % endif
 % if paginator.page_count > 1:
   <p class="pager tile">
-${paginator.pager(format='~5~')}
+${paginator.pager(format='~5~')|n}
   </p>
 % endif
 % if messages:
@@ -30,6 +34,6 @@ ${chat_base.render_message(message)}\
 % endif
 % if paginator.page_count > 1:
   <p class="pager tile">
-${paginator.pager(format='~5~')}
+${paginator.pager(format='~5~')|n}
   </p>
 % endif

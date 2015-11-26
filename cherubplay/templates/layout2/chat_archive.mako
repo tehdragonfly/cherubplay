@@ -4,9 +4,13 @@
 ${"Archive - " if continuable else ""}${own_chat_user.title or chat.url} - \
 % endif
 </%block>
+<%
+    from cherubplay.lib import make_paginator
+    paginator = make_paginator(request, message_count, current_page)
+%>
 % if paginator.page_count > 1:
     <div class="pager tile2">
-${paginator.pager(format='~5~')}
+${paginator.pager(format='~5~')|n}
     </div>
 % endif
 % if messages:
@@ -23,6 +27,6 @@ ${parent.render_message(message)}\
 % endif
 % if paginator.page_count > 1:
     <div class="pager tile2">
-${paginator.pager(format='~5~')}
+${paginator.pager(format='~5~')|n}
     </div>
 % endif

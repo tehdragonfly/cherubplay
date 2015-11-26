@@ -17,7 +17,6 @@ from sqlalchemy.dialects.postgres import array, ARRAY
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
-from webhelpers import paginate
 
 from ..lib import colour_validator, preset_colours
 from ..models import (
@@ -110,17 +109,6 @@ def chat_list(request):
             "chat_count": chat_count,
         }, request=request)
 
-    paginator = paginate.Page(
-        [],
-        page=current_page,
-        items_per_page=25,
-        item_count=chat_count,
-        url=paginate.PageURL(
-            request.route_path(request.matched_route.name, label=current_label),
-            { "page": current_page }
-        ),
-    )
-
     labels = (
         Session.query(func.unnest(ChatUser.labels), func.count("*"))
         .filter(ChatUser.user_id == request.user.id)
@@ -131,7 +119,8 @@ def chat_list(request):
     template = "layout2/chat_list.mako" if request.user.layout_version == 2 else "chat_list.mako"
     return render_to_response(template, {
         "chats": chats,
-        "paginator": paginator,
+        "chat_count": chat_count,
+        "current_page": current_page,
         "labels": labels,
         "current_status": current_status,
         "current_label": current_label,
@@ -231,9 +220,9 @@ def chat(request):
             "chat": chat,
             "own_chat_user": own_chat_user,
             "from_homepage": from_homepage,
-            "message_count": message_count,
             "prompt": prompt,
             "messages": messages,
+            "message_count": message_count,
             "symbol_users": symbol_users,
         }, request=request)
 
@@ -278,17 +267,6 @@ def chat(request):
             "messages": messages,
         }, request=request)
 
-    paginator = paginate.Page(
-        [],
-        page=current_page,
-        items_per_page=25,
-        item_count=message_count,
-        url=paginate.PageURL(
-            request.route_path("chat", url=request.matchdict["url"]),
-            { "page": current_page }
-        ),
-    )
-
     # List users if we're an admin.
     # Get this from both message users and chat users, because the latter is
     # removed if they delete the chat.
@@ -314,7 +292,8 @@ def chat(request):
         "chat": chat,
         "own_chat_user": own_chat_user,
         "messages": messages,
-        "paginator": paginator,
+        "message_count": message_count,
+        "current_page": current_page,
         "symbol_users": symbol_users,
     }, request=request)
 

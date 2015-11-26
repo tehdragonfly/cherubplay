@@ -9,6 +9,10 @@ Your chats\
 % endif
 </%def>
 <%block name="title">${render_title()} - </%block>
+<%
+    from cherubplay.lib import make_paginator
+    paginator = make_paginator(request, chat_count, current_page)
+%>
   <h2>${render_title()}</h2>
   <nav id="subnav">
     <section class="tile">
@@ -40,11 +44,11 @@ Your chats\
     <section class="tile">
       <h3>Labels</h3>
       <ul>
-% for label, chat_count in labels:
+% for label, label_chat_count in labels:
 % if current_label == label:
-        <li>${label.replace("_", " ")} (${chat_count})</li>
+        <li>${label.replace("_", " ")} (${label_chat_count})</li>
 % else:
-        <li><a href="${request.route_path("chat_list_label", label=label)}">${label.replace("_", " ")}</a> (${chat_count})</li>
+        <li><a href="${request.route_path("chat_list_label", label=label)}">${label.replace("_", " ")}</a> (${label_chat_count})</li>
 % endif
 % endfor
       </ul>
@@ -61,7 +65,7 @@ Your chats\
   <section>
 % if paginator.page_count!=1:
     <p class="pager tile">
-${paginator.pager(format='~5~')}
+${paginator.pager(format='~5~')|n}
     </p>
 % endif
     <ul id="chat_list">
@@ -111,7 +115,7 @@ ${label.replace("_", " ")}${", " if not loop.last else ""}\
     </ul>
 % if paginator.page_count!=1:
     <p class="pager tile">
-${paginator.pager(format='~5~')}
+${paginator.pager(format='~5~')|n}
     </p>
 % endif
   </section>
