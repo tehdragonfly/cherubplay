@@ -29,15 +29,15 @@ from ..models import (
 
 
 @view_config(route_name="chat_list", request_method="GET", permission="view")
-@view_config(route_name="chat_list_ext", request_method="GET", permission="view", extensions={"json"})
+@view_config(route_name="chat_list_ext", request_method="GET", permission="view", extensions={"json"}, renderer="json")
 @view_config(route_name="chat_list_unanswered", request_method="GET", permission="view")
-@view_config(route_name="chat_list_unanswered_ext", request_method="GET", permission="view", extensions={"json"})
+@view_config(route_name="chat_list_unanswered_ext", request_method="GET", permission="view", extensions={"json"}, renderer="json")
 @view_config(route_name="chat_list_ongoing", request_method="GET", permission="view")
-@view_config(route_name="chat_list_ongoing_ext", request_method="GET", permission="view", extensions={"json"})
+@view_config(route_name="chat_list_ongoing_ext", request_method="GET", permission="view", extensions={"json"}, renderer="json")
 @view_config(route_name="chat_list_ended", request_method="GET", permission="view")
-@view_config(route_name="chat_list_ended_ext", request_method="GET", permission="view", extensions={"json"})
+@view_config(route_name="chat_list_ended_ext", request_method="GET", permission="view", extensions={"json"}, renderer="json")
 @view_config(route_name="chat_list_label", request_method="GET", permission="view")
-@view_config(route_name="chat_list_label_ext", request_method="GET", permission="view", extensions={"json"})
+@view_config(route_name="chat_list_label_ext", request_method="GET", permission="view", extensions={"json"}, renderer="json")
 def chat_list(request):
 
     current_page = int(request.GET.get("page", 1))
@@ -99,15 +99,15 @@ def chat_list(request):
 
     chat_count = chat_count.scalar()
 
-    if request.matchdict.get("ext") == "json":
-        return render_to_response("json", {
+    if request.matched_route.name.endswith("_ext"):
+        return {
             "chats": [{
                 "chat_user": chat_user,
                 "chat": chat,
                 "prompt": prompt,
             } for chat_user, chat, prompt in chats],
             "chat_count": chat_count,
-        }, request=request)
+        }
 
     labels = (
         Session.query(func.unnest(ChatUser.labels), func.count("*"))
@@ -128,7 +128,7 @@ def chat_list(request):
 
 
 @view_config(route_name="chat", request_method="GET")
-@view_config(route_name="chat_ext", request_method="GET", extensions={"json"})
+@view_config(route_name="chat_ext", request_method="GET", extensions={"json"}, renderer="json")
 def chat(request):
 
     try:
@@ -188,14 +188,14 @@ def chat(request):
             messages = messages.all()
             messages.reverse()
 
-        if request.matchdict.get("ext") == "json":
-            return render_to_response("json",{
+        if request.matched_route.name == "chat_ext":
+            return {
                 "chat": chat,
                 "chat_user": own_chat_user,
                 "message_count": message_count,
                 "prompt": prompt,
                 "messages": messages,
-            }, request=request)
+            }
 
         # List users if we're an admin.
         # Get this from both message users and chat users, because the latter is
@@ -259,13 +259,13 @@ def chat(request):
     messages = messages.order_by(Message.id.asc()).limit(25).offset((current_page-1)*25).all()
     message_count = message_count.scalar()
 
-    if request.matchdict.get("ext") == "json":
-        return render_to_response("json",{
+    if request.matched_route.name == "chat_ext":
+        return {
             "chat": chat,
             "chat_user": own_chat_user,
             "message_count": message_count,
             "messages": messages,
-        }, request=request)
+        }
 
     # List users if we're an admin.
     # Get this from both message users and chat users, because the latter is

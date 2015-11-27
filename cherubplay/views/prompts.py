@@ -1,6 +1,5 @@
 from datetime import datetime
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
-from pyramid.renderers import render_to_response
 from pyramid.view import view_config
 from sqlalchemy import and_, func
 from sqlalchemy.orm.exc import NoResultFound
@@ -10,8 +9,8 @@ from ..lib import colour_validator, preset_colours, prompt_categories, prompt_le
 from ..models import Session, Prompt
 
 
-@view_config(route_name="prompt_list", request_method="GET", permission="view")
-@view_config(route_name="prompt_list_ext", request_method="GET", permission="view", extensions={"json"})
+@view_config(route_name="prompt_list", request_method="GET", permission="view", renderer="layout2/prompt_list.mako")
+@view_config(route_name="prompt_list_ext", request_method="GET", permission="view", extensions={"json"}, renderer="json")
 def prompt_list(request):
 
     current_page = int(request.GET.get("page", 1))
@@ -25,11 +24,8 @@ def prompt_list(request):
         .filter(Prompt.user_id==request.user.id).scalar()
     )
 
-    if request.matchdict.get("ext") == "json":
-        return render_to_response("json", {
-            "prompts": prompts,
-            "prompt_count": prompt_count,
-        }, request)
+    if request.matched_route.name == "prompt_list_ext":
+        return {"prompts": prompts, "prompt_count": prompt_count}
 
     paginator = paginate.Page(
         [],
@@ -42,12 +38,12 @@ def prompt_list(request):
         ),
     )
 
-    return render_to_response("layout2/prompt_list.mako", {
+    return {
         "prompts": prompts,
         "prompt_categories": prompt_categories,
         "prompt_levels": prompt_levels,
         "paginator": paginator,
-    }, request)
+    }
 
 
 def _new_prompt_form(**kwargs):
@@ -101,15 +97,14 @@ def new_prompt_post(request):
     return HTTPFound(request.route_path("prompt_list"))
 
 
-@view_config(route_name="prompt", request_method="GET", permission="view")
-@view_config(route_name="prompt_ext", request_method="GET", permission="view", extensions={"json"})
+@view_config(route_name="prompt", request_method="GET", permission="view", renderer="layout2/prompt.mako")
 def prompt(context, request):
-    if request.matchdict.get("ext") == "json":
-        return render_to_response("json", context, request=request)
-    return render_to_response("layout2/prompt.mako", {
-        "prompt_categories": prompt_categories,
-        "prompt_levels": prompt_levels,
-    }, request)
+    return {"prompt_categories": prompt_categories, "prompt_levels": prompt_levels}
+
+
+@view_config(route_name="prompt_ext", request_method="GET", permission="view", extensions={"json"}, renderer="json")
+def prompt_ext(context, request):
+    return context
 
 
 def _edit_prompt_form(**kwargs):

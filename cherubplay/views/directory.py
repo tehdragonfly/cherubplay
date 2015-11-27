@@ -135,7 +135,6 @@ def directory_tag(request):
     if tag.synonym_of is not None:
         return HTTPFound(request.current_route_path(type=tag.synonym_of.type, name=tag.synonym_of.name))
 
-
     requests = (
         Session.query(Request)
         .join(Request.tags)
