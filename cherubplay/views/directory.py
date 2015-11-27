@@ -228,7 +228,10 @@ def directory_new_post(request):
 
 
 @view_config(route_name="directory_request", request_method="GET", permission="view", renderer="layout2/directory/request.mako")
+@view_config(route_name="directory_request_ext", request_method="GET", permission="view", renderer="json")
 def directory_request(context, request):
+    if request.matched_route.name == "directory_request_ext":
+        return context
     return {}
 
 
