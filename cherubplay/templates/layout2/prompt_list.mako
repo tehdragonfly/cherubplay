@@ -1,6 +1,10 @@
 <%inherit file="base.mako" />\
 <%block name="title">Your prompts - </%block>
 <%block name="body_class">layout2</%block>
+<%
+    from cherubplay.lib import make_paginator
+    paginator = make_paginator(request, prompt_count, current_page, 1)
+%>
 <h2>Your prompts</h2>
 <main class="flex">
   <div class="side_column"></div>
@@ -12,7 +16,7 @@
 % else:
     % if paginator.page_count!=1:
     <p class="pager tile2">
-      ${paginator.pager(format='~5~')}
+      ${paginator.pager(format='~5~')|n}
     </p>
     % endif
     <ul id="chat_list">
@@ -32,7 +36,7 @@ ${prompt.text}\
     </ul>
     % if paginator.page_count!=1:
     <p class="pager tile2">
-      ${paginator.pager(format='~5~')}
+      ${paginator.pager(format='~5~')|n}
     </p>
     % endif
   % endif

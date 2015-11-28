@@ -3,7 +3,6 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy import and_, func
 from sqlalchemy.orm.exc import NoResultFound
-from webhelpers import paginate
 
 from ..lib import colour_validator, preset_colours, prompt_categories, prompt_levels
 from ..models import Session, Prompt
@@ -27,22 +26,11 @@ def prompt_list(request):
     if request.matched_route.name == "prompt_list_ext":
         return {"prompts": prompts, "prompt_count": prompt_count}
 
-    paginator = paginate.Page(
-        [],
-        page=current_page,
-        items_per_page=25,
-        item_count=prompt_count,
-        url=paginate.PageURL(
-            request.route_path(request.matched_route.name),
-            { "page": current_page },
-        ),
-    )
-
     return {
         "prompts": prompts,
+        "prompt_count": prompt_count,
         "prompt_categories": prompt_categories,
         "prompt_levels": prompt_levels,
-        "paginator": paginator,
     }
 
 
