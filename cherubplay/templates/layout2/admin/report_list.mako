@@ -2,6 +2,10 @@
 <%namespace name="report_base" file="report.mako" />\
 <%block name="title">Prompt reports - </%block>
 <%block name="body_class">layout2</%block>
+<%
+    from cherubplay.lib import make_paginator
+    paginator = make_paginator(request, report_count, current_page)
+%>
 <h2>Prompt reports</h2>
 <main class="flex">
   <div class="side_column">
@@ -33,7 +37,7 @@
 % else:
 % if paginator.page_count!=1:
     <p class="pager tile2">
-${paginator.pager(format='~5~')}
+${paginator.pager(format='~5~')|n}
     </p>
 % endif
     <ul id="chat_list">
@@ -45,7 +49,7 @@ ${report_base.render_report(report, False)}
     </ul>
 % if paginator.page_count!=1:
     <p class="pager tile2">
-${paginator.pager(format='~5~')}
+${paginator.pager(format='~5~')|n}
     </p>
 % endif
 % endif

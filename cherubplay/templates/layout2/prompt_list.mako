@@ -3,7 +3,7 @@
 <%block name="body_class">layout2</%block>
 <%
     from cherubplay.lib import make_paginator
-    paginator = make_paginator(request, prompt_count, current_page, 1)
+    paginator = make_paginator(request, prompt_count, current_page)
 %>
 <h2>Your prompts</h2>
 <main class="flex">

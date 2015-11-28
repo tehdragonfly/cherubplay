@@ -7,7 +7,6 @@ from pyramid.view import view_config
 from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
-from webhelpers import paginate
 
 from ..lib import prompt_categories, prompt_levels
 from ..models import (
@@ -42,20 +41,11 @@ def report_list(request):
     if current_page!=1 and len(reports)==0:
         raise HTTPNotFound
     report_count = Session.query(func.count('*')).select_from(PromptReport).filter(PromptReport.status == current_status).scalar()
-    paginator = paginate.Page(
-        [],
-        page=current_page,
-        items_per_page=25,
-        item_count=report_count,
-        url=paginate.PageURL(
-            request.route_path("admin_report_list"),
-            { "page": current_page }
-        ),
-    )
     return {
         "PromptReport": PromptReport,
         "reports": reports,
-        "paginator": paginator,
+        "report_count": report_count,
+        "current_page": current_page,
         "prompt_categories": prompt_categories,
         "prompt_levels": prompt_levels,
     }

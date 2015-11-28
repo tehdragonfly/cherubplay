@@ -29,6 +29,7 @@ def prompt_list(request):
     return {
         "prompts": prompts,
         "prompt_count": prompt_count,
+        "current_page": current_page,
         "prompt_categories": prompt_categories,
         "prompt_levels": prompt_levels,
     }
