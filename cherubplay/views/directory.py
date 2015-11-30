@@ -229,9 +229,19 @@ def directory_new_post(request):
 @view_config(route_name="directory_request", request_method="GET", permission="view", renderer="layout2/directory/request.mako")
 @view_config(route_name="directory_request_ext", request_method="GET", permission="view", renderer="json")
 def directory_request(context, request):
+
+    if context.user_id == request.user.id:
+        chats = Session.query(ChatUser, Chat).join(Chat).filter(
+            ChatUser.user_id==request.user.id,
+            Chat.request_id==context.id,
+        ).order_by(Chat.updated.desc()).all()
+    else:
+        chats = []
+
     if request.matched_route.name == "directory_request_ext":
-        return context
-    return {}
+        return {"request": context, "chats": [{"chat_user": _[0], "chat": _[1]} for _ in chats]}
+
+    return {"chats": chats}
 
 
 @view_config(route_name="directory_request_answer", request_method="POST", permission="chat")

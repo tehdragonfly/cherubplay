@@ -318,6 +318,7 @@ class Tag(Base):
 
 
 Chat.last_user = relationship(User)
+Chat.request = relationship(Request)
 
 Message.chat = relationship(Chat, backref="messages")
 Message.user = relationship(User, backref="messages")

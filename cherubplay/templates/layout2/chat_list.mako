@@ -7,74 +7,8 @@ Chats labelled "${current_label.replace("_", " ")}"\
 % else:
 Your chats\
 % endif
-</%def>
-<%block name="title">${render_title()} - </%block>
-<%block name="body_class">layout2</%block>
-<%
-    from cherubplay.lib import make_paginator
-    paginator = make_paginator(request, chat_count, current_page)
-%>
-<h2>${render_title()}</h2>
-
-<main class="flex">
-  <div class="side_column">
-    <nav>
-      <h3>Status</h3>
-      <ul>
-% if current_status is None and current_label is None:
-        <li>All</li>
-% else:
-        <li><a href="${request.route_path("chat_list")}">All</a></li>
-% endif
-% if current_status == "unanswered":
-        <li>Unanswered</li>
-% else:
-        <li><a href="${request.route_path("chat_list_unanswered")}">Unanswered</a></li>
-% endif
-% if current_status == "ongoing":
-        <li>Ongoing</li>
-% else:
-        <li><a href="${request.route_path("chat_list_ongoing")}">Ongoing</a></li>
-% endif
-% if current_status == "ended":
-        <li>Ended</li>
-% else:
-        <li><a href="${request.route_path("chat_list_ended")}">Ended</a></li>
-% endif
-      </ul>
-    </nav>
-  </div>
-  <div class="side_column">
-% if labels:
-    <nav>
-      <h3>Labels</h3>
-      <ul>
-% for label, label_chat_count in labels:
-% if current_label == label:
-        <li>${label.replace("_", " ")} (${label_chat_count})</li>
-% else:
-        <li><a href="${request.route_path("chat_list_label", label=label)}">${label.replace("_", " ")} (${label_chat_count})</a></li>
-% endif
-% endfor
-      </ul>
-    </nav>
-% endif
-  </div>
-  <div id="content">
-% if len(chats)==0:
-% if current_status is None:
-    <p>You have no chats. <a href="${request.route_path("home")}">Search for a roleplaying partner to start chatting</a>.</p>
-% else:
-    <p>You have no ${current_status} chats. <a href="${request.route_path("chat_list")}">Check the full list</a> or <a href="${request.route_path("home")}">search for a roleplaying partner to start chatting</a>.</p>
-% endif
-% else:
-% if paginator.page_count!=1:
-    <p class="pager tile2">
-${paginator.pager(format='~5~')|n}
-    </p>
-% endif
-    <ul id="chat_list">
-% for chat_user, chat, prompt in chats:
+</%def>\
+<%def name="render_chat(chat_user, chat, prompt=None)">\
       <li class="tile2\
 % if chat.updated>chat_user.visited:
  unread" title="Updated since your last visit\
@@ -119,13 +53,82 @@ ${label.replace("_", " ")}${", " if not loop.last else ""}\
 </p>
 % endif
       </li>
-% endfor
-    </ul>
-% if paginator.page_count!=1:
+</%def>
+<%block name="title">${render_title()} - </%block>
+<%block name="body_class">layout2</%block>
+<%
+    from cherubplay.lib import make_paginator
+    paginator = make_paginator(request, chat_count, current_page)
+%>
+<h2>${render_title()}</h2>
+
+<main class="flex">
+  <div class="side_column">
+    <nav>
+      <h3>Status</h3>
+      <ul>
+        % if current_status is None and current_label is None:
+        <li>All</li>
+        % else:
+        <li><a href="${request.route_path("chat_list")}">All</a></li>
+        % endif
+        % if current_status == "unanswered":
+        <li>Unanswered</li>
+        % else:
+        <li><a href="${request.route_path("chat_list_unanswered")}">Unanswered</a></li>
+        % endif
+        % if current_status == "ongoing":
+        <li>Ongoing</li>
+        % else:
+        <li><a href="${request.route_path("chat_list_ongoing")}">Ongoing</a></li>
+        % endif
+        % if current_status == "ended":
+        <li>Ended</li>
+        % else:
+        <li><a href="${request.route_path("chat_list_ended")}">Ended</a></li>
+        % endif
+      </ul>
+    </nav>
+  </div>
+  <div class="side_column">
+    % if labels:
+    <nav>
+      <h3>Labels</h3>
+      <ul>
+      % for label, label_chat_count in labels:
+        % if current_label == label:
+        <li>${label.replace("_", " ")} (${label_chat_count})</li>
+        % else:
+        <li><a href="${request.route_path("chat_list_label", label=label)}">${label.replace("_", " ")} (${label_chat_count})</a></li>
+        % endif
+      % endfor
+      </ul>
+    </nav>
+    % endif
+  </div>
+  <div id="content">
+    % if len(chats)==0:
+    % if current_status is None:
+    <p>You have no chats. <a href="${request.route_path("home")}">Search for a roleplaying partner to start chatting</a>.</p>
+    % else:
+    <p>You have no ${current_status} chats. <a href="${request.route_path("chat_list")}">Check the full list</a> or <a href="${request.route_path("home")}">search for a roleplaying partner to start chatting</a>.</p>
+    % endif
+    % else:
+    % if paginator.page_count!=1:
     <p class="pager tile2">
-${paginator.pager(format='~5~')|n}
+    ${paginator.pager(format='~5~')|n}
     </p>
-% endif
-% endif
+    % endif
+    <ul id="chat_list">
+    % for chat_user, chat, prompt in chats:
+    ${render_chat(chat_user, chat, prompt)}
+    % endfor
+    </ul>
+    % if paginator.page_count!=1:
+    <p class="pager tile2">
+    ${paginator.pager(format='~5~')|n}
+    </p>
+    % endif
+    % endif
   </div>
 </main>
