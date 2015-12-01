@@ -283,6 +283,18 @@ class RequestTag(Base):
         return tag_dict
 
 
+class BlacklistedTag(Base):
+    __tablename__ = "blacklisted_tags"
+    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    tag_id = Column(Integer, ForeignKey("tags.id"), primary_key=True)
+    alias = Column(Unicode(50))
+
+    def __json__(self, request=None):
+        tag_dict = self.tag.__json__(request)
+        tag_dict["alias"] = self.alias
+        return tag_dict
+
+
 class Tag(Base):
     __tablename__ = "tags"
     __table_args__ = (UniqueConstraint("type", "name", name="tag_unique"),)
@@ -331,6 +343,9 @@ PromptReport.reported_user = relationship(User, backref="reports_recieved", prim
 
 Request.user = relationship(User, backref="requests")
 Request.tags = relationship(RequestTag, backref="request", order_by=RequestTag.alias)
+
+User.blacklisted_tags = relationship(BlacklistedTag, backref="user", order_by=RequestTag.alias)
+BlacklistedTag.tag = relationship(Tag)
 
 Tag.requests = relationship(RequestTag, backref="tag")
 Tag.synonym_of = relationship(Tag, backref="synonyms", remote_side=Tag.id)
