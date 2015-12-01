@@ -74,13 +74,18 @@ ${tag.alias}\
         % endif
         % endif
         <hr>
-        % if rq.user_id == request.user.id:
-        <p><a href="${request.route_path("directory_request_delete", id=rq.id)}">Delete</a></p>
-        % else:
-        <form action="${request.route_path("directory_request_answer", id=rq.id)}" method="post">
-          <button type="submit">Answer</button>
-        </form>
-        % endif
+        <div class="actions">
+          <div class="left"><a href="${request.route_path("directory_request", id=rq.id)}">Permalink</a></div>
+          % if rq.user_id == request.user.id:
+          <div class="right">
+            <a href="${request.route_path("directory_request_delete", id=rq.id)}">Delete</a>
+          </div>
+          % else:
+          <form class="right" action="${request.route_path("directory_request_answer", id=rq.id)}" method="post">
+            <button type="submit">Answer</button>
+          </form>
+          % endif
+        </div>
 </%def>
 <%block name="title">${next.heading()} - </%block>
 <%block name="body_class">layout2</%block>

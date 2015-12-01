@@ -616,6 +616,11 @@ h3 input, #chat_notes_labels {
 .layout2 .tag_list li:not(:last-child)::after { content: ","; }
 .layout2 .tag_list li.trigger a { color: #f33; }
 
+/* XXX use these in other places */
+.layout2 .actions { overflow: auto; }
+.layout2 .actions > .left { float: left; }
+.layout2 .actions > .right { float: right; }
+
 #new_request_form .types { white-space: unset; }
 #new_request_form .types label { display: inline-block; margin-right: 10px; font-size: 12pt; }
 
