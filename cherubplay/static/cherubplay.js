@@ -404,6 +404,23 @@ var cherubplay = (function() {
 				this.style.height = this.scrollHeight+"px";
 			});
 		},
+		"directory_index": function() {
+            $(".scenario_expand, .prompt_expand").click(function() {
+                var key = this.classList.contains("scenario_expand") ? "scenario" : "prompt";
+                var that = this;
+                $.get(this.href.substr(0, this.href.length - 1) + ".json", function(data) {
+                    var unexpanded_p = $(that).parent();
+                    var expanded_p = $("<p>").attr("style", unexpanded_p.attr("style")).text(" " + data.request[key]).insertBefore(unexpanded_p);
+                    $("<a>").text("(less)").attr("href", "#").click(function() {
+                        unexpanded_p.css("display", "");
+                        expanded_p.remove();
+                        return false;
+                    }).prependTo(expanded_p);
+                    unexpanded_p.css("display", "none");
+                });
+                return false;
+            });
+		},
 		"account": function() {
 			var sound_notifications = $("#sound_notifications").click(function() {
 				localStorage.setItem("sound_notifications", this.checked);

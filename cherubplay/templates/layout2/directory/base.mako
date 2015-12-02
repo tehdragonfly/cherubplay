@@ -62,7 +62,7 @@ ${tag.alias}\
         % if expanded or len(rq.scenario) <= 250:
         <p>${rq.scenario}</p>
         % else:
-        <p>${rq.scenario[:247]}... <a href="${request.route_path("directory_request", id=rq.id)}">(more)</a></p>
+        <p>${rq.scenario[:247]}... <a href="${request.route_path("directory_request", id=rq.id)}" class="scenario_expand">(more)</a></p>
         % endif
         % endif
         % if rq.prompt:
@@ -70,7 +70,7 @@ ${tag.alias}\
         % if expanded or len(rq.prompt) <= 250:
         <p style="color: #${rq.colour};">${rq.prompt}</p>
         % else:
-        <p style="color: #${rq.colour};">${rq.prompt[:247]}... <a href="${request.route_path("directory_request", id=rq.id)}">(more)</a></p>
+        <p style="color: #${rq.colour};">${rq.prompt[:247]}... <a href="${request.route_path("directory_request", id=rq.id)}" class="prompt_expand">(more)</a></p>
         % endif
         % endif
         <hr>
