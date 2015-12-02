@@ -75,7 +75,9 @@ ${tag.alias}\
         % endif
         <hr>
         <div class="actions">
+          % if not expanded:
           <div class="left"><a href="${request.route_path("directory_request", id=rq.id)}">Permalink</a></div>
+          % endif
           % if rq.user_id == request.user.id:
           <div class="right">
             <a href="${request.route_path("directory_request_delete", id=rq.id)}">Delete</a>
