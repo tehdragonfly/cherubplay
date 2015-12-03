@@ -26,22 +26,24 @@ Your chats\
 ${chat.status.capitalize()}. \
 % endif
 Started ${request.user.localise_time(chat.created).strftime("%a %d %b %Y")}, last message ${request.user.localise_time(chat.updated).strftime("%a %d %b %Y")}. <a href="${request.route_path("chat_info", url=chat.url)}">Edit chat info</a></p>
-% if prompt is not None:
-        <p style="color: #${prompt.colour};">\
-% if len(prompt.text)>250:
-${prompt.text[:250]}...\
-% else:
-${prompt.text}\
-% endif
-</p>
-% endif
-% if chat_user.notes!="" or chat_user.labels:
+        % if prompt is not None:
+        % if len(prompt.text) <= 250:
+        <p style="color: #${prompt.colour};">${prompt.text[:250]}</p>
+        % else:
+        <div class="expandable">
+          <a class="toggle" href="${request.route_path("chat", url=chat.url, _query={"page": 1})}">(more)</a>
+          <p class="expanded_content" style="color: #${prompt.colour};" data-href="${request.route_path("chat_ext", ext="json", url=chat.url, _query={"page": 1})}" data-type="chat"></p>
+          <p class="collapsed_content" style="color: #${prompt.colour};">${prompt.text[:250]}...</p>
+        </div>
+        % endif
+        % endif
+        % if chat_user.notes!="" or chat_user.labels:
         <hr>
-% endif
-% if chat_user.notes!="":
+        % endif
+        % if chat_user.notes!="":
         <p class="notes">Notes: ${chat_user.notes}</p>
-% endif
-% if chat_user.labels:
+        % endif
+        % if chat_user.labels:
         <p class="notes">Labels: \
 % for label in chat_user.labels:
 % if current_label == label:
@@ -51,7 +53,7 @@ ${label.replace("_", " ")}${", " if not loop.last else ""}\
 % endif
 % endfor
 </p>
-% endif
+      % endif
       </li>
 </%def>
 <%block name="title">${render_title()} - </%block>

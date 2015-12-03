@@ -39,6 +39,9 @@ var cherubplay = (function() {
 					case "request_prompt":
 						var text = data.request.prompt;
 						break;
+					case "chat":
+						var text = data.messages[0].text;
+						break;
 				}
 				expanded_content.text(text);
 				expandable_toggle.parent().addClass("expanded");
