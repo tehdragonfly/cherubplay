@@ -21,4 +21,3 @@
     ${paginator.pager(format='~5~')|n}
     </p>
     % endif
-<%block name="scripts"><script>cherubplay.directory_index();</script></%block>

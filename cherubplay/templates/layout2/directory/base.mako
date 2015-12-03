@@ -62,7 +62,11 @@ ${tag.alias}\
         % if expanded or len(rq.scenario) <= 250:
         <p>${rq.scenario}</p>
         % else:
-        <p>${rq.scenario[:247]}... <a href="${request.route_path("directory_request", id=rq.id)}" class="scenario_expand">(more)</a></p>
+        <div class="expandable">
+          <a class="toggle" href="${request.route_path("directory_request", id=rq.id)}">(more)</a>
+          <p class="expanded_content" data-href="${request.route_path("directory_request_ext", ext="json", id=rq.id)}" data-type="request_scenario"></p>
+          <p class="collapsed_content">${rq.scenario[:247]}...</p>
+        </div>
         % endif
         % endif
         % if rq.prompt:
@@ -70,7 +74,11 @@ ${tag.alias}\
         % if expanded or len(rq.prompt) <= 250:
         <p style="color: #${rq.colour};">${rq.prompt}</p>
         % else:
-        <p style="color: #${rq.colour};">${rq.prompt[:247]}... <a href="${request.route_path("directory_request", id=rq.id)}" class="prompt_expand">(more)</a></p>
+        <div class="expandable">
+          <a class="toggle" href="${request.route_path("directory_request", id=rq.id)}">(more)</a>
+          <p class="expanded_content" style="color: #${rq.colour};" data-href="${request.route_path("directory_request_ext", ext="json", id=rq.id)}" data-type="request_prompt"></p>
+          <p class="collapsed_content" style="color: #${rq.colour};">${rq.prompt[:247]}...</p>
+        </div>
         % endif
         % endif
         <hr>

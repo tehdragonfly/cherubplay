@@ -617,6 +617,10 @@ h3 input, #chat_notes_labels {
 .layout2 .tag_list li.trigger a { color: #f33; }
 
 /* XXX use these in other places */
+.layout2 .expandable .toggle { float: right; outline: none; }
+.layout2 .expandable .expanded_content, .layout2 .expandable.expanded .collapsed_content { display: none; }
+.layout2 .expandable.expanded .expanded_content { display: block; }
+
 .layout2 .actions { overflow: auto; }
 .layout2 .actions > .left { float: left; }
 .layout2 .actions > .right { float: right; }

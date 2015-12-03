@@ -25,6 +25,28 @@ var cherubplay = (function() {
 		});
 	}
 
+	$(".expandable .toggle").click(function() {
+		var expandable_toggle = $(this);
+		var expanded_content = expandable_toggle.next(".expanded_content");
+		if (expanded_content.html()) {
+			expandable_toggle.parent().toggleClass("expanded");
+		} else {
+			$.get(expanded_content.attr("data-href"), function(data) {
+				switch (expanded_content.attr("data-type")) {
+					case "request_scenario":
+						var text = data.request.scenario;
+						break;
+					case "request_prompt":
+						var text = data.request.prompt;
+						break;
+				}
+				expanded_content.text(text);
+				expandable_toggle.parent().addClass("expanded");
+			});
+		}
+		return false;
+	});
+
 	return {
 		"home": function() {
 
@@ -403,23 +425,6 @@ var cherubplay = (function() {
 			var prompt_text = $("#prompt_text").keyup(function() {
 				this.style.height = this.scrollHeight+"px";
 			});
-		},
-		"directory_index": function() {
-            $(".scenario_expand, .prompt_expand").click(function() {
-                var key = this.classList.contains("scenario_expand") ? "scenario" : "prompt";
-                var that = this;
-                $.get(this.href.substr(0, this.href.length - 1) + ".json", function(data) {
-                    var unexpanded_p = $(that).parent();
-                    var expanded_p = $("<p>").attr("style", unexpanded_p.attr("style")).text(" " + data.request[key]).insertBefore(unexpanded_p);
-                    $("<a>").text("(less)").attr("href", "#").click(function() {
-                        unexpanded_p.css("display", "");
-                        expanded_p.remove();
-                        return false;
-                    }).prependTo(expanded_p);
-                    unexpanded_p.css("display", "none");
-                });
-                return false;
-            });
 		},
 		"account": function() {
 			var sound_notifications = $("#sound_notifications").click(function() {
