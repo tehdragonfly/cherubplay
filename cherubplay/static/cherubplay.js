@@ -33,6 +33,9 @@ var cherubplay = (function() {
 		} else {
 			$.get(expanded_content.attr("data-href"), function(data) {
 				switch (expanded_content.attr("data-type")) {
+					case "prompt":
+						var text = data.text;
+						break;
 					case "request_scenario":
 						var text = data.request.scenario;
 						break;
