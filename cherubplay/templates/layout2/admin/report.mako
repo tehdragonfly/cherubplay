@@ -18,13 +18,15 @@
         </select> <button type="submit">Save</button></p>
 % endif
         <p>Posted in ${prompt_categories[report.category]}, ${prompt_levels[report.level]}</p>
-        <p style="color: #${report.colour};">Prompt: \
-% if not detail and len(report.prompt)>250:
-${report.prompt[:250]}...\
-% else:
-${report.prompt}\
-% endif
-</p>
+        % if detail or len(report.prompt) <= 250:
+        <p style="color: #${report.colour};">${report.prompt}</p>
+        % else:
+        <div class="expandable">
+          <a class="toggle" href="${request.route_path("admin_report", id=report.id)}">(more)</a>
+          <p class="expanded_content" style="color: #${report.colour};" data-href="${request.route_path("admin_report_ext", ext="json", id=report.id)}" data-type="prompt_report"></p>
+          <p class="collapsed_content" style="color: #${report.colour};">${report.prompt[:250]}...</p>
+        </div>
+        % endif
         <p>Reason: \
 % if report.reason == "wrong_category":
 Should be in ${prompt_categories[report.reason_category]}, ${prompt_levels[report.reason_level]}\

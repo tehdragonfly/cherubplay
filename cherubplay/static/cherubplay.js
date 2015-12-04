@@ -36,6 +36,9 @@ var cherubplay = (function() {
 					case "prompt":
 						var text = data.text;
 						break;
+					case "prompt_report":
+						var text = data.prompt;
+						break;
 					case "request_scenario":
 						var text = data.request.scenario;
 						break;
