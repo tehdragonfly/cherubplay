@@ -17,7 +17,7 @@ from .models import (
     ChatUser,
     User,
 )
-from .resources import prompt_factory, request_factory
+from .resources import prompt_factory, report_factory, request_factory
 from .views import chat
 from .views import prompts
 
@@ -205,7 +205,7 @@ def main(global_config, **settings):
     config.add_route("admin_report_list", "/admin/reports/")
     config.add_route("admin_report_list_closed", "/admin/reports/closed/")
     config.add_route("admin_report_list_invalid", "/admin/reports/invalid/")
-    config.add_route("admin_report", "/admin/reports/{id}/")
+    config.add_ext_route("admin_report", "/admin/reports/{id}/", factory=report_factory)
     config.add_route("admin_user", "/admin/user/{username}/")
     config.add_route("admin_user_status", "/admin/user/{username}/status/")
     config.add_route("admin_user_chat", "/admin/user/{username}/chat/")

@@ -41,6 +41,14 @@ Session = scoped_session(sessionmaker(
 Base = declarative_base()
 
 
+class Resource(object):
+    __acl__ = (
+        (Allow, Authenticated, "view"),
+        (Allow, "active", "chat"),
+        (Allow, "admin", "admin"),
+    )
+
+
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
@@ -166,7 +174,7 @@ class ChatUser(Base):
         return symbols[self.symbol] if self.symbol is not None else None
 
 
-class PromptReport(Base):
+class PromptReport(Base, Resource):
     __tablename__ = "prompt_reports"
     id = Column(Integer, primary_key=True)
     status = Column(Enum(
@@ -195,14 +203,23 @@ class PromptReport(Base):
     reason_level = Column(Unicode(100))
     notes = Column(UnicodeText, nullable=False, default=u"")
 
+    def __json__(self, request=None):
+        return {
+            "id": self.id,
+            "status": self.status,
+            "created": self.created.isoformat(),
+            "colour": self.colour,
+            "prompt": self.prompt,
+            "category": self.category,
+            "level": self.level,
+            "reason": self.reason,
+            "reason_category": self.reason_category,
+            "reason_level": self.reason_level,
+            "notes": self.notes,
+        }
 
-class Prompt(Base):
 
-    __acl__ = (
-        (Allow, Authenticated, "view"),
-        (Allow, "active", "chat"),
-        (Allow, "admin", "admin"),
-    )
+class Prompt(Base, Resource):
 
     __tablename__ = "prompts"
     id = Column(Integer, primary_key=True)
@@ -231,13 +248,7 @@ class Prompt(Base):
         }
 
 
-class Request(Base):
-
-    __acl__ = (
-        (Allow, Authenticated, "view"),
-        (Allow, "active", "chat"),
-        (Allow, "admin", "admin"),
-    )
+class Request(Base, Resource):
 
     __tablename__ = "requests"
     id = Column(Integer, primary_key=True)

@@ -1,5 +1,5 @@
 <%inherit file="../base.mako" />\
-<%block name="title">#${report.id} - Prompt reports - </%block>
+<%block name="title">#${request.context.id} - Prompt reports - </%block>
 <%block name="body_class">layout2</%block>
 <%def name="render_report(report, detail=True)">\
         <h3>\
@@ -75,11 +75,11 @@ Soliciting real life or out-of-character interactions\
 % endif
     <form action="${request.route_path("admin_report", id=request.matchdict["id"])}" method="post">
       <section class="tile2">
-${render_report(report)}
+${render_report(request.context)}
       </section>
       <section class="tile2">
         <h3>Notes</h3>
-        <p><textarea id="chat_notes_notes" class="notes" name="notes" placeholder="Notes..." rows="5">${report.notes}</textarea></p>
+        <p><textarea id="chat_notes_notes" class="notes" name="notes" placeholder="Notes..." rows="5">${request.context.notes}</textarea></p>
         <button type="submit">Save</button>
       </section>
     </form>

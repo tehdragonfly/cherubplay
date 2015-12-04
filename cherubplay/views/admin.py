@@ -51,18 +51,18 @@ def report_list(request):
     }
 
 
-@view_config(route_name="admin_report", renderer="layout2/admin/report.mako", request_method="GET", permission="admin")
-def report_get(request):
-    try:
-        report = Session.query(PromptReport).filter(PromptReport.id==int(request.matchdict["id"])).one()
-    except (ValueError, NoResultFound):
-        raise HTTPNotFound
+@view_config(route_name="admin_report", request_method="GET", permission="admin", renderer="layout2/admin/report.mako")
+def report_get(context, request):
     return {
         "PromptReport": PromptReport,
-        "report": report,
         "prompt_categories": prompt_categories,
         "prompt_levels": prompt_levels,
     }
+
+
+@view_config(route_name="admin_report_ext", request_method="GET", permission="admin", renderer="json")
+def report_get_ext(context, request):
+    return context
 
 
 @view_config(route_name="admin_report", renderer="layout2/admin/report.mako", request_method="POST", permission="admin")
