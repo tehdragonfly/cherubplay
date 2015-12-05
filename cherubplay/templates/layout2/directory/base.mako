@@ -81,6 +81,7 @@ ${tag.alias}\
         </div>
         % endif
         % endif
+        % if request.matched_route.name != "directory_request_delete":
         <hr>
         <div class="actions">
           % if not expanded:
@@ -96,6 +97,7 @@ ${tag.alias}\
           </form>
           % endif
         </div>
+        % endif
 </%def>
 <%block name="title">${next.heading()} - </%block>
 <%block name="body_class">layout2</%block>

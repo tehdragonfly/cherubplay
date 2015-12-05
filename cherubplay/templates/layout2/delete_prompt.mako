@@ -12,8 +12,8 @@
       <p class="subtitle">${prompt_categories[request.context.category]}, ${prompt_levels[request.context.level]}, written ${request.user.localise_time(request.context.created).strftime("%a %d %b %Y")}.</p>
       <p style="color: #${request.context.colour};">${request.context.text}</p>
     </section>
-    <form action="${request.route_path("delete_prompt", id=request.context.id)}" method="post">
-      <p><button type="submit">Delete prompt</button></p>
+    <form class="actions" action="${request.route_path("delete_prompt", id=request.context.id)}" method="post">
+      <div class="right"><button type="submit">Delete prompt</button></div>
     </form>
   </div>
 </main>

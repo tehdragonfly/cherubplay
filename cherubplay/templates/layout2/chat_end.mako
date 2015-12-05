@@ -32,6 +32,6 @@
     </div>
   </section>
 % endif
-  <form action="${request.route_path("chat_"+action, url=chat.url)}" method="post">
-    <p><button type="submit">${action.capitalize()} chat</button></p>
+  <form class="actions" action="${request.route_path("chat_"+action, url=chat.url)}" method="post">
+    <div class="right"><button type="submit">${action.capitalize()} chat</button></div>
   </form>

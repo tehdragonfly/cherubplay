@@ -4,6 +4,6 @@
     <section class="tile2 request">
       ${parent.render_request(request.context, expanded=True)}
     </section>
-    <form action="${request.route_path("directory_request_delete", id=request.context.id)}" method="post">
-      <p><button type="submit">Delete</button></p>
+    <form class="actions" action="${request.route_path("directory_request_delete", id=request.context.id)}" method="post">
+      <div class="right"><button type="submit">Delete request</button></div>
     </form>
