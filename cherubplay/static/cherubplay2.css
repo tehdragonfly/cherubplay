@@ -500,3 +500,179 @@ h3 input, #chat_notes_labels {
 	text-align: center;
 }
 
+/* Layout 2 */
+
+/* General */
+
+.layout2 { overflow-y: scroll; line-height: 1.5em; }
+.layout2 h2 { margin: 50px 50px 20px; line-height: normal; }
+.layout2 h3 + .subtitle { margin-top: 5px; }
+
+.layout2 p { max-width: 650px; margin: 15px auto; }
+.layout2 hr { margin: 15px 0; border: 0; border-top: 1px solid #ddd; }
+
+.layout2 ul { padding-left: 1em; }
+
+.layout2 main { margin: 50px 30px 50px; }
+.layout2 h2 + main { margin-top: 0; }
+
+.layout2 .side_column nav > :first-child { margin-top: 0; }
+.layout2 .side_column h3 { font-size: 14pt; }
+.layout2 .side_column ul { margin: 10px 0; padding: 0; list-style-type: none; text-align: center; }
+.layout2 .side_column p:first-of-type { margin-top: 0; }
+
+.layout2 #content { max-width: 650px; }
+.layout2 #content > :first-child { margin-top: 0; }
+.layout2 #content > :last-child { margin-bottom: 0; }
+
+.layout2 .tile2 {
+	position: relative;
+	-webkit-column-break-inside: avoid;
+	z-index: 2;
+	box-sizing: border-box;
+	max-width: 650px;
+	margin: 20px auto;
+	padding: 20px 25px;
+	background-color: #fff;
+	box-shadow: 0 1px 2px #bbb;
+}
+
+.layout2 .tile2 > :first-child { margin-top: 0; }
+.layout2 .tile2 > :last-child { margin-bottom: 0; }
+.layout2 .tile2 p { white-space: pre-line; }
+
+.layout2 .tile2.pager { z-index: 1; margin: 0; padding-top: 10px; padding-bottom: 10px; background-color: #f6f6f6; box-shadow: 0 1px 2px #ccc; }
+.layout2 img.tile2 { display: block; padding: 0; }
+
+@media (max-width: 640px) {
+	.layout2 p { margin: 10px auto; }
+	.layout2 hr { margin: 10px 0; }
+	.layout2 h2 { margin-top: 30px; margin-left: 15px; margin-right: 15px; }
+	.layout2 main { margin: 15px; }
+	.layout2 .tile2 { margin: 15px auto; padding: 10px 15px; }
+}
+
+@media (max-width: 1024px) {
+	.layout2 .side_column { max-width: 650px; margin: 20px auto; text-align: center; }
+	.layout2 .side_column li { display: inline; }
+	.layout2 .side_column li:not(:last-child):after { content: " ·"; }
+	.layout2 #content { margin: 0 auto; }
+}
+
+@media (min-width: 1025px) {
+	.layout2 .flex { display: flex; justify-content: center; }
+	.layout2 .side_column { flex: 0 1 180px; font-size: 10pt; }
+	.layout2 .side_column + .side_column { order: 1; }
+	.layout2 .side_column nav { position: sticky; top: 45px; max-width: 180px; }
+	.layout2 .side_column:first-child nav { margin-left: auto; }
+	.layout2 .side_column ul { text-align: left; }
+	.layout2 .side_column li { padding: 1px 5px; }
+	.layout2 .side_column li:not(:last-child) { border-bottom: 1px solid #d4d4d4; }
+	.layout2 .side_column li a { display: block; margin: -1px -5px; padding: 1px 5px; }
+	.layout2 .flex #content { flex: 0 1 650px; padding: 0 30px; }
+}
+
+/* Forms */
+
+.layout2 input.full { margin: 0; padding: 0; border: 0; width: 100%; background-color: #fff; font-size: 1rem; }
+.buttons { text-align: right; }
+
+/* Sign up and log in */
+
+#account_forms { text-align: center; }
+
+@media (min-width: 641px) {
+	#account_forms { display: flex; justify-content: center; margin: 30px 0; }
+	#account_forms form { margin: 0 15px; }
+}
+
+/* Home */
+
+.layout2 #answer_categories { margin-bottom: 10px; }
+.layout2 #answer_levels { margin: 10px 0; }
+
+.layout2 #prompt_list li { overflow: hidden; max-height: 190px; }
+.layout2 .fade { top: 140px; }
+
+.layout2 #prompt_info :first-child { margin-top: 0; }
+
+.layout2.show_overlay, .layout2.show_report_overlay { overflow: hidden; }
+.layout2 #overlay, .layout2 #report_overlay { padding: 0 30px; }
+
+.layout2 #overlay_images { max-width: 650px; margin: 0 auto; }
+.layout2 #overlay_images img { max-width: 100%; }
+
+@media (max-width: 640px) {
+	.layout2 #prompt_list li { max-height: 170px; }
+	.layout2 .fade { top: 120px; }
+	.layout2 #overlay, .layout2 #report_overlay { padding: 0 15px; }
+}
+
+/* Directory */
+
+.layout2 .request h3 { margin: 0 5px -8px 0; text-align: left; font-size: 10pt; font-weight: normal; color: #000; }
+.layout2 .tag_list { margin: 10px 0; padding: 0; }
+.layout2 .tag_list li { display: inline; }
+.layout2 .tag_list li:not(:last-child)::after { content: ","; }
+.layout2 .tag_list li.trigger a { color: #f33; }
+
+/* XXX use these in other places */
+.layout2 .expandable .toggle { float: right; margin-left: 5px; outline: none; }
+.layout2 .expandable .expanded_content, .layout2 .expandable.expanded .collapsed_content { display: none; }
+.layout2 .expandable.expanded .expanded_content { display: block; }
+.layout2 .expandable:last-child > p { margin-bottom: 0; }
+
+.layout2 .actions { overflow: auto; }
+.layout2 .actions > .left { float: left; }
+.layout2 .actions > .right { float: right; }
+
+#new_request_form .types { white-space: unset; }
+#new_request_form .types label { display: inline-block; margin-right: 10px; font-size: 12pt; }
+
+/* Chat list */
+
+.layout2 #chat_list { margin: 0; list-style-type: none; }
+.layout2 #chat_list:first-child li:first-child { margin-top: 0; }
+.layout2 #chat_list:last-child li:last-child { margin-bottom: 0; }
+.layout2 .unread { box-shadow: 0 1px 4px #090; }
+.layout2 .notes { margin: 5px 0 0; }
+
+/* Chat */
+
+.layout2.ongoing main { margin-bottom: 0; }
+
+.layout2 #messages { margin: 0; padding: 0 25px; list-style-type: none; }
+
+.layout2 #messages li { position: relative; padding: 20px 0; border-top: 1px solid #ddd; }
+.layout2 #messages li:first-child { border-top: none; }
+
+.layout2 #messages li > p, .layout2 .delete_preview > p { margin: 0; }
+.layout2 #messages li.editing { box-shadow: none; }
+.layout2 #messages .editing p { text-decoration: line-through; }
+.layout2 .edited p::after { content: ""; }
+.layout2 .symbol { position: absolute; width: 50px; left: -50px; text-align: center; font-size: 1.5em; }
+.layout2 .timestamp { font-size: 10pt; color: #888; }
+.layout2 .edited .timestamp::after { content: " · Edited"; }
+
+.layout2 #status_bar { max-width: none; margin: 0; }
+.layout2 #message_form_container { margin-top: 0; }
+.layout2 #message_form { position: relative; }
+.layout2 #message_form p:first-child { margin-top: 0; }
+
+.layout2 .delete_preview { position: relative; }
+
+@media (max-width: 640px) {
+	.layout2 #messages { padding: 0 15px; }
+	.layout2 #messages li { padding: 10px 0; }
+	.layout2 .symbol { width: 30px; left: -30px; font-size: 1em; }
+}
+
+/* Chat info */
+
+.layout2 #chat_notes_notes, .layout2 #chat_notes_labels { font-size: 10pt; }
+
+/* Account */
+
+.layout2 #confirmation:empty { display: none; }
+.layout2 #confirmation:empty + .tile2 { margin-top: 0; }
+
