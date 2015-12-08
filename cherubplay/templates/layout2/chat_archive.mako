@@ -9,9 +9,9 @@ ${"Archive - " if continuable else ""}${own_chat_user.title or chat.url} - \
     paginator = make_paginator(request, message_count, current_page)
 %>
 % if paginator.page_count > 1:
-    <div class="pager tile2">
+    <p class="pager tile2">
 ${paginator.pager(format='~5~')|n}
-    </div>
+    </p>
 % endif
 % if messages:
     <ul id="messages" class="tile2">
@@ -26,7 +26,7 @@ ${parent.render_message(message)}\
     <p>No messages.</p>
 % endif
 % if paginator.page_count > 1:
-    <div class="pager tile2">
+    <p class="pager tile2">
 ${paginator.pager(format='~5~')|n}
-    </div>
+    </p>
 % endif

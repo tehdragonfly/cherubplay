@@ -5,7 +5,7 @@
     paginator = make_paginator(request, request_count, current_page)
 %>
     % if paginator.page_count!=1:
-    <p class="pager tile">
+    <p class="pager tile2">
     ${paginator.pager(format='~5~')|n}
     </p>
     % endif
@@ -17,7 +17,7 @@
       % endfor
     </ul>
     % if paginator.page_count!=1:
-    <p class="pager tile">
+    <p class="pager tile2">
     ${paginator.pager(format='~5~')|n}
     </p>
     % endif
