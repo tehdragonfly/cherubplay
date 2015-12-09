@@ -147,139 +147,66 @@ h3 + .subtitle { margin-top: 5px; }
 .actions > .left { float: left; }
 .actions > .right { float: right; }
 
+/* 3. Pages */
+
+/* 3.1. Sign up and log in */
+
+#account_forms { text-align: center; }
+
+@media (min-width: 641px) {
+    #account_forms { display: flex; justify-content: center; margin: 30px 0; }
+    #account_forms form { margin: 0 15px; }
+}
+
+/* 3.2. Home */
+
+.answer_mode #connecting, .prompt_mode #connecting, .wait_mode #connecting, .connection_error #connecting, #answer_mode, #prompt_mode, #wait_mode, #connection_error { display: none; }
+.answer_mode #answer_mode, .prompt_mode #prompt_mode, .wait_mode #wait_mode, .connection_error #connection_error  { display: block; }
+
+#categories, #categories textarea { background-color: #f8f8f8; }
+#categories ul { padding: 0; text-align: center; }
+#answer_categories { margin-bottom: 10px; }
+#answer_levels { margin: 10px 0; }
+#categories li { display: inline-block; }
+#categories li:not(:last-child):after { content: " ·"; }
+
+#filter_toggle { display: none; }
+#filter_toggle + p { margin-bottom: 0; text-align: center; font-size: 10pt; }
+label[for="filter_toggle"] { color: #090; text-decoration: underline; cursor: pointer; }
+label[for="filter_toggle"]:hover { text-decoration: none; }
+#filter_toggle + p + form, #filter_toggle:checked + p { display: none; }
+#filter_toggle:checked + p + form { display: block; }
+
+.answer_mode .prompt_button { float: right; }  /* TODO remove */
+
+#prompt_list { clear: both; margin: 20px 0; padding: 0; list-style-type: none; -moz-column-width: 500px; -moz-column-gap: 20px; -webkit-column-width: 500px; -webkit-column-gap: 20px; }
+#prompt_list li { max-height: 190px; overflow: hidden; cursor: pointer; }
+#prompt_list li:first-child { margin-top: 0; }
+#prompt_list li:last-child { margin-bottom: 0; }
+#prompt_list li p { margin: 0; }
+.fade { display: block; position: absolute; top: 140px; left: 0; right: 0; height: 50px; background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1)); }
+#prompt_text { height: 150px; }
+
+#overlay, #report_overlay { display: none; }
+.show_overlay, .show_report_overlay { overflow: hidden; }
+.show_overlay #overlay, .show_report_overlay #report_overlay { display: block; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 4; overflow-y: scroll; padding: 0 30px; background-color: rgba(238, 238, 238, 0.75); }
+
+#overlay_images { max-width: 650px; margin: 0 auto; }
+#overlay_images img { max-width: 100%; }
+
+#post_button, #overlay_close, #overlay_report, #report_overlay_close { float: right; } /* TODO remove */
+
+@media (max-width: 640px) {
+    #prompt_list li { max-height: 170px; }
+    .fade { top: 120px; }
+    #overlay, #report_overlay { padding: 0 15px; }
+}
+
+#prompt_info :first-child { margin-top: 0; }
+
 
 /* TODO everything else */
 
-
-/* Homepage */
-
-.account_form {
-	text-align: center;
-}
-
-.answer_mode #connecting, .prompt_mode #connecting, .wait_mode #connecting, .connection_error #connecting, #answer_mode, #prompt_mode, #wait_mode, #connection_error {
-	display: none;
-}
-
-.answer_mode #answer_mode, .prompt_mode #prompt_mode, .wait_mode #wait_mode, .connection_error #connection_error  {
-	display: block;
-}
-
-#categories, #categories textarea {
-	background-color: #f8f8f8;
-}
-
-#categories ul {
-	padding: 0;
-	text-align: center;
-}
-
-#categories li {
-	display: inline-block;
-}
-
-#categories li:not(:last-child):after {
-	content: " ·";
-}
-
-#filter_toggle {
-	display: none;
-}
-
-#filter_toggle + p {
-	margin-bottom: 0;
-	text-align: center;
-	font-size: 10pt;
-}
-
-label[for="filter_toggle"] {
-	color: #090;
-	text-decoration: underline;
-	cursor: pointer;
-}
-
-label[for="filter_toggle"]:hover {
-	text-decoration: none;
-}
-
-#filter_toggle + p + form, #filter_toggle:checked + p {
-	display: none;
-}
-
-#filter_toggle:checked + p + form {
-	display: block;
-}
-
-.answer_mode .prompt_button {
-	float: right;
-}
-
-#prompt_list {
-	clear: both;
-	margin: 20px 0;
-	padding: 0;
-	list-style-type: none;
-	-moz-column-width: 500px;
-	-moz-column-gap: 20px;
-	-webkit-column-width: 500px;
-	-webkit-column-gap: 20px;
-}
-
-#prompt_list li {
-	max-height: 150px;
-	cursor: pointer;
-}
-
-#prompt_list li:first-child {
-	margin-top: 0;
-}
-
-#prompt_list li:last-child {
-	margin-bottom: 0;
-}
-
-#prompt_list li p {
-	margin: 0;
-}
-
-.fade {
-	display: block;
-	position: absolute;
-	top: 120px;
-	left: 0;
-	right: 0;
-	height: 50px;
-	background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
-}
-
-#prompt_text {
-	height: 150px;
-}
-
-#overlay, #report_overlay {
-	display: none;
-}
-
-.show_overlay, .show_report_overlay {
-	overflow: hidden;
-}
-
-.show_overlay #overlay, .show_report_overlay #report_overlay {
-	display: block;
-	position: fixed;
-	top: 0;
-	right: 0;
-	bottom: 0;
-	left: 0;
-	z-index: 4;
-	overflow-y: scroll;
-	padding: 0 20px;
-	background-color: rgba(238, 238, 238, 0.75);
-}
-
-#post_button, #overlay_close, #overlay_report, #report_overlay_close {
-	float: right;
-}
 
 /* Chat list */
 
@@ -375,37 +302,6 @@ h3 input, #chat_notes_labels {
 }
 
 /* Layout 2 */
-
-/* Sign up and log in */
-
-#account_forms { text-align: center; }
-
-@media (min-width: 641px) {
-	#account_forms { display: flex; justify-content: center; margin: 30px 0; }
-	#account_forms form { margin: 0 15px; }
-}
-
-/* Home */
-
-.layout2 #answer_categories { margin-bottom: 10px; }
-.layout2 #answer_levels { margin: 10px 0; }
-
-.layout2 #prompt_list li { overflow: hidden; max-height: 190px; }
-.layout2 .fade { top: 140px; }
-
-.layout2 #prompt_info :first-child { margin-top: 0; }
-
-.layout2.show_overlay, .layout2.show_report_overlay { overflow: hidden; }
-.layout2 #overlay, .layout2 #report_overlay { padding: 0 30px; }
-
-.layout2 #overlay_images { max-width: 650px; margin: 0 auto; }
-.layout2 #overlay_images img { max-width: 100%; }
-
-@media (max-width: 640px) {
-	.layout2 #prompt_list li { max-height: 170px; }
-	.layout2 .fade { top: 120px; }
-	.layout2 #overlay, .layout2 #report_overlay { padding: 0 15px; }
-}
 
 /* Directory */
 
