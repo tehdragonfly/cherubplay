@@ -127,7 +127,7 @@ textarea { resize: vertical; }
 .tile2 > :last-child { margin-bottom: 0; }
 .tile2 p { white-space: pre-line; }
 
-.tile2.pager { z-index: 1; margin: 0; padding-top: 10px; padding-bottom: 10px; background-color: #f6f6f6; box-shadow: 0 1px 2px #ccc; }
+.tile2.pager { z-index: 1; margin: 0; padding-top: 10px; padding-bottom: 10px; background-color: #f6f6f6; box-shadow: 0 1px 2px #ccc; text-align: center; }
 img.tile2 { display: block; padding: 0; }
 
 .subtitle, label, #prompt_dropdowns { font-size: 10pt; color: #333; } /* TODO put the last two selectors somewhere else */
@@ -204,33 +204,31 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 
 #prompt_info :first-child { margin-top: 0; }
 
+/* 3.3. Directory */
+
+.request h3 { margin: 0 5px -8px 0; text-align: left; font-size: 10pt; font-weight: normal; color: #000; }
+.tag_list { margin: 10px 0; padding: 0; }
+.tag_list li { display: inline; }
+.tag_list li:not(:last-child)::after { content: ","; }
+.tag_list li.trigger a { color: #f33; }
+
+#new_request_form .types { white-space: unset; }
+#new_request_form .types label { display: inline-block; margin-right: 10px; font-size: 12pt; }
+
+/* 3.4. Chat list */
+
+#chat_list { margin: 0; padding: 0; list-style-type: none; }
+#chat_list:first-child li:first-child { margin-top: 0; }
+#chat_list:last-child li:last-child { margin-bottom: 0; }
+
+.unread { box-shadow: 0 1px 4px #090; }
+
+.notes { margin: 5px 0 0; max-width: none; font-size: 10pt; }
+
 
 /* TODO everything else */
 
 
-/* Chat list */
-
-#chat_list {
-	padding: 0;
-}
-
-.pager {
-	text-align: center;
-}
-
-.tile.pager {
-	background-color: #f8f8f8;
-	box-shadow: 0 1px 2px #bbb;
-}
-
-.unread, .editing {
-	box-shadow: 0 2px 4px #090;
-}
-
-.notes {
-	max-width: none;
-	font-size: 10pt;
-}
 
 /* Chat window */
 
@@ -303,25 +301,6 @@ h3 input, #chat_notes_labels {
 
 /* Layout 2 */
 
-/* Directory */
-
-.layout2 .request h3 { margin: 0 5px -8px 0; text-align: left; font-size: 10pt; font-weight: normal; color: #000; }
-.layout2 .tag_list { margin: 10px 0; padding: 0; }
-.layout2 .tag_list li { display: inline; }
-.layout2 .tag_list li:not(:last-child)::after { content: ","; }
-.layout2 .tag_list li.trigger a { color: #f33; }
-
-#new_request_form .types { white-space: unset; }
-#new_request_form .types label { display: inline-block; margin-right: 10px; font-size: 12pt; }
-
-/* Chat list */
-
-.layout2 #chat_list { margin: 0; list-style-type: none; }
-.layout2 #chat_list:first-child li:first-child { margin-top: 0; }
-.layout2 #chat_list:last-child li:last-child { margin-bottom: 0; }
-.layout2 .unread { box-shadow: 0 1px 4px #090; }
-.layout2 .notes { margin: 5px 0 0; }
-
 /* Chat */
 
 .layout2.ongoing main { margin-bottom: 0; }
@@ -332,7 +311,6 @@ h3 input, #chat_notes_labels {
 .layout2 #messages li:first-child { border-top: none; }
 
 .layout2 #messages li > p, .layout2 .delete_preview > p { margin: 0; }
-.layout2 #messages li.editing { box-shadow: none; }
 .layout2 #messages .editing p { text-decoration: line-through; }
 .layout2 .edited p::after { content: ""; }
 .layout2 .symbol { position: absolute; width: 50px; left: -50px; text-align: center; font-size: 1.5em; }
