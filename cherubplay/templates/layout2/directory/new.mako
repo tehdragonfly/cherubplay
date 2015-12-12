@@ -48,5 +48,7 @@
       % endif
       <p><textarea name="prompt" placeholder="Enter your prompt...">${request.POST.get("prompt", "")}</textarea></p>
       <hr>
-      <p class="buttons"><input type="submit" name="draft" value="Save draft"> <input type="submit" name="publish" value="Publish"></p>
+      <div class="actions">
+        <div class="right"><input type="submit" name="draft" value="Save draft"> · <input type="submit" name="publish" value="Publish"></div>
+      </div>
     </form>

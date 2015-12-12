@@ -46,9 +46,9 @@
         <button type="submit" id="filter_button">Apply</button>
       </form>
     </section>
-    <p>
-      <button class="prompt_button">Post a prompt</button>
-      <a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under" target="_blank">Category rules</a>
+    <p class="actions">
+      <span class="left"><a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under" target="_blank">Category rules</a></span>
+      <span class="right"><button class="prompt_button">Post a prompt</button></span>
     </p>
     <ul id="prompt_list"></ul>
   </section>
@@ -92,8 +92,9 @@
           <hr>
         </div>
       </section>
-      <button type="submit" id="post_button">Post</button>
-      <br class="clear">
+      <div class="actions">
+        <div class="right"><button type="submit" id="post_button">Post</button></div>
+      </div>
     </form>
     <p><button class="answer_button">Back to available prompts</button></p>
   </section>
@@ -111,10 +112,9 @@
       <p id="overlay_text"></p>
     </section>
     <section id="overlay_images"></section>
-    <section class="tile2">
-      <button id="overlay_close">Close</button>
-      <button id="overlay_report">Report</button>
-      <button id="overlay_answer">Answer</button>
+    <section class="tile2 actions">
+      <div class="left"><button id="overlay_close">Close</button> · <button id="overlay_report">Report</button></div>
+      <div class="right"><button id="overlay_answer">Answer</button></div>
     </section>
   </section>
   <section id="report_overlay">
@@ -140,8 +140,10 @@
         <li><label><input type="radio" name="report_reason" value="advert"> Advertising something not related to roleplay</label></li>
         <li><label><input type="radio" name="report_reason" value="ooc"> Soliciting real life or out-of-character interactions</label></li>
       </ul>
-      <button id="report_overlay_close">Close</button>
-      <button id="report_overlay_submit">Submit</button>
+      <div class="actions">
+        <div class="left"><button id="report_overlay_close">Close</button></div>
+       <div class="right"><button id="report_overlay_submit">Submit</button></div>
+      </div>
     </section>
   </section>
 <%block name="scripts"><script>cherubplay.home();</script></%block>

@@ -11,7 +11,9 @@
       <p class="subtitle">${prompt_categories[request.context.category]}, ${prompt_levels[request.context.level]}, written ${request.user.localise_time(request.context.created).strftime("%a %d %b %Y")}.</p>
       <p style="color: #${request.context.colour};">${request.context.text}</p>
       <hr>
-      <p><a href="${request.route_path("edit_prompt", id=request.context.id)}">Edit</a> · <a href="${request.route_path("delete_prompt", id=request.context.id)}">Delete</a></p>
+      <div class="actions">
+        <div class="right"><a href="${request.route_path("edit_prompt", id=request.context.id)}">Edit</a> · <a href="${request.route_path("delete_prompt", id=request.context.id)}">Delete</a></div>
+      </div>
     </section>
   </div>
 </main>

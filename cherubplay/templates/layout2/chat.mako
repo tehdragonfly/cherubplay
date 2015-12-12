@@ -12,20 +12,25 @@ ${parent.render_message(message, show_edit=True)}\
     <div id="status_bar" class="tile2 pager">&nbsp;</div>
     <section id="message_form_container" class="tile2">
       <form id="message_form" action="${request.route_path("chat_send", url=request.matchdict["url"])}" method="post">
-        <p><input type="color" id="message_colour" name="message_colour" size="6" value="#${own_chat_user.last_colour}"> <select id="preset_colours" name="preset_colours">
+        <div class="actions">
+          <div class="left"><input type="color" id="message_colour" name="message_colour" size="6" value="#${own_chat_user.last_colour}"> <select id="preset_colours" name="preset_colours">
 % for hex, name in preset_colours:
-          <option value="#${hex}">${name}</option>
+            <option value="#${hex}">${name}</option>
 % endfor
-        </select><label title="Talk out of character; use ((double brackets)) to automatically OOC."><input id="message_ooc" type="checkbox" name="message_ooc"> OOC</label></p>
+          </select></div>
+          <label class="right" title="Talk out of character; use ((double brackets)) to automatically OOC."><input id="message_ooc" type="checkbox" name="message_ooc"> OOC</label>
+        </div>
         <span class="symbol" style="color: #${own_chat_user.last_colour};">${own_chat_user.symbol_character}</span>
         <p><textarea id="message_text" name="message_text" placeholder="Write a message..." style="color: #${own_chat_user.last_colour}">${own_chat_user.draft}</textarea></p>
-        <button type="submit" id="send_button">Send</button>
-      </form>
-      <p id="info_link"><a href="${request.route_path("chat_info", url=request.matchdict["url"])}">Edit chat info</a>\
+        <div class="actions">
+          <div id="info_link" class="left"><a href="${request.route_path("chat_info", url=request.matchdict["url"])}">Edit chat info</a>\
 % if from_homepage:
  · <a href="${request.route_path("home", url=request.matchdict["url"])}" id="search_again">Search again</a>\
 % endif
-</p>
+</div>
+          <div class="right"><button type="submit" id="send_button">Send</button></div>
+        </div>
+      </form>
     </section>
 <%block name="scripts">
 <script>cherubplay.chat("${request.matchdict["url"]}", "${own_chat_user.symbol_character}");</script>

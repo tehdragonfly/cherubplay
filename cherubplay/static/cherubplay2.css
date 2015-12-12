@@ -98,15 +98,12 @@ a:hover { text-decoration: none; }
 
 .danger h1, .danger h2, .danger h3, .danger h4, .danger h5, .danger h6, .danger a { color: #f33; }
 
-.clear { clear: both; } /* TODO remove? */
-
 /* 2.1. Forms */
 
 input { vertical-align: middle; }
 input[type="checkbox"], input[type="radio"] { margin: 0; }
 input.full, textarea { margin: 0; padding: 0; border: 0; width: 100%; background-color: #fff; font: inherit; color: inherit; }
 textarea { resize: vertical; }
-.buttons { text-align: right; } /* TODO remove? */
 
 /* 2.2. Tile */
 
@@ -180,8 +177,6 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 #filter_toggle + p + form, #filter_toggle:checked + p { display: none; }
 #filter_toggle:checked + p + form { display: block; }
 
-.answer_mode .prompt_button { float: right; }  /* TODO remove */
-
 #prompt_list { clear: both; margin: 20px 0; padding: 0; list-style-type: none; -moz-column-width: 500px; -moz-column-gap: 20px; -webkit-column-width: 500px; -webkit-column-gap: 20px; }
 #prompt_list li { max-height: 190px; overflow: hidden; cursor: pointer; }
 #prompt_list li:first-child { margin-top: 0; }
@@ -196,8 +191,6 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 
 #overlay_images { max-width: 650px; margin: 0 auto; }
 #overlay_images img { max-width: 100%; }
-
-#post_button, #overlay_close, #overlay_report, #report_overlay_close { float: right; } /* TODO remove */
 
 @media (max-width: 640px) {
     #prompt_list li { max-height: 170px; }
@@ -242,7 +235,7 @@ body.ongoing main { margin-bottom: 0; }
 .message_ooc:hover { opacity: 1; }
 .message_system { text-align: center; }
 
-.symbol { position: absolute; width: 50px; left: -50px; text-align: center; font-size: 1.5em; }
+.symbol { position: absolute; width: 50px; left: -50px; margin-top: 15px; text-align: center; font-size: 1.5em; }
 .timestamp { font-size: 10pt; color: #888; }
 .edited .timestamp::after { content: " · Edited"; }
 
@@ -253,9 +246,6 @@ body.ongoing main { margin-bottom: 0; }
 #message_form { position: relative; }
 #message_form p:first-child { margin-top: 0; }
 #message_form textarea { height: 100px; }
-#message_form button { float: right; }
-
-#message_form label { float: right; }
 
 .tile.continue { text-align: center; }
 
@@ -264,7 +254,7 @@ body.ongoing main { margin-bottom: 0; }
 @media (max-width: 640px) {
 	#messages { padding: 0 15px; }
 	#messages li { padding: 10px 0; }
-	.symbol { width: 30px; left: -30px; font-size: 1em; }
+	.symbol { width: 30px; left: -30px; margin-top: 10px; font-size: 1em; }
 }
 
 /* 3.6. Chat info */

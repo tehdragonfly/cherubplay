@@ -52,8 +52,9 @@
       <p class="error">Please choose a level for your prompt.</p>
 % endif
       <hr>
-      <button type="submit" id="post_button">Save</button>
-      <br class="clear">
+      <div class="actions">
+        <div class="right"><button type="submit" id="post_button">Save</button></div>
+      </div>
     </form>
   </div>
 </main>
