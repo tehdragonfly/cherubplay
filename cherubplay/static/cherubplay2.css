@@ -96,13 +96,14 @@ ul { padding-left: 1em; }
 a { color: #090; }
 a:hover { text-decoration: none; }
 
-.danger h1, .danger h2, .danger h3, .danger h4, .danger h5, .danger h6, .danger a { color: #f33; }
+.danger h1, .danger h2, .danger h3, .danger h4, .danger h5, .danger h6, .danger a, .error { color: #f33; }
 
 /* 2.1. Forms */
 
 input { vertical-align: middle; }
 input[type="checkbox"], input[type="radio"] { margin: 0; }
 input.full, textarea { margin: 0; padding: 0; border: 0; width: 100%; background-color: #fff; font: inherit; color: inherit; }
+label input.full { font-size: 1rem; color: #000; }
 textarea { resize: vertical; }
 
 /* 2.2. Tile */

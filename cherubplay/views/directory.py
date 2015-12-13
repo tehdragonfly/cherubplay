@@ -190,26 +190,26 @@ def directory_yours(request):
 
 @view_config(route_name="directory_new", request_method="GET", permission="chat", renderer="layout2/directory/new.mako")
 def directory_new_get(request):
-    return {"preset_colours": preset_colours}
+    return {"form_data": {}, "preset_colours": preset_colours}
 
 
 @view_config(route_name="directory_new", request_method="POST", permission="chat", renderer="layout2/directory/new.mako")
 def directory_new_post(request):
 
     if request.POST.get("maturity") not in Tag.maturity_names:
-        return {"preset_colours": preset_colours, "error": "blank_maturity"}
+        return {"form_data": request.POST, "preset_colours": preset_colours, "error": "blank_maturity"}
 
     colour = request.POST.get("colour", "")
     if colour.startswith("#"):
         colour = colour[1:]
     if colour_validator.match(colour) is None:
-        return {"preset_colours": preset_colours, "error": "invalid_colour"}
+        return {"form_data": request.POST, "preset_colours": preset_colours, "error": "invalid_colour"}
 
     scenario = request.POST.get("scenario", "").strip()
     prompt = request.POST.get("prompt", "").strip()
 
     if not scenario and not prompt:
-        return {"preset_colours": preset_colours, "error": "blank_scenario_and_prompt"}
+        return {"form_data": request.POST, "preset_colours": preset_colours, "error": "blank_scenario_and_prompt"}
 
     new_request = Request(
         user_id=request.user.id,
@@ -262,6 +262,28 @@ def directory_request_answer(context, request):
     Session.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=0, colour=context.colour, text=context.prompt))
 
     return HTTPFound(request.route_path("chat", url=new_chat.url))
+
+
+@view_config(route_name="directory_request_edit", request_method="GET", permission="chat", renderer="layout2/directory/new.mako")
+def directory_request_edit_get(context, request):
+
+    form_data = {}
+
+    for tag_type, tags in context.tags_by_type().items():
+        if tag_type == "maturity":
+            if tags: # i don't know why we wouldn't have a maturity but don't IndexError if that does happen
+                form_data["maturity"] = tags[0].tag.name
+        elif tag_type == "type":
+            for tag in tags:
+                form_data["type_" + tag.tag.name] = "on"
+        else:
+            form_data[tag_type] = ", ".join(tag.alias for tag in tags)
+
+    form_data["colour"] = "#" + context.colour
+    form_data["scenario"] = context.scenario
+    form_data["prompt"] = context.prompt
+
+    return {"form_data": form_data, "preset_colours": preset_colours}
 
 
 @view_config(route_name="directory_request_delete", request_method="GET", permission="chat", renderer="layout2/directory/request_delete.mako")

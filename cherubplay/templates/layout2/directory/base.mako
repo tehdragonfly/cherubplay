@@ -89,6 +89,7 @@ ${tag.alias}\
           % endif
           % if rq.user_id == request.user.id:
           <div class="right">
+            <a href="${request.route_path("directory_request_edit", id=rq.id)}">Edit</a> ·
             <a href="${request.route_path("directory_request_delete", id=rq.id)}">Delete</a>
           </div>
           % else:
