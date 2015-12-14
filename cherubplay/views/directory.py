@@ -21,7 +21,30 @@ def name_from_alias(alias):
     # 3. Change . and / to underscores because they screw up the routing.
     # 4. Strip extra underscores from the start and end.
     # TODO change slashes to *s* or something like ao3
+    # also TODO change this to a classmethod?
     return underscore_strip_regex.sub("", special_char_regex.sub("_", alias)).lower()
+
+
+class ValidationError(Exception): pass
+
+
+def _validate_request_form(request):
+    if request.POST.get("maturity") not in Tag.maturity_names:
+        raise ValidationError("blank_maturity")
+
+    colour = request.POST.get("colour", "")
+    if colour.startswith("#"):
+        colour = colour[1:]
+    if colour_validator.match(colour) is None:
+        raise ValidationError("invalid_colour")
+
+    scenario = request.POST.get("scenario", "").strip()
+    prompt = request.POST.get("prompt", "").strip()
+
+    if not scenario and not prompt:
+        raise ValidationError("blank_scenario_and_prompt")
+
+    return colour, scenario, prompt
 
 
 def _tags_from_form(form, new_request):
@@ -195,21 +218,10 @@ def directory_new_get(request):
 
 @view_config(route_name="directory_new", request_method="POST", permission="chat", renderer="layout2/directory/new.mako")
 def directory_new_post(request):
-
-    if request.POST.get("maturity") not in Tag.maturity_names:
-        return {"form_data": request.POST, "preset_colours": preset_colours, "error": "blank_maturity"}
-
-    colour = request.POST.get("colour", "")
-    if colour.startswith("#"):
-        colour = colour[1:]
-    if colour_validator.match(colour) is None:
-        return {"form_data": request.POST, "preset_colours": preset_colours, "error": "invalid_colour"}
-
-    scenario = request.POST.get("scenario", "").strip()
-    prompt = request.POST.get("prompt", "").strip()
-
-    if not scenario and not prompt:
-        return {"form_data": request.POST, "preset_colours": preset_colours, "error": "blank_scenario_and_prompt"}
+    try:
+        colour, scenario, prompt = _validate_request_form(request)
+    except ValidationError as e:
+        return {"form_data": request.POST, "preset_colours": preset_colours, "error": e.message}
 
     new_request = Request(
         user_id=request.user.id,
@@ -223,7 +235,7 @@ def directory_new_post(request):
 
     new_request.tags += _tags_from_form(request.POST, new_request)
 
-    return HTTPFound(request.route_path("directory"))
+    return HTTPFound(request.route_path("directory_request", id=new_request.id))
 
 
 @view_config(route_name="directory_request", request_method="GET", permission="view", renderer="layout2/directory/request.mako")
@@ -284,6 +296,26 @@ def directory_request_edit_get(context, request):
     form_data["prompt"] = context.prompt
 
     return {"form_data": form_data, "preset_colours": preset_colours}
+
+
+@view_config(route_name="directory_request_edit", request_method="POST", permission="chat", renderer="layout2/directory/new.mako")
+def directory_request_edit_post(context, request):
+    try:
+        colour, scenario, prompt = _validate_request_form(request)
+    except ValidationError as e:
+        return {"form_data": request.POST, "preset_colours": preset_colours, "error": e.message}
+
+    context.status = "draft" if "draft" in request.POST else "posted" # TODO update date if going from draft to posted
+    context.colour = colour
+    context.scenario = scenario
+    context.prompt = prompt
+
+    for request_tag in context.tags:
+        Session.delete(request_tag)
+
+    context.tags += _tags_from_form(request.POST, context)
+
+    return HTTPFound(request.route_path("directory_request", id=context.id))
 
 
 @view_config(route_name="directory_request_delete", request_method="GET", permission="chat", renderer="layout2/directory/request_delete.mako")

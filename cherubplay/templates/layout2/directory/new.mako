@@ -1,6 +1,6 @@
 <%inherit file="base.mako" />\
 <%block name="heading">\
-% if request.matched_route.name == "directory_edit_request":
+% if request.matched_route.name == "directory_request_edit":
 Edit request #${request.context.id}
 % else:
 New request
