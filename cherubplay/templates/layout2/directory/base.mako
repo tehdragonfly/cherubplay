@@ -9,6 +9,9 @@ ${tag.alias}\
 </li>\
 </%def>
 <%def name="render_request(rq, expanded=False)">\
+        % if rq.status != "posted":
+        <div class="status">${rq.status.capitalize()}</div>
+        % endif
         <% tags_by_type = rq.tags_by_type() %>
         <ul class="tag_list">
           % for tag in tags_by_type["maturity"]:

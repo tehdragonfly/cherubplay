@@ -11,7 +11,7 @@
     % endif
     <ul id="chat_list">
       % for rq in requests:
-      <li class="tile2 request">
+      <li class="tile2 request ${rq.status}">
         ${parent.render_request(rq)}
       </li>
       % endfor
