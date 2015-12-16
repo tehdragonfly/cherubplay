@@ -165,16 +165,22 @@ def directory_tag(request):
             Tag.type == request.matchdict["type"], Tag.name == request.matchdict["name"],
         )).options(joinedload(Tag.synonym_of)).one()
     except NoResultFound:
-        raise HTTPNotFound # TODO show an empty results page
+        return {"tag": {
+            "type": request.matchdict["type"],
+            "name": request.matchdict["name"],
+            "alias": request.matchdict["name"],
+        }, "blacklisted": False, "requests": [], "request_count": 0, "current_page": current_page}
     if tag.synonym_of is not None:
         return HTTPFound(request.current_route_path(type=tag.synonym_of.type, name=tag.synonym_of.name))
+
+    tag_dict = tag.__json__(request)
 
     blacklisted = Session.query(func.count("*")).select_from(BlacklistedTag).filter(and_(
         BlacklistedTag.user_id == request.user.id, BlacklistedTag.tag_id == tag.id,
     )).scalar()
 
     if blacklisted:
-        return {"tag": tag, "blacklisted": True, "requests": [], "request_count": 0, "current_page": current_page}
+        return {"tag": tag_dict, "blacklisted": True, "requests": [], "request_count": 0, "current_page": current_page}
 
     tag_array = cast([tag.id], ARRAY(Integer))
     requests = (
@@ -201,7 +207,7 @@ def directory_tag(request):
         )).scalar()
     )
 
-    return {"tag": tag, "blacklisted": False, "requests": requests, "request_count": request_count, "current_page": current_page}
+    return {"tag": tag_dict, "blacklisted": False, "requests": requests, "request_count": request_count, "current_page": current_page}
 
 
 @view_config(route_name="directory_yours", request_method="GET", permission="view", renderer="layout2/directory/index.mako")

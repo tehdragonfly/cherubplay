@@ -1,5 +1,5 @@
 <%inherit file="base.mako" />\
-<%block name="heading">Requests tagged "${tag.type.replace("_", " ")}:${tag.name.replace("_", " ")}"</%block>
+<%block name="heading">Requests tagged "${tag["type"].replace("_", " ")}:${tag["name"].replace("_", " ")}"</%block>
 <%
     from cherubplay.lib import make_paginator
     paginator = make_paginator(request, request_count, current_page)
