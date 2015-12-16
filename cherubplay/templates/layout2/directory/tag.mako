@@ -6,7 +6,7 @@
 %>
     % if blacklisted:
     <p>This tag can't be shown because it's on your blacklist.</p>
-    % elif len(requests) == 0:
+    % elif not requests:
     <p>There are no requests with this tag.</p>
     % else:
     % if paginator.page_count > 1:
