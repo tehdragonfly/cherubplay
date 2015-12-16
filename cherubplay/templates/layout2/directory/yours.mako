@@ -4,7 +4,7 @@
     from cherubplay.lib import make_paginator
     paginator = make_paginator(request, request_count, current_page)
 %>
-    % if paginator.page_count!=1:
+    % if paginator.page_count > 1:
     <p class="pager tile2">
     ${paginator.pager(format='~5~')|n}
     </p>
@@ -16,7 +16,7 @@
       </li>
       % endfor
     </ul>
-    % if paginator.page_count!=1:
+    % if paginator.page_count > 1:
     <p class="pager tile2">
     ${paginator.pager(format='~5~')|n}
     </p>

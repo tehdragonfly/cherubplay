@@ -2,13 +2,15 @@ import re
 
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.view import view_config
-from sqlalchemy import and_, func
+from sqlalchemy import and_, func, Integer
+from sqlalchemy.dialects.postgres import array, ARRAY
 from sqlalchemy.orm import joinedload, joinedload_all
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql.expression import cast
 from uuid import uuid4
 
 from ..lib import colour_validator, preset_colours
-from ..models import Session, Chat, ChatUser, Message, Request, RequestTag, Tag
+from ..models import Session, BlacklistedTag, Chat, ChatUser, Message, Request, RequestTag, Tag
 
 
 special_char_regex = re.compile("[\\ \\./]+")
@@ -118,7 +120,13 @@ def directory(request):
 
     requests = (
         Session.query(Request)
-        .filter(Request.status == "posted")
+        .filter(and_(
+            Request.status == "posted",
+            ~Request.tag_ids.overlap(
+                Session.query(func.array_agg(BlacklistedTag.tag_id))
+                .filter(BlacklistedTag.user_id == request.user.id)
+            ),
+        ))
         .options(joinedload_all(Request.tags, RequestTag.tag))
         .order_by(Request.posted.desc())
         .limit(25).offset((current_page-1)*25).all()
@@ -152,18 +160,32 @@ def directory_tag(request):
     if replaced_name != request.matchdict["name"]:
         return HTTPFound(request.current_route_path(name=replaced_name))
 
-    tag = Session.query(Tag).filter(and_(
-        Tag.type == request.matchdict["type"], Tag.name == request.matchdict["name"],
-    )).options(joinedload(Tag.synonym_of)).one()
+    try:
+        tag = Session.query(Tag).filter(and_(
+            Tag.type == request.matchdict["type"], Tag.name == request.matchdict["name"],
+        )).options(joinedload(Tag.synonym_of)).one()
+    except NoResultFound:
+        raise HTTPNotFound # TODO show an empty results page
     if tag.synonym_of is not None:
         return HTTPFound(request.current_route_path(type=tag.synonym_of.type, name=tag.synonym_of.name))
 
+    blacklisted = Session.query(func.count("*")).select_from(BlacklistedTag).filter(and_(
+        BlacklistedTag.user_id == request.user.id, BlacklistedTag.tag_id == tag.id,
+    )).scalar()
+
+    if blacklisted:
+        return {"tag": tag, "blacklisted": True, "requests": [], "request_count": 0, "current_page": current_page}
+
+    tag_array = cast([tag.id], ARRAY(Integer))
     requests = (
         Session.query(Request)
-        .join(Request.tags)
         .filter(and_(
             Request.status == "posted",
-            RequestTag.tag_id == tag.id,
+            Request.tag_ids.contains(tag_array),
+            ~Request.tag_ids.overlap(
+                Session.query(func.array_agg(BlacklistedTag.tag_id))
+                .filter(BlacklistedTag.user_id == request.user.id)
+            ),
         ))
         .options(joinedload_all(Request.tags, RequestTag.tag))
         .order_by(Request.posted.desc())
@@ -175,11 +197,11 @@ def directory_tag(request):
         .join(Request.tags)
         .filter(and_(
             Request.status == "posted",
-            RequestTag.tag_id == tag.id,
+            Request.tag_ids.contains(tag_array),
         )).scalar()
     )
 
-    return {"tag": tag, "requests": requests, "request_count": request_count, "current_page": current_page}
+    return {"tag": tag, "blacklisted": False, "requests": requests, "request_count": request_count, "current_page": current_page}
 
 
 @view_config(route_name="directory_yours", request_method="GET", permission="view", renderer="layout2/directory/index.mako")
@@ -234,6 +256,7 @@ def directory_new_post(request):
     Session.flush()
 
     new_request.tags += _tags_from_form(request.POST, new_request)
+    new_request.tag_ids = [_.tag_id for _ in new_request.tags]
 
     return HTTPFound(request.route_path("directory_request", id=new_request.id))
 
@@ -314,6 +337,7 @@ def directory_request_edit_post(context, request):
         Session.delete(request_tag)
 
     context.tags += _tags_from_form(request.POST, context)
+    context.tag_ids = [_.tag_id for _ in context.tags]
 
     return HTTPFound(request.route_path("directory_request", id=context.id))
 
@@ -325,6 +349,7 @@ def directory_request_delete_get(context, request):
 
 @view_config(route_name="directory_request_delete", request_method="POST", permission="chat")
 def directory_request_delete_post(context, request):
+    # TODO remove request_id from chats
     Session.query(RequestTag).filter(RequestTag.request_id == context.id).delete()
     Session.query(Request).filter(Request.id == context.id).delete()
     return HTTPFound(request.route_path("directory_yours"))

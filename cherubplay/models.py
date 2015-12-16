@@ -259,6 +259,7 @@ class Request(Base, Resource):
     colour = Column(Unicode(6), nullable=False, default=u"000000")
     scenario = Column(UnicodeText, nullable=False, default=u"")
     prompt = Column(UnicodeText, nullable=False, default=u"")
+    tag_ids = Column(ARRAY(Integer), nullable=False, default=list) # this makes tag filtering easier
 
     def tags_by_type(self):
         tags = { _: [] for _ in Tag.type.type.enums }

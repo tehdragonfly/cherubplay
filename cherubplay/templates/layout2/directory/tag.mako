@@ -4,7 +4,12 @@
     from cherubplay.lib import make_paginator
     paginator = make_paginator(request, request_count, current_page)
 %>
-    % if paginator.page_count!=1:
+    % if blacklisted:
+    <p>This tag can't be shown because it's on your blacklist.</p>
+    % elif len(requests) == 0:
+    <p>There are no requests with this tag.</p>
+    % else:
+    % if paginator.page_count > 1:
     <p class="pager tile2">
     ${paginator.pager(format='~5~')|n}
     </p>
@@ -16,8 +21,9 @@
       </li>
       % endfor
     </ul>
-    % if paginator.page_count!=1:
+    % if paginator.page_count > 1:
     <p class="pager tile2">
     ${paginator.pager(format='~5~')|n}
     </p>
+    % endif
     % endif
