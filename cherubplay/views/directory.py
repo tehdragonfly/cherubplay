@@ -267,8 +267,21 @@ def directory_new_post(request):
     return HTTPFound(request.route_path("directory_request", id=new_request.id))
 
 
+@view_config(route_name="directory_blacklist", request_method="GET", permission="view", renderer="layout2/directory/blacklist.mako")
+@view_config(route_name="directory_blacklist_ext", request_method="GET", permission="view", extensions=("json",), renderer="json")
+def directory_blacklist(request):
+    return {
+        "tags": (
+            Session.query(BlacklistedTag)
+            .filter(BlacklistedTag.user_id == request.user.id)
+            .options(joinedload(BlacklistedTag.tag))
+            .order_by(BlacklistedTag.alias).all()
+        )
+    }
+
+
 @view_config(route_name="directory_request", request_method="GET", permission="view", renderer="layout2/directory/request.mako")
-@view_config(route_name="directory_request_ext", request_method="GET", permission="view", renderer="json")
+@view_config(route_name="directory_request_ext", request_method="GET", permission="view", extensions=("json",), renderer="json")
 def directory_request(context, request):
 
     if context.user_id == request.user.id:
