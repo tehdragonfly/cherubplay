@@ -23,11 +23,11 @@ from .views import prompts
 
 
 class ExtensionPredicate(object):
-    def __init__(self, extensions, config):
-        self.extensions = extensions
+    def __init__(self, extension, config):
+        self.extension = extension
 
     def text(self):
-        return "extensions in %s" % self.extensions
+        return "extension == %s" % self.extension
 
     phash = text
 
@@ -37,7 +37,7 @@ class ExtensionPredicate(object):
             del request.matchdict["ext"]
             plain_route = request.matched_route.name.split("_ext")[0]
             raise HTTPFound(request.route_path(plain_route, **request.matchdict))
-        return request.matchdict["ext"] in self.extensions
+        return request.matchdict["ext"] == self.extension
 
 
 class CherubplayConfigurator(Configurator):
@@ -159,7 +159,7 @@ def main(global_config, **settings):
 
     config.add_static_view("static", "static", cache_max_age=3600)
 
-    config.add_view_predicate("extensions", ExtensionPredicate)
+    config.add_view_predicate("extension", ExtensionPredicate)
 
     config.add_route("home", "/")
 

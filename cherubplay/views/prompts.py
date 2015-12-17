@@ -9,7 +9,7 @@ from ..models import Session, Prompt
 
 
 @view_config(route_name="prompt_list", request_method="GET", permission="view", renderer="layout2/prompt_list.mako")
-@view_config(route_name="prompt_list_ext", request_method="GET", permission="view", extensions={"json"}, renderer="json")
+@view_config(route_name="prompt_list_ext", request_method="GET", permission="view", extension="json", renderer="json")
 def prompt_list(request):
 
     current_page = int(request.GET.get("page", 1))
@@ -91,7 +91,7 @@ def prompt(context, request):
     return {"prompt_categories": prompt_categories, "prompt_levels": prompt_levels}
 
 
-@view_config(route_name="prompt_ext", request_method="GET", permission="view", extensions={"json"}, renderer="json")
+@view_config(route_name="prompt_ext", request_method="GET", permission="view", extension="json", renderer="json")
 def prompt_ext(context, request):
     return context
 

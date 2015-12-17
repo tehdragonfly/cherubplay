@@ -29,15 +29,15 @@ from ..models import (
 
 
 @view_config(route_name="chat_list", request_method="GET", permission="view")
-@view_config(route_name="chat_list_ext", request_method="GET", permission="view", extensions={"json"}, renderer="json")
+@view_config(route_name="chat_list_ext", request_method="GET", permission="view", extension="json", renderer="json")
 @view_config(route_name="chat_list_unanswered", request_method="GET", permission="view")
-@view_config(route_name="chat_list_unanswered_ext", request_method="GET", permission="view", extensions={"json"}, renderer="json")
+@view_config(route_name="chat_list_unanswered_ext", request_method="GET", permission="view", extension="json", renderer="json")
 @view_config(route_name="chat_list_ongoing", request_method="GET", permission="view")
-@view_config(route_name="chat_list_ongoing_ext", request_method="GET", permission="view", extensions={"json"}, renderer="json")
+@view_config(route_name="chat_list_ongoing_ext", request_method="GET", permission="view", extension="json", renderer="json")
 @view_config(route_name="chat_list_ended", request_method="GET", permission="view")
-@view_config(route_name="chat_list_ended_ext", request_method="GET", permission="view", extensions={"json"}, renderer="json")
+@view_config(route_name="chat_list_ended_ext", request_method="GET", permission="view", extension="json", renderer="json")
 @view_config(route_name="chat_list_label", request_method="GET", permission="view")
-@view_config(route_name="chat_list_label_ext", request_method="GET", permission="view", extensions={"json"}, renderer="json")
+@view_config(route_name="chat_list_label_ext", request_method="GET", permission="view", extension="json", renderer="json")
 def chat_list(request):
 
     current_page = int(request.GET.get("page", 1))
@@ -128,7 +128,7 @@ def chat_list(request):
 
 
 @view_config(route_name="chat", request_method="GET")
-@view_config(route_name="chat_ext", request_method="GET", extensions={"json"}, renderer="json")
+@view_config(route_name="chat_ext", request_method="GET", extension="json", renderer="json")
 def chat(request):
 
     try:
