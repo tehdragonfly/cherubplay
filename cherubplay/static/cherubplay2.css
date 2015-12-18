@@ -205,7 +205,7 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 
 .request.draft { background-color: #f8f8f8; }
 .request .status { float: right; color: #666; }
-.request h3 { margin: 0 5px -8px 0; text-align: left; font-size: 10pt; font-weight: normal; color: #000; }
+.request h3 { margin: 0 0 2px 0; text-align: left; font-size: 10pt; font-weight: normal; color: #000; }
 .tag_list { margin: 0 0 10px; padding: 0; }
 .tag_list li { display: inline; }
 .tag_list li:not(:last-child)::after { content: ","; }
