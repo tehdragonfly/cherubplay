@@ -1,6 +1,6 @@
 import re
 
-from pyramid.httpexceptions import HTTPFound, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy import and_, func, Integer
 from sqlalchemy.dialects.postgres import array, ARRAY
@@ -287,7 +287,14 @@ def directory_blacklist_add(request):
 
 @view_config(route_name="directory_blacklist_remove", request_method="POST", permission="view")
 def directory_blacklist_remove(request):
-    pass
+    try:
+        Session.query(BlacklistedTag).filter(and_(
+            BlacklistedTag.user_id == request.user.id,
+            BlacklistedTag.tag_id == request.POST["tag_id"],
+        )).delete()
+    except KeyError, ValueError:
+        raise HTTPBadRequest
+    return HTTPFound(request.route_path("directory_blacklist"))
 
 
 @view_config(route_name="directory_request", request_method="GET", permission="view", renderer="layout2/directory/request.mako")
