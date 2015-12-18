@@ -5,7 +5,7 @@
     paginator = make_paginator(request, request_count, current_page)
 %>
     % if blacklisted:
-    <p>This tag can't be shown because it's on your blacklist.</p>
+    <p>This tag can't be shown because it's on your <a href="${request.route_path("directory_blacklist")}">blacklist</a>.</p>
     % elif not requests:
     <p>There are no requests with this tag.</p>
     % else:

@@ -280,6 +280,16 @@ def directory_blacklist(request):
     }
 
 
+@view_config(route_name="directory_blacklist_add", request_method="POST", permission="view")
+def directory_blacklist_add(request):
+    pass
+
+
+@view_config(route_name="directory_blacklist_remove", request_method="POST", permission="view")
+def directory_blacklist_remove(request):
+    pass
+
+
 @view_config(route_name="directory_request", request_method="GET", permission="view", renderer="layout2/directory/request.mako")
 @view_config(route_name="directory_request_ext", request_method="GET", permission="view", extension="json", renderer="json")
 def directory_request(context, request):
