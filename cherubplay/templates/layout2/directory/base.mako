@@ -115,6 +115,11 @@ ${tag.alias}\
 % else:
         <li><a href="${request.route_path("directory")}">Directory</a></li>
 % endif
+% if request.matched_route.name == "directory_blacklist":
+        <li>Blacklisted tags</li>
+% else:
+        <li><a href="${request.route_path("directory_blacklist")}">Blacklisted tags</a></li>
+% endif
 % if request.matched_route.name == "directory_yours":
         <li>Your requests</li>
 % else:

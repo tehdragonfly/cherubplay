@@ -282,7 +282,28 @@ def directory_blacklist(request):
 
 @view_config(route_name="directory_blacklist_add", request_method="POST", permission="view")
 def directory_blacklist_add(request):
-    pass
+
+    if request.POST.get("tag_type") not in Tag.type.type.enums:
+        raise HTTPBadRequest
+    tag_type = request.POST["tag_type"]
+
+    alias = request.POST["alias"].strip()[:100]
+    if not alias:
+        raise HTTPBadRequest
+
+    name = name_from_alias(alias)
+
+    try:
+        tag = Session.query(Tag).filter(and_(Tag.type == tag_type, Tag.name == name)).one()
+    except NoResultFound:
+        tag = Tag(type=tag_type, name=name)
+        Session.add(tag)
+        Session.flush()
+    tag_id = (tag.synonym_id or tag.id)
+
+    Session.add(BlacklistedTag(user_id=request.user.id, tag_id=tag_id, alias=alias))
+
+    return HTTPFound(request.route_path("directory_blacklist"))
 
 
 @view_config(route_name="directory_blacklist_remove", request_method="POST", permission="view")

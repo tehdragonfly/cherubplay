@@ -14,12 +14,12 @@
         % endfor
         <li>
           <form action="${request.route_path("directory_blacklist_add")}" method="post">
-            <select name="type">
+            <select name="tag_type">
               % for tag_type in Tag.type.type.enums:
               <option value="${tag_type}">${tag_type.replace("_", " ")}</option>
               % endfor
             </select>
-            <input type="text" name="name" maxlength="100" required>
+            <input type="text" name="alias" maxlength="100" required>
             <button type="submit">Add</button>
           </form>
         </li>
