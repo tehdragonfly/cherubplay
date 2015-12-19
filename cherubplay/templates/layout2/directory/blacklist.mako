@@ -1,6 +1,9 @@
 <%inherit file="base.mako" />\
 <%block name="heading">Blacklisted tags</%block>
 <% from cherubplay.models import Tag %>
+    % if error == "invalid":
+    <p><strong>${error_alias}</strong> is not a valid ${error_tag_type}.</p>
+    % endif
     <section class="tile2">
       <ul id="blacklist">
         % for tag in tags:

@@ -267,20 +267,25 @@ def directory_new_post(request):
     return HTTPFound(request.route_path("directory_request", id=new_request.id))
 
 
-@view_config(route_name="directory_blacklist", request_method="GET", permission="view", renderer="layout2/directory/blacklist.mako")
-@view_config(route_name="directory_blacklist_ext", request_method="GET", permission="view", extension="json", renderer="json")
-def directory_blacklist(request):
-    return {
-        "tags": (
+def _blacklisted_tags(request, **kwargs):
+    return dict(
+        tags=(
             Session.query(BlacklistedTag)
             .filter(BlacklistedTag.user_id == request.user.id)
             .options(joinedload(BlacklistedTag.tag))
             .order_by(BlacklistedTag.alias).all()
-        )
-    }
+        ),
+        **kwargs
+    )
 
 
-@view_config(route_name="directory_blacklist_add", request_method="POST", permission="view")
+@view_config(route_name="directory_blacklist", request_method="GET", permission="view", renderer="layout2/directory/blacklist.mako")
+@view_config(route_name="directory_blacklist_ext", request_method="GET", permission="view", extension="json", renderer="json")
+def directory_blacklist(request):
+    return _blacklisted_tags(request)
+
+
+@view_config(route_name="directory_blacklist_add", request_method="POST", permission="view", renderer="layout2/directory/blacklist.mako")
 def directory_blacklist_add(request):
 
     if request.POST.get("tag_type") not in Tag.type.type.enums:
@@ -296,6 +301,8 @@ def directory_blacklist_add(request):
     try:
         tag = Session.query(Tag).filter(and_(Tag.type == tag_type, Tag.name == name)).one()
     except NoResultFound:
+        if tag_type in ("maturity", "type"):
+            return _blacklisted_tags(request, error="invalid", error_tag_type=tag_type, error_alias=alias)
         tag = Tag(type=tag_type, name=name)
         Session.add(tag)
         Session.flush()
