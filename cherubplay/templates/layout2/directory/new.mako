@@ -1,4 +1,5 @@
 <%inherit file="base.mako" />\
+<% from cherubplay.models import Tag %>
 <%block name="heading">\
 % if request.matched_route.name == "directory_request_edit":
 Edit request #${request.context.id}
@@ -8,20 +9,18 @@ New request
 </%block>
     <form id="new_request_form" class="tile2" action="${request.current_route_path()}" method="post">
       <p><label><select name="maturity">
-        <option value="safe_for_work"${" selected" if form_data.get("maturity") == "safe_for_work" else ""}>Safe for work</option>
-        <option value="not_safe_for_work"${" selected" if form_data.get("maturity") == "not_safe_for_work" else ""}>Not safe for work</option>
-        <option value="nsfw_extreme"${" selected" if form_data.get("maturity") == "nsfw_extreme" else ""}>NSFW extreme</option>
+        % for maturity in Tag.maturity_names:
+        <option${" selected" if form_data.get("maturity") == maturity else ""}>${maturity}</option>
+        % endfor
       </select></label></p>
       % if error == "blank_maturity":
       <p class="error">Please choose a maturity for your prompt.</p>
       % endif
       <p><label>Trigger warnings: <input type="text" class="full" name="trigger" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("trigger", "")}"></label></p>
       <p class="types">
-        <label><input type="checkbox" name="type_fluff"${" checked" if "type_fluff" in form_data else ""}> Fluff</label>
-        <label><input type="checkbox" name="type_plot-driven"${" checked" if "type_plot-driven" in form_data else ""}> Plot-driven</label>
-        <label><input type="checkbox" name="type_sexual"${" checked" if "type_sexual" in form_data else ""}> Sexual</label>
-        <label><input type="checkbox" name="type_shippy"${" checked" if "type_shippy" in form_data else ""}> Shippy</label>
-        <label><input type="checkbox" name="type_violent"${" checked" if "type_violent" in form_data else ""}> Violent</label>
+        % for tag_type in Tag.type_names:
+        <label><input type="checkbox" name="type_${tag_type}"${" checked" if "type_" + tag_type in form_data else ""}> ${tag_type}</label>
+        % endfor
       </p>
       <hr>
       <h3>Who you're playing</h3>

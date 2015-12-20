@@ -44,15 +44,15 @@ def _tags_from_form(form, new_request):
         if tag_type == "maturity":
             name = form["maturity"]
             if name not in Tag.maturity_names:
-                name = u"NSFW Extreme"
-            tag_dict[(u"maturity", name)] = Tag.maturity_names[name]
+                name = "NSFW extreme"
+            tag_dict[(u"maturity", name)] = name
             continue
 
         # Enforce preset values for type.
         elif tag_type == "type":
             for name in Tag.type_names:
                 if "type_" + name in form:
-                    tag_dict[(u"type", name)] = Tag.type_names[name]
+                    tag_dict[(u"type", name)] = name
             continue
 
         for alias in form[tag_type][:100].split(","):
@@ -176,7 +176,6 @@ def directory_tag(request):
 
     request_count = (
         Session.query(func.count('*')).select_from(Request)
-        .join(Request.tags)
         .filter(and_(
             request.user.tag_filter,
             Request.tag_ids.contains(tag_array),
