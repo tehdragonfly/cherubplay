@@ -3,6 +3,7 @@
 import datetime
 
 from collections import OrderedDict
+from pyramid.decorator import reify
 from pyramid.security import Allow, Authenticated, Everyone
 from pytz import timezone, utc
 from sqlalchemy import (
@@ -67,7 +68,23 @@ class User(Base):
     def __repr__(self):
         return "<User #%s: %s>" % (self.id, self.username)
 
-    def unban_delta(self):
+    @reify
+    def tag_filter(self):
+        status_filter = Request.status == "posted"
+
+        has_blacklist = Session.query(BlacklistedTag).filter(BlacklistedTag.user_id == self.id).first() is not None
+        if has_blacklist:
+            return and_(
+                status_filter,
+                ~Request.tag_ids.overlap(
+                    Session.query(func.array_agg(BlacklistedTag.tag_id))
+                   .filter(BlacklistedTag.user_id == self.id)
+                ),
+            )
+
+        return status_filter
+
+    def unban_delta(self): # TODO property
         return self.unban_date - datetime.datetime.now()
 
     def localise_time(self, input_datetime):
@@ -337,7 +354,7 @@ class Tag(Base):
     def name_from_url(cls, url):
         return url.replace("*s*", "/").replace("_", " ")
 
-    @property
+    @reify
     def url_name(self):
         return self.name.replace("/", "*s*").replace(" ", "_")
 

@@ -44,7 +44,7 @@ def _tags_from_form(form, new_request):
         if tag_type == "maturity":
             name = form["maturity"]
             if name not in Tag.maturity_names:
-                name = u"nsfw_extreme"
+                name = u"NSFW Extreme"
             tag_dict[(u"maturity", name)] = Tag.maturity_names[name]
             continue
 
@@ -66,13 +66,13 @@ def _tags_from_form(form, new_request):
 
     # Meta types
     if not new_request.prompt:
-        tag_dict[(u"type", u"not_a_prompt")] = u"Not a prompt"
+        tag_dict[(u"type", u"Not a prompt")] = u"Not a prompt"
 
     if len(fandoms) > 1:
-        tag_dict[(u"type", u"crossover")] = u"Crossover"
+        tag_dict[(u"type", u"Crossover")] = u"Crossover"
 
     if u"homestuck" not in fandoms:
-        tag_dict[(u"type", u"not_homestuck")] = u"Not Homestuck"
+        tag_dict[(u"type", u"Not Homestuck")] = u"Not Homestuck"
 
     tag_list = []
     used_ids = set()
@@ -104,13 +104,7 @@ def directory(request):
 
     requests = (
         Session.query(Request)
-        .filter(and_(
-            Request.status == "posted",
-            ~Request.tag_ids.overlap(
-                Session.query(func.array_agg(BlacklistedTag.tag_id))
-                .filter(BlacklistedTag.user_id == request.user.id)
-            ),
-        ))
+        .filter(request.user.tag_filter)
         .options(joinedload_all(Request.tags, RequestTag.tag))
         .order_by(Request.posted.desc())
         .limit(25).offset((current_page-1)*25).all()
@@ -122,7 +116,7 @@ def directory(request):
 
     request_count = (
         Session.query(func.count('*')).select_from(Request)
-        .filter(Request.status == "posted").scalar()
+        .filter(request.user.tag_filter).scalar()
     )
 
     return {"requests": requests, "request_count": request_count, "current_page": current_page}
@@ -172,12 +166,8 @@ def directory_tag(request):
     requests = (
         Session.query(Request)
         .filter(and_(
-            Request.status == "posted",
+            request.user.tag_filter,
             Request.tag_ids.contains(tag_array),
-            ~Request.tag_ids.overlap(
-                Session.query(func.array_agg(BlacklistedTag.tag_id))
-                .filter(BlacklistedTag.user_id == request.user.id)
-            ),
         ))
         .options(joinedload_all(Request.tags, RequestTag.tag))
         .order_by(Request.posted.desc())
@@ -188,7 +178,7 @@ def directory_tag(request):
         Session.query(func.count('*')).select_from(Request)
         .join(Request.tags)
         .filter(and_(
-            Request.status == "posted",
+            request.user.tag_filter,
             Request.tag_ids.contains(tag_array),
         )).scalar()
     )
