@@ -13,20 +13,6 @@ from ..lib import colour_validator, preset_colours
 from ..models import Session, BlacklistedTag, Chat, ChatUser, Message, Request, RequestTag, Tag
 
 
-special_char_regex = re.compile("[\\ \\./]+")
-underscore_strip_regex = re.compile("^_+|_+$")
-
-
-def name_from_alias(alias):
-    # 1. Change to lowercase.
-    # 2. Change spaces to underscores.
-    # 3. Change . and / to underscores because they screw up the routing.
-    # 4. Strip extra underscores from the start and end.
-    # TODO change slashes to *s* or something like ao3
-    # also TODO change this to a classmethod?
-    return underscore_strip_regex.sub("", special_char_regex.sub("_", alias)).lower()
-
-
 class ValidationError(Exception): pass
 
 
@@ -71,9 +57,7 @@ def _tags_from_form(form, new_request):
 
         for alias in form[tag_type][:100].split(","):
             alias = alias.strip()
-            if alias == "":
-                continue
-            name = name_from_alias(alias)
+            name = Tag.name_from_url(alias).strip()
             if name == "":
                 continue
             tag_dict[(tag_type, name)] = alias
@@ -94,7 +78,7 @@ def _tags_from_form(form, new_request):
     used_ids = set()
     for (tag_type, name), alias in tag_dict.iteritems():
         try:
-            tag = Session.query(Tag).filter(and_(Tag.type == tag_type, Tag.name == name)).one()
+            tag = Session.query(Tag).filter(and_(Tag.type == tag_type, func.lower(Tag.name) == name.lower())).one()
         except NoResultFound:
             tag = Tag(type=tag_type, name=name)
             Session.add(tag)
@@ -156,13 +140,11 @@ def directory_tag(request):
     if request.matchdict["type"] not in Tag.type.type.enums:
         raise HTTPNotFound
 
-    replaced_name = name_from_alias(request.matchdict["name"])
-    if replaced_name != request.matchdict["name"]:
-        return HTTPFound(request.current_route_path(name=replaced_name))
+    name = Tag.name_from_url(request.matchdict["name"])
 
     try:
         tag = Session.query(Tag).filter(and_(
-            Tag.type == request.matchdict["type"], Tag.name == request.matchdict["name"],
+            Tag.type == request.matchdict["type"], func.lower(Tag.name) == name.lower(),
         )).options(joinedload(Tag.synonym_of)).one()
     except NoResultFound:
         return {"tag": {
@@ -170,8 +152,12 @@ def directory_tag(request):
             "name": request.matchdict["name"],
             "alias": request.matchdict["name"],
         }, "blacklisted": False, "requests": [], "request_count": 0, "current_page": current_page}
+
     if tag.synonym_of is not None:
-        return HTTPFound(request.current_route_path(type=tag.synonym_of.type, name=tag.synonym_of.name))
+        return HTTPFound(request.current_route_path(type=tag.synonym_of.type, name=tag.synonym_of.url_name))
+
+    if tag.name != name:
+        return HTTPFound(request.current_route_path(name=tag.url_name))
 
     tag_dict = tag.__json__(request)
 
@@ -293,13 +279,13 @@ def directory_blacklist_add(request):
     tag_type = request.POST["tag_type"]
 
     alias = request.POST["alias"].strip()[:100]
-    if not alias:
+
+    name = Tag.name_from_url(alias).strip()
+    if not name:
         raise HTTPBadRequest
 
-    name = name_from_alias(alias)
-
     try:
-        tag = Session.query(Tag).filter(and_(Tag.type == tag_type, Tag.name == name)).one()
+        tag = Session.query(Tag).filter(and_(Tag.type == tag_type, func.lower(Tag.name) == name.lower())).one()
     except NoResultFound:
         if tag_type in ("maturity", "type"):
             return _blacklisted_tags(request, error="invalid", error_tag_type=tag_type, error_alias=alias)

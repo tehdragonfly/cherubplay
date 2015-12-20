@@ -7,6 +7,7 @@ from pyramid.security import Allow, Authenticated, Everyone
 from pytz import timezone, utc
 from sqlalchemy import (
     and_,
+    func,
     Column,
     ForeignKey,
     Index,
@@ -309,7 +310,6 @@ class BlacklistedTag(Base):
 
 class Tag(Base):
     __tablename__ = "tags"
-    __table_args__ = (UniqueConstraint("type", "name", name="tag_unique"),)
     id = Column(Integer, primary_key=True)
     type = Column(Enum(
         u"maturity", u"trigger", u"type", u"fandom", u"fandom_wanted",
@@ -333,11 +333,20 @@ class Tag(Base):
         (u"violent", u"Violent"),
     ])
 
+    @classmethod
+    def name_from_url(cls, url):
+        return url.replace("*s*", "/").replace("_", " ")
+
+    @property
+    def url_name(self):
+        return self.name.replace("/", "*s*").replace(" ", "_")
+
     def __json__(self, request=None):
         return {
             "type": self.type,
             "name": self.name,
             "alias": self.name,
+            "url_name": self.url_name,
         }
 
 
@@ -366,6 +375,6 @@ Tag.synonym_of = relationship(Tag, backref="synonyms", remote_side=Tag.id)
 # XXX indexes on requests table
 # index by user id for your requests?
 
-# Index for searching requests by tag.
-Index("request_tags_tag_id", RequestTag.tag_id)
+
+Index("tag_type_name_unique", Tag.type, func.lower(Tag.name), unique=True)
 
