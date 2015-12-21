@@ -13,7 +13,7 @@ ${tag.alias}\
         <div class="status">${rq.status.capitalize()}</div>
         % endif
         % if request.user.status == "admin":
-        <p>User: <a href="">${rq.user.username}</a></p>
+        <p>User: <a href="${request.route_path("admin_user", username=rq.user.username)}">${rq.user.username}</a></p>
         % endif
         <% tags_by_type = rq.tags_by_type() %>
         <ul class="tag_list">

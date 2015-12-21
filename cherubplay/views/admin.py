@@ -14,6 +14,7 @@ from ..models import (
     Chat,
     ChatUser,
     PromptReport,
+    Request,
     User,
 )
 
@@ -102,6 +103,7 @@ def user_status(request):
     user = _get_user(request)
     if user.status != "banned" and request.POST["status"] == "banned":
         user.unban_date = None
+        Session.query(Request).filter(Request.user_id == user.id).update({"status": "removed"})
     user.status = request.POST["status"]
     return HTTPFound(request.route_path("admin_user", username=request.matchdict["username"], _query={ "saved": "status" }))
 
