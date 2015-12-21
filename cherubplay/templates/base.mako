@@ -4,7 +4,7 @@
 <title><%block name="title"></%block>Cherubplay</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#393">
-<link rel="stylesheet" href="/static/cherubplay.css?26">
+<link rel="stylesheet" href="/static/cherubplay.css?27">
 </head>
 <body class="<%block name="body_class"></%block>">
 
@@ -16,6 +16,7 @@
   <nav id="nav">
     <ul>
       <li><a href="${request.route_path("home")}" id="nav_home">Home</a></li>
+      <li><a href="${request.route_path("directory")}" id="nav_directory">Directory</a></li>
       <li><a href="${request.route_path("chat_list")}" id="nav_chat_list"\
 % if request.unread_chats>0:
  data-unread="${request.unread_chats}">Your chats (${request.unread_chats} unread)\
@@ -42,7 +43,7 @@ ${next.body()}\
 </main>
 
 <script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
-<script src="/static/cherubplay.js?22"></script>
+<script src="/static/cherubplay.js?23"></script>
 <%block name="scripts"></%block>
 
 % if request.user and request.user.timezone is None:
