@@ -1,4 +1,4 @@
-import re
+import datetime, re
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
 from pyramid.view import view_config
@@ -369,8 +369,14 @@ def directory_request_edit_post(context, request):
     except ValidationError as e:
         return {"form_data": request.POST, "preset_colours": preset_colours, "error": e.message}
 
+    new_date = datetime.datetime.now()
+    context.edited = new_date
+
     if context.status != "removed":
-        context.status = "draft" if "draft" in request.POST else "posted" # TODO update date if going from draft to posted
+        if context.status == "draft" and "draft" not in request.POST:
+            context.posted = new_date
+        context.status = "draft" if "draft" in request.POST else "posted"
+
     context.colour = colour
     context.scenario = scenario
     context.prompt = prompt
