@@ -394,3 +394,15 @@ def directory_request_delete_post(context, request):
     Session.query(Request).filter(Request.id == context.id).delete()
     return HTTPFound(request.route_path("directory_yours"))
 
+
+@view_config(route_name="directory_request_remove", request_method="POST", permission="admin")
+def directory_request_remove(context, request):
+    context.status = "removed"
+    return HTTPFound(request.route_path("directory_request", id=context.id))
+
+
+@view_config(route_name="directory_request_unremove", request_method="POST", permission="admin")
+def directory_request_unremove(context, request):
+    context.status = "posted"
+    return HTTPFound(request.route_path("directory_request", id=context.id))
+

@@ -93,16 +93,21 @@ ${tag.alias}\
           % if not expanded:
           <div class="left"><a href="${request.route_path("directory_request", id=rq.id)}">Permalink</a></div>
           % endif
-          % if rq.user_id == request.user.id:
           <div class="right">
+            % if request.user.status == "admin":
+            % if rq.status == "removed":
+            <form action="${request.route_path("directory_request_unremove", id=rq.id)}" method="post"><button type="submit">Unremove</button></form> ·
+            % else:
+            <form action="${request.route_path("directory_request_remove", id=rq.id)}" method="post"><button type="submit">Remove</button></form> ·
+            % endif
+            % endif
+            % if rq.user_id == request.user.id:
             <a href="${request.route_path("directory_request_edit", id=rq.id)}">Edit</a> ·
             <a href="${request.route_path("directory_request_delete", id=rq.id)}">Delete</a>
+            % else:
+            <form action="${request.route_path("directory_request_answer", id=rq.id)}" method="post"><button type="submit">Answer</button></form>
+            % endif
           </div>
-          % else:
-          <form class="right" action="${request.route_path("directory_request_answer", id=rq.id)}" method="post">
-            <button type="submit">Answer</button>
-          </form>
-          % endif
         </div>
         % endif
 </%def>
