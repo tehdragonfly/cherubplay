@@ -12,6 +12,9 @@ ${tag.alias}\
         % if rq.status != "posted":
         <div class="status">${rq.status.capitalize()}</div>
         % endif
+        % if request.user.status == "admin":
+        <p>User: <a href="">${rq.user.username}</a></p>
+        % endif
         <% tags_by_type = rq.tags_by_type() %>
         <ul class="tag_list">
           % for tag in tags_by_type["maturity"]:

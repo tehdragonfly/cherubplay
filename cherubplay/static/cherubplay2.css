@@ -203,8 +203,10 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 
 /* 3.3. Directory */
 
-.request.draft { background-color: #f8f8f8; }
+.request.draft, .request.removed { background-color: #f8f8f8; }
 .request .status { float: right; color: #666; }
+.request.removed .status { color: #f33; }
+.request .status + p { margin: 0 0 10px; }
 .request h3 { margin: 0 0 2px 0; text-align: left; font-size: 10pt; font-weight: normal; color: #000; }
 .tag_list { margin: 0 0 10px; padding: 0; }
 .tag_list li { display: inline; }

@@ -30,7 +30,7 @@ def request_factory(request):
         return Session.query(Request).filter(and_(
             Request.id == int(request.matchdict["id"]),
             or_(
-                Request.status == "posted",
+                request.user.tag_status_filter,
                 Request.user_id == request.user.id,
             ),
         )).options(

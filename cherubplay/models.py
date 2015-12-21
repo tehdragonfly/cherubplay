@@ -69,20 +69,25 @@ class User(Base):
         return "<User #%s: %s>" % (self.id, self.username)
 
     @reify
+    def tag_status_filter(self):
+        if self.status == "admin":
+            return Request.status.in_(("posted", "removed"))
+        return Request.status == "posted"
+
+    @reify
     def tag_filter(self):
-        status_filter = Request.status == "posted"
 
         has_blacklist = Session.query(BlacklistedTag).filter(BlacklistedTag.user_id == self.id).first() is not None
         if has_blacklist:
             return and_(
-                status_filter,
+                self.tag_status_filter,
                 ~Request.tag_ids.overlap(
                     Session.query(func.array_agg(BlacklistedTag.tag_id))
                    .filter(BlacklistedTag.user_id == self.id)
                 ),
             )
 
-        return status_filter
+        return self.tag_status_filter
 
     def unban_delta(self): # TODO property
         return self.unban_date - datetime.datetime.now()
@@ -271,7 +276,7 @@ class Request(Base, Resource):
     __tablename__ = "requests"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    status = Column(Enum(u"draft", u"posted", name=u"requests_status"), nullable=False, default=u"draft")
+    status = Column(Enum(u"draft", u"posted", u"removed", name=u"requests_status"), nullable=False, default=u"draft")
     posted = Column(DateTime(), nullable=False, default=datetime.datetime.now)
     edited = Column(DateTime(), nullable=False, default=datetime.datetime.now)
     colour = Column(Unicode(6), nullable=False, default=u"000000")

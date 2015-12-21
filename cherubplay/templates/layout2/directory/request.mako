@@ -1,7 +1,7 @@
 <%inherit file="base.mako" />\
 <%namespace name="chat_list" file="../chat_list.mako" />\
 <%block name="heading">Request #${request.context.id}</%block>
-    <section class="tile2 request">
+    <section class="tile2 request ${request.context.status}">
       ${parent.render_request(request.context, expanded=True)}
     </section>
     % if chats:

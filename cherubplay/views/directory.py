@@ -367,7 +367,8 @@ def directory_request_edit_post(context, request):
     except ValidationError as e:
         return {"form_data": request.POST, "preset_colours": preset_colours, "error": e.message}
 
-    context.status = "draft" if "draft" in request.POST else "posted" # TODO update date if going from draft to posted
+    if context.status != "removed":
+        context.status = "draft" if "draft" in request.POST else "posted" # TODO update date if going from draft to posted
     context.colour = colour
     context.scenario = scenario
     context.prompt = prompt
