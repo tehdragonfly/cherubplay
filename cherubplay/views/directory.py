@@ -391,7 +391,7 @@ def directory_request_delete_get(context, request):
 
 @view_config(route_name="directory_request_delete", request_method="POST", permission="chat")
 def directory_request_delete_post(context, request):
-    # TODO remove request_id from chats
+    Session.query(Chat).filter(Chat.request_id == context.id).update({"request_id": None})
     Session.query(RequestTag).filter(RequestTag.request_id == context.id).delete()
     Session.query(Request).filter(Request.id == context.id).delete()
     return HTTPFound(request.route_path("directory_yours"))
