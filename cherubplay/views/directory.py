@@ -332,8 +332,10 @@ def directory_request_answer(context, request):
     Session.add(ChatUser(chat_id=new_chat.id, user_id=context.user_id, symbol=0, last_colour=context.colour))
     Session.add(ChatUser(chat_id=new_chat.id, user_id=request.user.id, symbol=1))
 
-    Session.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=0, text=context.scenario))
-    Session.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=0, colour=context.colour, text=context.prompt))
+    if context.scenario:
+        Session.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=0, text=context.scenario))
+    if context.prompt:
+        Session.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=0, colour=context.colour, text=context.prompt))
 
     return HTTPFound(request.route_path("chat", url=new_chat.url))
 
