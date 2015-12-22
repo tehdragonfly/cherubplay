@@ -389,6 +389,9 @@ def directory_request_answer(context, request):
 @view_config(route_name="directory_request_edit", request_method="GET", permission="chat", renderer="layout2/directory/new.mako")
 def directory_request_edit_get(context, request):
 
+    if context.user_id != request.user.id:
+        raise HTTPForbidden
+
     form_data = {}
 
     for tag_type, tags in context.tags_by_type().items():
@@ -410,6 +413,10 @@ def directory_request_edit_get(context, request):
 
 @view_config(route_name="directory_request_edit", request_method="POST", permission="chat", renderer="layout2/directory/new.mako")
 def directory_request_edit_post(context, request):
+
+    if context.user_id != request.user.id:
+        raise HTTPForbidden
+
     try:
         colour, scenario, prompt = _validate_request_form(request)
     except ValidationError as e:
@@ -438,11 +445,15 @@ def directory_request_edit_post(context, request):
 
 @view_config(route_name="directory_request_delete", request_method="GET", permission="chat", renderer="layout2/directory/request_delete.mako")
 def directory_request_delete_get(context, request):
+    if context.user_id != request.user.id:
+        raise HTTPForbidden
     return {}
 
 
 @view_config(route_name="directory_request_delete", request_method="POST", permission="chat")
 def directory_request_delete_post(context, request):
+    if context.user_id != request.user.id:
+        raise HTTPForbidden
     Session.query(Chat).filter(Chat.request_id == context.id).update({"request_id": None})
     Session.query(RequestTag).filter(RequestTag.request_id == context.id).delete()
     Session.query(Request).filter(Request.id == context.id).delete()
