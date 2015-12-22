@@ -435,6 +435,16 @@ var cherubplay = (function() {
 				this.style.height = this.scrollHeight+"px";
 			});
 		},
+		"directory_new": function() {
+			// TODO make this generic
+			$("#new_request_form textarea").keyup(function() { this.style.height = this.scrollHeight + "px"; });
+			var prompt_colour = $("#new_request_form input[name=\"colour\"]").change(function() {
+				$("#new_request_form textarea[name=\"prompt\"]").css("color", this.value);
+			});
+			var preset_colours = $("#new_request_form select[name=\"preset_colours\"]").change(function() {
+				prompt_colour.val(this.value).change();
+			});
+		},
 		"account": function() {
 			var sound_notifications = $("#sound_notifications").click(function() {
 				localStorage.setItem("sound_notifications", this.checked);

@@ -57,3 +57,6 @@ New request
         <div class="right"><input type="submit" name="draft" value="Save draft"> · <input type="submit" name="publish" value="Publish"></div>
       </div>
     </form>
+<%block name="scripts">
+<script>cherubplay.directory_new();</script>
+</%block>
