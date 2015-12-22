@@ -310,7 +310,7 @@ class RequestTag(Base):
     __tablename__ = "request_tags"
     request_id = Column(Integer, ForeignKey("requests.id"), primary_key=True)
     tag_id = Column(Integer, ForeignKey("tags.id"), primary_key=True)
-    alias = Column(Unicode(50))
+    alias = Column(Unicode(100))
 
     def __json__(self, request=None):
         tag_dict = self.tag.__json__(request)
@@ -322,7 +322,7 @@ class BlacklistedTag(Base):
     __tablename__ = "blacklisted_tags"
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     tag_id = Column(Integer, ForeignKey("tags.id"), primary_key=True)
-    alias = Column(Unicode(50))
+    alias = Column(Unicode(100))
 
     def __json__(self, request=None):
         tag_dict = self.tag.__json__(request)
@@ -338,7 +338,7 @@ class Tag(Base):
         u"character", u"character_wanted", u"gender", u"gender_wanted", u"misc",
         name=u"tags_type",
     ), nullable=False, default=u"misc")
-    name = Column(Unicode(50), nullable=False)
+    name = Column(Unicode(100), nullable=False)
     synonym_id = Column(Integer, ForeignKey("tags.id"))
 
     maturity_names = [u"Safe for work", u"Not safe for work", u"NSFW extreme"]

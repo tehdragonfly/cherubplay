@@ -329,7 +329,11 @@ def directory_blacklist_add(request):
         Session.flush()
     tag_id = (tag.synonym_id or tag.id)
 
-    Session.add(BlacklistedTag(user_id=request.user.id, tag_id=tag_id, alias=alias))
+    if Session.query(func.count("*")).select_from(BlacklistedTag).filter(and_(
+        BlacklistedTag.user_id == request.user.id,
+        BlacklistedTag.tag_id == tag_id,
+    )).scalar() == 0:
+        Session.add(BlacklistedTag(user_id=request.user.id, tag_id=tag_id, alias=alias))
 
     return HTTPFound(request.route_path("directory_blacklist"))
 
