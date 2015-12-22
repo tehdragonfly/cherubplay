@@ -72,7 +72,7 @@ def _tags_from_form(form, new_request):
                 continue
             tag_dict[(tag_type, name)] = alias
             if tag_type in (u"fandom", u"fandom_wanted"):
-                fandoms.add(name)
+                fandoms.add(name.lower())
 
     # Meta types
     if not new_request.prompt:
