@@ -16,6 +16,16 @@ from ..models import Session, BlacklistedTag, Chat, ChatUser, Message, Request, 
 class ValidationError(Exception): pass
 
 
+def _get_or_create_tag(tag_type, name):
+    try:
+        tag = Session.query(Tag).filter(and_(Tag.type == tag_type, func.lower(Tag.name) == name.lower())).one()
+    except NoResultFound:
+        tag = Tag(type=tag_type, name=name)
+        Session.add(tag)
+        Session.flush()
+    return tag
+
+
 def _validate_request_form(request):
     if request.POST.get("maturity") not in Tag.maturity_names:
         raise ValidationError("blank_maturity")
@@ -77,12 +87,7 @@ def _tags_from_form(form, new_request):
     tag_list = []
     used_ids = set()
     for (tag_type, name), alias in tag_dict.iteritems():
-        try:
-            tag = Session.query(Tag).filter(and_(Tag.type == tag_type, func.lower(Tag.name) == name.lower())).one()
-        except NoResultFound:
-            tag = Tag(type=tag_type, name=name)
-            Session.add(tag)
-            Session.flush()
+        tag = _get_or_create_tag(tag_type, name)
         tag_id = (tag.synonym_id or tag.id)
         # Remember IDs to skip synonyms.
         if tag_id in used_ids:
@@ -183,6 +188,47 @@ def directory_tag(request):
     )
 
     return {"tag": tag_dict, "blacklisted": False, "requests": requests, "request_count": request_count, "current_page": current_page}
+
+
+@view_config(route_name="directory_tag_synonym", request_method="POST", permission="admin")
+def directory_tag_synonym(request):
+
+    if request.matchdict["type"] not in Tag.type.type.enums or request.POST["tag_type"] not in Tag.type.type.enums:
+        raise HTTPNotFound
+
+    old_name = Tag.name_from_url(request.matchdict["name"])
+    new_name = Tag.name_from_url(request.POST["name"]).strip()[:100]
+
+    old_tag = _get_or_create_tag(request.matchdict["type"], old_name)
+
+    # A tag can't be a synonym if it has synonyms.
+    if Session.query(func.count("*")).select_from(Tag).filter(Tag.synonym_id == old_tag.id).scalar():
+        raise HTTPNotFound
+
+    new_tag = _get_or_create_tag(request.POST["tag_type"], new_name)
+
+    if old_tag.id == new_tag.id:
+        raise HTTPNotFound
+
+    old_tag.synonym_id = new_tag.id
+
+    # Delete the old tag from reqests which already have the new tag.
+    Session.query(RequestTag).filter(and_(
+        RequestTag.tag_id == old_tag.id,
+        RequestTag.request_id.in_(Session.query(RequestTag.request_id).filter(RequestTag.tag_id == new_tag.id)),
+    )).delete(synchronize_session=False)
+    # And update the rest.
+    Session.query(RequestTag).filter(RequestTag.tag_id == old_tag.id).update({"tag_id": new_tag.id})
+
+    # And the same for the tag_ids arrays.
+    Session.query(Request).filter(
+        Request.tag_ids.contains(cast([old_tag.id, new_tag.id], ARRAY(Integer)))
+    ).update({"tag_ids": func.array_remove(Request.tag_ids, old_tag.id)}, synchronize_session=False)
+    Session.query(Request).filter(
+        Request.tag_ids.contains(cast([old_tag.id], ARRAY(Integer)))
+    ).update({"tag_ids": func.array_replace(Request.tag_ids, old_tag.id, new_tag.id)}, synchronize_session=False)
+
+    return HTTPFound(request.route_path("directory_tag", **request.matchdict))
 
 
 @view_config(route_name="directory_yours", request_method="GET", permission="view", renderer="layout2/directory/index.mako")
