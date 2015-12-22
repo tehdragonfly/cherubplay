@@ -17,7 +17,7 @@
   <section class="tile2 danger">
     <h3>End or delete chat</h3>
     <p>Ending a chat prevents any further messages from being sent, and deleting it also deletes it from the your chats page. These actions are both irreversible and cannot be undone, so please do not do them unless you're absolutely sure you're done with this chat.</p>
-    <p class="links"><a href="${request.route_path("chat_end", url=request.matchdict["url"])}">End chat</a> · <a href="${request.route_path("chat_delete", url=request.matchdict["url"])}">Delete chat</a></p>
+    <p class="middle_actions"><a href="${request.route_path("chat_end", url=request.matchdict["url"])}">End chat</a> · <a href="${request.route_path("chat_delete", url=request.matchdict["url"])}">Delete chat</a></p>
   </section>
 % else:
   <section class="tile2 danger">

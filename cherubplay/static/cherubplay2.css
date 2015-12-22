@@ -252,7 +252,9 @@ body.ongoing main { margin-bottom: 0; }
 .message_ooc:hover { opacity: 1; }
 .message_system { text-align: center; }
 
-.symbol { position: absolute; width: 50px; left: -50px; margin-top: 15px; text-align: center; font-size: 1.5em; }
+.symbol { position: absolute; width: 50px; left: -50px; text-align: center; font-size: 1.5em; }
+#message_form .symbol { margin-top: 15px; }
+
 .timestamp { font-size: 10pt; color: #888; }
 .edited .timestamp::after { content: " · Edited"; }
 
@@ -271,7 +273,8 @@ body.ongoing main { margin-bottom: 0; }
 @media (max-width: 640px) {
 	#messages { padding: 0 15px; }
 	#messages li { padding: 10px 0; }
-	.symbol { width: 30px; left: -30px; margin-top: 10px; font-size: 1em; }
+	.symbol { width: 30px; left: -30px; font-size: 1em; }
+    #message_form .symbol { margin-top: 10px; }
 }
 
 /* 3.6. Chat info */

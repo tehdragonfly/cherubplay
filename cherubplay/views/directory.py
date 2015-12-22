@@ -1,6 +1,6 @@
 import datetime, re
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPFound, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy import and_, func, Integer
 from sqlalchemy.dialects.postgres import array, ARRAY
