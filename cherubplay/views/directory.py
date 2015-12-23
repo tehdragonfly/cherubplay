@@ -4,7 +4,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPFound, HTT
 from pyramid.view import view_config
 from sqlalchemy import and_, func, Integer
 from sqlalchemy.dialects.postgres import array, ARRAY
-from sqlalchemy.orm import joinedload, joinedload_all
+from sqlalchemy.orm import contains_eager, joinedload, joinedload_all
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 from uuid import uuid4
@@ -295,9 +295,10 @@ def _blacklisted_tags(request, **kwargs):
     return dict(
         tags=(
             Session.query(BlacklistedTag)
+            .join(BlacklistedTag.tag)
             .filter(BlacklistedTag.user_id == request.user.id)
-            .options(joinedload(BlacklistedTag.tag))
-            .order_by(BlacklistedTag.alias).all()
+            .options(contains_eager(BlacklistedTag.tag))
+            .order_by(Tag.type, BlacklistedTag.alias).all()
         ),
         **kwargs
     )
