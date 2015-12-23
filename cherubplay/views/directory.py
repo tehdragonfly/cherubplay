@@ -438,8 +438,7 @@ def directory_request_edit_post(context, request):
     context.scenario = scenario
     context.prompt = prompt
 
-    for request_tag in context.tags:
-        Session.delete(request_tag)
+    Session.query(RequestTag).filter(RequestTag.request_id == context.id).delete()
 
     context.tags += _tags_from_form(request.POST, context)
     context.tag_ids = [_.tag_id for _ in context.tags]
