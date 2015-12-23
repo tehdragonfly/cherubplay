@@ -198,7 +198,7 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 @media (max-width: 640px) {
     #prompt_list li { max-height: 170px; }
     .fade { top: 120px; }
-    #overlay, #report_overlay { padding: 0 15px; }
+    .show_overlay #overlay, .show_overlay #report_overlay { padding: 0 15px; }
 }
 
 #prompt_info :first-child { margin-top: 0; }
