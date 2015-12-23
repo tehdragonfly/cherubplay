@@ -14,12 +14,15 @@ from ..models import Session, BlacklistedTag, Chat, ChatUser, Message, Request, 
 
 
 class ValidationError(Exception): pass
+class CreateNotAllowed(Exception): pass
 
 
-def _get_or_create_tag(tag_type, name):
+def _get_or_create_tag(tag_type, name, allow_maturity_and_type_creation=True):
     try:
         tag = Session.query(Tag).filter(and_(Tag.type == tag_type, func.lower(Tag.name) == name.lower())).one()
     except NoResultFound:
+        if not allow_maturity_and_type_creation and tag_type in ("maturity", "type"):
+            raise CreateNotAllowed()
         tag = Tag(type=tag_type, name=name)
         Session.add(tag)
         Session.flush()
@@ -313,27 +316,28 @@ def directory_blacklist_add(request):
         raise HTTPBadRequest
     tag_type = request.POST["tag_type"]
 
-    alias = request.POST["alias"].strip()[:100]
+    aliases = request.POST["alias"][:100]
+    for alias in aliases.split(","):
 
-    name = Tag.name_from_url(alias).strip()
-    if not name:
-        raise HTTPBadRequest
+        alias = alias.strip()
+        if not alias:
+            continue
 
-    try:
-        tag = Session.query(Tag).filter(and_(Tag.type == tag_type, func.lower(Tag.name) == name.lower())).one()
-    except NoResultFound:
-        if tag_type in ("maturity", "type"):
+        name = Tag.name_from_url(alias).strip()
+        if not name:
+            continue
+
+        try:
+            tag = _get_or_create_tag(tag_type, name, allow_maturity_and_type_creation=False)
+        except CreateNotAllowed:
             return _blacklisted_tags(request, error="invalid", error_tag_type=tag_type, error_alias=alias)
-        tag = Tag(type=tag_type, name=name)
-        Session.add(tag)
-        Session.flush()
-    tag_id = (tag.synonym_id or tag.id)
+        tag_id = (tag.synonym_id or tag.id)
 
-    if Session.query(func.count("*")).select_from(BlacklistedTag).filter(and_(
-        BlacklistedTag.user_id == request.user.id,
-        BlacklistedTag.tag_id == tag_id,
-    )).scalar() == 0:
-        Session.add(BlacklistedTag(user_id=request.user.id, tag_id=tag_id, alias=alias))
+        if Session.query(func.count("*")).select_from(BlacklistedTag).filter(and_(
+            BlacklistedTag.user_id == request.user.id,
+            BlacklistedTag.tag_id == tag_id,
+        )).scalar() == 0:
+            Session.add(BlacklistedTag(user_id=request.user.id, tag_id=tag_id, alias=alias))
 
     return HTTPFound(request.route_path("directory_blacklist"))
 
