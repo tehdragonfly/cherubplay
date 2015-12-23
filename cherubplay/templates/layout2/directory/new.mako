@@ -8,11 +8,11 @@ New request
 % endif
 </%block>
     <form id="new_request_form" class="tile2" action="${request.current_route_path()}" method="post">
-      <p><label><select name="maturity">
+      <p><label>Maturity: <select name="maturity">
         % for maturity in Tag.maturity_names:
-        <option${" selected" if form_data.get("maturity") == maturity else ""}>${maturity}</option>
+        <option${" selected" if form_data.get("maturity") == maturity or (not form_data.get("maturity") and maturity == "NSFW extreme") else ""}>${maturity}</option>
         % endfor
-      </select></label></p>
+      </select> (<a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under" target="_blank">Category rules</a>)</label></p>
       % if error == "blank_maturity":
       <p class="error">Please choose a maturity for your prompt.</p>
       % endif
@@ -43,6 +43,7 @@ New request
       % endif
       <hr>
       <h3>Prompt</h3>
+      <p class="help">This section is for prose. If you're writing a not-a-prompt (eg. a request without any prose, a missed connection or a MSPARP group), please write everything in the scenario section and leave this section blank.</p>
       <p><input type="color" name="colour" size="6" maxlength="7" value="${form_data.get("colour") or "#000000"}"> <select name="preset_colours">
         % for hex, name in preset_colours:
         <option value="#${hex}">${name}</option>
