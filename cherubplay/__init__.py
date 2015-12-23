@@ -195,6 +195,7 @@ def main(global_config, **settings):
     config.add_ext_route("directory_tag_synonym", "/directory/{type}:{name}/synonym/")
     config.add_ext_route("directory_new", "/directory/new/")
     config.add_ext_route("directory_blacklist", "/directory/blacklist/")
+    config.add_route("directory_blacklist_setup", "/directory/blacklist/setup/")
     config.add_route("directory_blacklist_add", "/directory/blacklist/add/")
     config.add_route("directory_blacklist_remove", "/directory/blacklist/remove/")
     config.add_ext_route("directory_request", "/directory/{id:\d+}/", factory=request_factory)

@@ -64,6 +64,7 @@ class User(Base):
     unban_date = Column(DateTime)
     layout_version = Column(Integer, nullable=False, default=2)
     timezone = Column(Unicode(255))
+    seen_blacklist_warning = Column(Boolean, nullable=False, default=False)
 
     def __repr__(self):
         return "<User #%s: %s>" % (self.id, self.username)
@@ -340,6 +341,7 @@ class Tag(Base):
     ), nullable=False, default=u"misc")
     name = Column(Unicode(100), nullable=False)
     synonym_id = Column(Integer, ForeignKey("tags.id"))
+    blacklist_default = Column(Boolean, nullable=False, default=False)
 
     maturity_names = [u"Safe for work", u"Not safe for work", u"NSFW extreme"]
     type_names = [u"Fluff", u"Plot-driven", u"Sexual", u"Shippy", u"Violent"]

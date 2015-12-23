@@ -1,8 +1,9 @@
 import datetime, re
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPFound, HTTPNotFound
+from pyramid.renderers import render_to_response
 from pyramid.view import view_config
-from sqlalchemy import and_, func, Integer
+from sqlalchemy import and_, func, Integer, literal
 from sqlalchemy.dialects.postgres import array, ARRAY
 from sqlalchemy.orm import contains_eager, joinedload, joinedload_all
 from sqlalchemy.orm.exc import NoResultFound
@@ -10,7 +11,7 @@ from sqlalchemy.sql.expression import cast
 from uuid import uuid4
 
 from ..lib import colour_validator, preset_colours
-from ..models import Session, BlacklistedTag, Chat, ChatUser, Message, Request, RequestTag, Tag
+from ..models import Session, BlacklistedTag, Chat, ChatUser, Message, Request, RequestTag, Tag, User
 
 
 class ValidationError(Exception): pass
@@ -110,6 +111,9 @@ def directory(request):
     except ValueError:
         raise HTTPNotFound
 
+    if not request.user.seen_blacklist_warning:
+        return render_to_response("layout2/directory/blacklist_warning.mako", {}, request)
+
     requests = (
         Session.query(Request)
         .filter(request.user.tag_filter)
@@ -141,6 +145,9 @@ def directory_tag(request):
 
     if request.matchdict["type"] not in Tag.type.type.enums:
         raise HTTPNotFound
+
+    if not request.user.seen_blacklist_warning:
+        return render_to_response("layout2/directory/blacklist_warning.mako", {}, request)
 
     name = Tag.name_from_url(request.matchdict["name"])
 
@@ -308,6 +315,27 @@ def _blacklisted_tags(request, **kwargs):
 @view_config(route_name="directory_blacklist_ext", request_method="GET", permission="view", extension="json", renderer="json")
 def directory_blacklist(request):
     return _blacklisted_tags(request)
+
+
+@view_config(route_name="directory_blacklist_setup", request_method="POST", permission="view")
+def directory_blacklist_setup(request):
+
+    if request.POST.get("blacklist") not in ("none", "default"):
+        raise HTTPBadRequest
+
+    if request.user.seen_blacklist_warning:
+        return HTTPFound(request.headers.get("Referer") or request.route_path("directory"))
+
+    if request.POST["blacklist"] == "default":
+        print "default"
+        Session.execute(BlacklistedTag.__table__.insert().from_select(
+            ["user_id", "tag_id", "alias"],
+            Session.query(literal(request.user.id), Tag.id, Tag.name).filter(Tag.blacklist_default == True)
+        ))
+
+    Session.query(User).filter(User.id == request.user.id).update({"seen_blacklist_warning": True})
+
+    return HTTPFound(request.headers.get("Referer") or request.route_path("directory"))
 
 
 @view_config(route_name="directory_blacklist_add", request_method="POST", permission="view", renderer="layout2/directory/blacklist.mako")
