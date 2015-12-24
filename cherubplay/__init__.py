@@ -192,7 +192,7 @@ def main(global_config, **settings):
     config.add_ext_route("directory", "/directory/")
     config.add_ext_route("directory_yours", "/directory/yours/")
     config.add_ext_route("directory_tag", "/directory/{type}:{name}/")
-    config.add_ext_route("directory_tag_synonym", "/directory/{type}:{name}/synonym/")
+    config.add_ext_route("directory_tag_make_synonym", "/directory/{type}:{name}/make_synonym/")
     config.add_ext_route("directory_new", "/directory/new/")
     config.add_ext_route("directory_blacklist", "/directory/blacklist/")
     config.add_route("directory_blacklist_setup", "/directory/blacklist/setup/")

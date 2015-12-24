@@ -197,11 +197,16 @@ def directory_tag(request):
         )).scalar()
     )
 
-    return {"tag": tag_dict, "blacklisted": False, "requests": requests, "request_count": request_count, "current_page": current_page}
+    resp = {"tag": tag_dict, "blacklisted": False, "requests": requests, "request_count": request_count, "current_page": current_page}
+
+    if request.user.status == "admin":
+        resp["synonyms"] = Session.query(Tag).filter(Tag.synonym_id == tag.id).order_by(Tag.type, Tag.name).all()
+
+    return resp
 
 
-@view_config(route_name="directory_tag_synonym", request_method="POST", permission="admin")
-def directory_tag_synonym(request):
+@view_config(route_name="directory_tag_make_synonym", request_method="POST", permission="admin")
+def directory_tag_make_synonym(request):
 
     if request.matchdict["type"] not in Tag.type.type.enums or request.POST["tag_type"] not in Tag.type.type.enums:
         raise HTTPNotFound
