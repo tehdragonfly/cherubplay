@@ -216,7 +216,8 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 .tag_list li.trigger a { color: #f33; }
 
 #new_request_form .types { white-space: unset; }
-#new_request_form .types label { display: inline-block; margin-right: 10px; font-size: 12pt; }
+#new_request_form .types span { display: block; font-size: 10pt; color: #333; }
+#new_request_form .types label { display: inline-block; margin-right: 10px; font-size: 12pt; color: #000; }
 
 #blacklist { padding: 0; list-style-type: none; }
 #blacklist li { overflow: hidden; }

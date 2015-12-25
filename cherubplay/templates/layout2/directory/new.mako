@@ -17,7 +17,9 @@ New request
       <p class="error">Please choose a maturity for your prompt.</p>
       % endif
       <p><label>Trigger warnings: <input type="text" class="full" name="trigger" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("trigger", "")}"></label></p>
+      <p class="help">Trigger warnings must include anything that belongs under NSFW extreme.</p>
       <p class="types">
+        <span>Type:</span>
         % for tag_type in Tag.type_names:
         <label><input type="checkbox" name="type_${tag_type}"${" checked" if "type_" + tag_type in form_data else ""}> ${tag_type}</label>
         % endfor
@@ -34,16 +36,17 @@ New request
       <p><label>Gender: <input type="text" class="full" name="gender_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("gender_wanted", "")}"></label></p>
       <hr>
       <h3>Other tags</h3>
+      <p class="help">Other tags can contain anything else you think is relevant - AUs, kinks and the like.</p>
       <p><input type="text" class="full" name="misc" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("misc", "")}"></p>
       <hr>
       <h3>Scenario</h3>
-      <p><textarea name="scenario" placeholder="Enter OOC notes here...">${form_data.get("scenario", "")}</textarea></p>
+      <p class="help">This section is for out-of-character notes and other information about the scenario you'd like to roleplay. If you're writing a not-a-prompt (eg. a request without any prose, a missed connection or a MSPARP group), please write everything in the scenario section and leave the prompt section blank.</p>
+      <p><textarea name="scenario" placeholder="Enter your scenario...">${form_data.get("scenario", "")}</textarea></p>
       % if error == "blank_scenario_and_prompt":
       <p class="error">Please write a scenario and/or prompt.</p>
       % endif
       <hr>
       <h3>Prompt</h3>
-      <p class="help">This section is for prose. If you're writing a not-a-prompt (eg. a request without any prose, a missed connection or a MSPARP group), please write everything in the scenario section and leave this section blank.</p>
       <p><input type="color" name="colour" size="6" maxlength="7" value="${form_data.get("colour") or "#000000"}"> <select name="preset_colours">
         % for hex, name in preset_colours:
         <option value="#${hex}">${name}</option>
