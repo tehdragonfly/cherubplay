@@ -348,11 +348,11 @@ class Tag(Base):
 
     @classmethod
     def name_from_url(cls, url):
-        return url.replace("*s*", "/").replace("_", " ")
+        return url.replace("*s*", "/").replace("*c*", ":").replace("_", " ")
 
     @reify
     def url_name(self):
-        return self.name.replace("/", "*s*").replace(" ", "_")
+        return self.name.replace("/", "*s*").replace(":", "*c*").replace(" ", "_")
 
     def __json__(self, request=None):
         return {
