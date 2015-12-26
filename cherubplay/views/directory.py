@@ -70,6 +70,8 @@ def _tags_from_form(form, new_request):
             continue
 
         for alias in form[tag_type][:100].split(","):
+            if tag_type == "trigger" and alias.lower().startswith("tw:"):
+                alias = alias[3:]
             alias = alias.strip()
             name = Tag.name_from_url(alias).strip()
             if name == "":
