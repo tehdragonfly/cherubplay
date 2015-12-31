@@ -101,7 +101,7 @@ def request_user(request):
             user.last_online = datetime.datetime.now()
             user.last_ip = request.environ["REMOTE_ADDR"]
             if user.status == "banned" and user.unban_date is not None:
-                if user.unban_delta().total_seconds() < 0:
+                if user.unban_delta.total_seconds() < 0:
                     user.status = "active"
                     user.unban_date = None
             # The ACL stuff means the user object belongs to a different

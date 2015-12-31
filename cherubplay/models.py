@@ -90,7 +90,8 @@ class User(Base):
 
         return self.tag_status_filter
 
-    def unban_delta(self): # TODO property
+    @property
+    def unban_delta(self):
         return self.unban_date - datetime.datetime.now()
 
     def localise_time(self, input_datetime):
