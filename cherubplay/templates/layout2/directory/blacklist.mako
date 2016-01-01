@@ -5,7 +5,7 @@
     <p><strong>${error_alias}</strong> is not a valid ${error_tag_type}.</p>
     % endif
     <section class="tile2">
-      <ul id="blacklist">
+      <ul class="tag_list">
         % for tag in tags:
         <li>
           <form class="remove_form" action="${request.route_path("directory_blacklist_remove")}" method="post">

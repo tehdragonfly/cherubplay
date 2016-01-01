@@ -16,7 +16,7 @@ ${"TW: " if tag.tag.type == "trigger" else ""}${tag.alias}\
         <p>User: <a href="${request.route_path("admin_user", username=rq.user.username)}">${rq.user.username}</a></p>
         % endif
         <% tags_by_type = rq.tags_by_type() %>
-        <ul class="tag_list">
+        <ul class="request_tags">
           % for tag in tags_by_type["maturity"]:
           ${tag_li(tag)}
           % endfor
@@ -29,7 +29,7 @@ ${"TW: " if tag.tag.type == "trigger" else ""}${tag.alias}\
         </ul>
         % if tags_by_type["character"] or tags_by_type["fandom"] or tags_by_type["gender"]:
         <h3>Playing:</h3>
-        <ul class="tag_list">
+        <ul class="request_tags">
           % for tag in tags_by_type["character"]:
           ${tag_li(tag)}
           % endfor
@@ -43,7 +43,7 @@ ${"TW: " if tag.tag.type == "trigger" else ""}${tag.alias}\
         % endif
         % if tags_by_type["character_wanted"] or tags_by_type["fandom_wanted"] or tags_by_type["gender_wanted"]:
         <h3>Looking for:</h3>
-        <ul class="tag_list">
+        <ul class="request_tags">
           % for tag in tags_by_type["character_wanted"]:
           ${tag_li(tag)}
           % endfor
@@ -57,7 +57,7 @@ ${"TW: " if tag.tag.type == "trigger" else ""}${tag.alias}\
         % endif
         % if tags_by_type["misc"]:
         <h3>Other tags:</h3>
-        <ul class="tag_list">
+        <ul class="request_tags">
           % for tag in tags_by_type["misc"]:
           ${tag_li(tag)}
           % endfor
@@ -122,6 +122,13 @@ ${"TW: " if tag.tag.type == "trigger" else ""}${tag.alias}\
         <li>Directory</li>
 % else:
         <li><a href="${request.route_path("directory")}">Directory</a></li>
+% endif
+% if request.user.status == "admin":
+% if request.matched_route.name == "directory_tag_list":
+        <li>Tag list</li>
+% else:
+        <li><a href="${request.route_path("directory_tag_list")}">Tag list</a></li>
+% endif
 % endif
 % if request.matched_route.name == "directory_blacklist":
         <li>Blacklisted tags</li>

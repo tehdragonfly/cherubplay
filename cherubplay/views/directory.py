@@ -136,6 +136,19 @@ def directory(request):
     return {"requests": requests, "request_count": request_count, "current_page": current_page}
 
 
+@view_config(route_name="directory_tag_list", request_method="GET", permission="admin", renderer="layout2/directory/tag_list.mako")
+def directory_tag_list(request):
+    try:
+        current_page = int(request.GET.get("page", 1))
+    except ValueError:
+        raise HTTPNotFound
+    return {
+        "tags": Session.query(Tag).order_by(Tag.type, Tag.name).limit(250).offset((current_page-1)*250).all(),
+        "tag_count": Session.query(func.count("*")).select_from(Tag).scalar(),
+        "current_page": current_page,
+    }
+
+
 @view_config(route_name="directory_tag", request_method="GET", permission="view", renderer="layout2/directory/tag.mako")
 @view_config(route_name="directory_tag_ext", request_method="GET", permission="view", extension="json", renderer="json")
 def directory_tag(request):

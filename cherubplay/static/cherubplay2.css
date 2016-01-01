@@ -210,24 +210,24 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 .request.removed .status { color: #f33; }
 .request p:first-child, .request .status + p { margin: 0 0 10px; }
 .request h3 { margin: 0 0 2px 0; text-align: left; font-size: 10pt; font-weight: normal; color: #000; }
-.tag_list { margin: 0 0 10px; padding: 0; }
-.tag_list li { display: inline; }
-.tag_list li:not(:last-child)::after { content: ","; }
-.tag_list li.trigger a { color: #f33; }
+.request_tags { margin: 0 0 10px; padding: 0; }
+.request_tags li { display: inline; }
+.request_tags li:not(:last-child)::after { content: ","; }
+.request_tags li.trigger a { color: #f33; }
 
 #new_request_form .types { white-space: unset; }
 #new_request_form .types span { display: block; font-size: 10pt; color: #333; }
 #new_request_form .types label { display: inline-block; margin-right: 10px; font-size: 12pt; color: #000; }
 
-#blacklist { padding: 0; list-style-type: none; }
-#blacklist li { overflow: hidden; }
-#blacklist li:not(:first-child) { padding-top: 15px; border-top: 1px solid #ddd; }
-#blacklist li:not(:last-child) { padding-bottom: 15px; }
+.tag_list { padding: 0; list-style-type: none; }
+.tag_list li { overflow: hidden; }
+.tag_list li:not(:first-child) { padding-top: 15px; border-top: 1px solid #ddd; }
+.tag_list li:not(:last-child) { padding-bottom: 15px; }
 @media (max-width: 640px) {
-    #blacklist li:not(:first-child) { padding-top: 10px; }
-    #blacklist li:not(:last-child) { padding-bottom: 10px; }
+    .tag_list li:not(:first-child) { padding-top: 10px; }
+    .tag_list li:not(:last-child) { padding-bottom: 10px; }
 }
-#blacklist .remove_form { float: right; }
+.tag_list .remove_form { float: right; }
 
 /* 3.4. Chat list */
 
