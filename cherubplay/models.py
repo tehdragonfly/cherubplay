@@ -342,6 +342,7 @@ class Tag(Base):
     ), nullable=False, default=u"misc")
     name = Column(Unicode(100), nullable=False)
     synonym_id = Column(Integer, ForeignKey("tags.id"))
+    approved = Column(Boolean, nullable=False, default=False)
     blacklist_default = Column(Boolean, nullable=False, default=False)
 
     maturity_names = [u"Safe for work", u"Not safe for work", u"NSFW extreme"]
@@ -356,12 +357,15 @@ class Tag(Base):
         return self.name.replace("/", "*s*").replace(":", "*c*").replace(" ", "_")
 
     def __json__(self, request=None):
-        return {
+        tag_dict = {
             "type": self.type,
             "name": self.name,
             "alias": self.name,
             "url_name": self.url_name,
         }
+        if request and request.user and request.user.status == "admin": # XXX effective principals?
+            tag_dict["approved"] = self.approved
+        return tag_dict
 
 
 Chat.last_user = relationship(User)
