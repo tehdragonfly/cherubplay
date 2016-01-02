@@ -13,7 +13,7 @@
       <ul class="tag_list">
         % for tag in tags:
         <li>
-          ${tag.type.replace("_", " ")}:${tag.name}
+          <a href="${request.route_path("directory_tag", type=tag.type, name=tag.name)}">${tag.type.replace("_", " ")}:${tag.name}</a>
         </li>
         % endfor
       </ul>
