@@ -13,9 +13,9 @@
       <ul class="tag_list">
         % for tag in tags:
         <li>
-          <a href="${request.route_path("directory_tag", type=tag.type, name=tag.name)}">${tag.type.replace("_", " ")}:${tag.name}</a>
+          <a href="${request.route_path("directory_tag", type=tag.type, name=tag.url_name)}">${tag.type.replace("_", " ")}:${tag.name}</a>
           % if tag.synonym_id is None and not tag.approved:
-          <form class="remove_form" action="${request.route_path("directory_tag_approve", type=tag.type, name=tag.name)}" method="post">
+          <form class="remove_form" action="${request.route_path("directory_tag_approve", type=tag.type, name=tag.url_name)}" method="post">
             <button type="submit">Approve</button>
           </form>
           % endif
