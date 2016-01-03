@@ -194,6 +194,7 @@ def main(global_config, **settings):
     config.add_route("directory_tag_list", "/directory/tags/")
     config.add_route("directory_tag_list_unapproved", "/directory/tags/unapproved/")
     config.add_ext_route("directory_tag", "/directory/{type}:{name}/")
+    config.add_ext_route("directory_tag_approve", "/directory/{type}:{name}/approve/")
     config.add_ext_route("directory_tag_make_synonym", "/directory/{type}:{name}/make_synonym/")
     config.add_ext_route("directory_new", "/directory/new/")
     config.add_ext_route("directory_blacklist", "/directory/blacklist/")

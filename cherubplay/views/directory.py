@@ -229,6 +229,22 @@ def directory_tag(request):
     return resp
 
 
+@view_config(route_name="directory_tag_approve", request_method="POST", permission="admin")
+def directory_tag_approve(request):
+
+    if request.matchdict["type"] not in Tag.type.type.enums:
+        raise HTTPNotFound
+
+    tag = _get_or_create_tag(request.matchdict["type"], Tag.name_from_url(request.matchdict["name"]))
+    if tag.synonym_id is not None:
+        raise HTTPNotFound
+    tag.approved = True
+
+    if "Referer" in request.headers:
+        return HTTPFound(request.headers["Referer"])
+    return HTTPFound(request.route_path("directory_tag", **request.matchdict))
+
+
 @view_config(route_name="directory_tag_make_synonym", request_method="POST", permission="admin")
 def directory_tag_make_synonym(request):
 
