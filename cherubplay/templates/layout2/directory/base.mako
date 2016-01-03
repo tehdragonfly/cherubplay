@@ -118,34 +118,42 @@ ${"TW: " if tag.tag.type == "trigger" else ""}${tag.alias}\
   <div class="side_column">
     <nav>
       <ul>
-% if request.matched_route.name == "directory":
+        % if request.matched_route.name == "directory":
         <li>Directory</li>
-% else:
+        % else:
         <li><a href="${request.route_path("directory")}">Directory</a></li>
-% endif
-% if request.user.status == "admin":
-% if request.matched_route.name == "directory_tag_list":
-        <li>Tag list</li>
-% else:
-        <li><a href="${request.route_path("directory_tag_list")}">Tag list</a></li>
-% endif
-% endif
-% if request.matched_route.name == "directory_blacklist":
+        % endif
+        % if request.matched_route.name == "directory_blacklist":
         <li>Blacklisted tags</li>
-% else:
+        % else:
         <li><a href="${request.route_path("directory_blacklist")}">Blacklisted tags</a></li>
-% endif
-% if request.matched_route.name == "directory_yours":
+        % endif
+        % if request.matched_route.name == "directory_yours":
         <li>Your requests</li>
-% else:
+        % else:
         <li><a href="${request.route_path("directory_yours")}">Your requests</a></li>
-% endif
-% if request.matched_route.name == "directory_new":
+        % endif
+        % if request.matched_route.name == "directory_new":
         <li>New request</li>
-% else:
+        % else:
         <li><a href="${request.route_path("directory_new")}">New request</a></li>
-% endif
+        % endif
       </ul>
+      % if request.user.status == "admin":
+      <h3>Tags</h3>
+      <ul>
+        % if request.matched_route.name == "directory_tag_list":
+        <li>All tags</li>
+        % else:
+        <li><a href="${request.route_path("directory_tag_list")}">All tags</a></li>
+        % endif
+        % if request.matched_route.name == "directory_tag_list_unapproved":
+        <li>Unapproved tags</li>
+        % else:
+        <li><a href="${request.route_path("directory_tag_list_unapproved")}">Unapproved tags</a></li>
+        % endif
+      </ul>
+      % endif
     </nav>
   </div>
   <div class="side_column">

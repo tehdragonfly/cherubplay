@@ -137,14 +137,23 @@ def directory(request):
 
 
 @view_config(route_name="directory_tag_list", request_method="GET", permission="admin", renderer="layout2/directory/tag_list.mako")
+@view_config(route_name="directory_tag_list_unapproved", request_method="GET", permission="admin", renderer="layout2/directory/tag_list.mako")
 def directory_tag_list(request):
+
     try:
         current_page = int(request.GET.get("page", 1))
     except ValueError:
         raise HTTPNotFound
+
+    tag_query = Session.query(Tag)
+    tag_count_query = Session.query(func.count("*")).select_from(Tag)
+    if request.matched_route.name == "directory_tag_list_unapproved":
+        tag_query = tag_query.filter(and_(Tag.synonym_id == None, Tag.approved == False))
+        tag_count_query = tag_count_query.filter(and_(Tag.synonym_id == None, Tag.approved == False))
+
     return {
-        "tags": Session.query(Tag).order_by(Tag.type, Tag.name).limit(250).offset((current_page-1)*250).all(),
-        "tag_count": Session.query(func.count("*")).select_from(Tag).scalar(),
+        "tags": tag_query.options(joinedload(Tag.synonym_of)).order_by(Tag.type, Tag.name).limit(250).offset((current_page-1)*250).all(),
+        "tag_count": tag_count_query.scalar(),
         "current_page": current_page,
     }
 
