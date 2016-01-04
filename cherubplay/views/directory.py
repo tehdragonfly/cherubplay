@@ -338,7 +338,7 @@ def directory_new_post(request):
     Session.flush()
 
     new_request.tags += _tags_from_form(request.POST, new_request)
-    new_request.tag_ids = [_.tag_id for _ in new_request.tags]
+    new_request.tag_ids = sorted([_.tag_id for _ in new_request.tags])
 
     return HTTPFound(request.route_path("directory_request", id=new_request.id))
 
@@ -518,8 +518,9 @@ def directory_request_edit_post(context, request):
 
     Session.query(RequestTag).filter(RequestTag.request_id == context.id).delete()
 
-    context.tags += _tags_from_form(request.POST, context)
-    context.tag_ids = [_.tag_id for _ in context.tags]
+    new_tags = _tags_from_form(request.POST, context)
+    context.tags += new_tags
+    context.tag_ids = sorted([_.tag_id for _ in new_tags])
 
     return HTTPFound(request.route_path("directory_request", id=context.id))
 
