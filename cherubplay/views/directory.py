@@ -223,7 +223,7 @@ def directory_tag(request):
 
     resp = {"tag": tag_dict, "blacklisted": False, "requests": requests, "request_count": request_count, "current_page": current_page}
 
-    if request.user.status == "admin":
+    if request.has_permission("tag_wrangling"):
         resp["synonyms"] = Session.query(Tag).filter(Tag.synonym_id == tag.id).order_by(Tag.type, Tag.name).all()
 
     return resp

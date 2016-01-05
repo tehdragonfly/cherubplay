@@ -15,6 +15,7 @@ from .models import (
     Base,
     Chat,
     ChatUser,
+    Resource,
     User,
 )
 from .resources import prompt_factory, report_factory, request_factory
@@ -74,16 +75,10 @@ class CherubplayAuthenticationPolicy(object):
         raise NotImplementedError
 
 
-class CherubplayRootFactory(object):
-
-    __acl__ = (
-        (Allow, Authenticated, "view"),
-        (Allow, "active", "chat"),
-        (Allow, "admin", "admin"),
-    )
-
+class CherubplayRootFactory(Resource):
     def __init__(self, *args):
         pass
+
 
 def request_user(request):
     if "cherubplay" not in request.cookies:

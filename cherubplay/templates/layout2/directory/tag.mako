@@ -5,7 +5,7 @@
     from cherubplay.lib import make_paginator
     paginator = make_paginator(request, request_count, current_page)
 %>
-    % if request.user.status == "admin":
+    % if request.has_permission("tag_wrangling"):
     % if synonyms:
     <section class="tile2">
       <h3>Synonyms</h3>

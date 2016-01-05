@@ -48,6 +48,7 @@ class Resource(object):
         (Allow, Authenticated, "view"),
         (Allow, "active", "chat"),
         (Allow, "admin", "admin"),
+        (Allow, "admin", "tag_wrangling"),
     )
 
 
@@ -363,7 +364,7 @@ class Tag(Base):
             "alias": self.name,
             "url_name": self.url_name,
         }
-        if request and request.user and request.user.status == "admin": # XXX effective principals?
+        if request and request.user and request.has_permission("tag_wrangling"):
             tag_dict["approved"] = self.approved
         return tag_dict
 

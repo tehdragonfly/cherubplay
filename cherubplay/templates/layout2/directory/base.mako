@@ -12,7 +12,7 @@ ${"TW: " if tag.tag.type == "trigger" else ""}${tag.alias}\
         % if rq.status != "posted":
         <div class="status">${rq.status.capitalize()}</div>
         % endif
-        % if request.user.status == "admin":
+        % if request.has_permission("admin"):
         <p>User: <a href="${request.route_path("admin_user", username=rq.user.username)}">${rq.user.username}</a></p>
         % endif
         <% tags_by_type = rq.tags_by_type() %>
@@ -94,7 +94,7 @@ ${"TW: " if tag.tag.type == "trigger" else ""}${tag.alias}\
           <div class="left"><a href="${request.route_path("directory_request", id=rq.id)}">Permalink</a></div>
           % endif
           <div class="right">
-            % if request.user.status == "admin":
+            % if request.has_permission("admin"):
             % if rq.status == "removed":
             <form action="${request.route_path("directory_request_unremove", id=rq.id)}" method="post"><button type="submit">Unremove</button></form> ·
             % else:
@@ -139,7 +139,7 @@ ${"TW: " if tag.tag.type == "trigger" else ""}${tag.alias}\
         <li><a href="${request.route_path("directory_new")}">New request</a></li>
         % endif
       </ul>
-      % if request.user.status == "admin":
+      % if request.has_permission("tag_wrangling"):
       <h3>Tags</h3>
       <ul>
         % if request.matched_route.name == "directory_tag_list":
