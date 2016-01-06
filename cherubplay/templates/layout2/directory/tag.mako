@@ -1,10 +1,6 @@
 <%inherit file="base.mako" />\
 <% from cherubplay.models import Tag %>
 <%block name="heading">Requests tagged "${tag["type"].replace("_", " ")}:${tag["name"]}"</%block>
-<%
-    from cherubplay.lib import make_paginator
-    paginator = make_paginator(request, request_count, current_page)
-%>
     % if request.has_permission("tag_wrangling"):
     % if synonyms:
     <section class="tile2">
@@ -32,11 +28,6 @@
     % elif not requests:
     <p>There are no requests with this tag.</p>
     % else:
-    % if paginator.page_count > 1:
-    <p class="pager tile2">
-    ${paginator.pager(format='~5~')|n}
-    </p>
-    % endif
     <ul id="chat_list">
       % for rq in requests:
       <li class="tile2 request ${rq.status}">
@@ -44,9 +35,7 @@
       </li>
       % endfor
     </ul>
-    % if paginator.page_count > 1:
-    <p class="pager tile2">
-    ${paginator.pager(format='~5~')|n}
-    </p>
+    % if more:
+    <p class="pager tile2"><a href="${request.current_route_path(_query={"page": current_page + 1})}">Next page</a></p>
     % endif
     % endif

@@ -121,19 +121,14 @@ def directory(request):
         .filter(request.user.tag_filter)
         .options(joinedload_all(Request.tags, RequestTag.tag))
         .order_by(Request.posted.desc())
-        .limit(25).offset((current_page-1)*25).all()
+        .limit(26).offset((current_page-1)*25).all()
     )
 
     # 404 on empty pages, unless it's the first page.
     if not requests and current_page != 1:
         raise HTTPNotFound
 
-    request_count = (
-        Session.query(func.count('*')).select_from(Request)
-        .filter(request.user.tag_filter).scalar()
-    )
-
-    return {"requests": requests, "request_count": request_count, "current_page": current_page}
+    return {"requests": requests[:25], "current_page": current_page, "more": len(requests) == 26}
 
 
 @view_config(route_name="directory_tag_list", request_method="GET", permission="admin", renderer="layout2/directory/tag_list.mako")
@@ -184,7 +179,7 @@ def directory_tag(request):
             "type": request.matchdict["type"],
             "name": request.matchdict["name"],
             "alias": request.matchdict["name"],
-        }, "blacklisted": False, "requests": [], "request_count": 0, "current_page": current_page}
+        }, "blacklisted": False, "requests": [], "current_page": current_page, "more": False}
 
     if tag.synonym_of is not None:
         return HTTPFound(request.current_route_path(type=tag.synonym_of.type, name=tag.synonym_of.url_name))
@@ -199,7 +194,7 @@ def directory_tag(request):
     )).scalar()
 
     if blacklisted:
-        return {"tag": tag_dict, "blacklisted": True, "requests": [], "request_count": 0, "current_page": current_page}
+        return {"tag": tag_dict, "blacklisted": True, "requests": [], "current_page": current_page, "more": False}
 
     tag_array = cast([tag.id], ARRAY(Integer))
     requests = (
@@ -210,18 +205,10 @@ def directory_tag(request):
         ))
         .options(joinedload_all(Request.tags, RequestTag.tag))
         .order_by(Request.posted.desc())
-        .limit(25).offset((current_page-1)*25).all()
+        .limit(26).offset((current_page-1)*25).all()
     )
 
-    request_count = (
-        Session.query(func.count('*')).select_from(Request)
-        .filter(and_(
-            request.user.tag_filter,
-            Request.tag_ids.contains(tag_array),
-        )).scalar()
-    )
-
-    resp = {"tag": tag_dict, "blacklisted": False, "requests": requests, "request_count": request_count, "current_page": current_page}
+    resp = {"tag": tag_dict, "blacklisted": False, "requests": requests[:25], "current_page": current_page, "more": len(requests) == 26}
 
     if request.has_permission("tag_wrangling"):
         resp["synonyms"] = Session.query(Tag).filter(Tag.synonym_id == tag.id).order_by(Tag.type, Tag.name).all()
@@ -300,19 +287,14 @@ def directory_yours(request):
         .filter(Request.user_id == request.user.id)
         .options(joinedload_all(Request.tags, RequestTag.tag))
         .order_by(Request.posted.desc())
-        .limit(25).offset((current_page-1)*25).all()
+        .limit(26).offset((current_page-1)*25).all()
     )
 
     # 404 on empty pages, unless it's the first page.
     if not requests and current_page != 1:
         raise HTTPNotFound
 
-    request_count = (
-        Session.query(func.count('*')).select_from(Request)
-        .filter(Request.user_id == request.user.id).scalar()
-    )
-
-    return {"requests": requests, "request_count": request_count, "current_page": current_page}
+    return {"requests": requests[:25], "current_page": current_page, "more": len(requests) == 26}
 
 
 @view_config(route_name="directory_new", request_method="GET", permission="admin", renderer="layout2/directory/new.mako")
