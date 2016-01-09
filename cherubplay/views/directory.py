@@ -164,10 +164,13 @@ def directory_tag_list(request):
 @view_config(route_name="directory_tag_ext", request_method="GET", permission="admin", extension="json", renderer="json")
 def directory_tag(request):
 
-    try:
-        current_page = int(request.GET.get("page", 1))
-    except ValueError:
-        raise HTTPNotFound
+    if request.GET.get("before"):
+        try:
+            before_date = datetime.datetime.strptime(request.GET["before"], "%Y-%m-%dT%H:%M:%S.%f")
+        except ValueError:
+            raise HTTPNotFound
+    else:
+        before_date = None
 
     if request.matchdict["type"] not in Tag.type.type.enums:
         raise HTTPNotFound
@@ -186,7 +189,7 @@ def directory_tag(request):
             "type": request.matchdict["type"],
             "name": request.matchdict["name"],
             "alias": request.matchdict["name"],
-        }, "blacklisted": False, "requests": [], "current_page": current_page, "more": False}
+        }, "blacklisted": False, "requests": [], "more": False}
 
     if tag.synonym_of is not None:
         return HTTPFound(request.current_route_path(type=tag.synonym_of.type, name=tag.synonym_of.url_name))
@@ -201,21 +204,22 @@ def directory_tag(request):
     )).scalar()
 
     if blacklisted:
-        return {"tag": tag_dict, "blacklisted": True, "requests": [], "current_page": current_page, "more": False}
+        return {"tag": tag_dict, "blacklisted": True, "requests": [], "more": False}
 
     tag_array = cast([tag.id], ARRAY(Integer))
     requests = (
         Session.query(Request)
-        .filter(and_(
-            request.user.tag_filter,
-            Request.tag_ids.contains(tag_array),
-        ))
-        .options(joinedload_all(Request.tags, RequestTag.tag))
+        .filter(and_(request.user.tag_filter, Request.tag_ids.contains(tag_array)))
+    )
+    if before_date:
+        requests = requests.filter(Request.posted < before_date)
+    requests = (
+        requests.options(joinedload_all(Request.tags, RequestTag.tag))
         .order_by(Request.posted.desc())
-        .limit(26).offset((current_page-1)*25).all()
+        .limit(26).all()
     )
 
-    resp = {"tag": tag_dict, "blacklisted": False, "requests": requests[:25], "current_page": current_page, "more": len(requests) == 26}
+    resp = {"tag": tag_dict, "blacklisted": False, "requests": requests[:25], "more": len(requests) == 26}
 
     if request.has_permission("tag_wrangling"):
         resp["synonyms"] = Session.query(Tag).filter(Tag.synonym_id == tag.id).order_by(Tag.type, Tag.name).all()
@@ -291,9 +295,6 @@ def directory_yours(request):
             raise HTTPNotFound
     else:
         before_date = None
-
-    if not request.user.seen_blacklist_warning:
-        return render_to_response("layout2/directory/blacklist_warning.mako", {}, request)
 
     requests = (
         Session.query(Request)
