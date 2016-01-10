@@ -91,7 +91,7 @@ ${"TW: " if tag.tag.type == "trigger" else ""}${tag.alias}\
         <hr>
         <div class="actions">
           % if not expanded:
-          <div class="left"><a href="${request.route_path("directory_request", id=rq.id)}">Permalink</a></div>
+          <div class="left"><a href="${request.route_path("directory_request", id=rq.id)}">${request.user.localise_time(rq.posted).strftime("%Y-%m-%d %H:%M")}</a></div>
           % endif
           <div class="right">
             % if request.has_permission("admin"):
