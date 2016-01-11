@@ -188,6 +188,15 @@ def chat(request):
             messages = messages.all()
             messages.reverse()
 
+        # XXX needs work for group chats
+        other_chat_user = Session.query(ChatUser).filter(and_(
+            ChatUser.chat_id == chat.id,
+            ChatUser.user_id != request.user.id,
+        )).options(joinedload(ChatUser.user)).first()
+        banned = None
+        if other_chat_user.user.status == "banned":
+            banned = "temporarily" if other_chat_user.user.unban_date is not None else "permanently"
+
         if request.matched_route.name == "chat_ext":
             return {
                 "chat": chat,
@@ -195,6 +204,7 @@ def chat(request):
                 "message_count": message_count,
                 "prompt": prompt,
                 "messages": messages,
+                "banned": banned,
             }
 
         # List users if we're an admin.
@@ -224,6 +234,7 @@ def chat(request):
             "messages": messages,
             "message_count": message_count,
             "symbol_users": symbol_users,
+            "banned": banned,
         }, request=request)
 
     # Otherwise show the archive view.

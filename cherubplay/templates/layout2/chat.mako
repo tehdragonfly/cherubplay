@@ -1,22 +1,25 @@
 <%inherit file="chat_base.mako" />\
 <%block name="body_class">layout2 ongoing</%block>
     <ul id="messages" class="tile2">
-% if prompt:
-${parent.render_message(prompt)}\
+      % if prompt:
+      ${parent.render_message(prompt)}\
       <li class="message_system"><a href="${request.route_path("chat", url=request.matchdict["url"], _query={ "page": 1 })}">${message_count-26} more messages</a></li>
-% endif
-% for message in messages:
-${parent.render_message(message, show_edit=True)}\
-% endfor
+      % endif
+      % for message in messages:
+      ${parent.render_message(message, show_edit=True)}\
+      % endfor
+      % if banned:
+      <li class="message_system">This user has been ${banned} banned from Cherubplay.</li>
+      % endif
     </ul>
     <div id="status_bar" class="tile2 pager">&nbsp;</div>
     <section id="message_form_container" class="tile2">
       <form id="message_form" action="${request.route_path("chat_send", url=request.matchdict["url"])}" method="post">
         <div class="actions">
           <div class="left"><input type="color" id="message_colour" name="message_colour" size="6" value="#${own_chat_user.last_colour}"> <select id="preset_colours" name="preset_colours">
-% for hex, name in preset_colours:
+            % for hex, name in preset_colours:
             <option value="#${hex}">${name}</option>
-% endfor
+            % endfor
           </select></div>
           <label class="right" title="Talk out of character; use ((double brackets)) to automatically OOC."><input id="message_ooc" type="checkbox" name="message_ooc"> OOC</label>
         </div>
