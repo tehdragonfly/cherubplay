@@ -11,7 +11,11 @@
     <h3><input type="text" id="chat_notes_title" class="full" name="title" placeholder="Title..." value="${own_chat_user.title}" maxlength="100"></h3>
     <p><textarea id="chat_notes_notes" name="notes" placeholder="Notes..." rows="5">${own_chat_user.notes}</textarea></p>
     <p><input type="text" id="chat_notes_labels" class="full" name="labels" placeholder="Labels..." value="${", ".join(_.replace("_", " ") for _ in own_chat_user.labels)}" maxlength="500"></textarea></p>
-    <button type="submit">Save</button>
+    <div class="actions">
+      <div class="right">
+        <button type="submit">Save</button>
+      </div>
+    </div>
   </form>
 % if chat.status == "ongoing":
   <section class="tile2 danger">
