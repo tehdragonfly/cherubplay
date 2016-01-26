@@ -184,6 +184,7 @@ var cherubplay = (function() {
 			}
 
 			var overlay_prompt_id;
+			var overlay = $("#overlay");
 			var overlay_text = $("#overlay_text");
 			var overlay_images = $("#overlay_images").click(function(e) { e.stopPropagation(); });
 
@@ -198,6 +199,7 @@ var cherubplay = (function() {
 					}
 				}
 				body.addClass("show_overlay");
+				overlay.scrollTop(0);
 			}
 
 			function hide_overlay() {
