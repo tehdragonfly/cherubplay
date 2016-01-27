@@ -370,6 +370,12 @@ class Tag(Base):
         return tag_dict
 
 
+class TagParent(Base):
+    __tablename__ = "tag_parents"
+    child_id = Column(Integer, ForeignKey("tags.id"), primary_key=True)
+    parent_id = Column(Integer, ForeignKey("tags.id"), primary_key=True)
+
+
 Chat.last_user = relationship(User)
 Chat.request = relationship(Request)
 
@@ -390,6 +396,9 @@ BlacklistedTag.tag = relationship(Tag)
 
 Tag.requests = relationship(RequestTag, backref="tag")
 Tag.synonym_of = relationship(Tag, backref="synonyms", remote_side=Tag.id)
+
+TagParent.child = relationship(Tag, foreign_keys=TagParent.child_id, backref="parents")
+TagParent.parent = relationship(Tag, foreign_keys=TagParent.parent_id, backref="children")
 
 
 # XXX indexes on requests table
