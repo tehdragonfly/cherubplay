@@ -584,7 +584,7 @@ var cherubplay = (function() {
 			}
 
 			var status_bar = $("#status_bar");
-			var last_status_message = status_bar.text();
+			var last_status_message = status_bar.text().trim() || "Connected.";
 
 			var message_form_container = $("#message_form_container").dblclick(function() {
 				if ($(this).hasClass("editing")) {
