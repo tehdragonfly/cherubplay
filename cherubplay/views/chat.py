@@ -194,7 +194,7 @@ def chat(request):
             ChatUser.user_id != request.user.id,
         )).options(joinedload(ChatUser.user)).first()
         banned = None
-        if other_chat_user.user.status == "banned":
+        if other_chat_user and other_chat_user.user.status == "banned":
             banned = "temporarily" if other_chat_user.user.unban_date is not None else "permanently"
 
         if request.matched_route.name == "chat_ext":
