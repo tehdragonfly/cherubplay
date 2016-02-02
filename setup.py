@@ -33,6 +33,7 @@ setup(name="cherubplay",
       main = cherubplay:main
       [console_scripts]
       initialize_cherubplay_db = cherubplay.scripts.initializedb:main
+      cherubplay_reap_requests = cherubplay.scripts.reap_requests:main
       cherubplay_search = cherubplay_live.search:main
       cherubplay_chat = cherubplay_live.chat:main
       """,
