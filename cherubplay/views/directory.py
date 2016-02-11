@@ -11,7 +11,7 @@ from sqlalchemy.sql.expression import cast
 from uuid import uuid4
 
 from ..lib import colour_validator, preset_colours
-from ..models import Session, BlacklistedTag, Chat, ChatUser, Message, Request, RequestTag, Tag, User
+from ..models import Session, BlacklistedTag, Chat, ChatUser, Message, Request, RequestTag, Tag, TagParent, User
 
 
 class ValidationError(Exception): pass
@@ -223,6 +223,8 @@ def directory_tag(request):
 
     if request.has_permission("tag_wrangling"):
         resp["synonyms"] = Session.query(Tag).filter(Tag.synonym_id == tag.id).order_by(Tag.type, Tag.name).all()
+        resp["parents"] = Session.query(Tag).join(TagParent, Tag.id == TagParent.parent_id).filter(TagParent.child_id == tag.id).order_by(Tag.type, Tag.name).all()
+        resp["children"] = Session.query(Tag).join(TagParent, Tag.id == TagParent.child_id).filter(TagParent.parent_id == tag.id).order_by(Tag.type, Tag.name).all()
 
     return resp
 

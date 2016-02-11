@@ -5,7 +5,7 @@
     % if synonyms:
     <section class="tile2">
       <h3>Synonyms</h3>
-      <ul>
+      <ul class="request_tags">
         % for synonym in synonyms:
         <li>${synonym.type.replace("_", " ")}:${synonym.name}</li>
         % endfor
@@ -21,6 +21,26 @@
         % endfor
       </select><input type="text" name="name" maxlength="100" required><button type="submit">Save</button></p>
     </form>
+    % endif
+    % if parents:
+    <section class="tile2">
+      <h3>Parent tags</h3>
+      <ul class="tag_list">
+        % for tag in parents:
+        <li><a href="${request.route_path("directory_tag", type=tag.type, name=tag.url_name)}">${tag.type.replace("_", " ")}:${tag.name}</a></li>
+        % endfor
+      </ul>
+    </section>
+    % endif
+    % if children:
+    <section class="tile2">
+      <h3>Child tags</h3>
+      <ul class="tag_list">
+        % for tag in children:
+        <li><a href="${request.route_path("directory_tag", type=tag.type, name=tag.url_name)}">${tag.type.replace("_", " ")}:${tag.name}</a></li>
+        % endfor
+      </ul>
+    </section>
     % endif
     % endif
     % if blacklisted:
