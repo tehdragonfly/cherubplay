@@ -52,13 +52,16 @@ def report_list(request):
     }
 
 
+report_response = {
+    "PromptReport": PromptReport,
+    "prompt_categories": prompt_categories,
+    "prompt_levels": prompt_levels,
+}
+
+
 @view_config(route_name="admin_report", request_method="GET", permission="admin", renderer="layout2/admin/report.mako")
 def report_get(context, request):
-    return {
-        "PromptReport": PromptReport,
-        "prompt_categories": prompt_categories,
-        "prompt_levels": prompt_levels,
-    }
+    return report_response
 
 
 @view_config(route_name="admin_report_ext", request_method="GET", permission="admin", renderer="json")
@@ -67,20 +70,27 @@ def report_get_ext(context, request):
 
 
 @view_config(route_name="admin_report", renderer="layout2/admin/report.mako", request_method="POST", permission="admin")
-def report_post(request):
-    try:
-        report = Session.query(PromptReport).filter(PromptReport.id==int(request.matchdict["id"])).one()
-    except (ValueError, NoResultFound):
-        raise HTTPNotFound
-    if request.POST["status"] in PromptReport.status.type.enums:
-        report.status = request.POST["status"]
-    report.notes = request.POST["notes"]
-    return {
-        "PromptReport": PromptReport,
-        "report": report,
-        "prompt_categories": prompt_categories,
-        "prompt_levels": prompt_levels,
-    }
+def report_post(context, request):
+
+    for value in PromptReport.status.type.enums:
+        if "status_" + value in request.POST:
+            if value == "duplicate":
+                try:
+                    duplicate_of = Session.query(PromptReport).filter(PromptReport.id == int(request.POST["duplicate_of_id"])).one()
+                    if duplicate_of.id == context.id:
+                        raise ValueError("a report can't be a duplicate of itself")
+                except (KeyError, ValueError, NoResultFound):
+                    return dict(error="no_report", **report_response)
+                context.duplicate_of_id = duplicate_of.id
+            else:
+                context.duplicate_of_id = None
+            context.status = value
+            break
+
+    if "notes" in request.POST:
+        context.notes = request.POST["notes"]
+
+    return report_response
 
 
 def _get_user(request):

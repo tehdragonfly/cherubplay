@@ -208,8 +208,10 @@ class PromptReport(Base, Resource):
         u"open",
         u"closed",
         u"invalid",
+        u"duplicate",
         name="prompt_report_status",
     ), nullable=False, default=u"open")
+    duplicate_of_id = Column(Integer, ForeignKey("prompt_reports.id"), nullable=True)
     reporting_user_id = Column(Integer, ForeignKey("users.id"))
     reported_user_id = Column(Integer, ForeignKey("users.id"))
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
@@ -385,8 +387,9 @@ Message.user = relationship(User, backref="messages")
 ChatUser.chat = relationship(Chat, backref="users")
 ChatUser.user = relationship(User, backref="chats")
 
-PromptReport.reporting_user = relationship(User, backref="reports_sent", primaryjoin=PromptReport.reporting_user_id==User.id)
-PromptReport.reported_user = relationship(User, backref="reports_recieved", primaryjoin=PromptReport.reported_user_id==User.id)
+PromptReport.duplicate_of = relationship(PromptReport, backref="duplicates", remote_side=PromptReport.id)
+PromptReport.reporting_user = relationship(User, backref="reports_sent", primaryjoin=PromptReport.reporting_user_id == User.id)
+PromptReport.reported_user = relationship(User, backref="reports_recieved", primaryjoin=PromptReport.reported_user_id == User.id)
 
 Request.user = relationship(User, backref="requests")
 Request.tags = relationship(RequestTag, backref="request", order_by=RequestTag.alias)

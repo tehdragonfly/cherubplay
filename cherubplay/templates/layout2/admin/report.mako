@@ -10,13 +10,34 @@
 % endif
 : <a href="${request.route_path("admin_user", username=report.reporting_user.username)}">${report.reporting_user.username}</a> reported <a href="${request.route_path("admin_user", username=report.reported_user.username)}">${report.reported_user.username}</a></h3>
         <p class="subtitle">${request.user.localise_time(report.created).strftime("%a %d %b %Y, %H:%M")}</p>
-% if detail:
-        <p>Status: <select name="status">
-% for value in PromptReport.status.type.enums:
-          <option value="${value}"${" selected=\"selected\"" if report.status == value else ""|n}>${value.capitalize()}</option>
-% endfor
-        </select> <button type="submit">Save</button></p>
+        % if detail:
+        <form action="${request.route_path("admin_report", id=report.id)}" method="post">
+          Set status:
+          % for value in PromptReport.status.type.enums:
+          % if value != "duplicate":
+          % if not loop.first:
+          ·
+          % endif
+          <input type="submit" name="status_${value}" value="${value.capitalize()}"${" disabled=\"disabled\"" if report.status == value else ""}>
+          % endif
+          % endfor
+        </form>
+        % if error == "no_report":
+        <p class="error">This report ID isn't valid.</p>
+        % endif
+        % if report.duplicate_of_id:
+        <p>Duplicate of <a href="${request.route_path("admin_report", id=report.duplicate_of_id)}">#${report.duplicate_of_id}</a>.</p>
+        % else:
+        <form action="${request.route_path("admin_report", id=report.id)}" method="post">
+          <input type="hidden" name="status_duplicate" value="on">
+          <p>Duplicate of #<input type="text" name="duplicate_of_id" size="5"\
+% if report.duplicate_of_id:
+ value="${report.duplicate_of_id}"
 % endif
+> <button type="submit">Save</button></p>
+        </form>
+        % endif
+        % endif
         <p>Posted in ${prompt_categories[report.category]}, ${prompt_levels[report.level]}</p>
         % if detail or len(report.prompt) <= 250:
         <p style="color: #${report.colour};">${report.prompt}</p>
@@ -72,18 +93,19 @@ Soliciting real life or out-of-character interactions\
   </div>
   <div class="side_column"></div>
   <div id="content">
-% if request.environ["REQUEST_METHOD"]=="POST":
-    <p>Your changes have been saved.</p>
-% endif
-    <form action="${request.route_path("admin_report", id=request.matchdict["id"])}" method="post">
-      <section class="tile2">
+    <section class="tile2">
 ${render_report(request.context)}
-      </section>
-      <section class="tile2">
+    </section>
+    <form class="tile2" action="${request.route_path("admin_report", id=request.context.id)}" method="post">
         <h3>Notes</h3>
         <p><textarea id="chat_notes_notes" class="notes" name="notes" placeholder="Notes..." rows="5">${request.context.notes}</textarea></p>
-        <button type="submit">Save</button>
-      </section>
+        <div class="actions">
+          <div class="right">
+            <input type="submit" name="save" value="Save"> ·
+            <input type="submit" name="status_closed" value="Save and close"> ·
+            <input type="submit" name="status_invalid" value="Save as invalid">
+          </div>
+        </div>
     </form>
     <p><a href="${request.route_path("admin_report_list")}">Back to reports</a></p>
   </div>
