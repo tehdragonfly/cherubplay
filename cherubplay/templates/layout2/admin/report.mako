@@ -96,6 +96,19 @@ Soliciting real life or out-of-character interactions\
     <section class="tile2">
 ${render_report(request.context)}
     </section>
+    % if duplicates:
+    <section class="tile2">
+      <h3>Duplicates</h3>
+      <p>\
+% for duplicate in duplicates:
+<a href="${request.route_path("admin_report", id=duplicate.id)}">#${duplicate.id}</a>\
+% if not loop.last:
+, \
+% endif
+% endfor
+</p>
+    </section>
+    % endif
     <form class="tile2" action="${request.route_path("admin_report", id=request.context.id)}" method="post">
         <h3>Notes</h3>
         <p><textarea id="chat_notes_notes" class="notes" name="notes" placeholder="Notes..." rows="5">${request.context.notes}</textarea></p>

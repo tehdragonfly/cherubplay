@@ -52,16 +52,23 @@ def report_list(request):
     }
 
 
-report_response = {
-    "PromptReport": PromptReport,
-    "prompt_categories": prompt_categories,
-    "prompt_levels": prompt_levels,
-}
+def _report_form(context, **kwargs):
+    return dict(
+        PromptReport=PromptReport,
+        prompt_categories=prompt_categories,
+        prompt_levels=prompt_levels,
+        duplicates=(
+            Session.query(PromptReport)
+            .filter(PromptReport.duplicate_of_id == context.id)
+            .order_by(PromptReport.id.desc()).all()
+        ),
+        **kwargs
+    )
 
 
 @view_config(route_name="admin_report", request_method="GET", permission="admin", renderer="layout2/admin/report.mako")
 def report_get(context, request):
-    return report_response
+    return _report_form(context)
 
 
 @view_config(route_name="admin_report_ext", request_method="GET", permission="admin", renderer="json")
@@ -80,7 +87,7 @@ def report_post(context, request):
                     if duplicate_of.id == context.id:
                         raise ValueError("a report can't be a duplicate of itself")
                 except (KeyError, ValueError, NoResultFound):
-                    return dict(error="no_report", **report_response)
+                    return _report_form(context, error="no_report")
                 context.duplicate_of_id = duplicate_of.id
             else:
                 context.duplicate_of_id = None
@@ -90,7 +97,7 @@ def report_post(context, request):
     if "notes" in request.POST:
         context.notes = request.POST["notes"]
 
-    return report_response
+    return _report_form(context)
 
 
 def _get_user(request):
