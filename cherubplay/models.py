@@ -230,6 +230,7 @@ class PromptReport(Base, Resource):
     ), nullable=False)
     reason_category = Column(Unicode(100))
     reason_level = Column(Unicode(100))
+    chat_ids = Column(ARRAY(Integer), nullable=False, default=list)
     notes = Column(UnicodeText, nullable=False, default=u"")
 
     def __json__(self, request=None):

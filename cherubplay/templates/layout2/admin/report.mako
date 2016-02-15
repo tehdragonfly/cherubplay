@@ -96,6 +96,17 @@ Soliciting real life or out-of-character interactions\
     <section class="tile2">
 ${render_report(request.context)}
     </section>
+    <section class="tile2">
+      <h3>Actions</h3>
+      <form action="${request.route_path("admin_user_chat", username=request.context.reporting_user.username)}" method="post">
+        <input type="hidden" name="report_id" value="${request.context.id}">
+        <p><button type="submit">Chat with ${request.context.reporting_user.username} (reporting user)</button></p>
+      </form>
+      <form action="${request.route_path("admin_user_chat", username=request.context.reported_user.username)}" method="post">
+        <input type="hidden" name="report_id" value="${request.context.id}">
+        <p><button type="submit">Chat with ${request.context.reported_user.username} (reported user)</button></p>
+      </form>
+    </section>
     % if duplicates:
     <section class="tile2">
       <h3>Duplicates</h3>
@@ -109,16 +120,26 @@ ${render_report(request.context)}
 </p>
     </section>
     % endif
+    % if chats:
+    <section class="tile2">
+      <h3>Chats</h3>
+      <ul>
+        % for chat in chats:
+        <li><a href="${request.route_path("chat", url=chat.url)}">${chat.url}</a></li>
+        % endfor
+      </ul>
+    </section>
+    % endif
     <form class="tile2" action="${request.route_path("admin_report", id=request.context.id)}" method="post">
-        <h3>Notes</h3>
-        <p><textarea id="chat_notes_notes" class="notes" name="notes" placeholder="Notes..." rows="5">${request.context.notes}</textarea></p>
-        <div class="actions">
-          <div class="right">
-            <input type="submit" name="save" value="Save"> ·
-            <input type="submit" name="status_closed" value="Save and close"> ·
-            <input type="submit" name="status_invalid" value="Save as invalid">
-          </div>
+      <h3>Notes</h3>
+      <p><textarea id="chat_notes_notes" class="notes" name="notes" placeholder="Notes..." rows="5">${request.context.notes}</textarea></p>
+      <div class="actions">
+        <div class="right">
+          <input type="submit" name="save" value="Save"> ·
+          <input type="submit" name="status_closed" value="Save and close"> ·
+          <input type="submit" name="status_invalid" value="Save as invalid">
         </div>
+      </div>
     </form>
     <p><a href="${request.route_path("admin_report_list")}">Back to reports</a></p>
   </div>

@@ -62,6 +62,11 @@ def _report_form(context, **kwargs):
             .filter(PromptReport.duplicate_of_id == context.id)
             .order_by(PromptReport.id.desc()).all()
         ),
+        chats=(
+            Session.query(Chat)
+            .filter(Chat.id.in_(context.chat_ids))
+            .order_by(Chat.id.asc()).all()
+        ) if context.chat_ids else [],
         **kwargs
     )
 
@@ -133,6 +138,12 @@ def user_chat(request):
     new_chat = Chat(url=str(uuid.uuid4()))
     Session.add(new_chat)
     Session.flush()
+    if "report_id" in request.POST:
+        try:
+            report = Session.query(PromptReport).filter(PromptReport.id == int(request.POST["report_id"])).one()
+            report.chat_ids = report.chat_ids + [new_chat.id]
+        except (ValueError, NoResultFound):
+            pass
     Session.add(ChatUser(
         chat_id=new_chat.id,
         user_id=request.user.id,
