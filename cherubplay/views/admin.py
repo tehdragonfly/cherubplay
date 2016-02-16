@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime, timedelta
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.view import view_config
-from sqlalchemy import func
+from sqlalchemy import and_, func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -52,7 +52,7 @@ def report_list(request):
     }
 
 
-def _report_form(context, **kwargs):
+def _report_form(context, request, **kwargs):
     return dict(
         PromptReport=PromptReport,
         prompt_categories=prompt_categories,
@@ -63,8 +63,14 @@ def _report_form(context, **kwargs):
             .order_by(PromptReport.id.desc()).all()
         ),
         chats=(
-            Session.query(Chat)
-            .filter(Chat.id.in_(context.chat_ids))
+            Session.query(Chat, ChatUser)
+            .outerjoin(ChatUser, and_(
+                ChatUser.chat_id == Chat.id,
+                ChatUser.user_id == request.user.id,
+            ))
+            .filter(and_(
+                Chat.id.in_(context.chat_ids),
+            ))
             .order_by(Chat.id.asc()).all()
         ) if context.chat_ids else [],
         **kwargs
@@ -73,7 +79,7 @@ def _report_form(context, **kwargs):
 
 @view_config(route_name="admin_report", request_method="GET", permission="admin", renderer="layout2/admin/report.mako")
 def report_get(context, request):
-    return _report_form(context)
+    return _report_form(context, request)
 
 
 @view_config(route_name="admin_report_ext", request_method="GET", permission="admin", renderer="json")
@@ -92,7 +98,7 @@ def report_post(context, request):
                     if duplicate_of.id == context.id:
                         raise ValueError("a report can't be a duplicate of itself")
                 except (KeyError, ValueError, NoResultFound):
-                    return _report_form(context, error="no_report")
+                    return _report_form(context, request, error="no_report")
                 context.duplicate_of_id = duplicate_of.id
             else:
                 context.duplicate_of_id = None
@@ -102,7 +108,7 @@ def report_post(context, request):
     if "notes" in request.POST:
         context.notes = request.POST["notes"]
 
-    return _report_form(context)
+    return _report_form(context, request)
 
 
 def _get_user(request):
