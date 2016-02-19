@@ -1,4 +1,5 @@
 <%inherit file="base.mako" />\
+<% from cherubplay.lib import symbols %>
 <%block name="title">
 % if own_chat_user:
 ${own_chat_user.title or chat.url} - 
@@ -64,9 +65,9 @@ ${own_chat_user.title or chat.url} -
     <section class="tile2">
       <h3>Users</h3>
       <ul>
-% for symbol, user in symbol_users.items():
+        % for symbol, user in sorted(symbol_users.items(), key=lambda _: symbols.index(_[0])):
         <li>${symbol} is #${user.id} <a href="${request.route_path("admin_user", username=user.username)}">${user.username}</a> (${user.status}).</li>
-% endfor
+        % endfor
       </ul>
     </section>
 % endif
