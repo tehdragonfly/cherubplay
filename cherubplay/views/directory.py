@@ -329,9 +329,20 @@ def directory_new_post(request):
     except ValidationError as e:
         return {"form_data": request.POST, "preset_colours": preset_colours, "error": e.message}
 
+    status = "posted"
+    too_many_requests = False
+    if "draft" in request.POST:
+        status = "draft"
+    elif Session.query(func.count("*")).select_from(Request).filter(and_(
+        Request.user_id == request.user.id,
+        Request.status == "posted",
+    )).scalar() >= 10:
+        status = "draft"
+        too_many_requests = True
+
     new_request = Request(
         user_id=request.user.id,
-        status="draft" if "draft" in request.POST else "posted",
+        status=status,
         colour=colour,
         scenario=scenario,
         prompt=prompt,
@@ -342,7 +353,11 @@ def directory_new_post(request):
     new_request.tags += _tags_from_form(request.POST, new_request)
     new_request.tag_ids = sorted([_.tag_id for _ in new_request.tags])
 
-    return HTTPFound(request.route_path("directory_request", id=new_request.id))
+    return HTTPFound(request.route_path(
+        "directory_request",
+        id=new_request.id,
+        _query={"too_many_requests": "true"} if too_many_requests else None,
+    ))
 
 
 def _blacklisted_tags(request, **kwargs):
@@ -509,10 +524,21 @@ def directory_request_edit_post(context, request):
     new_date = datetime.datetime.now()
     context.edited = new_date
 
+    too_many_requests = False
     if context.status != "removed":
-        if context.status == "draft" and "draft" not in request.POST:
+        status = "posted"
+        if "draft" in request.POST:
+            status = "draft"
+        elif Session.query(func.count("*")).select_from(Request).filter(and_(
+            Request.user_id == request.user.id,
+            Request.status == "posted",
+            Request.id != context.id,
+        )).scalar() >= 10:
+            status = "draft"
+            too_many_requests = True
+        if context.status == "draft" and status == "posted":
             context.posted = new_date
-        context.status = "draft" if "draft" in request.POST else "posted"
+        context.status = status
 
     context.colour = colour
     context.scenario = scenario
@@ -524,7 +550,11 @@ def directory_request_edit_post(context, request):
     context.tags += new_tags
     context.tag_ids = sorted([_.tag_id for _ in new_tags])
 
-    return HTTPFound(request.route_path("directory_request", id=context.id))
+    return HTTPFound(request.route_path(
+        "directory_request",
+        id=context.id,
+        _query={"too_many_requests": "true"} if too_many_requests else None,
+    ))
 
 
 @view_config(route_name="directory_request_delete", request_method="GET", permission="admin", renderer="layout2/directory/request_delete.mako")
