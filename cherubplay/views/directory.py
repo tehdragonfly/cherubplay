@@ -140,6 +140,7 @@ def directory(request):
 
 @view_config(route_name="directory_tag_list", request_method="GET", permission="admin", renderer="layout2/directory/tag_list.mako")
 @view_config(route_name="directory_tag_list_unapproved", request_method="GET", permission="admin", renderer="layout2/directory/tag_list.mako")
+@view_config(route_name="directory_tag_list_blacklist_default", request_method="GET", permission="admin", renderer="layout2/directory/tag_list.mako")
 def directory_tag_list(request):
 
     try:
@@ -152,6 +153,9 @@ def directory_tag_list(request):
     if request.matched_route.name == "directory_tag_list_unapproved":
         tag_query = tag_query.filter(and_(Tag.synonym_id == None, Tag.approved == False))
         tag_count_query = tag_count_query.filter(and_(Tag.synonym_id == None, Tag.approved == False))
+    elif request.matched_route.name == "directory_tag_list_blacklist_default":
+        tag_query = tag_query.filter(Tag.blacklist_default == True)
+        tag_count_query = tag_count_query.filter(Tag.blacklist_default == True)
 
     return {
         "tags": tag_query.options(joinedload(Tag.synonym_of)).order_by(Tag.type, Tag.name).limit(250).offset((current_page-1)*250).all(),
