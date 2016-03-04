@@ -14,10 +14,15 @@
         % for tag in tags:
         <li>
           <a href="${request.route_path("directory_tag", type=tag.type, name=tag.url_name)}">${tag.type.replace("_", " ")}:${tag.name}</a>
-          % if tag.synonym_id is None and not tag.approved:
+          % if tag.synonym_id is not None:
+          <p class="notes">Synonym of <a href="${request.route_path("directory_tag", type=tag.synonym_of.type, name=tag.synonym_of.url_name)}">${tag.synonym_of.type.replace("_", " ")}:${tag.synonym_of.name}</a></p>
+          % elif not tag.approved:
           <form class="remove_form" action="${request.route_path("directory_tag_approve", type=tag.type, name=tag.url_name)}" method="post">
             <button type="submit">Approve</button>
           </form>
+          <p class="notes">Unapproved</p>
+          % else:
+          <p class="notes">Approved</p>
           % endif
         </li>
         % endfor
