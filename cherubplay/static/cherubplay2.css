@@ -229,6 +229,18 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 }
 .tag_list .remove_form { float: right; }
 
+table.tile2 { table-layout: fixed; max-width: 100%; padding: 0; border-collapse: collapse; }
+table.tile2 thead { background-color: #f8f8f8; border-bottom: 1px solid #eee; }
+table.tile2 tbody { font-size: 10pt; }
+table.tile2 td, table.tile2 th { padding: 2px 5px; word-wrap: break-word; }
+table.tile2 tr:not(:first-child) td { border-top: 1px solid #eee; }
+table.tile2 tr:not(:last-child) td { border-bottom: 1px solid #eee; }
+table.tile2 td:not(:first-child), table.tile2 th:not(:first-child) { border-left: 1px solid #eee; }
+table.tile2 td:not(:last-child), table.tile2 th:not(:last-child) { border-right: 1px solid #eee; }
+table.tile2 a:only-child { display: block; margin: -2px -5px; padding: 2px 5px; }
+
+table.tile2 .synonym a { color: #ccc; }
+
 /* 3.4. Chat list */
 
 #chat_list { margin: 0; padding: 0; list-style-type: none; }

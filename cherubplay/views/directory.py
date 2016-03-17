@@ -163,6 +163,17 @@ def directory_tag_list(request):
         "current_page": current_page,
     }
 
+@view_config(route_name="directory_tag_table", request_method="GET", permission="admin", renderer="layout2/directory/tag_table.mako")
+def directory_tag_table(request):
+    rows = []
+    last_tag_name = None
+    for tag in Session.query(Tag).order_by(Tag.name, Tag.type).all():
+        if tag.name.lower() != last_tag_name:
+            last_tag_name = tag.name.lower()
+            rows.append({})
+        rows[-1][tag.type] = tag
+    return {"rows": rows}
+
 
 @view_config(route_name="directory_tag", request_method="GET", permission="admin", renderer="layout2/directory/tag.mako")
 @view_config(route_name="directory_tag_ext", request_method="GET", permission="admin", extension="json", renderer="json")
