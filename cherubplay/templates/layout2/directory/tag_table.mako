@@ -19,6 +19,8 @@
         <td class="\
 % if row[tag_type].synonym_id is not None:
 synonym\
+% elif not row[tag_type].approved:
+unapproved\
 % endif
 ">
           <a href="${request.route_path("directory_tag", type=row[tag_type].type, name=row[tag_type].url_name)}">${row[tag_type].name}</a>

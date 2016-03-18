@@ -239,6 +239,7 @@ table.tile2 td:not(:first-child), table.tile2 th:not(:first-child) { border-left
 table.tile2 td:not(:last-child), table.tile2 th:not(:last-child) { border-right: 1px solid #eee; }
 table.tile2 a:only-child { display: block; margin: -2px -5px; padding: 2px 5px; }
 
+table.tile2 .unapproved a { color: #f33; }
 table.tile2 .synonym a { color: #ccc; }
 
 /* 3.4. Chat list */
