@@ -246,16 +246,33 @@ def directory_tag(request):
     return resp
 
 
+def _approve(tag_type, tag_name):
+    tag = _get_or_create_tag(tag_type, tag_name)
+    if tag.synonym_id is not None:
+        raise HTTPNotFound
+    tag.approved = True
+
+
 @view_config(route_name="directory_tag_approve", request_method="POST", permission="admin")
 def directory_tag_approve(request):
 
     if request.matchdict["type"] not in Tag.type.type.enums:
         raise HTTPNotFound
 
-    tag = _get_or_create_tag(request.matchdict["type"], Tag.name_from_url(request.matchdict["name"]))
-    if tag.synonym_id is not None:
-        raise HTTPNotFound
-    tag.approved = True
+    tag_type = request.matchdict["type"]
+    tag_name = Tag.name_from_url(request.matchdict["name"])
+
+    if tag_type in ("fandom", "fandom_wanted", "character", "character_wanted", "gender", "gender_wanted"):
+        if tag_type.endswith("_wanted"):
+            tag_type_without_wanted = tag_type.replace("_wanted", "")
+            tag_type_with_wanted = tag_type
+        else:
+            tag_type_without_wanted = tag_type
+            tag_type_with_wanted = tag_type + "_wanted"
+        _approve(tag_type_without_wanted, tag_name)
+        _approve(tag_type_with_wanted, tag_name)
+    else:
+        _approve(tag_type, tag_name)
 
     if "Referer" in request.headers:
         return HTTPFound(request.headers["Referer"])
@@ -271,6 +288,7 @@ def _make_synonym(old_type, old_name, new_type, new_name):
         raise HTTPNotFound
 
     new_tag = _get_or_create_tag(new_type, new_name)
+    new_tag.approved = True
 
     if old_tag.id == new_tag.id:
         raise HTTPNotFound
