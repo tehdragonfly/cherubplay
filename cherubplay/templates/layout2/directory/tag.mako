@@ -2,6 +2,12 @@
 <% from cherubplay.models import Tag %>
 <%block name="heading">Requests tagged "${tag["type"].replace("_", " ")}:${tag["name"]}"</%block>
     % if request.has_permission("tag_wrangling"):
+    % if can_be_approved:
+    <form class="tile2" action="${request.route_path("directory_tag_approve", **request.matchdict)}" method="post">
+      <h3>Not approved</h3>
+      <p class="middle_actions"><button type="submit">Approve</button></p>
+    </form>
+    % endif
     % if synonyms:
     <section class="tile2">
       <h3>Synonyms</h3>
