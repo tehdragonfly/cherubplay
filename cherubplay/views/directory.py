@@ -262,22 +262,15 @@ def directory_tag_approve(request):
     return HTTPFound(request.route_path("directory_tag", **request.matchdict))
 
 
-@view_config(route_name="directory_tag_make_synonym", request_method="POST", permission="admin")
-def directory_tag_make_synonym(request):
+def _make_synonym(old_type, old_name, new_type, new_name):
 
-    if request.matchdict["type"] not in Tag.type.type.enums or request.POST["tag_type"] not in Tag.type.type.enums:
-        raise HTTPNotFound
-
-    old_name = Tag.name_from_url(request.matchdict["name"])
-    new_name = Tag.name_from_url(request.POST["name"]).strip()[:100]
-
-    old_tag = _get_or_create_tag(request.matchdict["type"], old_name)
+    old_tag = _get_or_create_tag(old_type, old_name)
 
     # A tag can't be a synonym if it has synonyms.
     if Session.query(func.count("*")).select_from(Tag).filter(Tag.synonym_id == old_tag.id).scalar():
         raise HTTPNotFound
 
-    new_tag = _get_or_create_tag(request.POST["tag_type"], new_name)
+    new_tag = _get_or_create_tag(new_type, new_name)
 
     if old_tag.id == new_tag.id:
         raise HTTPNotFound
@@ -299,6 +292,42 @@ def directory_tag_make_synonym(request):
     Session.query(Request).filter(
         Request.tag_ids.contains(cast([old_tag.id], ARRAY(Integer)))
     ).update({"tag_ids": func.array_replace(Request.tag_ids, old_tag.id, new_tag.id)}, synchronize_session=False)
+
+
+@view_config(route_name="directory_tag_make_synonym", request_method="POST", permission="admin")
+def directory_tag_make_synonym(request):
+
+    if request.matchdict["type"] not in Tag.type.type.enums or request.POST["tag_type"] not in Tag.type.type.enums:
+        raise HTTPNotFound
+
+    old_type = request.matchdict["type"]
+    old_name = Tag.name_from_url(request.matchdict["name"])
+    new_type = request.POST["tag_type"]
+    new_name = Tag.name_from_url(request.POST["name"]).strip()[:100]
+
+    if not old_name or not new_name:
+        raise HTTPBadRequest
+
+    if (
+        old_type in ("fandom", "fandom_wanted", "character", "character_wanted", "gender", "gender_wanted")
+        and new_type in ("fandom", "fandom_wanted", "character", "character_wanted", "gender", "gender_wanted")
+    ):
+        if old_type.endswith("_wanted"):
+            old_type_without_wanted = old_type.replace("_wanted", "")
+            old_type_with_wanted = old_type
+        else:
+            old_type_without_wanted = old_type
+            old_type_with_wanted = old_type + "_wanted"
+        if new_type.endswith("_wanted"):
+            new_type_without_wanted = new_type.replace("_wanted", "")
+            new_type_with_wanted = new_type
+        else:
+            new_type_without_wanted = new_type
+            new_type_with_wanted = new_type + "_wanted"
+        _make_synonym(old_type_without_wanted, old_name, new_type_without_wanted, new_name)
+        _make_synonym(old_type_with_wanted, old_name, new_type_with_wanted, new_name)
+    else:
+        _make_synonym(old_type, old_name, new_type, new_name)
 
     return HTTPFound(request.route_path("directory_tag", **request.matchdict))
 
