@@ -159,6 +159,7 @@ ${"TW: " if tag.tag.type == "trigger" else ""}${tag.alias}\
         % else:
         <li><a href="${request.route_path("directory_tag_list_blacklist_default")}">Blacklist default tags</a></li>
         % endif
+        <li><a href="${request.route_path("directory_tag_table")}">Table</a></li>
       </ul>
       % endif
     </nav>
