@@ -104,8 +104,8 @@ def _tags_from_form(form, new_request):
     return tag_list
 
 
-@view_config(route_name="directory_ext", request_method="GET", permission="admin", extension="json", renderer="json")
-@view_config(route_name="directory", request_method="GET", permission="admin", renderer="layout2/directory/index.mako")
+@view_config(route_name="directory_ext", request_method="GET", permission="view", extension="json", renderer="json")
+@view_config(route_name="directory", request_method="GET", permission="view", renderer="layout2/directory/index.mako")
 def directory(request):
 
     if request.GET.get("before"):
@@ -138,9 +138,9 @@ def directory(request):
     return {"requests": requests[:25], "more": len(requests) == 26}
 
 
-@view_config(route_name="directory_tag_list", request_method="GET", permission="admin", renderer="layout2/directory/tag_list.mako")
-@view_config(route_name="directory_tag_list_unapproved", request_method="GET", permission="admin", renderer="layout2/directory/tag_list.mako")
-@view_config(route_name="directory_tag_list_blacklist_default", request_method="GET", permission="admin", renderer="layout2/directory/tag_list.mako")
+@view_config(route_name="directory_tag_list", request_method="GET", permission="tag_wrangling", renderer="layout2/directory/tag_list.mako")
+@view_config(route_name="directory_tag_list_unapproved", request_method="GET", permission="tag_wrangling", renderer="layout2/directory/tag_list.mako")
+@view_config(route_name="directory_tag_list_blacklist_default", request_method="GET", permission="tag_wrangling", renderer="layout2/directory/tag_list.mako")
 def directory_tag_list(request):
 
     try:
@@ -163,7 +163,7 @@ def directory_tag_list(request):
         "current_page": current_page,
     }
 
-@view_config(route_name="directory_tag_table", request_method="GET", permission="admin", renderer="layout2/directory/tag_table.mako")
+@view_config(route_name="directory_tag_table", request_method="GET", permission="tag_wrangling", renderer="layout2/directory/tag_table.mako")
 def directory_tag_table(request):
     rows = []
     last_tag_name = None
@@ -175,8 +175,8 @@ def directory_tag_table(request):
     return {"rows": rows}
 
 
-@view_config(route_name="directory_tag", request_method="GET", permission="admin", renderer="layout2/directory/tag.mako")
-@view_config(route_name="directory_tag_ext", request_method="GET", permission="admin", extension="json", renderer="json")
+@view_config(route_name="directory_tag", request_method="GET", permission="view", renderer="layout2/directory/tag.mako")
+@view_config(route_name="directory_tag_ext", request_method="GET", permission="view", extension="json", renderer="json")
 def directory_tag(request):
 
     if request.GET.get("before"):
@@ -253,7 +253,7 @@ def _approve(tag_type, tag_name):
     tag.approved = True
 
 
-@view_config(route_name="directory_tag_approve", request_method="POST", permission="admin")
+@view_config(route_name="directory_tag_approve", request_method="POST", permission="tag_wrangling")
 def directory_tag_approve(request):
 
     if request.matchdict["type"] not in Tag.type.type.enums:
@@ -312,7 +312,7 @@ def _make_synonym(old_type, old_name, new_type, new_name):
     ).update({"tag_ids": func.array_replace(Request.tag_ids, old_tag.id, new_tag.id)}, synchronize_session=False)
 
 
-@view_config(route_name="directory_tag_make_synonym", request_method="POST", permission="admin")
+@view_config(route_name="directory_tag_make_synonym", request_method="POST", permission="tag_wrangling")
 def directory_tag_make_synonym(request):
 
     if request.matchdict["type"] not in Tag.type.type.enums or request.POST["tag_type"] not in Tag.type.type.enums:
@@ -350,8 +350,8 @@ def directory_tag_make_synonym(request):
     return HTTPFound(request.route_path("directory_tag", **request.matchdict))
 
 
-@view_config(route_name="directory_yours", request_method="GET", permission="admin", renderer="layout2/directory/index.mako")
-@view_config(route_name="directory_yours_ext", request_method="GET", permission="admin", extension="json", renderer="json")
+@view_config(route_name="directory_yours", request_method="GET", permission="view", renderer="layout2/directory/index.mako")
+@view_config(route_name="directory_yours_ext", request_method="GET", permission="view", extension="json", renderer="json")
 def directory_yours(request):
 
     if request.GET.get("before"):
@@ -381,12 +381,12 @@ def directory_yours(request):
     return {"requests": requests[:25], "more": len(requests) == 26}
 
 
-@view_config(route_name="directory_new", request_method="GET", permission="admin", renderer="layout2/directory/new.mako")
+@view_config(route_name="directory_new", request_method="GET", permission="chat", renderer="layout2/directory/new.mako")
 def directory_new_get(request):
     return {"form_data": {}, "preset_colours": preset_colours}
 
 
-@view_config(route_name="directory_new", request_method="POST", permission="admin", renderer="layout2/directory/new.mako")
+@view_config(route_name="directory_new", request_method="POST", permission="chat", renderer="layout2/directory/new.mako")
 def directory_new_post(request):
     try:
         colour, scenario, prompt = _validate_request_form(request)
@@ -437,13 +437,13 @@ def _blacklisted_tags(request, **kwargs):
     )
 
 
-@view_config(route_name="directory_blacklist", request_method="GET", permission="admin", renderer="layout2/directory/blacklist.mako")
-@view_config(route_name="directory_blacklist_ext", request_method="GET", permission="admin", extension="json", renderer="json")
+@view_config(route_name="directory_blacklist", request_method="GET", permission="view", renderer="layout2/directory/blacklist.mako")
+@view_config(route_name="directory_blacklist_ext", request_method="GET", permission="view", extension="json", renderer="json")
 def directory_blacklist(request):
     return _blacklisted_tags(request)
 
 
-@view_config(route_name="directory_blacklist_setup", request_method="POST", permission="admin")
+@view_config(route_name="directory_blacklist_setup", request_method="POST", permission="view")
 def directory_blacklist_setup(request):
 
     if request.POST.get("blacklist") not in ("none", "default"):
@@ -464,7 +464,7 @@ def directory_blacklist_setup(request):
     return HTTPFound(request.headers.get("Referer") or request.route_path("directory"))
 
 
-@view_config(route_name="directory_blacklist_add", request_method="POST", permission="admin", renderer="layout2/directory/blacklist.mako")
+@view_config(route_name="directory_blacklist_add", request_method="POST", permission="view", renderer="layout2/directory/blacklist.mako")
 def directory_blacklist_add(request):
 
     if request.POST.get("tag_type") not in Tag.type.type.enums:
@@ -497,7 +497,7 @@ def directory_blacklist_add(request):
     return HTTPFound(request.route_path("directory_blacklist"))
 
 
-@view_config(route_name="directory_blacklist_remove", request_method="POST", permission="admin")
+@view_config(route_name="directory_blacklist_remove", request_method="POST", permission="view")
 def directory_blacklist_remove(request):
     try:
         Session.query(BlacklistedTag).filter(and_(
@@ -509,8 +509,8 @@ def directory_blacklist_remove(request):
     return HTTPFound(request.route_path("directory_blacklist"))
 
 
-@view_config(route_name="directory_request", request_method="GET", permission="admin", renderer="layout2/directory/request.mako")
-@view_config(route_name="directory_request_ext", request_method="GET", permission="admin", extension="json", renderer="json")
+@view_config(route_name="directory_request", request_method="GET", permission="view", renderer="layout2/directory/request.mako")
+@view_config(route_name="directory_request_ext", request_method="GET", permission="view", extension="json", renderer="json")
 def directory_request(context, request):
 
     if context.user_id == request.user.id:
@@ -527,7 +527,7 @@ def directory_request(context, request):
     return {"chats": chats}
 
 
-@view_config(route_name="directory_request_answer", request_method="POST", permission="admin")
+@view_config(route_name="directory_request_answer", request_method="POST", permission="chat")
 def directory_request_answer(context, request):
 
     # Can't answer your own request.
@@ -549,7 +549,7 @@ def directory_request_answer(context, request):
     return HTTPFound(request.route_path("chat", url=new_chat.url))
 
 
-@view_config(route_name="directory_request_edit", request_method="GET", permission="admin", renderer="layout2/directory/new.mako")
+@view_config(route_name="directory_request_edit", request_method="GET", permission="chat", renderer="layout2/directory/new.mako")
 def directory_request_edit_get(context, request):
 
     if context.user_id != request.user.id:
@@ -574,7 +574,7 @@ def directory_request_edit_get(context, request):
     return {"form_data": form_data, "preset_colours": preset_colours}
 
 
-@view_config(route_name="directory_request_edit", request_method="POST", permission="admin", renderer="layout2/directory/new.mako")
+@view_config(route_name="directory_request_edit", request_method="POST", permission="chat", renderer="layout2/directory/new.mako")
 def directory_request_edit_post(context, request):
 
     if context.user_id != request.user.id:
@@ -621,14 +621,14 @@ def directory_request_edit_post(context, request):
     ))
 
 
-@view_config(route_name="directory_request_delete", request_method="GET", permission="admin", renderer="layout2/directory/request_delete.mako")
+@view_config(route_name="directory_request_delete", request_method="GET", permission="view", renderer="layout2/directory/request_delete.mako")
 def directory_request_delete_get(context, request):
     if context.user_id != request.user.id:
         raise HTTPForbidden
     return {}
 
 
-@view_config(route_name="directory_request_delete", request_method="POST", permission="admin")
+@view_config(route_name="directory_request_delete", request_method="POST", permission="view")
 def directory_request_delete_post(context, request):
     if context.user_id != request.user.id:
         raise HTTPForbidden
@@ -638,13 +638,13 @@ def directory_request_delete_post(context, request):
     return HTTPFound(request.route_path("directory_yours"))
 
 
-@view_config(route_name="directory_request_remove", request_method="POST", permission="admin")
+@view_config(route_name="directory_request_remove", request_method="POST", permission="tag_wrangling")
 def directory_request_remove(context, request):
     context.status = "removed"
     return HTTPFound(request.route_path("directory_request", id=context.id))
 
 
-@view_config(route_name="directory_request_unremove", request_method="POST", permission="admin")
+@view_config(route_name="directory_request_unremove", request_method="POST", permission="tag_wrangling")
 def directory_request_unremove(context, request):
     context.status = "posted"
     return HTTPFound(request.route_path("directory_request", id=context.id))
