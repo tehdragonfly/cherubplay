@@ -16,7 +16,7 @@
   <nav id="nav">
     <ul>
       <li><a href="${request.route_path("home")}" id="nav_home">Home</a></li>
-      <!--<li><a href="${request.route_path("directory")}" id="nav_directory">Directory</a></li>-->
+      <li><a href="${request.route_path("directory")}" id="nav_directory">Directory</a></li>
       <li><a href="${request.route_path("chat_list")}" id="nav_chat_list"\
 % if request.unread_chats>0:
  data-unread="${request.unread_chats}">Your chats (${request.unread_chats} unread)\
