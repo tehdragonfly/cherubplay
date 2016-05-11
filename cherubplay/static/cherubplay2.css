@@ -275,7 +275,7 @@ body.ongoing main { margin-bottom: 0; }
 #status_bar { max-width: 70ex; margin: -5px auto; color: #666; text-align: center; font-size: 10pt; }
 #status_bar { max-width: none; margin: 0; }
 
-#message_form_container { margin-top: 0; }
+#message_form_container { margin-top: 0; margin-bottom: 0; }
 #message_form { position: relative; }
 #message_form p:first-child { margin-top: 0; }
 #message_form textarea { height: 100px; }
@@ -289,6 +289,11 @@ body.ongoing main { margin-bottom: 0; }
 	#messages li { padding: 10px 0; }
 	.symbol { width: 30px; left: -30px; font-size: 1em; }
     #message_form .symbol { margin-top: 10px; }
+}
+
+#notification { display: none; }
+@media (min-width: 1025px) {
+    #notification { position: fixed; right: 50px; bottom: 30px; width: calc(50% - 405px); min-width: calc(17.82% - 30px); }
 }
 
 /* 3.6. Chat info */

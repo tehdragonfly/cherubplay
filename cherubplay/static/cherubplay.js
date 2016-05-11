@@ -826,6 +826,10 @@ var cherubplay = (function() {
 						} else if (message.action=="offline") {
 							last_status_message = message.symbol+" is now offline. They will be notified of any messages you send when they next visit.";
 							status_bar.text(last_status_message);
+						} else if (body.hasClass("layout2") && window.innerWidth > 1024 && message.action == "notification") {
+							$("#notification").show();
+							$("#notification_title").attr("href", "https://" + location.host + "/chats/" + message.url + "/").text(message.title);
+							$("#notification_text").text(message.text);
 						}
 					}
 				}
