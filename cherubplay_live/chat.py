@@ -101,7 +101,7 @@ class ChatHandler(WebSocketHandler):
 
     def on_close(self):
         # Unsubscribe here and let the exit callback handle disconnecting.
-        self.redis_client.unsubscribe("chat:"+str(self.chat.id))
+        self.redis_client.unsubscribe(("chat:"+str(self.chat.id), "user:"+str(self.user.id)))
         publish_client.hdel("online:"+str(self.chat.id), self.socket_id)
         # Fire offline message, but only if we don't have any other tabs open.
         if str(self.chat_user.symbol) not in publish_client.hvals("online:"+str(self.chat.id)):
@@ -114,7 +114,7 @@ class ChatHandler(WebSocketHandler):
     @engine
     def redis_listen(self):
         self.redis_client = Client(unix_socket_path=config.get("app:main", "cherubplay.socket_pubsub"))
-        yield Task(self.redis_client.subscribe, "chat:"+str(self.chat.id))
+        yield Task(self.redis_client.subscribe, ("chat:"+str(self.chat.id), "user:"+str(self.user.id)))
         self.redis_client.listen(self.on_redis_message, self.on_redis_unsubscribe)
 
     def on_redis_message(self, message):

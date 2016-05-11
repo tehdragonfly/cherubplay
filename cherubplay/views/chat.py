@@ -384,19 +384,21 @@ def chat_send(request):
     own_chat_user.draft = ""
     try:
         # See if anyone else is online and update their ChatUser too.
-        online_symbols = [
-            int(_) for _ in request.pubsub.hvals("online:"+str(chat.id))
-        ]
-        print online_symbols
-        if len(online_symbols) != 0:
-            Session.query(ChatUser).filter(and_(
-                ChatUser.chat_id == chat.id,
-                ChatUser.symbol.in_(online_symbols),
-            )).update({ "visited": posted_date }, synchronize_session=False)
+        online_symbols = set(int(_) for _ in request.pubsub.hvals("online:"+str(chat.id)))
+        for other_chat_user in Session.query(ChatUser).filter(ChatUser.chat_id == chat.id):
+            if other_chat_user.symbol in online_symbols:
+                other_chat_user.visited = posted_date
+            else:
+                request.pubsub.publish("user:" + str(other_chat_user.user_id), json.dumps({
+                    "action": "notification",
+                    "url": chat.url,
+                    "title": other_chat_user.title or chat.url,
+                    "text": trimmed_message_text if len(trimmed_message_text) < 100 else trimmed_message_text[:97] + "...",
+                }))
     except ConnectionError:
         pass
     try:
-        request.pubsub.publish("chat:"+str(chat.id), json.dumps({
+        request.pubsub.publish("chat:" + str(chat.id), json.dumps({
             "action": "message",
             "message": {
                 "id": new_message.id,
