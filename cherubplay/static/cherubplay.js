@@ -676,6 +676,10 @@ var cherubplay = (function() {
 				$("<source>").attr("src", "/static/carne_vale.mp3").appendTo(notification_audio);
 			}
 
+            $("#notification_close").click(function() {
+                $("#notification").hide();
+            });
+
 			var enter_to_send = localStorage.getItem("enter_to_send") == "true";
 
 			var changed_since_draft = false;

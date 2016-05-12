@@ -38,6 +38,7 @@
     <section id="notification" class="tile2">
         <h3><a id="notification_title" target="_blank"></a></h3>
         <p id="notification_text"></p>
+        <button id="notification_close">Close</button>
     </section>
 <%block name="scripts">
 <script>cherubplay.chat("${request.matchdict["url"]}", "${own_chat_user.symbol_character}");</script>
