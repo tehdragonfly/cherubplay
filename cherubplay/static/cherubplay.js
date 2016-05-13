@@ -472,6 +472,18 @@ var cherubplay = (function() {
 			if (localStorage.getItem("enter_to_send") == "true") {
 				enter_to_send.attr("checked", "checked");
 			}
+			var cross_chat_notifications = $("#cross_chat_notifications").click(function() {
+				localStorage.setItem("cross_chat_notifications", this.checked);
+				if (this.checked) {
+					$("#confirmation").text("Notifications from other chats are now enabled.");
+				} else {
+					$("#confirmation").text("Notifications from other chats are now disabled.");
+				}
+				window.scroll(0, 0);
+			});
+			if (localStorage.getItem("cross_chat_notifications") == "true") {
+				cross_chat_notifications.attr("checked", "checked");
+			}
 		},
 		"chat": function(chat_url, own_symbol) {
 
@@ -676,9 +688,9 @@ var cherubplay = (function() {
 				$("<source>").attr("src", "/static/carne_vale.mp3").appendTo(notification_audio);
 			}
 
-            $("#notification_close").click(function() {
-                $("#notification").hide();
-            });
+			$("#notification_close").click(function() {
+				$("#notification").hide();
+			});
 
 			var enter_to_send = localStorage.getItem("enter_to_send") == "true";
 
@@ -830,7 +842,12 @@ var cherubplay = (function() {
 						} else if (message.action=="offline") {
 							last_status_message = message.symbol+" is now offline. They will be notified of any messages you send when they next visit.";
 							status_bar.text(last_status_message);
-						} else if (body.hasClass("layout2") && window.innerWidth > 1024 && message.action == "notification") {
+						} else if (
+							body.hasClass("layout2")
+							&& window.innerWidth > 1024
+							&& message.action == "notification"
+							&& localStorage.getItem("cross_chat_notifications") == "true"
+						) {
 							$("#notification").show();
 							$("#notification_title").attr("href", "https://" + location.host + "/chats/" + message.url + "/").text(message.title);
 							$("#notification_text").text(message.text);
