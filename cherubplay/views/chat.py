@@ -393,6 +393,8 @@ def chat_send(request):
                     "action": "notification",
                     "url": chat.url,
                     "title": other_chat_user.title or chat.url,
+                    "colour": colour,
+                    "symbol": own_chat_user.symbol_character,
                     "text": trimmed_message_text if len(trimmed_message_text) < 100 else trimmed_message_text[:97] + "...",
                 }))
     except ConnectionError:

@@ -850,7 +850,7 @@ var cherubplay = (function() {
 						) {
 							$("#notification").show();
 							$("#notification_title").attr("href", "https://" + location.host + "/chats/" + message.url + "/").text(message.title);
-							$("#notification_text").text(message.text);
+							$("#notification_text").css("color", "#" + message.colour).text(message.text);
 						}
 					}
 				}

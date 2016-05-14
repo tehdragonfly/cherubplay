@@ -32,7 +32,7 @@
       <h3>Chat options</h3>
       <p><label><input type="checkbox" id="sound_notifications"> Enable sound notifications</label></p>
       <p><label><input type="checkbox" id="enter_to_send"> Press enter to send</label></p>
-      <p><label><input type="checkbox" id="cross_chat_notifications"> Get notifications from other chats</label></p>
+      <p><label><input type="checkbox" id="cross_chat_notifications"> Get notifications from other chats (desktop only)</label></p>
     </section>
   </div>
 </main>
