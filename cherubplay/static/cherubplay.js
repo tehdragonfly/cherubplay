@@ -682,11 +682,6 @@ var cherubplay = (function() {
 			});
 
 			var notification_audio;
-			if (localStorage.getItem("sound_notifications") == "true") {
-				var notification_audio = $("<audio>");
-				$("<source>").attr("src", "/static/carne_vale.ogg").appendTo(notification_audio);
-				$("<source>").attr("src", "/static/carne_vale.mp3").appendTo(notification_audio);
-			}
 
 			$("#notification_close").click(function() {
 				$("#notification").hide();
@@ -754,7 +749,12 @@ var cherubplay = (function() {
 				}
 				if (document.hidden || document.webkitHidden || document.msHidden) {
 					document.title = "New message - " + original_title;
-					if (notification_audio) {
+					if (localStorage.getItem("sound_notifications") == "true") {
+						if (!notification_audio) {
+							var notification_audio = $("<audio>");
+							$("<source>").attr("src", "/static/carne_vale.ogg").appendTo(notification_audio);
+							$("<source>").attr("src", "/static/carne_vale.mp3").appendTo(notification_audio);
+						}
 						notification_audio[0].play();
 					}
 				}
