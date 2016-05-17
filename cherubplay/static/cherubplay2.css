@@ -294,6 +294,7 @@ body.ongoing main { margin-bottom: 0; }
 #notification { display: none; }
 @media (min-width: 1025px) {
     #notification { position: fixed; right: 50px; bottom: 30px; width: calc(50% - 405px); min-width: calc(17.82% - 30px); }
+    #notification_inner { position: relative; }
     #notification_close { float: right; }
 }
 

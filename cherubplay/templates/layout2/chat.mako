@@ -37,7 +37,10 @@
     </section>
     <section id="notification" class="tile2">
         <h3><a id="notification_title" target="_blank"></a></h3>
-        <p id="notification_text"></p>
+        <div id="notification_inner">
+          <span id="notification_symbol" class="symbol"></span>
+          <p id="notification_text"></p>
+        </div>
         <button id="notification_close">Close</button>
     </section>
 <%block name="scripts">
