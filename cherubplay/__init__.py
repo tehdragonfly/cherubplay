@@ -219,6 +219,8 @@ def main(global_config, **settings):
     config.add_route("admin_user_chat", "/admin/user/{username}/chat/")
     config.add_route("admin_user_ban", "/admin/user/{username}/ban/")
 
+    config.add_route("api_users", "/api/users.json")
+
     config.scan()
     return config.make_wsgi_app()
 
