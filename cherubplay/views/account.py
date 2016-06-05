@@ -3,6 +3,7 @@ from pyramid.httpexceptions import HTTPFound, HTTPNoContent
 from pyramid.renderers import render_to_response
 from pyramid.view import view_config
 
+from ..lib import email_validator
 from ..models import (
     Session,
     User,
@@ -13,6 +14,15 @@ from ..models import (
 def account(request):
     template = "layout2/account.mako" if request.user.layout_version == 2 else "account.mako"
     return render_to_response(template, {}, request)
+
+
+@view_config(route_name="account_email_address", renderer="layout2/account.mako", request_method="POST")
+def account_email_address(request):
+    email_address = request.POST.get("email_address", "").strip()[:100]
+    if not email_validator.match(email_address):
+        return { "email_address_error": "Please enter a valid e-mail address." }
+    Session.query(User).filter(User.id==request.user.id).update({"email": email_address})
+    return HTTPFound(request.route_path("account", _query={ "saved": "email_address" }))
 
 
 @view_config(route_name="account_password", renderer="account.mako", request_method="POST")

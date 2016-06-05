@@ -17,6 +17,7 @@ def make_paginator(request, item_count, current_page, items_per_page=25):
 
 colour_validator = re.compile("^[A-Fa-f0-9]{6}$")
 username_validator = re.compile("^[-a-z0-9_]+$")
+email_validator = re.compile("^.+@.+\..+$")
 
 reserved_usernames = ()
 

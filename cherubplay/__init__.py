@@ -206,6 +206,7 @@ def main(global_config, **settings):
     config.add_route("directory_request_unremove", "/directory/{id:\d+}/unremove/", factory=request_factory)
 
     config.add_route("account", "/account/")
+    config.add_route("account_email_address", "/account/email_address/")
     config.add_route("account_password", "/account/password/")
     config.add_route("account_timezone", "/account/timezone/")
     config.add_route("account_layout_version", "/account/layout_version/")
