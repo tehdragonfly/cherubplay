@@ -61,11 +61,15 @@ class CherubplayAuthenticationPolicy(object):
 
     def effective_principals(self, request):
         if request.user is not None:
-            if request.user.status=="banned":
+            if request.user.status == "banned":
                 return (Everyone, Authenticated)
-            elif request.user.status=="admin":
+            elif request.user.status == "admin":
                 return (Everyone, Authenticated, "active", "admin")
             return (Everyone, Authenticated, "active")
+        elif request.headers.get("X-Cherubplay-SSL-Client-Verify") == "SUCCESS":
+            certificate_serial = request.headers["X-Cherubplay-SSL-Client-Serial"]
+            if "api.clients" in request.registry.settings and certificate_serial in request.registry.settings["api.clients"]:
+                return (Everyone, "api")
         return (Everyone,)
 
     def remember(self, request, principal, **kw):
@@ -120,6 +124,8 @@ def request_unread_chats(request):
 
 def main(global_config, **settings):
 
+    if "api.clients" in settings:
+        settings["api.clients"] = {_.strip() for _ in settings["api.clients"].split(",")}
     engine = engine_from_config(settings, "sqlalchemy.")
     Session.configure(bind=engine)
     Base.metadata.bind = engine

@@ -50,6 +50,8 @@ class Resource(object):
         (Allow, "active", "chat"),
         (Allow, "admin", "admin"),
         (Allow, "admin", "tag_wrangling"),
+        (Allow, "admin", "api"),
+        (Allow, "api", "api"),
     )
 
 
