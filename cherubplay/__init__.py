@@ -66,10 +66,8 @@ class CherubplayAuthenticationPolicy(object):
             elif request.user.status == "admin":
                 return (Everyone, Authenticated, "active", "admin")
             return (Everyone, Authenticated, "active")
-        elif request.headers.get("X-Cherubplay-SSL-Client-Verify") == "SUCCESS":
-            certificate_serial = request.headers["X-Cherubplay-SSL-Client-Serial"]
-            if "api.clients" in request.registry.settings and certificate_serial in request.registry.settings["api.clients"]:
-                return (Everyone, "api")
+        elif request.api_client:
+            return (Everyone, "api")
         return (Everyone,)
 
     def remember(self, request, principal, **kw):
@@ -85,15 +83,22 @@ class CherubplayRootFactory(Resource):
 
 
 def request_user(request):
-    if "cherubplay" not in request.cookies:
-        return None
     # If we're in read only mode, make everyone a guest.
     if "cherubplay.read_only" in request.registry.settings:
         return None
-    try:
-        user_id = request.login_store.get("session:"+request.cookies["cherubplay"])
-    except ConnectionError:
-        return None
+
+    user_id = None
+    if "cherubplay" in request.cookies:
+        try:
+            user_id = request.login_store.get("session:"+request.cookies["cherubplay"])
+        except ConnectionError:
+            return None
+    elif request.api_client and request.headers.get("X-Cherubplay-User-Id"):
+        try:
+            user_id = int(request.headers["X-Cherubplay-User-Id"])
+        except ValueError:
+            return None
+
     if user_id is not None:
         try:
             user = Session.query(User).filter(User.id==user_id).one()
@@ -111,6 +116,14 @@ def request_user(request):
         except NoResultFound:
             return None
     return None
+
+
+def request_api_client(request):
+    if request.headers.get("X-Cherubplay-SSL-Client-Verify") == "SUCCESS":
+        certificate_serial = request.headers["X-Cherubplay-SSL-Client-Serial"]
+        if "api.clients" in request.registry.settings and certificate_serial in request.registry.settings["api.clients"]:
+            return True
+    return False
 
 
 def request_unread_chats(request):
@@ -156,6 +169,7 @@ def main(global_config, **settings):
     config.add_request_method(request_login_store, 'login_store', reify=True)
     config.add_request_method(request_pubsub, 'pubsub', reify=True)
     config.add_request_method(request_user, 'user', reify=True)
+    config.add_request_method(request_api_client, 'api_client', reify=True)
     config.add_request_method(request_unread_chats, 'unread_chats', reify=True)
 
     config.add_static_view("static", "static", cache_max_age=3600)
