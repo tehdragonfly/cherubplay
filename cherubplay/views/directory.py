@@ -50,7 +50,7 @@ def _validate_request_form(request):
 
 
 def _tags_from_form(form, new_request):
-    tag_dict = {}
+    tag_set = set()
     fandoms = set()
     for tag_type in Tag.type.type.enums:
 
@@ -59,47 +59,46 @@ def _tags_from_form(form, new_request):
             name = form["maturity"]
             if name not in Tag.maturity_names:
                 name = "NSFW extreme"
-            tag_dict[(u"maturity", name)] = name
+            tag_set.add((u"maturity", name))
             continue
 
         # Enforce preset values for type.
         elif tag_type == "type":
             for name in Tag.type_names:
                 if "type_" + name in form:
-                    tag_dict[(u"type", name)] = name
+                    tag_set.add((u"type", name))
             continue
 
-        for alias in form[tag_type][:100].split(","):
-            if tag_type == "trigger" and alias.lower().startswith("tw:"):
-                alias = alias[3:]
-            alias = alias.strip()
-            name = Tag.name_from_url(alias).strip()
+        for name in form[tag_type][:100].split(","):
+            if tag_type == "trigger" and name.lower().startswith("tw:"):
+                name = name[3:]
+            name = Tag.name_from_url(name).strip()
             if name == "":
                 continue
-            tag_dict[(tag_type, name)] = alias
+            tag_set.add((tag_type, name))
             if tag_type in (u"fandom", u"fandom_wanted"):
                 fandoms.add(name.lower())
 
     # Meta types
     if not new_request.prompt:
-        tag_dict[(u"type", u"Not a prompt")] = u"Not a prompt"
+        tag_set.add((u"type", u"Not a prompt"))
 
     if len(fandoms) > 1:
-        tag_dict[(u"type", u"Crossover")] = u"Crossover"
+        tag_set.add((u"type", u"Crossover"))
 
     if u"homestuck" not in fandoms:
-        tag_dict[(u"type", u"Not Homestuck")] = u"Not Homestuck"
+        tag_set.add((u"type", u"Not Homestuck"))
 
     tag_list = []
     used_ids = set()
-    for (tag_type, name), alias in tag_dict.iteritems():
+    for tag_type, name in tag_set:
         tag = _get_or_create_tag(tag_type, name)
         tag_id = (tag.synonym_id or tag.id)
         # Remember IDs to skip synonyms.
         if tag_id in used_ids:
             continue
         used_ids.add(tag_id)
-        tag_list.append(RequestTag(tag_id=tag_id, alias=alias))
+        tag_list.append(RequestTag(tag_id=tag_id))
 
     return tag_list
 
@@ -203,7 +202,6 @@ def directory_tag(request):
         return {"tag": {
             "type": request.matchdict["type"],
             "name": request.matchdict["name"],
-            "alias": request.matchdict["name"],
         }, "blacklisted": False, "requests": [], "more": False}
 
     if tag.synonym_of is not None:
@@ -431,7 +429,7 @@ def _blacklisted_tags(request, **kwargs):
             .join(BlacklistedTag.tag)
             .filter(BlacklistedTag.user_id == request.user.id)
             .options(contains_eager(BlacklistedTag.tag))
-            .order_by(Tag.type, BlacklistedTag.alias).all()
+            .order_by(Tag.type, Tag.name).all()
         ),
         **kwargs
     )
@@ -455,8 +453,8 @@ def directory_blacklist_setup(request):
     if request.POST["blacklist"] == "default":
         print "default"
         Session.execute(BlacklistedTag.__table__.insert().from_select(
-            ["user_id", "tag_id", "alias"],
-            Session.query(literal(request.user.id), Tag.id, Tag.name).filter(Tag.blacklist_default == True)
+            ["user_id", "tag_id"],
+            Session.query(literal(request.user.id), Tag.id).filter(Tag.blacklist_default == True)
         ))
 
     Session.query(User).filter(User.id == request.user.id).update({"seen_blacklist_warning": True})
@@ -471,28 +469,28 @@ def directory_blacklist_add(request):
         raise HTTPBadRequest
     tag_type = request.POST["tag_type"]
 
-    aliases = request.POST["alias"][:100]
-    for alias in aliases.split(","):
+    names = request.POST["name"][:100]
+    for name in names.split(","):
 
-        alias = alias.strip()
-        if not alias:
+        name = name.strip()
+        if not name:
             continue
 
-        name = Tag.name_from_url(alias).strip()
+        name = Tag.name_from_url(name).strip()
         if not name:
             continue
 
         try:
             tag = _get_or_create_tag(tag_type, name, allow_maturity_and_type_creation=False)
         except CreateNotAllowed:
-            return _blacklisted_tags(request, error="invalid", error_tag_type=tag_type, error_alias=alias)
+            return _blacklisted_tags(request, error="invalid", error_tag_type=tag_type, error_name=name)
         tag_id = (tag.synonym_id or tag.id)
 
         if Session.query(func.count("*")).select_from(BlacklistedTag).filter(and_(
             BlacklistedTag.user_id == request.user.id,
             BlacklistedTag.tag_id == tag_id,
         )).scalar() == 0:
-            Session.add(BlacklistedTag(user_id=request.user.id, tag_id=tag_id, alias=alias))
+            Session.add(BlacklistedTag(user_id=request.user.id, tag_id=tag_id))
 
     return HTTPFound(request.route_path("directory_blacklist"))
 
@@ -565,7 +563,7 @@ def directory_request_edit_get(context, request):
             for tag in tags:
                 form_data["type_" + tag.tag.name] = "on"
         else:
-            form_data[tag_type] = ", ".join(tag.alias for tag in tags)
+            form_data[tag_type] = ", ".join(tag.tag.name for tag in tags)
 
     form_data["colour"] = "#" + context.colour
     form_data["scenario"] = context.scenario

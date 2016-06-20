@@ -318,11 +318,9 @@ class RequestTag(Base):
     __tablename__ = "request_tags"
     request_id = Column(Integer, ForeignKey("requests.id"), primary_key=True)
     tag_id = Column(Integer, ForeignKey("tags.id"), primary_key=True)
-    alias = Column(Unicode(100))
 
     def __json__(self, request=None):
         tag_dict = self.tag.__json__(request)
-        tag_dict["alias"] = self.alias
         return tag_dict
 
 
@@ -330,11 +328,9 @@ class BlacklistedTag(Base):
     __tablename__ = "blacklisted_tags"
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     tag_id = Column(Integer, ForeignKey("tags.id"), primary_key=True)
-    alias = Column(Unicode(100))
 
     def __json__(self, request=None):
         tag_dict = self.tag.__json__(request)
-        tag_dict["alias"] = self.alias
         return tag_dict
 
 
@@ -366,7 +362,6 @@ class Tag(Base):
         tag_dict = {
             "type": self.type,
             "name": self.name,
-            "alias": self.name,
             "url_name": self.url_name,
         }
         if request and request.user and request.has_permission("tag_wrangling"):
@@ -394,9 +389,9 @@ PromptReport.reporting_user = relationship(User, backref="reports_sent", primary
 PromptReport.reported_user = relationship(User, backref="reports_recieved", primaryjoin=PromptReport.reported_user_id == User.id)
 
 Request.user = relationship(User, backref="requests")
-Request.tags = relationship(RequestTag, backref="request", order_by=RequestTag.alias)
+Request.tags = relationship(RequestTag, backref="request")
 
-User.blacklisted_tags = relationship(BlacklistedTag, backref="user", order_by=RequestTag.alias)
+User.blacklisted_tags = relationship(BlacklistedTag, backref="user")
 BlacklistedTag.tag = relationship(Tag)
 
 Tag.requests = relationship(RequestTag, backref="tag")
