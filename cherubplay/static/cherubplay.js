@@ -473,6 +473,8 @@ var cherubplay = (function() {
 					if (e.which == 13 || e.which == 188) {
 						make_tag_list();
 						return false;
+					} else if (e.which == 8 && !visible_input.val()) {
+						tag_list.find("li:last-child").remove();
 					}
 				});
 				var tag_type = visible_input.attr("name");
