@@ -242,6 +242,12 @@ table.tile2 a:only-child { display: block; margin: -2px -5px; padding: 2px 5px; 
 table.tile2 .unapproved a { color: #f33; }
 table.tile2 .synonym a { color: #ccc; }
 
+.tag_input { margin: 0 0 10px; padding: 4px 8px; background-color: #f6f6f6; box-shadow: 0 1px 2px #ddd inset; }
+.tag_input .request_tags { margin: 0 0 2px; }
+.tag_input .request_tags:empty { margin: 0; }
+.tag_input .request_tags a { word-wrap: break-word; }
+.tag_input input { background-color: #f6f6f6; }
+
 /* 3.4. Chat list */
 
 #chat_list { margin: 0; padding: 0; list-style-type: none; }

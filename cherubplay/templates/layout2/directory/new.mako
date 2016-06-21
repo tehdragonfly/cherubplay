@@ -16,7 +16,11 @@ New request
       % if error == "blank_maturity":
       <p class="error">Please choose a maturity for your prompt.</p>
       % endif
-      <p><label>Trigger warnings: <input type="text" class="full" name="trigger" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("trigger", "")}"></label></p>
+      <label>Trigger warnings:</label>
+      <div class="tag_input">
+        <ul class="request_tags"></ul>
+        <input type="text" class="full" name="trigger" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("trigger", "")}">
+      </div>
       <p class="help">Trigger warnings must include anything that belongs under NSFW extreme.</p>
       <p class="types">
         <span>Type:</span>
@@ -26,18 +30,45 @@ New request
       </p>
       <hr>
       <h3>Who you're playing</h3>
-      <p><label>Character: <input type="text" class="full" name="character" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("character", "")}"></label></p>
-      <p><label>Fandom: <input type="text" class="full" name="fandom" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("fandom", "Homestuck")}"></label></p>
-      <p><label>Gender: <input type="text" class="full" name="gender" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("gender", "")}"></label></p>
+      <label>Character:</label>
+      <div class="tag_input">
+        <ul class="request_tags"></ul>
+        <input type="text" class="full" name="character" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("character", "")}">
+      </div>
+      <label>Fandom:</label>
+      <div class="tag_input">
+        <ul class="request_tags"></ul>
+        <input type="text" class="full" name="fandom" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("fandom", "Homestuck")}">
+      </div>
+      <label>Gender:</label>
+      <div class="tag_input">
+        <ul class="request_tags"></ul>
+        <input type="text" class="full" name="gender" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("gender", "")}">
+      </div>
       <hr>
       <h3>Who you're looking for</h3>
-      <p><label>Character: <input type="text" class="full" name="character_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("character_wanted", "")}"></label></p>
-      <p><label>Fandom: <input type="text" class="full" name="fandom_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("fandom_wanted", "Homestuck")}"></label></p>
-      <p><label>Gender: <input type="text" class="full" name="gender_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("gender_wanted", "")}"></label></p>
+      <label>Character:</label>
+      <div class="tag_input">
+        <ul class="request_tags"></ul>
+        <input type="text" class="full" name="character_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("character_wanted", "")}">
+      </div>
+      <label>Fandom:</label>
+      <div class="tag_input">
+        <ul class="request_tags"></ul>
+        <input type="text" class="full" name="fandom_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("fandom_wanted", "Homestuck")}">
+      </div>
+      <label>Gender:</label>
+      <div class="tag_input">
+        <ul class="request_tags"></ul>
+        <input type="text" class="full" name="gender_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("gender_wanted", "")}">
+      </div>
       <hr>
       <h3>Other tags</h3>
       <p class="help">Other tags can contain anything else you think is relevant - AUs, kinks and the like.</p>
-      <p><input type="text" class="full" name="misc" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("misc", "")}"></p>
+      <div class="tag_input">
+        <ul class="request_tags"></ul>
+        <input type="text" class="full" name="misc" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("misc", "")}">
+      </div>
       <hr>
       <h3>Scenario</h3>
       <p class="help">This section is for out-of-character notes and other information about the scenario you'd like to roleplay. If you're writing a not-a-prompt (eg. a request without any prose, a missed connection or a MSPARP group), please write everything in the scenario section and leave the prompt section blank.</p>

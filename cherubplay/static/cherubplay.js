@@ -438,6 +438,49 @@ var cherubplay = (function() {
 			});
 		},
 		"directory_new": function() {
+
+			$(".tag_input").each(function() {
+				function make_tag_list() {
+					console.log(visible_input.val());
+					visible_input.val().split(",").forEach(function(tag_name) {
+
+						tag_name = tag_name.trim();
+						if (tag_type == "trigger") { tag_name = tag_name.replace(/^tw:\s*/gi, ""); }
+						if (!tag_name) { return; }
+
+						var existing_tags = tag_list.find("a");
+						for (var i = 0; i < existing_tags.length; i++) {
+							if ($(existing_tags[i]).attr("data-tag-name") == tag_name) {
+								$(existing_tags[i].parentNode).appendTo(tag_list);
+								return;
+							}
+						}
+
+						var li = $("<li>").text(" ");
+						if (tag_type == "trigger") { li.addClass("trigger"); }
+						li.appendTo(tag_list);
+						$("<a>").attr({
+							"href": "/directory/" + tag_type + ":" + tag_name.replace(/\//g, "*s*").replace(/:/i, "*c*") + "/",
+							"target": "_blank",
+							"data-tag-name": tag_name,
+						}).text((tag_type == "trigger" ? "TW: " /* no-break space */ : "") + tag_name).appendTo(li);
+
+					})
+					visible_input.val("");
+				}
+				var tag_list = $(this).find("ul");
+				var visible_input = $(this).find("input").keydown(function(e) {
+					if (e.which == 13 || e.which == 188) {
+						make_tag_list();
+						return false;
+					}
+				});
+				var tag_type = visible_input.attr("name");
+				visible_input.removeAttr("name");
+				hidden_input = $("<input>").attr({"type": "hidden", "name": tag_type}).appendTo(this);
+				make_tag_list();
+			});
+
 			// TODO make this generic
 			$("#new_request_form textarea").keyup(function() { this.style.height = this.scrollHeight + "px"; });
 			var prompt_colour = $("#new_request_form input[name=\"colour\"]").change(function() {
