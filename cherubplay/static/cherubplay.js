@@ -440,9 +440,8 @@ var cherubplay = (function() {
 		"directory_new": function() {
 
 			$(".tag_input").each(function() {
-				function make_tag_list() {
-					console.log(visible_input.val());
-					visible_input.val().split(",").forEach(function(tag_name) {
+				function make_tag_list(input) {
+					input.val().split(",").forEach(function(tag_name) {
 
 						tag_name = tag_name.trim();
 						if (tag_type == "trigger") { tag_name = tag_name.replace(/^tw:\s*/gi, ""); }
@@ -466,21 +465,27 @@ var cherubplay = (function() {
 						}).text((tag_type == "trigger" ? "TW: " /* no-break space */ : "") + tag_name).appendTo(li);
 
 					})
-					visible_input.val("");
 				}
 				var tag_list = $(this).find("ul");
-				var visible_input = $(this).find("input").keydown(function(e) {
+				var hidden_input = $(this).find("input");
+				hidden_input.css("display", "none");
+				var tag_type = hidden_input.attr("name");
+				var visible_input = $("<input>").keydown(function(e) {
 					if (e.which == 13 || e.which == 188) {
-						make_tag_list();
+						make_tag_list(visible_input);
+						visible_input.val("");
+						hidden_input.val(tag_list.find("a").map(function(index, tag) { return $(tag).attr("data-tag-name"); }).toArray().join(","));
 						return false;
 					} else if (e.which == 8 && !visible_input.val()) {
 						tag_list.find("li:last-child").remove();
+						hidden_input.val(tag_list.find("a").map(function(index, tag) { return $(tag).attr("data-tag-name"); }).toArray().join(","));
 					}
-				});
-				var tag_type = visible_input.attr("name");
-				visible_input.removeAttr("name");
-				hidden_input = $("<input>").attr({"type": "hidden", "name": tag_type}).appendTo(this);
-				make_tag_list();
+				}).addClass("full").attr({
+					"type": "text",
+					"maxlength": hidden_input.attr("maxlength"),
+					"placeholder": hidden_input.attr("placeholder"),
+				}).appendTo(this);
+				make_tag_list(hidden_input);
 			});
 
 			// TODO make this generic
