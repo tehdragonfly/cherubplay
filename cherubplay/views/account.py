@@ -1,7 +1,11 @@
 from bcrypt import gensalt, hashpw
-from pyramid.httpexceptions import HTTPFound, HTTPNoContent
+from pyramid.httpexceptions import HTTPFound, HTTPNoContent, HTTPNotFound
 from pyramid.renderers import render_to_response
 from pyramid.view import view_config
+from pyramid_mailer import get_mailer
+from pyramid_mailer.message import Message as EmailMessage
+from sqlalchemy.orm.exc import NoResultFound
+from uuid import uuid4
 
 from ..lib import email_validator
 from ..models import (
@@ -10,22 +14,81 @@ from ..models import (
 )
 
 
-@view_config(route_name="account", request_method="GET")
+def send_email(request, action, user, email_address):
+    email_token = str(uuid4())
+    # XXX we're not using StrictRedis so value and expiry are the wrong way round
+    request.login_store.setex(":".join([action, str(user.id), email_address]), email_token, 86400 if action == "verify" else 600)
+
+    mailer = get_mailer(request)
+    message = EmailMessage(
+        subject="Verify your e-mail address" if action == "verify" else "Reset your password",
+        sender="Cherubplay <cherubplay@msparp.com>",
+        recipients=[email_address],
+        body=request.route_url("account_" + ("verify_email" if action == "verify" else "reset_password"), _query={
+            "user_id": user.id, "email_address": email_address, "token": email_token,
+        }),
+    )
+    mailer.send(message)
+
+
+@view_config(route_name="account", request_method="GET", permission="view")
 def account(request):
     template = "layout2/account.mako" if request.user.layout_version == 2 else "account.mako"
     return render_to_response(template, {}, request)
 
 
-@view_config(route_name="account_email_address", renderer="layout2/account.mako", request_method="POST")
+@view_config(route_name="account_email_address", renderer="layout2/account.mako", request_method="POST", permission="view")
 def account_email_address(request):
     email_address = request.POST.get("email_address", "").strip()[:100]
     if not email_validator.match(email_address):
         return { "email_address_error": "Please enter a valid e-mail address." }
-    Session.query(User).filter(User.id==request.user.id).update({"email": email_address})
-    return HTTPFound(request.route_path("account", _query={ "saved": "email_address" }))
+    send_email(request, "verify", request.user, email_address)
+    return HTTPFound(request.route_path("account", _query={ "saved": "verify_email" }))
 
 
-@view_config(route_name="account_password", renderer="account.mako", request_method="POST")
+
+@view_config(route_name="account_verify_email", request_method="GET")
+def account_verify_email(request):
+    try:
+        user_id = int(request.GET["user_id"].strip())
+        email_address = request.GET["email_address"].strip()
+        token = request.GET["token"].strip()
+    except (KeyError, ValueError):
+        raise HTTPNotFound
+    stored_token = request.login_store.get("verify:%s:%s" % (user_id, email_address))
+    if not user_id or not email_address or not token or not stored_token:
+        raise HTTPNotFound
+
+    stored_token = stored_token.decode("utf-8")
+
+    print token
+    print stored_token
+
+    if not stored_token == token:
+        raise HTTPNotFound
+
+    if request.user and request.user.id == user_id:
+        user = request.user
+    else:
+        try:
+            user = Session.query(User).filter(User.id == user_id).one()
+        except NoResultFound:
+            raise HTTPNotFound
+
+    user.email = email_address
+    user.email_verified = True
+
+    response = HTTPFound(request.route_path("account", _query={ "saved": "email_address" }))
+
+    if not request.user or request.user.id != user.id:
+        new_session_id = str(uuid4())
+        request.login_store.set("session:"+new_session_id, user.id)
+        response.set_cookie("cherubplay", new_session_id, 31536000)
+
+    return response
+
+
+@view_config(route_name="account_password", renderer="account.mako", request_method="POST", permission="view")
 def account_password(request):
 
     if hashpw(request.POST["old_password"].encode(), request.user.password.encode())!=request.user.password:
@@ -66,7 +129,7 @@ timezones = {
 }
 
 
-@view_config(route_name="account_timezone", request_method="POST")
+@view_config(route_name="account_timezone", request_method="POST", permission="view")
 def account_timezone(request):
     if request.POST["timezone"] in timezones:
         Session.query(User).filter(User.id==request.user.id).update({
@@ -75,7 +138,7 @@ def account_timezone(request):
     return HTTPNoContent()
 
 
-@view_config(route_name="account_layout_version", request_method="POST")
+@view_config(route_name="account_layout_version", request_method="POST", permission="view")
 def account_layout_version(request):
     if request.POST["layout_version"] in ("1", "2"):
         Session.query(User).filter(User.id==request.user.id).update({
