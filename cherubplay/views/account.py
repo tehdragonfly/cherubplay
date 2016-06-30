@@ -1,6 +1,6 @@
 from bcrypt import gensalt, hashpw
 from pyramid.httpexceptions import HTTPFound, HTTPNoContent, HTTPNotFound
-from pyramid.renderers import render_to_response
+from pyramid.renderers import render, render_to_response
 from pyramid.view import view_config
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message as EmailMessage
@@ -17,16 +17,18 @@ from ..models import (
 def send_email(request, action, user, email_address):
     email_token = str(uuid4())
     # XXX we're not using StrictRedis so value and expiry are the wrong way round
-    request.login_store.setex(":".join([action, str(user.id), email_address]), email_token, 86400 if action == "verify" else 600)
+    request.login_store.setex(":".join([action, str(user.id), email_address]), email_token, 86400 if action == "verify_email" else 600)
 
     mailer = get_mailer(request)
     message = EmailMessage(
-        subject="Verify your e-mail address" if action == "verify" else "Reset your password",
+        subject="Verify your e-mail address" if action == "verify_email" else "Reset your password",
         sender="Cherubplay <cherubplay@msparp.com>",
         recipients=[email_address],
-        body=request.route_url("account_" + ("verify_email" if action == "verify" else "reset_password"), _query={
-            "user_id": user.id, "email_address": email_address, "token": email_token,
-        }),
+        body=render("email/%s.mako" % action, {
+            "user": user,
+            "email_address": email_address,
+            "email_token": email_token,
+        }, request),
     )
     mailer.send(message)
 
@@ -42,7 +44,7 @@ def account_email_address(request):
     email_address = request.POST.get("email_address", "").strip()[:100]
     if not email_validator.match(email_address):
         return { "email_address_error": "Please enter a valid e-mail address." }
-    send_email(request, "verify", request.user, email_address)
+    send_email(request, "verify_email", request.user, email_address)
     return HTTPFound(request.route_path("account", _query={ "saved": "verify_email" }))
 
 
@@ -55,7 +57,7 @@ def account_verify_email(request):
         token = request.GET["token"].strip()
     except (KeyError, ValueError):
         raise HTTPNotFound
-    stored_token = request.login_store.get("verify:%s:%s" % (user_id, email_address))
+    stored_token = request.login_store.get("verify_email:%s:%s" % (user_id, email_address))
     if not user_id or not email_address or not token or not stored_token:
         raise HTTPNotFound
 
