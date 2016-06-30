@@ -13,7 +13,9 @@
     </nav>
   </div>
   <div id="content">
-% if request.GET.get("saved") == "email_address":
+% if request.GET.get("saved") == "verify_email":
+    <p id="confirmation">We've sent you an e-mail. Please click the link in the e-mail to verify your address.</p>
+% elif request.GET.get("saved") == "email_address":
     <p id="confirmation">Your e-mail address has been changed.</p>
 % elif request.GET.get("saved") == "password":
     <p id="confirmation">Your password has been changed.</p>

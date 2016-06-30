@@ -2,7 +2,7 @@
 <%block name="heading">Blacklisted tags</%block>
 <% from cherubplay.models import Tag %>
     % if error == "invalid":
-    <p><strong>${error_alias}</strong> is not a valid ${error_tag_type}.</p>
+    <p><strong>${error_name}</strong> is not a valid ${error_tag_type}.</p>
     % endif
     <section class="tile2">
       <ul class="tag_list">
@@ -12,7 +12,7 @@
             <input type="hidden" name="tag_id" value="${tag.tag_id}">
             <button type="submit">Remove</button>
           </form>
-          ${tag.tag.type.replace("_", " ")}:${tag.alias}
+          ${tag.tag.type.replace("_", " ")}:${tag.tag.name}
         </li>
         % endfor
         <li>
@@ -22,7 +22,7 @@
               <option value="${tag_type}">${tag_type.replace("_", " ")}</option>
               % endfor
             </select>
-            <input type="text" name="alias" maxlength="100" required>
+            <input type="text" name="name" maxlength="100" required>
             <button type="submit">Add</button>
           </form>
         </li>

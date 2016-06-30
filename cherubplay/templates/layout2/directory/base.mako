@@ -2,9 +2,9 @@
 <%def name="tag_li(tag)">\
 <li${" class=\"trigger\"" if tag.tag.type == "trigger" else ""|n}>\
 % if tag.tag.type == request.matchdict.get("type") and tag.tag.url_name == request.matchdict.get("name"):
-${"TW: " if tag.tag.type == "trigger" else ""}${tag.alias}\
+${"TW: " if tag.tag.type == "trigger" else ""}${tag.tag.name}\
 % else:
-<a href="${request.route_path("directory_tag", type=tag.tag.type, name=tag.tag.url_name)}">${"TW: " if tag.tag.type == "trigger" else ""}${tag.alias}</a>\
+<a href="${request.route_path("directory_tag", type=tag.tag.type, name=tag.tag.url_name)}">${"TW: " if tag.tag.type == "trigger" else ""}${tag.tag.name}</a>\
 % endif
 </li>\
 </%def>

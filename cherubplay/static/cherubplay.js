@@ -438,6 +438,56 @@ var cherubplay = (function() {
 			});
 		},
 		"directory_new": function() {
+
+			$(".tag_input").each(function() {
+				function make_tag_list(input) {
+					input.val().split(",").forEach(function(tag_name) {
+
+						tag_name = tag_name.trim();
+						if (tag_type == "trigger") { tag_name = tag_name.replace(/^tw:\s*/gi, ""); }
+						if (!tag_name) { return; }
+
+						var existing_tags = tag_list.find("a");
+						for (var i = 0; i < existing_tags.length; i++) {
+							if ($(existing_tags[i]).attr("data-tag-name") == tag_name) {
+								$(existing_tags[i].parentNode).appendTo(tag_list);
+								return;
+							}
+						}
+
+						var li = $("<li>").text(" ");
+						if (tag_type == "trigger") { li.addClass("trigger"); }
+						li.appendTo(tag_list);
+						$("<a>").attr({
+							"href": "/directory/" + tag_type + ":" + tag_name.replace(/\//g, "*s*").replace(/:/i, "*c*") + "/",
+							"target": "_blank",
+							"data-tag-name": tag_name,
+						}).text((tag_type == "trigger" ? "TW: " /* no-break space */ : "") + tag_name).appendTo(li);
+
+					})
+				}
+				var tag_list = $(this).find("ul");
+				var hidden_input = $(this).find("input");
+				hidden_input.css("display", "none");
+				var tag_type = hidden_input.attr("name");
+				var visible_input = $("<input>").keydown(function(e) {
+					if (e.which == 13 || e.which == 188) {
+						make_tag_list(visible_input);
+						visible_input.val("");
+						hidden_input.val(tag_list.find("a").map(function(index, tag) { return $(tag).attr("data-tag-name"); }).toArray().join(","));
+						return false;
+					} else if (e.which == 8 && !visible_input.val()) {
+						tag_list.find("li:last-child").remove();
+						hidden_input.val(tag_list.find("a").map(function(index, tag) { return $(tag).attr("data-tag-name"); }).toArray().join(","));
+					}
+				}).addClass("full").attr({
+					"type": "text",
+					"maxlength": hidden_input.attr("maxlength"),
+					"placeholder": hidden_input.attr("placeholder"),
+				}).appendTo(this);
+				make_tag_list(hidden_input);
+			});
+
 			// TODO make this generic
 			$("#new_request_form textarea").keyup(function() { this.style.height = this.scrollHeight + "px"; });
 			var prompt_colour = $("#new_request_form input[name=\"colour\"]").change(function() {
