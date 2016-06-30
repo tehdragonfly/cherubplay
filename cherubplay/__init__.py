@@ -15,6 +15,7 @@ from .models import (
     Base,
     Chat,
     ChatUser,
+    ClientCertificate,
     Resource,
     User,
 )
@@ -60,15 +61,22 @@ class CherubplayAuthenticationPolicy(object):
             return request.user.id
 
     def effective_principals(self, request):
-        if request.user is not None:
-            if request.user.status == "banned":
-                return (Everyone, Authenticated)
-            elif request.user.status == "admin":
-                return (Everyone, Authenticated, "active", "admin")
-            return (Everyone, Authenticated, "active")
-        elif request.api_client:
-            return (Everyone, "api")
-        return (Everyone,)
+        principals = {Everyone}
+
+        if request.user:
+            principals.add(Authenticated)
+            if request.user.status != "banned":
+                principals.add("active")
+            if request.user.email_verified:
+                principals.add("verified")
+            if request.user.status == "admin":
+                principals.add("admin")
+
+        if request.client:
+            if request.client.type in ("api", "admin"):
+                principals.add("api")
+
+        return principals
 
     def remember(self, request, principal, **kw):
         raise NotImplementedError
@@ -93,7 +101,7 @@ def request_user(request):
             user_id = request.login_store.get("session:"+request.cookies["cherubplay"])
         except ConnectionError:
             return None
-    elif request.api_client and request.headers.get("X-Cherubplay-User-Id"):
+    elif request.client and request.client.type == "admin" and request.headers.get("X-Cherubplay-User-Id"):
         try:
             user_id = int(request.headers["X-Cherubplay-User-Id"])
         except ValueError:
@@ -118,13 +126,15 @@ def request_user(request):
     return None
 
 
-def request_api_client(request):
-    if request.headers.get("X-Cherubplay-SSL-Client-Verify") == "SUCCESS":
-        certificate_serial = request.headers["X-Cherubplay-SSL-Client-Serial"]
-        if "api.clients" in request.registry.settings and certificate_serial in request.registry.settings["api.clients"]:
-            return True
-    return False
-
+def request_client(request):
+    if request.headers.get("X-Cherubplay-SSL-Client-Verify") != "SUCCESS":
+        return None
+    try:
+        return Session.query(ClientCertificate).filter(
+            ClientCertificate.serial == int(request.headers["X-Cherubplay-SSL-Client-Serial"], 16),
+        ).one()
+    except (KeyError, ValueError, NoResultFound):
+        return None
 
 def request_unread_chats(request):
     if request.user is None:
@@ -169,7 +179,7 @@ def main(global_config, **settings):
     config.add_request_method(request_login_store, 'login_store', reify=True)
     config.add_request_method(request_pubsub, 'pubsub', reify=True)
     config.add_request_method(request_user, 'user', reify=True)
-    config.add_request_method(request_api_client, 'api_client', reify=True)
+    config.add_request_method(request_client, 'client', reify=True)
     config.add_request_method(request_unread_chats, 'unread_chats', reify=True)
 
     config.add_static_view("static", "static", cache_max_age=3600)

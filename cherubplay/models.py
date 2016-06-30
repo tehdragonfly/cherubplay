@@ -106,6 +106,13 @@ class User(Base):
         return utc_datetime.astimezone(timezone(self.timezone))
 
 
+class ClientCertificate(Base):
+    __tablename__ = "client_certificates"
+    serial = Column(Integer, primary_key=True, autoincrement=False)
+    name = Column(Unicode(100), nullable=False, default=u"")
+    type = Column(Enum(u"api", u"user", u"admin", name="client_certificate_type"), nullable=False, default=u"api")
+
+
 class Chat(Base):
     __tablename__ = "chats"
     id = Column(Integer, primary_key=True)
