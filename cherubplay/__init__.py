@@ -194,6 +194,7 @@ def main(global_config, **settings):
     config.add_ext_route("directory_tag_approve", "/directory/{type}:{name}/approve/")
     config.add_ext_route("directory_tag_make_synonym", "/directory/{type}:{name}/make_synonym/")
     config.add_ext_route("directory_new", "/directory/new/")
+    config.add_route("directory_new_autocomplete", "/directory/new/autocomplete/")
     config.add_ext_route("directory_blacklist", "/directory/blacklist/")
     config.add_route("directory_blacklist_setup", "/directory/blacklist/setup/")
     config.add_route("directory_blacklist_add", "/directory/blacklist/add/")

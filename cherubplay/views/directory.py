@@ -422,6 +422,18 @@ def directory_new_post(request):
     ))
 
 
+@view_config(route_name="directory_new_autocomplete", request_method="GET", permission="chat", renderer="json")
+def directory_new_autocomplete(request):
+    if request.GET.get("type") not in Tag.type.type.enums or not request.GET.get("name"):
+        raise HTTPBadRequest
+    if len(request.GET["name"]) < 3:
+        return []
+    return [_.name for _ in Session.query(Tag).filter(and_(
+        Tag.type == request.GET["type"],
+        func.lower(Tag.name).like(request.GET["name"].lower().replace("_", "\\_").replace("%", "\\%") + "%")
+    )).order_by(Tag.name)]
+
+
 def _blacklisted_tags(request, **kwargs):
     return dict(
         tags=(
