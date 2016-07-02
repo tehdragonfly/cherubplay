@@ -41,7 +41,16 @@ def account_email_address(request):
     email_address = request.POST.get("email_address", "").strip()[:100]
     if not email_validator.match(email_address):
         return { "email_address_error": "Please enter a valid e-mail address." }
+
+    if email_address == request.user.email:
+        return HTTPFound(request.route_path("account"))
+
+    if request.login_store.get("verify_email_limit:%s" % request.user.id):
+        return { "email_address_error": "Sorry, you can only change your e-mail address once per day. Please wait until tomorrow." }
+    request.login_store.setex("verify_email_limit:%s" % request.user.id, 1, 86400)
+
     send_email(request, "verify_email", request.user, email_address)
+
     return HTTPFound(request.route_path("account", _query={ "saved": "verify_email" }))
 
 
