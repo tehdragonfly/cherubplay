@@ -428,10 +428,17 @@ def directory_new_autocomplete(request):
         raise HTTPBadRequest
     if len(request.GET["name"]) < 3:
         return []
-    return [_.name for _ in Session.query(Tag).filter(and_(
+    tags = Session.query(Tag).filter(and_(
         Tag.type == request.GET["type"],
         func.lower(Tag.name).like(request.GET["name"].lower().replace("_", "\\_").replace("%", "\\%") + "%")
-    )).order_by(Tag.name)]
+    )).options(joinedload(Tag.synonym_of)).order_by(Tag.name)
+    return sorted(list({
+        # Use the original name if this tag is a synonym.
+        (tag.synonym_of.name if tag.synonym_of else tag.name)
+        for tag in tags
+        # Exclude tags which are a synonym of another type.
+        if not tag.synonym_of or tag.synonym_of.type == tag.type
+    }), key=lambda _: _.lower())
 
 
 def _blacklisted_tags(request, **kwargs):
