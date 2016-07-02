@@ -23,12 +23,9 @@ def send_email(request, action, user, email_address):
     message = EmailMessage(
         subject="Verify your e-mail address" if action == "verify_email" else "Reset your password",
         sender="Cherubplay <cherubplay@msparp.com>",
-        recipients=[email_address],
-        body=render("email/%s.mako" % action, {
-            "user": user,
-            "email_address": email_address,
-            "email_token": email_token,
-        }, request),
+        recipients=["Cherubplay user %s <%s>" % (request.user.username, email_address)],
+        body=render("email/%s_plain.mako" % action, {"user": user, "email_address": email_address, "email_token": email_token}, request),
+        html=render("email/%s.mako" % action, {"user": user, "email_address": email_address, "email_token": email_token}, request),
     )
     mailer.send(message)
 
@@ -69,13 +66,10 @@ def account_verify_email(request):
     if not stored_token == token:
         raise HTTPNotFound
 
-    if request.user and request.user.id == user_id:
-        user = request.user
-    else:
-        try:
-            user = Session.query(User).filter(User.id == user_id).one()
-        except NoResultFound:
-            raise HTTPNotFound
+    try:
+        user = Session.query(User).filter(User.id == user_id).one()
+    except NoResultFound:
+        raise HTTPNotFound
 
     user.email = email_address
     user.email_verified = True
