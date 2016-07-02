@@ -440,8 +440,67 @@ var cherubplay = (function() {
 		"directory_new": function() {
 
 			$(".tag_input").each(function() {
-				function make_tag_list(input) {
-					input.val().split(",").forEach(function(tag_name) {
+
+				var tag_list = $(this).find(".request_tags");
+
+				var hidden_input = $(this).find("input");
+				hidden_input.css("display", "none");
+
+				var tag_type = hidden_input.attr("name");
+
+				var visible_input = $("<input>").keydown(function(e) {
+					if (e.which == 13 || e.which == 188) { // Enter and comma
+						add_tag();
+						return false;
+					} else if (e.which == 8 && !visible_input.val()) { // Backspace
+						remove_tag();
+					} else if (e.which == 38 || e.which == 40) { // Up and down
+						var current_autocomplete = autocomplete_list.find(".current");
+						if (current_autocomplete.length > 0) {
+							current_autocomplete.removeClass("current");
+							var new_current = e.which == 38 ? current_autocomplete.prev() : current_autocomplete.next();
+							new_current.addClass("current");
+						} else {
+							autocomplete_list.find(e.which == 38 ? "li:last-child" : "li:first-child").addClass("current");
+						}
+					}
+					clearTimeout(autocomplete_timeout);
+					autocomplete_timeout = setTimeout(load_autocomplete, 100);
+				}).focus(function(e) {
+					autocomplete_list.css("display", "");
+					autocomplete_timeout = setTimeout(load_autocomplete, 100);
+				}).blur(function(e) {
+					autocomplete_list.css("display", "none");
+					clearTimeout(autocomplete_timeout);
+				}).addClass("full").attr({
+					"type": "text",
+					"maxlength": hidden_input.attr("maxlength"),
+					"placeholder": hidden_input.attr("placeholder"),
+				}).appendTo(this);
+
+				var autocomplete_list = $("<ul>").addClass("autocomplete_list").insertAfter(this);
+				var autocomplete_timeout;
+				var last_autocomplete;
+
+				function add_tag() {
+					var current_autocomplete = autocomplete_list.find(".current");
+					if (current_autocomplete.length > 0) {
+						make_tag_list(current_autocomplete.text());
+						autocomplete_list.empty();
+					} else {
+						make_tag_list(visible_input.val());
+					}
+					visible_input.val("");
+					hidden_input.val(tag_list.find("a").map(function(index, tag) { return $(tag).attr("data-tag-name"); }).toArray().join(","));
+				}
+
+				function remove_tag() {
+					tag_list.find("li:last-child").remove();
+					hidden_input.val(tag_list.find("a").map(function(index, tag) { return $(tag).attr("data-tag-name"); }).toArray().join(","));
+				}
+
+				function make_tag_list(value) {
+					value.split(",").forEach(function(tag_name) {
 
 						tag_name = tag_name.trim();
 						if (tag_type == "trigger") { tag_name = tag_name.replace(/^tw:\s*/gi, ""); }
@@ -449,7 +508,7 @@ var cherubplay = (function() {
 
 						var existing_tags = tag_list.find("a");
 						for (var i = 0; i < existing_tags.length; i++) {
-							if ($(existing_tags[i]).attr("data-tag-name") == tag_name) {
+							if ($(existing_tags[i]).attr("data-tag-name").toLowerCase() == tag_name.toLowerCase()) {
 								$(existing_tags[i].parentNode).appendTo(tag_list);
 								return;
 							}
@@ -464,28 +523,30 @@ var cherubplay = (function() {
 							"data-tag-name": tag_name,
 						}).text((tag_type == "trigger" ? "TW: " /* no-break space */ : "") + tag_name).appendTo(li);
 
-					})
+					});
 				}
-				var tag_list = $(this).find("ul");
-				var hidden_input = $(this).find("input");
-				hidden_input.css("display", "none");
-				var tag_type = hidden_input.attr("name");
-				var visible_input = $("<input>").keydown(function(e) {
-					if (e.which == 13 || e.which == 188) {
-						make_tag_list(visible_input);
-						visible_input.val("");
-						hidden_input.val(tag_list.find("a").map(function(index, tag) { return $(tag).attr("data-tag-name"); }).toArray().join(","));
-						return false;
-					} else if (e.which == 8 && !visible_input.val()) {
-						tag_list.find("li:last-child").remove();
-						hidden_input.val(tag_list.find("a").map(function(index, tag) { return $(tag).attr("data-tag-name"); }).toArray().join(","));
-					}
-				}).addClass("full").attr({
-					"type": "text",
-					"maxlength": hidden_input.attr("maxlength"),
-					"placeholder": hidden_input.attr("placeholder"),
-				}).appendTo(this);
-				make_tag_list(hidden_input);
+
+				function load_autocomplete() {
+
+					if (visible_input.val() == last_autocomplete) { return; }
+					last_autocomplete = visible_input.val();
+
+					if (visible_input.val().length < 3) { autocomplete_list.empty(); return; }
+
+					$.get("/directory/new/autocomplete/", {"type": tag_type, "name": visible_input.val()}, function(data) {
+						autocomplete_list.empty();
+						for(i=0; i<data.length; i++) {
+							$("<li>").text(data[i]).hover(function() {
+								autocomplete_list.find(".current").removeClass("current");
+								$(this).addClass("current");
+							}).mousedown(add_tag).appendTo(autocomplete_list);
+						}
+					});
+
+				}
+
+				make_tag_list(hidden_input.val());
+
 			});
 
 			// TODO make this generic

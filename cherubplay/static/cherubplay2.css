@@ -211,7 +211,7 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 .request p:first-child, .request .status + p { margin: 0 0 10px; }
 .request h3 { margin: 0 0 2px 0; text-align: left; font-size: 10pt; font-weight: normal; color: #000; }
 .request_tags { margin: 0 0 10px; padding: 0; }
-.request_tags li { display: inline; }
+.request_tags li { display: inline; word-wrap: break-word; }
 .request_tags li:not(:last-child)::after { content: ","; }
 .request_tags li.trigger a { color: #f33; }
 
@@ -247,6 +247,11 @@ table.tile2 .synonym a { color: #ccc; }
 .tag_input .request_tags:empty { margin: 0; }
 .tag_input .request_tags a { word-wrap: break-word; }
 .tag_input input { background-color: #f6f6f6; }
+
+.autocomplete_list { position: absolute; max-width: calc(100% - 52px); margin: -10px 0 0 1px; padding: 0; list-style-type: none; background-color: #fff; box-shadow: 0 1px 2px #bbb; cursor: pointer; }
+.autocomplete_list:empty { display: none; }
+.autocomplete_list li { padding: 4px 8px 4px 7px; word-wrap: break-word; }
+.autocomplete_list li.current { background-color: #f8f8f8; }
 
 /* 3.4. Chat list */
 
