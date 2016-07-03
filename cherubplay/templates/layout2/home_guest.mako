@@ -32,6 +32,7 @@
     <p><input type="text" name="username" placeholder="Username..." maxlength="100"></p>
     <p><input type="password" name="password" placeholder="Password..."></p>
     <p><button type="submit">Log in</button></p>
+    <p><a href="${request.route_path("account_forgot_password")}">Forgotten your password?</a></p>
   </form>
   </section>
 % endif

@@ -17,13 +17,17 @@ from ..models import (
 def send_email(request, action, user, email_address):
     email_token = str(uuid4())
     # XXX we're not using StrictRedis so value and expiry are the wrong way round
-    request.login_store.setex(":".join([action, str(user.id), email_address]), email_token, 86400 if action == "verify_email" else 600)
+    request.login_store.setex(
+        ":".join([action, str(user.id), email_address]),
+        email_token,
+        86400 if action == "verify_email" else 600,
+    )
 
     mailer = get_mailer(request)
     message = EmailMessage(
         subject="Verify your e-mail address" if action == "verify_email" else "Reset your password",
         sender="Cherubplay <cherubplay@msparp.com>",
-        recipients=["Cherubplay user %s <%s>" % (request.user.username, email_address)],
+        recipients=["Cherubplay user %s <%s>" % (user.username, email_address)],
         body=render("email/%s_plain.mako" % action, {"user": user, "email_address": email_address, "email_token": email_token}, request),
         html=render("email/%s.mako" % action, {"user": user, "email_address": email_address, "email_token": email_token}, request),
     )
@@ -150,4 +154,34 @@ def account_layout_version(request):
             "layout_version": int(request.POST["layout_version"]),
         })
     return HTTPFound(request.environ["HTTP_REFERER"])
+
+
+@view_config(route_name="account_forgot_password", request_method="GET", renderer="layout2/forgot_password.mako")
+def forgot_password_get(request):
+    return {}
+
+
+@view_config(route_name="account_forgot_password", request_method="POST", renderer="layout2/forgot_password.mako")
+def forgot_password_post(request):
+
+    if request.login_store.get("reset_password_limit:%s" % request.environ["REMOTE_ADDR"]):
+        return { "error": "limit" }
+    request.login_store.setex("reset_password_limit:%s" % request.environ["REMOTE_ADDR"], 1, 86400)
+
+    try:
+        username = request.POST["username"].strip()[:User.username.type.length]
+        user = Session.query(User).filter(User.username == username.lower()).one()
+    except NoResultFound:
+        return {"error": "no_user", "username": username}
+
+    if request.login_store.get("reset_password_limit:%s" % request.user.id):
+        return { "error": "limit" }
+    request.login_store.setex("reset_password_limit:%s" % request.user.id, 1, 86400)
+
+    if not user.email or not user.email_verified:
+        return {"error": "no_email"}
+
+    send_email(request, "reset_password", user, user.email)
+
+    return {"saved": "saved"}
 
