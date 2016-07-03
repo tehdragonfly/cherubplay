@@ -24,6 +24,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm.exc import NoResultFound
 from time import mktime
 
 from sqlalchemy.orm import (
@@ -334,6 +335,9 @@ class BlacklistedTag(Base):
         return tag_dict
 
 
+class CreateNotAllowed(Exception): pass
+
+
 class Tag(Base):
     __tablename__ = "tags"
     id = Column(Integer, primary_key=True)
@@ -349,6 +353,23 @@ class Tag(Base):
 
     maturity_names = [u"Safe for work", u"Not safe for work", u"NSFW extreme"]
     type_names = [u"Fluff", u"Plot-driven", u"Sexual", u"Shippy", u"Violent"]
+
+    @classmethod
+    def get_or_create(cls, tag_type, name, allow_maturity_and_type_creation=True, create_opposite_tag=True):
+        try:
+            tag = Session.query(cls).filter(and_(cls.type == tag_type, func.lower(cls.name) == name.lower())).one()
+        except NoResultFound:
+            if not allow_maturity_and_type_creation and tag_type in ("maturity", "type"):
+                raise CreateNotAllowed
+            tag = cls(type=tag_type, name=name)
+            Session.add(tag)
+            Session.flush()
+            if create_opposite_tag:
+                if tag_type in ("character", "fandom", "gender"):
+                    cls.get_or_create(tag_type + "_wanted", name, create_opposite_tag=False)
+                elif tag_type in ("character_wanted", "fandom_wanted", "gender_wanted"):
+                    cls.get_or_create(tag_type.replace("_wanted", ""), name, create_opposite_tag=False)
+        return tag
 
     @classmethod
     def name_from_url(cls, url):

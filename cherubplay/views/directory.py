@@ -11,23 +11,10 @@ from sqlalchemy.sql.expression import cast
 from uuid import uuid4
 
 from ..lib import colour_validator, preset_colours
-from ..models import Session, BlacklistedTag, Chat, ChatUser, Message, Request, RequestTag, Tag, TagParent, User
+from ..models import Session, BlacklistedTag, Chat, ChatUser, CreateNotAllowed, Message, Request, RequestTag, Tag, TagParent, User
 
 
 class ValidationError(Exception): pass
-class CreateNotAllowed(Exception): pass
-
-
-def _get_or_create_tag(tag_type, name, allow_maturity_and_type_creation=True):
-    try:
-        tag = Session.query(Tag).filter(and_(Tag.type == tag_type, func.lower(Tag.name) == name.lower())).one()
-    except NoResultFound:
-        if not allow_maturity_and_type_creation and tag_type in ("maturity", "type"):
-            raise CreateNotAllowed()
-        tag = Tag(type=tag_type, name=name)
-        Session.add(tag)
-        Session.flush()
-    return tag
 
 
 def _validate_request_form(request):
@@ -92,7 +79,7 @@ def _tags_from_form(form, new_request):
     tag_list = []
     used_ids = set()
     for tag_type, name in tag_set:
-        tag = _get_or_create_tag(tag_type, name)
+        tag = Tag.get_or_create(tag_type, name)
         tag_id = (tag.synonym_id or tag.id)
         # Remember IDs to skip synonyms.
         if tag_id in used_ids:
@@ -245,7 +232,7 @@ def directory_tag(request):
 
 
 def _approve(tag_type, tag_name):
-    tag = _get_or_create_tag(tag_type, tag_name)
+    tag = Tag.get_or_create(tag_type, tag_name)
     if tag.synonym_id is not None:
         raise HTTPNotFound
     tag.approved = True
@@ -279,13 +266,13 @@ def directory_tag_approve(request):
 
 def _make_synonym(old_type, old_name, new_type, new_name):
 
-    old_tag = _get_or_create_tag(old_type, old_name)
+    old_tag = Tag.get_or_create(old_type, old_name)
 
     # A tag can't be a synonym if it has synonyms.
     if Session.query(func.count("*")).select_from(Tag).filter(Tag.synonym_id == old_tag.id).scalar():
         raise HTTPNotFound
 
-    new_tag = _get_or_create_tag(new_type, new_name)
+    new_tag = Tag.get_or_create(new_type, new_name)
     new_tag.approved = True
 
     if old_tag.id == new_tag.id:
@@ -500,7 +487,7 @@ def directory_blacklist_add(request):
             continue
 
         try:
-            tag = _get_or_create_tag(tag_type, name, allow_maturity_and_type_creation=False)
+            tag = Tag.get_or_create(tag_type, name, allow_maturity_and_type_creation=False)
         except CreateNotAllowed:
             return _blacklisted_tags(request, error="invalid", error_tag_type=tag_type, error_name=name)
         tag_id = (tag.synonym_id or tag.id)

@@ -539,7 +539,13 @@ var cherubplay = (function() {
 							$("<li>").text(data[i]).hover(function() {
 								autocomplete_list.find(".current").removeClass("current");
 								$(this).addClass("current");
-							}).mousedown(add_tag).appendTo(autocomplete_list);
+							}).mousedown(function() {
+								if (!$(this).hasClass("current")) {
+									autocomplete_list.find(".current").removeClass("current");
+									$(this).addClass("current");
+								}
+								add_tag();
+							}).appendTo(autocomplete_list);
 						}
 					});
 
