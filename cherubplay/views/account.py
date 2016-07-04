@@ -73,9 +73,6 @@ def account_verify_email(request):
 
     stored_token = stored_token.decode("utf-8")
 
-    print token
-    print stored_token
-
     if not stored_token == token:
         raise HTTPNotFound
 
@@ -174,9 +171,9 @@ def forgot_password_post(request):
     except NoResultFound:
         return {"error": "no_user", "username": username}
 
-    if request.login_store.get("reset_password_limit:%s" % request.user.id):
+    if request.login_store.get("reset_password_limit:%s" % user.id):
         return { "error": "limit" }
-    request.login_store.setex("reset_password_limit:%s" % request.user.id, 1, 86400)
+    request.login_store.setex("reset_password_limit:%s" % user.id, 1, 86400)
 
     if not user.email or not user.email_verified:
         return {"error": "no_email"}
@@ -184,4 +181,52 @@ def forgot_password_post(request):
     send_email(request, "reset_password", user, user.email)
 
     return {"saved": "saved"}
+
+
+def _validate_reset_token(request):
+    try:
+        user_id = int(request.GET["user_id"].strip())
+        email_address = request.GET["email_address"].strip()
+        token = request.GET["token"].strip()
+    except (KeyError, ValueError):
+        raise HTTPNotFound
+    stored_token = request.login_store.get("reset_password:%s:%s" % (user_id, email_address))
+    if not user_id or not email_address or not token or not stored_token:
+        raise HTTPNotFound
+
+    stored_token = stored_token.decode("utf-8")
+
+    if not stored_token == token:
+        raise HTTPNotFound
+
+    try:
+        return Session.query(User).filter(User.id == user_id).one()
+    except NoResultFound:
+        raise HTTPNotFound
+
+
+@view_config(route_name="account_reset_password", request_method="GET", renderer="layout2/reset_password.mako")
+def account_reset_password_get(request):
+    user = _validate_reset_token(request)
+    return {}
+
+
+@view_config(route_name="account_reset_password", request_method="POST", renderer="layout2/reset_password.mako")
+def account_reset_password_post(request):
+    user = _validate_reset_token(request)
+
+    if not request.POST.get("password"):
+        return {"error": "no_password"}
+
+    user.password = hashpw(request.POST["password"].encode(), gensalt())
+
+    request.login_store.delete("reset_password:%s:%s" % (user.id, request.GET["email_address"].strip()))
+
+    response = HTTPFound(request.route_path("home"))
+
+    new_session_id = str(uuid4())
+    request.login_store.set("session:"+new_session_id, user.id)
+    response.set_cookie("cherubplay", new_session_id, 31536000)
+
+    return response
 
