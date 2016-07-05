@@ -218,6 +218,9 @@ def account_reset_password_post(request):
     if not request.POST.get("password"):
         return {"error": "no_password"}
 
+    if request.POST["password"] != request.POST["password_again"]:
+        return {"error": "passwords_didnt_match"}
+
     user.password = hashpw(request.POST["password"].encode(), gensalt())
 
     request.login_store.delete("reset_password:%s:%s" % (user.id, request.GET["email_address"].strip()))
