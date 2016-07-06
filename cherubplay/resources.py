@@ -1,6 +1,6 @@
 from pyramid.httpexceptions import HTTPNotFound
 from sqlalchemy import and_, or_
-from sqlalchemy.orm import joinedload_all
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from .models import Session, Prompt, PromptReport, Request, RequestTag
@@ -34,7 +34,7 @@ def request_factory(request):
                 Request.user_id == request.user.id,
             ),
         )).options(
-            joinedload_all(Request.tags, RequestTag.tag)
+            joinedload(Request.tags)
         ).one()
     except (ValueError, NoResultFound):
         raise HTTPNotFound

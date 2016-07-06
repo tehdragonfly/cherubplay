@@ -5,7 +5,7 @@ from pyramid.renderers import render_to_response
 from pyramid.view import view_config
 from sqlalchemy import and_, func, Integer, literal
 from sqlalchemy.dialects.postgres import array, ARRAY
-from sqlalchemy.orm import contains_eager, joinedload, joinedload_all
+from sqlalchemy.orm import contains_eager, joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 from uuid import uuid4
@@ -36,7 +36,7 @@ def _validate_request_form(request):
     return colour, scenario, prompt
 
 
-def _tags_from_form(form, new_request):
+def _request_tags_from_form(form, new_request):
     tag_set = set()
     fandoms = set()
     for tag_type in Tag.type.type.enums:
@@ -112,7 +112,7 @@ def directory(request):
     if before_date:
         requests = requests.filter(Request.posted < before_date)
     requests = (
-        requests.options(joinedload_all(Request.tags, RequestTag.tag))
+        requests.options(joinedload(Request.tags))
         .order_by(Request.posted.desc())
         .limit(26).all()
     )
@@ -214,7 +214,7 @@ def directory_tag(request):
     if before_date:
         requests = requests.filter(Request.posted < before_date)
     requests = (
-        requests.options(joinedload_all(Request.tags, RequestTag.tag))
+        requests.options(joinedload(Request.tags))
         .order_by(Request.posted.desc())
         .limit(26).all()
     )
@@ -354,7 +354,7 @@ def directory_yours(request):
     if before_date:
         requests = requests.filter(Request.posted < before_date)
     requests = (
-        requests.options(joinedload_all(Request.tags, RequestTag.tag))
+        requests.options(joinedload(Request.tags))
         .order_by(Request.posted.desc())
         .limit(26).all()
     )
@@ -399,8 +399,8 @@ def directory_new_post(request):
     Session.add(new_request)
     Session.flush()
 
-    new_request.tags += _tags_from_form(request.POST, new_request)
-    new_request.tag_ids = sorted([_.tag_id for _ in new_request.tags])
+    new_request.request_tags += _request_tags_from_form(request.POST, new_request)
+    new_request.tag_ids = sorted([_.tag_id for _ in new_request.request_tags])
 
     return HTTPFound(request.route_path(
         "directory_request",
@@ -564,12 +564,12 @@ def directory_request_edit_get(context, request):
     for tag_type, tags in context.tags_by_type().items():
         if tag_type == "maturity":
             if tags: # i don't know why we wouldn't have a maturity but don't IndexError if that does happen
-                form_data["maturity"] = tags[0].tag.name
+                form_data["maturity"] = tags[0].name
         elif tag_type == "type":
             for tag in tags:
-                form_data["type_" + tag.tag.name] = "on"
+                form_data["type_" + tag.name] = "on"
         else:
-            form_data[tag_type] = ", ".join(tag.tag.name for tag in tags)
+            form_data[tag_type] = ", ".join(tag.name for tag in tags)
 
     form_data["colour"] = "#" + context.colour
     form_data["scenario"] = context.scenario
@@ -614,8 +614,8 @@ def directory_request_edit_post(context, request):
 
     Session.query(RequestTag).filter(RequestTag.request_id == context.id).delete()
 
-    new_tags = _tags_from_form(request.POST, context)
-    context.tags += new_tags
+    new_tags = _request_tags_from_form(request.POST, context)
+    context.request_tags += new_tags
     context.tag_ids = sorted([_.tag_id for _ in new_tags])
 
     return HTTPFound(request.route_path(

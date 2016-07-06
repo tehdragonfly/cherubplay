@@ -295,8 +295,8 @@ class Request(Base, Resource):
 
     def tags_by_type(self):
         tags = { _: [] for _ in Tag.type.type.enums }
-        for request_tag in self.tags:
-            tags[request_tag.tag.type].append(request_tag)
+        for tag in self.tags:
+            tags[tag.type].append(tag)
         return tags
 
     def __json__(self, request=None):
@@ -410,12 +410,14 @@ PromptReport.reporting_user = relationship(User, backref="reports_sent", primary
 PromptReport.reported_user = relationship(User, backref="reports_recieved", primaryjoin=PromptReport.reported_user_id == User.id)
 
 Request.user = relationship(User, backref="requests")
-Request.tags = relationship(RequestTag, backref="request")
+Request.tags = relationship(Tag, secondary=RequestTag.__table__, order_by=(Tag.type, Tag.name), backref="requests")
+
+RequestTag.request = relationship(Request, backref="request_tags")
+RequestTag.tag = relationship(Tag, backref="request_tags")
 
 User.blacklisted_tags = relationship(BlacklistedTag, backref="user")
 BlacklistedTag.tag = relationship(Tag)
 
-Tag.requests = relationship(RequestTag, backref="tag")
 Tag.synonym_of = relationship(Tag, backref="synonyms", remote_side=Tag.id)
 
 TagParent.child = relationship(Tag, foreign_keys=TagParent.child_id, backref="parents")
