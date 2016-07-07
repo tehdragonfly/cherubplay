@@ -538,6 +538,14 @@ def directory_request_answer(context, request):
     if request.user.id == context.user_id:
         raise HTTPNotFound
 
+    if request.login_store.get("answered:%s:%s" % (request.user.id, context.id)):
+        response = render_to_response("layout2/directory/already_answered.mako", {}, request)
+        response.status_int = 403
+        return response
+
+    # XXX we're not using StrictRedis so value and expiry are the wrong way round
+    request.login_store.setex("answered:%s:%s" % (request.user.id, context.id), 1, 86400)
+
     new_chat = Chat(url=str(uuid4()), request_id=context.id)
     Session.add(new_chat)
     Session.flush()
