@@ -517,13 +517,10 @@ def directory_blacklist_remove(request):
 @view_config(route_name="directory_request_ext", request_method="GET", permission="view", extension="json", renderer="json")
 def directory_request(context, request):
 
-    if context.user_id == request.user.id:
-        chats = Session.query(ChatUser, Chat).join(Chat).filter(
-            ChatUser.user_id==request.user.id,
-            Chat.request_id==context.id,
-        ).order_by(Chat.updated.desc()).all()
-    else:
-        chats = []
+    chats = Session.query(ChatUser, Chat).join(Chat).filter(
+        ChatUser.user_id==request.user.id,
+        Chat.request_id==context.id,
+    ).order_by(Chat.updated.desc()).all()
 
     if request.matched_route.name == "directory_request_ext":
         return {"request": context, "chats": [{"chat_user": _[0], "chat": _[1]} for _ in chats]}
