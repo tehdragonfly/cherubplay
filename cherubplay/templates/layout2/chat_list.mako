@@ -37,8 +37,11 @@ Started ${request.user.localise_time(chat.created).strftime("%a %d %b %Y")}, las
         </div>
         % endif
         % endif
-        % if chat_user.notes!="" or chat_user.labels:
+        % if chat_user.notes!="" or chat_user.labels or chat.request_id:
         <hr>
+        % endif
+        % if chat.request_id:
+        <p class="notes">From request <a href="${request.route_path("directory_request", id=chat.request_id)}">#${chat.request_id}</a></p>
         % endif
         % if chat_user.notes!="":
         <p class="notes">Notes: ${chat_user.notes}</p>
