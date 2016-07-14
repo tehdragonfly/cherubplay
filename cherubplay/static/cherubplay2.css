@@ -246,6 +246,7 @@ table.tile2 .synonym a { color: #ccc; }
 .tag_input .request_tags { margin: 0 0 2px; }
 .tag_input .request_tags:empty { margin: 0; }
 .tag_input .request_tags a { word-wrap: break-word; }
+.tag_input .request_tags a:hover { text-decoration: line-through; }
 .tag_input input { background-color: #f6f6f6; background-image: none; }
 
 .autocomplete_list { position: absolute; max-width: calc(100% - 52px); margin: -10px 0 0 1px; padding: 0; list-style-type: none; background-color: #fff; box-shadow: 0 1px 2px #bbb; cursor: pointer; }

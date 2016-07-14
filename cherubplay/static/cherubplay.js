@@ -482,6 +482,10 @@ var cherubplay = (function() {
 				var autocomplete_timeout;
 				var last_autocomplete;
 
+				function refresh_hidden_input() {
+					hidden_input.val(tag_list.find("a").map(function(index, tag) { return $(tag).attr("data-tag-name"); }).toArray().join(","));
+				}
+
 				function add_tag() {
 					var current_autocomplete = autocomplete_list.find(".current");
 					if (current_autocomplete.length > 0) {
@@ -491,12 +495,12 @@ var cherubplay = (function() {
 						make_tag_list(visible_input.val());
 					}
 					visible_input.val("");
-					hidden_input.val(tag_list.find("a").map(function(index, tag) { return $(tag).attr("data-tag-name"); }).toArray().join(","));
+					refresh_hidden_input();
 				}
 
 				function remove_tag() {
 					tag_list.find("li:last-child").remove();
-					hidden_input.val(tag_list.find("a").map(function(index, tag) { return $(tag).attr("data-tag-name"); }).toArray().join(","));
+					refresh_hidden_input();
 				}
 
 				function make_tag_list(value) {
@@ -518,9 +522,12 @@ var cherubplay = (function() {
 						if (tag_type == "trigger") { li.addClass("trigger"); }
 						li.appendTo(tag_list);
 						$("<a>").attr({
-							"href": "/directory/" + tag_type + ":" + tag_name.replace(/\//g, "*s*").replace(/:/i, "*c*") + "/",
-							"target": "_blank",
+							"href": "#",
 							"data-tag-name": tag_name,
+						}).click(function() {
+							$(this.parentNode).remove();
+							refresh_hidden_input();
+							return false;
 						}).text((tag_type == "trigger" ? "TW: " /* no-break space */ : "") + tag_name).appendTo(li);
 
 					});
