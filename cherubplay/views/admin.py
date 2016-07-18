@@ -171,7 +171,7 @@ def user_ban(request):
     user.status = "banned"
     try:
         days = int(request.POST["days"])
-    except KeyError, ValueError:
+    except (KeyError, ValueError):
         days = 1
     user.unban_date = datetime.now() + timedelta(days)
     return HTTPFound(request.route_path("admin_user", username=request.matchdict["username"], _query={ "saved": "status" }))

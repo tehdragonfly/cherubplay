@@ -35,7 +35,7 @@ from sqlalchemy.orm import (
 
 from zope.sqlalchemy import ZopeTransactionExtension
 
-from lib import symbols
+from cherubplay.lib import symbols
 
 
 Session = scoped_session(sessionmaker(

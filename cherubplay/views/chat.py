@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import datetime
 import json
 import transaction
@@ -471,7 +473,7 @@ def _post_end_message(request, chat, own_chat_user):
         online_symbols = [
             int(_) for _ in request.pubsub.hvals("online:"+str(chat.id))
         ]
-        print online_symbols
+        print(online_symbols)
         if len(online_symbols) != 0:
             Session.query(ChatUser).filter(and_(
                 ChatUser.chat_id == chat.id,

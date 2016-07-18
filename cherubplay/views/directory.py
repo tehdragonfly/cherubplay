@@ -457,7 +457,6 @@ def directory_blacklist_setup(request):
         return HTTPFound(request.headers.get("Referer") or request.route_path("directory"))
 
     if request.POST["blacklist"] == "default":
-        print "default"
         Session.execute(BlacklistedTag.__table__.insert().from_select(
             ["user_id", "tag_id"],
             Session.query(literal(request.user.id), Tag.id).filter(Tag.blacklist_default == True)
@@ -508,7 +507,7 @@ def directory_blacklist_remove(request):
             BlacklistedTag.user_id == request.user.id,
             BlacklistedTag.tag_id == request.POST["tag_id"],
         )).delete()
-    except KeyError, ValueError:
+    except (KeyError, ValueError):
         raise HTTPBadRequest
     return HTTPFound(request.route_path("directory_blacklist"))
 
