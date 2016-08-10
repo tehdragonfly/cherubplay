@@ -17,7 +17,9 @@
     <ul>
       <li><a href="${request.route_path("home")}" id="nav_home">Home</a></li>
       <li><a href="${request.route_path("prompt_list")}" id="nav_prompt_list">Your prompts</a></li>
+      % if "directory" in request.effective_principals:
       <li><a href="${request.route_path("directory")}" id="nav_directory">Directory</a></li>
+      % endif
       <li><a href="${request.route_path("chat_list")}" id="nav_chat_list"\
 % if request.unread_chats>0:
  data-unread="${request.unread_chats}">Your chats (${request.unread_chats} unread)\
