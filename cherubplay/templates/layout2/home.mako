@@ -28,6 +28,11 @@
         <li><label><input type="checkbox" name="${id}"> ${name}</label></li>
 % endfor
       </ul>
+      <ul id="answer_starters">
+% for id, name in prompt_starters.items():
+        <li><label><input type="checkbox" name="${id}"> ${name}</label></li>
+% endfor
+      </ul>
       <ul id="answer_levels">
 % for id, name in prompt_levels.items():
         <li><label><input type="checkbox" name="${id}"> ${name}</label></li>
@@ -81,6 +86,12 @@
             <option value="${id}">${name}</option>
 % endfor
           </select>
+          <select id="prompt_starter" name="prompt_starter">
+            <option value="">Starter?</option>
+% for id, name in prompt_starters.items():
+            <option value="${id}">${name}</option>
+% endfor
+          </select>
           <select id="prompt_level" name="prompt_level">
             <option value="">Level...</option>
 % for id, name in prompt_levels.items():
@@ -124,6 +135,11 @@
           <label><input type="radio" name="report_reason" value="wrong_category"> In the wrong category. It should be in</label>
           <select id="report_category">
 % for id, name in prompt_categories.items():
+            <option value="${id}">${name}</option>
+% endfor
+          </select>
+          <select id="report_starter">
+% for id, name in prompt_starters.items():
             <option value="${id}">${name}</option>
 % endfor
           </select>

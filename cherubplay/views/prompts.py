@@ -4,7 +4,7 @@ from pyramid.view import view_config
 from sqlalchemy import and_, func
 from sqlalchemy.orm.exc import NoResultFound
 
-from ..lib import colour_validator, preset_colours, prompt_categories, prompt_levels
+from ..lib import colour_validator, preset_colours, prompt_categories, prompt_starters, prompt_levels
 from ..models import Session, Prompt
 
 
@@ -31,6 +31,7 @@ def prompt_list(request):
         "prompt_count": prompt_count,
         "current_page": current_page,
         "prompt_categories": prompt_categories,
+        "prompt_starters": prompt_starters,
         "prompt_levels": prompt_levels,
     }
 
@@ -39,6 +40,7 @@ def _new_prompt_form(**kwargs):
     return dict(
         preset_colours=preset_colours,
         prompt_categories=prompt_categories,
+        prompt_starters=prompt_starters,
         prompt_levels=prompt_levels,
         **kwargs
     )
@@ -69,6 +71,9 @@ def new_prompt_post(request):
     if request.POST.get("prompt_category") not in prompt_categories:
         return _new_prompt_form(error="blank_category")
 
+    if request.POST.get("prompt_starter") not in prompt_starters:
+        return _new_prompt_form(error="blank_starter")
+
     if request.POST.get("prompt_level") not in prompt_levels:
         return _new_prompt_form(error="blank_level")
 
@@ -78,6 +83,7 @@ def new_prompt_post(request):
         colour=colour,
         text=trimmed_prompt_text,
         category=request.POST["prompt_category"],
+        starter=request.POST["prompt_starter"],
         level=request.POST["prompt_level"],
     )
     Session.add(new_prompt)
@@ -88,7 +94,7 @@ def new_prompt_post(request):
 
 @view_config(route_name="prompt", request_method="GET", permission="view", renderer="layout2/prompt.mako")
 def prompt(context, request):
-    return {"prompt_categories": prompt_categories, "prompt_levels": prompt_levels}
+    return {"prompt_categories": prompt_categories, "prompt_starters": prompt_starters, "prompt_levels": prompt_levels}
 
 
 @view_config(route_name="prompt_ext", request_method="GET", permission="view", extension="json", renderer="json")
@@ -100,6 +106,7 @@ def _edit_prompt_form(**kwargs):
     return dict(
         preset_colours=preset_colours,
         prompt_categories=prompt_categories,
+        prompt_starters=prompt_starters,
         prompt_levels=prompt_levels,
         **kwargs
     )
@@ -130,6 +137,9 @@ def edit_prompt_post(context, request):
     if request.POST.get("prompt_category") not in prompt_categories:
         return _edit_prompt_form(error="blank_category")
 
+    if request.POST.get("prompt_starter") not in prompt_starters:
+        return _edit_prompt_form(error="blank_starter")
+
     if request.POST.get("prompt_level") not in prompt_levels:
         return _edit_prompt_form(error="blank_level")
 
@@ -137,6 +147,7 @@ def edit_prompt_post(context, request):
     context.colour = colour
     context.text = trimmed_prompt_text
     context.category = request.POST["prompt_category"]
+    context.starter = request.POST["prompt_starter"]
     context.level = request.POST["prompt_level"]
     context.updated = datetime.now()
 

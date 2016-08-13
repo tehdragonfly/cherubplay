@@ -34,6 +34,16 @@
 >${name}</option>
 % endfor
         </select>
+        <select id="prompt_starter" name="prompt_starter" required>
+          <option value="">Starter?</option>
+% for id, name in prompt_starters.items():
+          <option value="${id}"\
+% if request.POST.get("prompt_starter") == id or (not request.POST.get("prompt_starter") and request.context.starter == id):
+ selected="selected"\
+% endif
+>${name}</option>
+% endfor
+        </select>
         <select id="prompt_level" name="prompt_level" required>
           <option value="">Level...</option>
 % for id, name in prompt_levels.items():
@@ -48,6 +58,8 @@
       </div>
 % if error == "blank_category":
       <p class="error">Please choose a category for your prompt.</p>
+% elif error == "blank_starter":
+      <p class="error">Please specify whether your prompt has a starter.</p>
 % elif error == "blank_level":
       <p class="error">Please choose a level for your prompt.</p>
 % endif

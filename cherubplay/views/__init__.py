@@ -8,7 +8,7 @@ from pyramid.view import view_config
 from redis.exceptions import ConnectionError
 from sqlalchemy.orm.exc import NoResultFound
 
-from ..lib import username_validator, reserved_usernames, preset_colours, prompt_categories, prompt_levels
+from ..lib import username_validator, reserved_usernames, preset_colours, prompt_categories, prompt_starters, prompt_levels
 from ..models import (
     Session,
     Prompt,
@@ -24,6 +24,7 @@ def home(request):
             "saved_prompts": saved_prompts,
             "preset_colours": preset_colours,
             "prompt_categories": prompt_categories,
+            "prompt_starters": prompt_starters,
             "prompt_levels": prompt_levels,
         }, request=request)
     else:

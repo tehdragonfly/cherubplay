@@ -222,6 +222,7 @@ class PromptReport(Base, Resource):
     colour = Column(String(6), nullable=False)
     prompt = Column(UnicodeText, nullable=False)
     category = Column(Unicode(100), nullable=False)
+    starter = Column(Unicode(100))
     level = Column(Unicode(100), nullable=False)
     reason = Column(Enum(
         u"wrong_category",
@@ -233,6 +234,7 @@ class PromptReport(Base, Resource):
         name="prompt_report_reason",
     ), nullable=False)
     reason_category = Column(Unicode(100))
+    reason_starter = Column(Unicode(100))
     reason_level = Column(Unicode(100))
     chat_ids = Column(ARRAY(Integer), nullable=False, default=list)
     notes = Column(UnicodeText, nullable=False, default=u"")
@@ -245,9 +247,11 @@ class PromptReport(Base, Resource):
             "colour": self.colour,
             "prompt": self.prompt,
             "category": self.category,
+            "starter": self.starter,
             "level": self.level,
             "reason": self.reason,
             "reason_category": self.reason_category,
+            "reason_starter": self.reason_starter,
             "reason_level": self.reason_level,
             "notes": self.notes,
         }
@@ -264,6 +268,7 @@ class Prompt(Base, Resource):
     colour = Column(String(6), nullable=False)
     text = Column(UnicodeText, nullable=False)
     category = Column(Unicode(100), nullable=False)
+    starter = Column(Unicode(100), nullable=False)
     level = Column(Unicode(100), nullable=False)
 
     def __repr__(self):
@@ -278,6 +283,7 @@ class Prompt(Base, Resource):
             "colour": self.colour,
             "text": self.text,
             "category": self.category,
+            "starter": self.starter,
             "level": self.level,
         }
 

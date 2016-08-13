@@ -169,7 +169,7 @@ h3 + .subtitle, h3 + .help { margin-top: 5px; }
 #categories, #categories textarea { background-color: #f8f8f8; }
 #categories ul { padding: 0; text-align: center; }
 #answer_categories { margin-bottom: 10px; }
-#answer_levels { margin: 10px 0; }
+#answer_starters, #answer_levels { margin: 10px 0; }
 #categories li { display: inline-block; }
 #categories li:not(:last-child):after { content: " ·"; }
 

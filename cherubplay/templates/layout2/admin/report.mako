@@ -38,7 +38,7 @@
         </form>
         % endif
         % endif
-        <p>Posted in ${prompt_categories[report.category]}, ${prompt_levels[report.level]}</p>
+        <p>Posted in ${prompt_categories[report.category]}, ${prompt_starters[report.starter]}, ${prompt_levels[report.level]}</p>
         % if detail or len(report.prompt) <= 250:
         <p style="color: #${report.colour};">${report.prompt}</p>
         % else:
@@ -50,7 +50,7 @@
         % endif
         <p>Reason: \
 % if report.reason == "wrong_category":
-Should be in ${prompt_categories[report.reason_category]}, ${prompt_levels[report.reason_level]}\
+Should be in ${prompt_categories[report.reason_category]}, ${prompt_starters[report.reason_starter]}, ${prompt_levels[report.reason_level]}\
 % elif report.reason == "spam":
 Spam\
 % elif report.reason == "stolen":

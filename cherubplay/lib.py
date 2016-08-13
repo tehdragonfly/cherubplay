@@ -58,8 +58,13 @@ preset_colours = [
 
 prompt_categories = OrderedDict([
     ("homestuck", "Homestuck"),
-    ("crossover", "Crossover"),
-    ("not-a-prompt", "Not a prompt"),
+    ("crossover", "Homestuck crossover"),
+    ("not-homestuck", "Not Homestuck"),
+])
+
+prompt_starters = OrderedDict([
+    ("starter", "Starter"),
+    ("no-starter", "No starter"),
 ])
 
 prompt_levels = OrderedDict([

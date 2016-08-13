@@ -8,7 +8,7 @@ from sqlalchemy import and_, func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
-from ..lib import prompt_categories, prompt_levels
+from ..lib import prompt_categories, prompt_starters, prompt_levels
 from ..models import (
     Session,
     Chat,
@@ -48,6 +48,7 @@ def report_list(request):
         "report_count": report_count,
         "current_page": current_page,
         "prompt_categories": prompt_categories,
+        "prompt_starters": prompt_starters,
         "prompt_levels": prompt_levels,
     }
 
@@ -56,6 +57,7 @@ def _report_form(context, request, **kwargs):
     return dict(
         PromptReport=PromptReport,
         prompt_categories=prompt_categories,
+        prompt_starters=prompt_starters,
         prompt_levels=prompt_levels,
         duplicates=(
             Session.query(PromptReport)

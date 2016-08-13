@@ -67,6 +67,7 @@ var cherubplay = (function() {
 					ws.send(JSON.stringify({
 						"action": "search",
 						"categories": answer_string(answer_categories),
+						"starters": answer_string(answer_starters),
 						"levels": answer_string(answer_levels),
 					}));
 					body.addClass("answer_mode");
@@ -95,7 +96,7 @@ var cherubplay = (function() {
 				var checked = localStorage.getItem("answer_"+checkbox.name);
 				// Check Homestuck and SFW by default.
 				// Should we do this as a dict?
-				if (!checked && (checkbox.name == "homestuck" || checkbox.name == "sfw")) {
+				if (!checked && (["homestuck", "starter", "no-starter", "sfw"].indexOf(checkbox.name) != -1)) {
 					checkbox.checked = true;
 				} else {
 					checkbox.checked = checked == "true";
@@ -103,6 +104,7 @@ var cherubplay = (function() {
 			}
 
 			var answer_categories = $("#answer_categories input").change(change_answer_mode).each(load_checkboxes);
+			var answer_starters = $("#answer_starters input").change(change_answer_mode).each(load_checkboxes);
 			var answer_levels = $("#answer_levels input").change(change_answer_mode).each(load_checkboxes);
 
 			function answer_string(checkboxes) {
@@ -224,6 +226,7 @@ var cherubplay = (function() {
 				if (overlay_prompt_id) {
 					$("#report_overlay input").prop("checked", false);
 					report_category.val("homestuck");
+					report_starter.val("starter");
 					report_level.val("sfw");
 					body.addClass("show_report_overlay");
 				}
@@ -247,6 +250,7 @@ var cherubplay = (function() {
 					"id": overlay_prompt_id,
 					"reason": reason,
 					"category": report_category.val(),
+					"starter": report_starter.val(),
 					"level": report_level.val(),
 				}));
 				hide_report_overlay();
@@ -254,6 +258,7 @@ var cherubplay = (function() {
 				alert("Thanks for the report!");
 			});
 			var report_category = $("#report_category");
+			var report_starter = $("#report_starter");
 			var report_level = $("#report_level");
 
 			// Prompt mode
@@ -270,6 +275,7 @@ var cherubplay = (function() {
 								"colour": data.colour,
 								"prompt": data.text,
 								"category": data.category,
+								"starter": data.starter,
 								"level": data.level,
 							}));
 						},
@@ -285,8 +291,8 @@ var cherubplay = (function() {
 					alert("The colour needs to be a valid hex code, for example \"#0715CD\" or \"#416600\".");
 					return false;
 				}
-				if (prompt_category.val() == "" || prompt_level.val() == "") {
-					alert("Please choose a category and level for your prompt.")
+				if (prompt_category.val() == "" || prompt_starter.val() == "" || prompt_level.val() == "") {
+					alert("Please choose a category, starter and level for your prompt.")
 					return false;
 				}
 				prompt_text.val(prompt_text.val().trim());
@@ -297,6 +303,7 @@ var cherubplay = (function() {
 				localStorage.setItem("prompt_colour", prompt_colour.val());
 				localStorage.setItem("prompt_text", prompt_text.val());
 				localStorage.setItem("prompt_category", prompt_category.val());
+				localStorage.setItem("prompt_starter", prompt_starter.val());
 				localStorage.setItem("prompt_level", prompt_level.val());
 				change_mode("wait_mode");
 				ws.send(JSON.stringify({
@@ -304,6 +311,7 @@ var cherubplay = (function() {
 					"colour": prompt_colour.val().substr(1, 6),
 					"prompt": prompt_text.val(),
 					"category": prompt_category.val(),
+					"starter": prompt_starter.val(),
 					"level": prompt_level.val(),
 				}));
 				return false;
@@ -324,6 +332,7 @@ var cherubplay = (function() {
 			var key_counter = 0;
 			var prompt_text = $("#prompt_text").keyup(function() {
 				prompt_category.val("");
+				prompt_starter.val("");
 				prompt_level.val("");
 				this.style.height = this.scrollHeight+"px";
 				key_counter++;
@@ -332,10 +341,12 @@ var cherubplay = (function() {
 					localStorage.setItem("prompt_colour", prompt_colour.val());
 					localStorage.setItem("prompt_text", prompt_text.val());
 					localStorage.setItem("prompt_category", prompt_category.val());
+					localStorage.setItem("prompt_starter", prompt_starter.val());
 					localStorage.setItem("prompt_level", prompt_level.val());
 				}
 			});
 			var prompt_category = $("#prompt_category");
+			var prompt_starter = $("#prompt_starter");
 			var prompt_level = $("#prompt_level");
 
 			var saved_new_or_saved_prompt = localStorage.getItem("new_or_saved_prompt");
@@ -343,6 +354,7 @@ var cherubplay = (function() {
 			var saved_prompt_colour = localStorage.getItem("prompt_colour");
 			var saved_prompt_text = localStorage.getItem("prompt_text");
 			var saved_prompt_category = localStorage.getItem("prompt_category");
+			var saved_prompt_starter = localStorage.getItem("prompt_starter");
 			var saved_prompt_level = localStorage.getItem("prompt_level");
 			if (prompt_id.length > 0) {
 				if (saved_new_or_saved_prompt) {
@@ -358,6 +370,9 @@ var cherubplay = (function() {
 			}
 			if (saved_prompt_category) {
 				prompt_category.val(saved_prompt_category);
+			}
+			if (saved_prompt_starter) {
+				prompt_starter.val(saved_prompt_starter);
 			}
 			if (saved_prompt_level) {
 				prompt_level.val(saved_prompt_level);
@@ -380,7 +395,7 @@ var cherubplay = (function() {
 				window.setTimeout(ping, 8000);
 				var last_mode = localStorage.getItem("last_mode");
 				var autoprompt = localStorage.getItem("autoprompt");
-				if (last_mode=="prompt_mode" && autoprompt && saved_prompt_colour && saved_prompt_text && saved_prompt_category && saved_prompt_level) {
+				if (last_mode=="prompt_mode" && autoprompt && saved_prompt_colour && saved_prompt_text && saved_prompt_category && saved_prompt_starter && saved_prompt_level) {
 					prompt_form.submit();
 				} else if (last_mode) {
 					change_mode(last_mode);
