@@ -51,9 +51,9 @@ def account_email_address(request):
 
     if request.login_store.get("verify_email_limit:%s" % request.user.id):
         return { "email_address_error": "Sorry, you can only change your e-mail address once per day. Please wait until tomorrow." }
-    request.login_store.setex("verify_email_limit:%s" % request.user.id, 1, 86400)
 
     send_email(request, "verify_email", request.user, email_address)
+    request.login_store.setex("verify_email_limit:%s" % request.user.id, 1, 86400)
 
     return HTTPFound(request.route_path("account", _query={ "saved": "verify_email" }))
 
@@ -163,7 +163,6 @@ def forgot_password_post(request):
 
     if request.login_store.get("reset_password_limit:%s" % request.environ["REMOTE_ADDR"]):
         return { "error": "limit" }
-    request.login_store.setex("reset_password_limit:%s" % request.environ["REMOTE_ADDR"], 1, 86400)
 
     try:
         username = request.POST["username"].strip()[:User.username.type.length]
@@ -173,12 +172,13 @@ def forgot_password_post(request):
 
     if request.login_store.get("reset_password_limit:%s" % user.id):
         return { "error": "limit" }
-    request.login_store.setex("reset_password_limit:%s" % user.id, 1, 86400)
 
     if not user.email or not user.email_verified:
         return {"error": "no_email"}
 
     send_email(request, "reset_password", user, user.email)
+    request.login_store.setex("reset_password_limit:%s" % request.environ["REMOTE_ADDR"], 1, 86400)
+    request.login_store.setex("reset_password_limit:%s" % user.id, 1, 86400)
 
     return {"saved": "saved"}
 
