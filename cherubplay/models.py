@@ -267,7 +267,7 @@ class Prompt(Base, Resource):
     updated = Column(DateTime, nullable=False, default=datetime.datetime.now)
     colour = Column(String(6), nullable=False)
     text = Column(UnicodeText, nullable=False)
-    category = Column(Unicode(100), nullable=False)
+    category = Column(Unicode(100))
     starter = Column(Unicode(100), nullable=False)
     level = Column(Unicode(100), nullable=False)
 

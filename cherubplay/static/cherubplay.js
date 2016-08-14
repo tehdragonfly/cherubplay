@@ -268,6 +268,11 @@ var cherubplay = (function() {
 					change_mode("wait_mode");
 					$.ajax("/prompts/" + prompt_id.val() + ".json", {
 						success: function(data) {
+							if (!data.category) {
+								alert("This prompt doesn't have a category. Please double-check the categories on your prompts page.");
+								change_mode("prompt_mode");
+								return;
+							}
 							localStorage.setItem("new_or_saved_prompt", "saved_prompt");
 							localStorage.setItem("prompt_id", prompt_id.val());
 							ws.send(JSON.stringify({

@@ -61,6 +61,7 @@
     <p>Enter a prompt below, and other people will be able to see it and answer if they're interested.</p>
     <p><strong>We've clarified <a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under">what belongs under each category</a>, so please read this to make sure you're posting in the right place.</strong></p>
     <form class="tile2">
+      <p>We've changed how prompts are categorised. Please <a href="${request.route_path("prompt_list")}">visit your prompts page</a> to make sure they have the right categories selected.</p>
 % if saved_prompts:
       <ul>
         <li><label><input type="radio" id="saved_prompt" name="new_or_saved" value="saved" checked="checked"> Use a saved prompt:</label> <select id="prompt_id">
