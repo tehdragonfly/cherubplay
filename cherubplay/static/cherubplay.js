@@ -628,6 +628,15 @@ var cherubplay = (function() {
 			if (localStorage.getItem("cross_chat_notifications") == "true") {
 				cross_chat_notifications.attr("checked", "checked");
 			}
+			if ("serviceWorker" in navigator) {
+				navigator.serviceWorker.register("/static/cherubplay_sw.js").then(function(reg) {
+					if (!(reg.showNotification) || !('PushManager' in window)) { return false; }
+					if (Notification.permission === "denied") { return false; }
+					navigator.serviceWorker.ready.then(function(reg) {
+						console.log("ready");
+					});
+				});
+			}
 		},
 		"chat": function(chat_url, own_symbol) {
 
