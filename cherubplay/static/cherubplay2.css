@@ -203,6 +203,11 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 
 #prompt_info :first-child { margin-top: 0; }
 
+.banner {
+    margin: 50px auto;
+    text-align: center;
+}
+
 /* 3.3. Directory */
 
 .request.draft, .request.removed { background-color: #f8f8f8; }
