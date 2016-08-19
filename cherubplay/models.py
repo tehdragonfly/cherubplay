@@ -297,8 +297,8 @@ class Request(Base, Resource):
     posted = Column(DateTime(), nullable=False, default=datetime.datetime.now)
     edited = Column(DateTime(), nullable=False, default=datetime.datetime.now)
     colour = Column(Unicode(6), nullable=False, default=u"000000")
-    scenario = Column(UnicodeText, nullable=False, default=u"")
-    prompt = Column(UnicodeText, nullable=False, default=u"")
+    ooc_notes = Column(UnicodeText, nullable=False, default=u"")
+    starter = Column(UnicodeText, nullable=False, default=u"")
     tag_ids = Column(ARRAY(Integer), nullable=False, default=list) # this makes tag filtering easier
 
     def tags_by_type(self):
@@ -314,8 +314,8 @@ class Request(Base, Resource):
             "posted": self.posted.isoformat(),
             "edited": self.edited.isoformat(),
             "colour": self.colour,
-            "scenario": self.scenario,
-            "prompt": self.prompt,
+            "ooc_notes": self.ooc_notes,
+            "starter": self.starter,
             "tags": self.tags_by_type(),
         }
         if request is not None:

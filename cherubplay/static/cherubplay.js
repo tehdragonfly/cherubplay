@@ -39,11 +39,11 @@ var cherubplay = (function() {
 					case "prompt_report":
 						var text = data.prompt;
 						break;
-					case "request_scenario":
-						var text = data.request.scenario;
+					case "request_ooc_notes":
+						var text = data.request.ooc_notes;
 						break;
-					case "request_prompt":
-						var text = data.request.prompt;
+					case "request_starter":
+						var text = data.request.starter;
 						break;
 					case "chat":
 						var text = data.messages[0].text;

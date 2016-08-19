@@ -70,14 +70,14 @@ New request
         <input type="text" class="full" name="misc" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("misc", "")}">
       </div>
       <hr>
-      <h3>Scenario</h3>
-      <p class="help">This section is for out-of-character notes and other information about the scenario you'd like to roleplay. If you're writing a not-a-prompt (eg. a request without any prose, a missed connection or a MSPARP group), please write everything in the scenario section and leave the prompt section blank.</p>
-      <p><textarea name="scenario" placeholder="Enter your scenario...">${form_data.get("scenario", "")}</textarea></p>
-      % if error == "blank_scenario_and_prompt":
-      <p class="error">Please write a scenario and/or prompt.</p>
+      <h3>OOC notes</h3>
+      <p class="help">This section is for out-of-character notes and other information about the scenario you'd like to roleplay. If you're writing a not-a-prompt (eg. a request without any prose, a missed connection or a MSPARP group), please write everything in the OOC notes section and leave the starter section blank.</p>
+      <p><textarea name="ooc_notes" placeholder="Enter your OOC notes...">${form_data.get("ooc_notes", "")}</textarea></p>
+      % if error == "blank_ooc_notes_and_starter":
+      <p class="error">Please write some notes and/or a starter.</p>
       % endif
       <hr>
-      <h3>Prompt</h3>
+      <h3>Starter</h3>
       <p><input type="color" name="colour" size="6" maxlength="7" value="${form_data.get("colour") or "#000000"}"> <select name="preset_colours">
         % for hex, name in preset_colours:
         <option value="#${hex}">${name}</option>
@@ -86,7 +86,7 @@ New request
       % if error == "invalid_colour":
       <p class="error">Invalid text colour. The colour needs to be a 6-digit hex code.</p>
       % endif
-      <p><textarea name="prompt" placeholder="Enter your prompt..." style="color: ${form_data.get("colour") or "#000000"}">${form_data.get("prompt", "")}</textarea></p>
+      <p><textarea name="starter" placeholder="Enter your starter..." style="color: ${form_data.get("colour") or "#000000"}">${form_data.get("starter", "")}</textarea></p>
       <hr>
       <div class="actions">
         <div class="right"><input type="submit" name="draft" value="Save draft"> · <input type="submit" name="publish" value="Publish"></div>

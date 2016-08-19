@@ -27,13 +27,13 @@ def _validate_request_form(request):
     if colour_validator.match(colour) is None:
         raise ValidationError("invalid_colour")
 
-    scenario = request.POST.get("scenario", "").strip()
-    prompt = request.POST.get("prompt", "").strip()
+    ooc_notes = request.POST.get("ooc_notes", "").strip()
+    starter = request.POST.get("starter", "").strip()
 
-    if not scenario and not prompt:
-        raise ValidationError("blank_scenario_and_prompt")
+    if not ooc_notes and not starter:
+        raise ValidationError("blank_ooc_notes_and_starter")
 
-    return colour, scenario, prompt
+    return colour, ooc_notes, starter
 
 
 def _request_tags_from_form(form, new_request):
@@ -67,8 +67,10 @@ def _request_tags_from_form(form, new_request):
                 fandoms.add(name.lower())
 
     # Meta types
-    if not new_request.prompt:
-        tag_set.add((u"type", u"Not a prompt"))
+    if new_request.starter:
+        tag_set.add((u"type", u"Starter"))
+    else:
+        tag_set.add((u"type", u"No starter"))
 
     if len(fandoms) > 1:
         tag_set.add((u"type", u"Crossover"))
@@ -374,7 +376,7 @@ def directory_new_get(request):
 @view_config(route_name="directory_new", request_method="POST", permission="directory", renderer="layout2/directory/new.mako")
 def directory_new_post(request):
     try:
-        colour, scenario, prompt = _validate_request_form(request)
+        colour, ooc_notes, starter = _validate_request_form(request)
     except ValidationError as e:
         return {"form_data": request.POST, "preset_colours": preset_colours, "error": e.message}
 
@@ -393,8 +395,8 @@ def directory_new_post(request):
         user_id=request.user.id,
         status=status,
         colour=colour,
-        scenario=scenario,
-        prompt=prompt,
+        ooc_notes=ooc_notes,
+        starter=starter,
     )
     Session.add(new_request)
     Session.flush()
@@ -549,10 +551,10 @@ def directory_request_answer(context, request):
     Session.add(ChatUser(chat_id=new_chat.id, user_id=context.user_id, symbol=0, last_colour=context.colour))
     Session.add(ChatUser(chat_id=new_chat.id, user_id=request.user.id, symbol=1))
 
-    if context.scenario:
-        Session.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=0, text=context.scenario))
-    if context.prompt:
-        Session.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=0, colour=context.colour, text=context.prompt))
+    if context.ooc_notes:
+        Session.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=0, text=context.ooc_notes))
+    if context.starter:
+        Session.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=0, colour=context.colour, text=context.starter))
 
     return HTTPFound(request.route_path("chat", url=new_chat.url))
 
@@ -576,8 +578,8 @@ def directory_request_edit_get(context, request):
             form_data[tag_type] = ", ".join(tag.name for tag in tags)
 
     form_data["colour"] = "#" + context.colour
-    form_data["scenario"] = context.scenario
-    form_data["prompt"] = context.prompt
+    form_data["ooc_notes"] = context.ooc_notes
+    form_data["starter"] = context.starter
 
     return {"form_data": form_data, "preset_colours": preset_colours}
 
@@ -589,7 +591,7 @@ def directory_request_edit_post(context, request):
         raise HTTPForbidden
 
     try:
-        colour, scenario, prompt = _validate_request_form(request)
+        colour, ooc_notes, starter = _validate_request_form(request)
     except ValidationError as e:
         return {"form_data": request.POST, "preset_colours": preset_colours, "error": e.message}
 
@@ -613,8 +615,8 @@ def directory_request_edit_post(context, request):
         context.status = status
 
     context.colour = colour
-    context.scenario = scenario
-    context.prompt = prompt
+    context.ooc_notes = ooc_notes
+    context.starter = starter
 
     Session.query(RequestTag).filter(RequestTag.request_id == context.id).delete()
 

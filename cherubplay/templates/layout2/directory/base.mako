@@ -63,27 +63,27 @@ ${"TW:&nbsp;" if tag.type == "trigger" else ""|n}${tag.name}\
           % endfor
         </ul>
         % endif
-        % if rq.scenario:
+        % if rq.ooc_notes:
         <hr>
-        % if expanded or len(rq.scenario) <= 250:
-        <p>${rq.scenario}</p>
+        % if expanded or len(rq.ooc_notes) <= 250:
+        <p>${rq.ooc_notes}</p>
         % else:
         <div class="expandable">
           <a class="toggle" href="${request.route_path("directory_request", id=rq.id)}">(more)</a>
-          <p class="expanded_content" data-href="${request.route_path("directory_request_ext", ext="json", id=rq.id)}" data-type="request_scenario"></p>
-          <p class="collapsed_content">${rq.scenario[:250]}...</p>
+          <p class="expanded_content" data-href="${request.route_path("directory_request_ext", ext="json", id=rq.id)}" data-type="request_ooc_notes"></p>
+          <p class="collapsed_content">${rq.ooc_notes[:250]}...</p>
         </div>
         % endif
         % endif
-        % if rq.prompt:
+        % if rq.starter:
         <hr>
-        % if expanded or len(rq.prompt) <= 250:
-        <p style="color: #${rq.colour};">${rq.prompt}</p>
+        % if expanded or len(rq.starter) <= 250:
+        <p style="color: #${rq.colour};">${rq.starter}</p>
         % else:
         <div class="expandable">
           <a class="toggle" href="${request.route_path("directory_request", id=rq.id)}">(more)</a>
-          <p class="expanded_content" style="color: #${rq.colour};" data-href="${request.route_path("directory_request_ext", ext="json", id=rq.id)}" data-type="request_prompt"></p>
-          <p class="collapsed_content" style="color: #${rq.colour};">${rq.prompt[:250]}...</p>
+          <p class="expanded_content" style="color: #${rq.colour};" data-href="${request.route_path("directory_request_ext", ext="json", id=rq.id)}" data-type="request_starter"></p>
+          <p class="collapsed_content" style="color: #${rq.colour};">${rq.starter[:250]}...</p>
         </div>
         % endif
         % endif
