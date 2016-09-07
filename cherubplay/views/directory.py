@@ -391,9 +391,14 @@ def directory_new_post(request):
         status = "draft"
         too_many_requests = True
 
+    new_date = datetime.datetime.now()
+
     new_request = Request(
         user_id=request.user.id,
         status=status,
+        created=new_date,
+        posted=new_date if status == "posted" else None,
+        edited=new_date,
         colour=colour,
         ooc_notes=ooc_notes,
         starter=starter,
@@ -610,7 +615,7 @@ def directory_request_edit_post(context, request):
         )).scalar() >= 10:
             status = "draft"
             too_many_requests = True
-        if context.status == "draft" and status == "posted":
+        if status == "posted" and context.posted is None:
             context.posted = new_date
         context.status = status
 

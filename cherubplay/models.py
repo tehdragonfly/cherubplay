@@ -294,7 +294,13 @@ class Request(Base, Resource):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     status = Column(Enum(u"draft", u"posted", u"removed", name=u"requests_status"), nullable=False, default=u"draft")
-    posted = Column(DateTime(), nullable=False, default=datetime.datetime.now)
+    # Created indicates when the request was created, and is never modified.
+    created = Column(DateTime(), nullable=False, default=datetime.datetime.now)
+    # Posted indicates when the request was first posted.
+    # It's set when the status is first set to "posted". This may be the same as the created time
+    # if posted directly, or when it was changed from "draft" to "posted".
+    posted = Column(DateTime())
+    # Edited indicates when the request was last edited.
     edited = Column(DateTime(), nullable=False, default=datetime.datetime.now)
     colour = Column(Unicode(6), nullable=False, default=u"000000")
     ooc_notes = Column(UnicodeText, nullable=False, default=u"")
