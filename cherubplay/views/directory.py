@@ -519,8 +519,8 @@ def directory_blacklist_remove(request):
     return HTTPFound(request.route_path("directory_blacklist"))
 
 
-@view_config(route_name="directory_request", request_method="GET", permission="directory", renderer="layout2/directory/request.mako")
-@view_config(route_name="directory_request_ext", request_method="GET", permission="directory", extension="json", renderer="json")
+@view_config(route_name="directory_request", request_method="GET", permission="request.read", renderer="layout2/directory/request.mako")
+@view_config(route_name="directory_request_ext", request_method="GET", permission="request.read", extension="json", renderer="json")
 def directory_request(context, request):
 
     chats = Session.query(ChatUser, Chat).join(Chat).filter(
@@ -534,12 +534,8 @@ def directory_request(context, request):
     return {"chats": chats}
 
 
-@view_config(route_name="directory_request_answer", request_method="POST", permission="directory")
+@view_config(route_name="directory_request_answer", request_method="POST", permission="request.answer")
 def directory_request_answer(context, request):
-
-    # Can't answer your own request.
-    if request.user.id == context.user_id:
-        raise HTTPNotFound
 
     if request.login_store.get("answered:%s:%s" % (request.user.id, context.id)):
         response = render_to_response("layout2/directory/already_answered.mako", {}, request)
@@ -564,11 +560,8 @@ def directory_request_answer(context, request):
     return HTTPFound(request.route_path("chat", url=new_chat.url))
 
 
-@view_config(route_name="directory_request_edit", request_method="GET", permission="directory", renderer="layout2/directory/new.mako")
+@view_config(route_name="directory_request_edit", request_method="GET", permission="request.edit", renderer="layout2/directory/new.mako")
 def directory_request_edit_get(context, request):
-
-    if context.user_id != request.user.id:
-        raise HTTPForbidden
 
     form_data = {}
 
@@ -589,11 +582,8 @@ def directory_request_edit_get(context, request):
     return {"form_data": form_data, "preset_colours": preset_colours}
 
 
-@view_config(route_name="directory_request_edit", request_method="POST", permission="directory", renderer="layout2/directory/new.mako")
+@view_config(route_name="directory_request_edit", request_method="POST", permission="request.edit", renderer="layout2/directory/new.mako")
 def directory_request_edit_post(context, request):
-
-    if context.user_id != request.user.id:
-        raise HTTPForbidden
 
     try:
         colour, ooc_notes, starter = _validate_request_form(request)
@@ -636,30 +626,26 @@ def directory_request_edit_post(context, request):
     ))
 
 
-@view_config(route_name="directory_request_delete", request_method="GET", permission="directory", renderer="layout2/directory/request_delete.mako")
+@view_config(route_name="directory_request_delete", request_method="GET", permission="request.delete", renderer="layout2/directory/request_delete.mako")
 def directory_request_delete_get(context, request):
-    if context.user_id != request.user.id:
-        raise HTTPForbidden
     return {}
 
 
-@view_config(route_name="directory_request_delete", request_method="POST", permission="directory")
+@view_config(route_name="directory_request_delete", request_method="POST", permission="request.delete")
 def directory_request_delete_post(context, request):
-    if context.user_id != request.user.id:
-        raise HTTPForbidden
     Session.query(Chat).filter(Chat.request_id == context.id).update({"request_id": None})
     Session.query(RequestTag).filter(RequestTag.request_id == context.id).delete()
     Session.query(Request).filter(Request.id == context.id).delete()
     return HTTPFound(request.route_path("directory_yours"))
 
 
-@view_config(route_name="directory_request_remove", request_method="POST", permission="tag_wrangling")
+@view_config(route_name="directory_request_remove", request_method="POST", permission="request.remove")
 def directory_request_remove(context, request):
     context.status = "removed"
     return HTTPFound(request.route_path("directory_request", id=context.id))
 
 
-@view_config(route_name="directory_request_unremove", request_method="POST", permission="tag_wrangling")
+@view_config(route_name="directory_request_unremove", request_method="POST", permission="request.remove")
 def directory_request_unremove(context, request):
     context.status = "posted"
     return HTTPFound(request.route_path("directory_request", id=context.id))

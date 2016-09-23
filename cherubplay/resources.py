@@ -26,6 +26,9 @@ def report_factory(request):
 
 
 def request_factory(request):
+    if not request.user:
+        raise HTTPNotFound
+
     try:
         return Session.query(Request).filter(and_(
             Request.id == int(request.matchdict["id"]),

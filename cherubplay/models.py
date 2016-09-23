@@ -4,7 +4,7 @@ import datetime
 
 from collections import OrderedDict
 from pyramid.decorator import reify
-from pyramid.security import Allow, Authenticated, Everyone
+from pyramid.security import Allow, Authenticated, Deny, Everyone
 from pytz import timezone, utc
 from sqlalchemy import (
     and_,
@@ -289,6 +289,20 @@ class Prompt(Base, Resource):
 
 
 class Request(Base, Resource):
+    def __acl__(self):
+        return (
+            (Allow, Authenticated, "request.read"),
+            (Deny,  self.user_id,  "request.answer"),
+            (Allow, "active",      "request.answer"),
+            (Allow, self.user_id,  "request.edit"),
+            (Allow, self.user_id,  "request.delete"),
+            (Allow, "admin",       "request.remove"),
+            # generic permissions, TODO remove
+            (Allow, "active", "chat"),
+            (Allow, "directory", "directory"),
+            (Allow, "admin", "admin"),
+            (Allow, "admin", "tag_wrangling"),
+        )
 
     __tablename__ = "requests"
     id = Column(Integer, primary_key=True)
