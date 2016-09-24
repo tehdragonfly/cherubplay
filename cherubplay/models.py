@@ -48,10 +48,10 @@ Base = declarative_base()
 class Resource(object):
     __acl__ = (
         (Allow, Authenticated, "view"),
-        (Allow, "active", "chat"),
-        (Allow, "directory", "directory"),
-        (Allow, "admin", "admin"),
-        (Allow, "admin", "tag_wrangling"),
+        (Allow, "active",      "chat"),
+        (Allow, "directory",   "directory"),
+        (Allow, "admin",       "admin"),
+        (Allow, "admin",       "tag_wrangling"),
     )
 
 
@@ -297,11 +297,6 @@ class Request(Base, Resource):
             (Allow, self.user_id,  "request.edit"),
             (Allow, self.user_id,  "request.delete"),
             (Allow, "admin",       "request.remove"),
-            # generic permissions, TODO remove
-            (Allow, "active", "chat"),
-            (Allow, "directory", "directory"),
-            (Allow, "admin", "admin"),
-            (Allow, "admin", "tag_wrangling"),
         )
 
     __tablename__ = "requests"

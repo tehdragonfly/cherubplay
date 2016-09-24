@@ -60,15 +60,15 @@ class CherubplayAuthenticationPolicy(object):
             return request.user.id
 
     def effective_principals(self, request):
-        if request.user is not None:
-            if request.user.status == "banned":
-                return (Everyone, Authenticated)
-            elif request.user.status == "admin":
-                return (Everyone, Authenticated, "active", "directory", "admin", request.user.id)
-            elif request.user.has_directory_access:
-                return (Everyone, Authenticated, "active", "directory", request.user.id)
-            return (Everyone, Authenticated, "active", request.user.id)
-        return (Everyone,)
+        if request.user is None:
+            return (Everyone,)
+        elif request.user.status == "banned":
+            return (Everyone, Authenticated)
+        elif request.user.status == "admin":
+            return (Everyone, Authenticated, request.user.id, "active", "directory", "admin")
+        elif request.user.has_directory_access:
+            return (Everyone, Authenticated, request.user.id, "active", "directory")
+        return (Everyone, Authenticated, request.user.id, "active")
 
     def remember(self, request, principal, **kw):
         raise NotImplementedError
