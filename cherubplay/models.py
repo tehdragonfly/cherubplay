@@ -257,7 +257,13 @@ class PromptReport(Base, Resource):
         }
 
 
-class Prompt(Base, Resource):
+class Prompt(Base):
+    def __acl__(self):
+        return (
+            (Allow, self.user_id, "prompt.read"),
+            (Allow, self.user_id, "prompt.edit"),
+            (Allow, self.user_id, "prompt.delete"),
+        )
 
     __tablename__ = "prompts"
     id = Column(Integer, primary_key=True)
@@ -288,7 +294,7 @@ class Prompt(Base, Resource):
         }
 
 
-class Request(Base, Resource):
+class Request(Base):
     def __acl__(self):
         return (
             (Allow, Authenticated, "request.read"),

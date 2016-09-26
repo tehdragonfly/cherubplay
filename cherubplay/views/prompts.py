@@ -92,12 +92,12 @@ def new_prompt_post(request):
     return HTTPFound(request.route_path("prompt_list"))
 
 
-@view_config(route_name="prompt", request_method="GET", permission="view", renderer="layout2/prompt.mako")
+@view_config(route_name="prompt", request_method="GET", permission="prompt.read", renderer="layout2/prompt.mako")
 def prompt(context, request):
     return {"prompt_categories": prompt_categories, "prompt_starters": prompt_starters, "prompt_levels": prompt_levels}
 
 
-@view_config(route_name="prompt_ext", request_method="GET", permission="view", extension="json", renderer="json")
+@view_config(route_name="prompt_ext", request_method="GET", permission="prompt.read", extension="json", renderer="json")
 def prompt_ext(context, request):
     return context
 
@@ -112,12 +112,12 @@ def _edit_prompt_form(**kwargs):
     )
 
 
-@view_config(route_name="edit_prompt", request_method="GET", permission="view", renderer="layout2/edit_prompt.mako")
+@view_config(route_name="edit_prompt", request_method="GET", permission="prompt.edit", renderer="layout2/edit_prompt.mako")
 def edit_prompt_get(context, request):
     return _edit_prompt_form()
 
 
-@view_config(route_name="edit_prompt", request_method="POST", permission="view", renderer="layout2/edit_prompt.mako")
+@view_config(route_name="edit_prompt", request_method="POST", permission="prompt.edit", renderer="layout2/edit_prompt.mako")
 def edit_prompt_post(context, request):
 
     trimmed_prompt_title = request.POST.get("prompt_title", "").strip()
@@ -154,12 +154,12 @@ def edit_prompt_post(context, request):
     return HTTPFound(request.route_path("prompt", id=context.id))
 
 
-@view_config(route_name="delete_prompt", request_method="GET", permission="view", renderer="layout2/delete_prompt.mako")
+@view_config(route_name="delete_prompt", request_method="GET", permission="prompt.delete", renderer="layout2/delete_prompt.mako")
 def delete_prompt_get(context, request):
     return _edit_prompt_form()
 
 
-@view_config(route_name="delete_prompt", request_method="POST", permission="view")
+@view_config(route_name="delete_prompt", request_method="POST", permission="prompt.delete")
 def delete_prompt_post(context, request):
     Session.delete(context)
     return HTTPFound(request.route_path("prompt_list"))
