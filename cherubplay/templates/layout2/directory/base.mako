@@ -106,6 +106,8 @@ ${"TW:&nbsp;" if tag.type == "trigger" else ""|n}${tag.name}\
             % if rq.user_id == request.user.id:
             <a href="${request.route_path("directory_request_edit", id=rq.id)}">Edit</a> ·
             <a href="${request.route_path("directory_request_delete", id=rq.id)}">Delete</a>
+            % elif answered and rq.id in answered:
+            Answered
             % else:
             <form action="${request.route_path("directory_request_answer", id=rq.id)}" method="post"><button type="submit">Answer</button></form>
             % endif

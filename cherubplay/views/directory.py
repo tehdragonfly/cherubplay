@@ -14,6 +14,13 @@ from ..lib import colour_validator, preset_colours
 from ..models import Session, BlacklistedTag, Chat, ChatUser, CreateNotAllowed, Message, Request, RequestTag, Tag, TagParent, User
 
 
+def _find_answered(request, requests):
+    pipe = request.login_store.pipeline()
+    for rq in requests:
+        pipe.get("answered:%s:%s" % (request.user.id, rq.id))
+    return set(int(_) for _ in pipe.execute() if _ is not None)
+
+
 class ValidationError(Exception): pass
 
 
@@ -123,7 +130,9 @@ def directory(request):
     if not requests and "before" in request.GET:
         raise HTTPNotFound
 
-    return {"requests": requests[:25], "more": len(requests) == 26}
+    answered = _find_answered(request, requests)
+
+    return {"requests": requests[:25], "answered": answered, "more": len(requests) == 26}
 
 
 @view_config(route_name="directory_tag_list", request_method="GET", permission="tag_wrangling", renderer="layout2/directory/tag_list.mako")
@@ -221,7 +230,9 @@ def directory_tag(request):
         .limit(26).all()
     )
 
-    resp = {"tag": tag_dict, "blacklisted": False, "requests": requests[:25], "more": len(requests) == 26}
+    answered = _find_answered(request, requests)
+
+    resp = {"tag": tag_dict, "blacklisted": False, "requests": requests[:25], "answered": answered, "more": len(requests) == 26}
 
     if request.has_permission("tag_wrangling"):
         if not tag.approved:
@@ -543,7 +554,7 @@ def directory_request_answer(context, request):
         return response
 
     # XXX we're not using StrictRedis so value and expiry are the wrong way round
-    request.login_store.setex("answered:%s:%s" % (request.user.id, context.id), 1, 86400)
+    request.login_store.setex("answered:%s:%s" % (request.user.id, context.id), context.id, 86400)
 
     new_chat = Chat(url=str(uuid4()), request_id=context.id)
     Session.add(new_chat)
