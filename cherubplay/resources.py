@@ -7,6 +7,9 @@ from .models import Session, Prompt, PromptReport, Request, RequestTag
 
 
 def prompt_factory(request):
+    if not request.user:
+        raise HTTPNotFound
+
     try:
         return Session.query(Prompt).filter(and_(
             Prompt.user_id == request.user.id,
