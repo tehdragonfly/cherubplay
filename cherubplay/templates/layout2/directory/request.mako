@@ -10,7 +10,7 @@
     % if chats:
     <ul id="chat_list">
     % for chat_user, chat in chats:
-    ${chat_list.render_chat(chat_user, chat)}
+    ${chat_list.render_chat(chat_user, chat, show_request=False)}
     % endfor
     </ul>
     % endif

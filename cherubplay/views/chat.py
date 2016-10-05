@@ -93,7 +93,7 @@ def chat_list(request):
         chats = chats.filter(ChatUser.labels.contains(label_array))
         chat_count = chat_count.filter(ChatUser.labels.contains(label_array))
 
-    chats = chats.order_by(Chat.updated.desc()).limit(25).offset((current_page-1)*25).all()
+    chats = chats.options(joinedload(Chat.request)).order_by(Chat.updated.desc()).limit(25).offset((current_page-1)*25).all()
 
     # 404 on empty pages, unless it's the first page.
     if current_page!=1 and len(chats)==0:

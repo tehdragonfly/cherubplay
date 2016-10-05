@@ -8,7 +8,7 @@ Chats labelled "${current_label.replace("_", " ")}"\
 Your chats\
 % endif
 </%def>\
-<%def name="render_chat(chat_user, chat, prompt=None)">\
+<%def name="render_chat(chat_user, chat, prompt=None, show_request=True)">\
       <li class="tile2\
 % if chat.updated>chat_user.visited:
  unread" title="Updated since your last visit\
@@ -37,10 +37,10 @@ Started ${request.user.localise_time(chat.created).strftime("%a %d %b %Y")}, las
         </div>
         % endif
         % endif
-        % if chat_user.notes!="" or chat_user.labels or chat.request_id:
+        % if chat_user.notes != "" or chat_user.labels or (show_request and chat.request and (chat.request.status == "posted" or chat.request.user_id == request.user.id)):
         <hr>
         % endif
-        % if chat.request_id:
+        % if show_request and chat.request and (chat.request.status == "posted" or chat.request.user_id == request.user.id):
         <p class="notes">From request <a href="${request.route_path("directory_request", id=chat.request_id)}">#${chat.request_id}</a></p>
         % endif
         % if chat_user.notes!="":
