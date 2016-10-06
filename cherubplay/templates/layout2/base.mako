@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#393">
 <link rel="stylesheet" href="/static/cherubplay2.css">
+<link rel="shortcut icon" href="/static/favicon.ico">
 </head>
 <body class="<%block name="body_class"></%block>">
 
