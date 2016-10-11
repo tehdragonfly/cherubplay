@@ -145,9 +145,9 @@ def main(global_config, **settings):
 
     # These are defined here because we need the settings to create the connection pools.
     def request_login_store(request):
-        return Redis(connection_pool=login_pool)
+        return StrictRedis(connection_pool=login_pool)
     def request_pubsub(request):
-        return Redis(connection_pool=pubsub_pool)
+        return StrictRedis(connection_pool=pubsub_pool)
 
     config.add_request_method(request_login_store, 'login_store', reify=True)
     config.add_request_method(request_pubsub, 'pubsub', reify=True)

@@ -16,11 +16,10 @@ from ..models import (
 
 def send_email(request, action, user, email_address):
     email_token = str(uuid4())
-    # XXX we're not using StrictRedis so value and expiry are the wrong way round
     request.login_store.setex(
         ":".join([action, str(user.id), email_address]),
-        email_token,
         86400 if action == "verify_email" else 600,
+        email_token,
     )
 
     mailer = get_mailer(request)
@@ -53,7 +52,7 @@ def account_email_address(request):
         return { "email_address_error": "Sorry, you can only change your e-mail address once per day. Please wait until tomorrow." }
 
     send_email(request, "verify_email", request.user, email_address)
-    request.login_store.setex("verify_email_limit:%s" % request.user.id, 1, 86400)
+    request.login_store.setex("verify_email_limit:%s" % request.user.id, 86400, 1)
 
     return HTTPFound(request.route_path("account", _query={ "saved": "verify_email" }))
 
@@ -177,8 +176,8 @@ def forgot_password_post(request):
         return {"error": "no_email"}
 
     send_email(request, "reset_password", user, user.email)
-    request.login_store.setex("reset_password_limit:%s" % request.environ["REMOTE_ADDR"], 1, 86400)
-    request.login_store.setex("reset_password_limit:%s" % user.id, 1, 86400)
+    request.login_store.setex("reset_password_limit:%s" % request.environ["REMOTE_ADDR"], 86400, 1)
+    request.login_store.setex("reset_password_limit:%s" % user.id, 86400, 1)
 
     return {"saved": "saved"}
 

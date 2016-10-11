@@ -553,8 +553,7 @@ def directory_request_answer(context, request):
         response.status_int = 403
         return response
 
-    # XXX we're not using StrictRedis so value and expiry are the wrong way round
-    request.login_store.setex("answered:%s:%s" % (request.user.id, context.id), context.id, 86400)
+    request.login_store.setex("answered:%s:%s" % (request.user.id, context.id), 86400, context.id)
 
     new_chat = Chat(url=str(uuid4()), request_id=context.id)
     Session.add(new_chat)
