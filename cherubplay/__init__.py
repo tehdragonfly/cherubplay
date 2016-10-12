@@ -5,7 +5,7 @@ from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import Allow, Authenticated, Everyone
-from redis import Redis, ConnectionPool, UnixDomainSocketConnection
+from redis import ConnectionPool, StrictRedis, UnixDomainSocketConnection
 from redis.exceptions import ConnectionError
 from sqlalchemy import and_, engine_from_config, func
 from sqlalchemy.orm.exc import NoResultFound
