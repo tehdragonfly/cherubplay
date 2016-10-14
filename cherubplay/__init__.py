@@ -4,6 +4,7 @@ import transaction
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPFound
+from pyramid.renderers import JSON
 from pyramid.security import Allow, Authenticated, Everyone
 from redis import ConnectionPool, StrictRedis, UnixDomainSocketConnection
 from redis.exceptions import ConnectionError
@@ -21,6 +22,10 @@ from .models import (
 from .resources import prompt_factory, report_factory, request_factory
 from .views import chat
 from .views import prompts
+
+
+JSONRenderer = JSON()
+JSONRenderer.add_adapter(set, lambda obj, request: list(obj))
 
 
 class ExtensionPredicate(object):
@@ -132,6 +137,9 @@ def main(global_config, **settings):
         root_factory=CherubplayRootFactory,
         settings=settings,
     )
+
+    # Replace the JSON renderer so we can serialise sets.
+    config.add_renderer("json", JSONRenderer)
 
     login_pool = ConnectionPool(
         connection_class=UnixDomainSocketConnection,
