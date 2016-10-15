@@ -458,6 +458,7 @@ var cherubplay = (function() {
 			});
 		},
 		"directory_new": function() {
+			var add_tag_functions = [];
 
 			$(".tag_input").each(function() {
 
@@ -517,6 +518,8 @@ var cherubplay = (function() {
 					visible_input.val("");
 					refresh_hidden_input();
 				}
+				// Remember these so we can run them on submit.
+				add_tag_functions.push(add_tag)
 
 				function remove_tag() {
 					tag_list.find("li:last-child").remove();
@@ -589,6 +592,10 @@ var cherubplay = (function() {
 			});
 			var preset_colours = $("#new_request_form select[name=\"preset_colours\"]").change(function() {
 				prompt_colour.val(this.value).change();
+			});
+
+			$("#new_request_form").submit(function() {
+				add_tag_functions.forEach(function(func) { func(); });
 			});
 		},
 		"account": function() {
