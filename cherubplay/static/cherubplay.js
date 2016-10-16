@@ -56,6 +56,23 @@ var cherubplay = (function() {
 		return false;
 	});
 
+	function is_at_bottom() {
+		return window.scrollY == document.documentElement.scrollHeight - document.documentElement.clientHeight;
+	}
+
+	function scroll_to_bottom() {
+		window.scroll(0, document.documentElement.scrollHeight - document.documentElement.clientHeight);
+	}
+
+	function auto_resize() {
+		// Check if we're at the bottom before resizing because resizing will mean that we're not.
+		var scroll_after_resize = is_at_bottom();
+		this.style.height = this.scrollHeight + "px";
+		if (scroll_after_resize) {
+			scroll_to_bottom();
+		}
+	}
+
 	return {
 		"home": function() {
 
@@ -335,11 +352,10 @@ var cherubplay = (function() {
 				prompt_colour.val(this.value).change();
 			});
 			var key_counter = 0;
-			var prompt_text = $("#prompt_text").keyup(function() {
+			var prompt_text = $("#prompt_text").keyup(auto_resize).keyup(function() {
 				prompt_category.val("");
 				prompt_starter.val("");
 				prompt_level.val("");
-				this.style.height = this.scrollHeight+"px";
 				key_counter++;
 				if (key_counter == 10) {
 					key_counter = 0;
@@ -453,9 +469,7 @@ var cherubplay = (function() {
 			var preset_colours = $("#preset_colours").change(function() {
 				prompt_colour.val(this.value).change();
 			});
-			var prompt_text = $("#prompt_text").keyup(function() {
-				this.style.height = this.scrollHeight+"px";
-			});
+			var prompt_text = $("#prompt_text").keyup(auto_resize);
 		},
 		"directory_new": function() {
 			var add_tag_functions = [];
@@ -585,8 +599,7 @@ var cherubplay = (function() {
 
 			});
 
-			// TODO make this generic
-			$("#new_request_form textarea").keyup(function() { this.style.height = this.scrollHeight + "px"; });
+			$("#new_request_form textarea").keyup(auto_resize);
 			var prompt_colour = $("#new_request_form input[name=\"colour\"]").change(function() {
 				$("#new_request_form textarea[name=\"prompt\"]").css("color", this.value);
 			});
@@ -670,14 +683,6 @@ var cherubplay = (function() {
 			var typing_timeout;
 			var ended = false;
 			var continue_timeout;
-
-			function is_at_bottom() {
-				return window.scrollY==document.documentElement.scrollHeight-document.documentElement.clientHeight;
-			}
-
-			function scroll_to_bottom() {
-				window.scroll(0, document.documentElement.scrollHeight-document.documentElement.clientHeight);
-			}
 
 			function visibility_handler() {
 				window.setTimeout(function() {
@@ -819,14 +824,7 @@ var cherubplay = (function() {
 						ws.send("{\"action\":\"stopped_typing\"}");
 					}, 1000);
 				}
-			}).keyup(function(e) {
-				// Check if we're at the bottom before resizing because resizing will mean that we're not.
-				var scroll_after_resize = is_at_bottom();
-				this.style.height = this.scrollHeight+"px";
-				if (scroll_after_resize) {
-					scroll_to_bottom();
-				}
-			});
+			}).keyup(auto_resize);
 
 			var search_again = $("#search_again").click(function() {
 				localStorage.setItem("autoprompt", "yes");
