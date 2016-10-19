@@ -63,10 +63,10 @@ def _request_tags_from_form(form, new_request):
                     tag_set.add((u"type", name))
             continue
 
-        for name in form[tag_type][:100].split(","):
+        for name in form[tag_type][:1000].split(","):
             if tag_type == "trigger" and name.lower().startswith("tw:"):
                 name = name[3:]
-            name = Tag.name_from_url(name).strip()
+            name = Tag.name_from_url(name).strip()[:100]
             if name == "":
                 continue
             tag_set.add((tag_type, name))
