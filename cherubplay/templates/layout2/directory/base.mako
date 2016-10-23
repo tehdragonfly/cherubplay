@@ -122,7 +122,7 @@ ${"TW:&nbsp;" if tag.type == "trigger" else ""|n}${tag.name}\
   <div class="side_column">
     <nav>
       <ul>
-        % if request.matched_route.name == "directory":
+        % if request.matched_route.name == "directory" and not "before" in request.GET:
         <li>Directory</li>
         % else:
         <li><a href="${request.route_path("directory")}">Directory</a></li>
