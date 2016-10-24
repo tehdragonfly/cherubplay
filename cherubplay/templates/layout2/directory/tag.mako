@@ -54,6 +54,9 @@
     % elif not requests:
     <p>There are no requests with this tag.</p>
     % else:
+    % if "before" in request.GET:
+    <p class="pager tile2"><a href="${request.current_route_path(_query={})}">First page</a></p>
+    % endif
     <ul id="chat_list">
       % for rq in requests:
       <li class="tile2 request ${rq.status}">
