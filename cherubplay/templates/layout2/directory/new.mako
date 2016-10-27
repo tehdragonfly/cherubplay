@@ -8,9 +8,12 @@ New request
 % endif
 </%block>
     <form id="new_request_form" class="tile2" action="${request.current_route_path()}" method="post">
-      <p><label>Maturity: <select name="maturity">
+      <p><label>Maturity: <select name="maturity" required>
+        % if request.matched_route.name != "directory_request_edit":
+        <option value=""></option>
+        % endif
         % for maturity in Tag.maturity_names:
-        <option${" selected" if form_data.get("maturity") == maturity or (not form_data.get("maturity") and maturity == "NSFW extreme") else ""}>${maturity}</option>
+        <option${" selected" if form_data.get("maturity") == maturity else ""}>${maturity}</option>
         % endfor
       </select> (<a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under" target="_blank">Category rules</a>)</label></p>
       % if error == "blank_maturity":
