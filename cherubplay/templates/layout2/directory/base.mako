@@ -96,7 +96,7 @@ ${"TW:&nbsp;" if tag.type == "trigger" else ""|n}${tag.name}\
           <div class="left">${request.user.localise_time(rq.posted or rq.created).strftime("%Y-%m-%d %H:%M")}</div>
           % endif
           <div class="right">
-            % if request.has_permission("admin"):
+            % if request.has_permission("admin") or request.has_permission("request.remove"):
             % if rq.status == "removed":
             <form action="${request.route_path("directory_request_unremove", id=rq.id)}" method="post"><button type="submit">Unremove</button></form> ·
             % else:
