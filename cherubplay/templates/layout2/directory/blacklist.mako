@@ -6,15 +6,6 @@
     % endif
     <section class="tile2">
       <ul class="tag_list">
-        % for tag in tags:
-        <li>
-          <form class="remove_form" action="${request.route_path("directory_blacklist_remove")}" method="post">
-            <input type="hidden" name="tag_id" value="${tag.tag_id}">
-            <button type="submit">Remove</button>
-          </form>
-          ${tag.tag.type.replace("_", " ")}:${tag.tag.name}
-        </li>
-        % endfor
         <li>
           <form action="${request.route_path("directory_blacklist_add")}" method="post">
             <select name="tag_type">
@@ -26,5 +17,14 @@
             <button type="submit">Add</button>
           </form>
         </li>
+        % for tag in tags:
+        <li>
+          <form class="remove_form" action="${request.route_path("directory_blacklist_remove")}" method="post">
+            <input type="hidden" name="tag_id" value="${tag.tag_id}">
+            <button type="submit">Remove</button>
+          </form>
+          ${tag.tag.type.replace("_", " ")}:${tag.tag.name}
+        </li>
+        % endfor
       </ul>
     </section>
