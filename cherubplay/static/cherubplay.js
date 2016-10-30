@@ -73,6 +73,21 @@ var cherubplay = (function() {
 		}
 	});
 
+	window.setInterval(function() {
+		var d = new Date();
+		if (d.getMonth() == 9 && d.getDate() == 31 && Math.floor(Math.random()*413) == 0) {
+			var top = Math.floor(Math.random() * (document.documentElement.scrollHeight - 140));
+			var left = Math.floor(Math.random() * (document.documentElement.scrollWidth - 157));
+			var pumpkin = $("<img>").attr("src", "https://i.imgur.com/9SiEqgi.png").css({
+				"position": "absolute",
+				"top": top + "px",
+				"left": left + "px",
+				"z-index": "3",
+			}).mouseover(function() { this.remove(); }).appendTo(document.body);
+			window.setTimeout(function() { pumpkin.remove(); }, Math.floor(Math.random() * 20000));
+		}
+	}, 1000);
+
 	return {
 		"home": function() {
 
