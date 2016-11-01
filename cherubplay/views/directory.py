@@ -309,6 +309,14 @@ def _make_synonym(old_type, old_name, new_type, new_name):
         Request.tag_ids.contains(cast([old_tag.id], ARRAY(Integer)))
     ).update({"tag_ids": func.array_replace(Request.tag_ids, old_tag.id, new_tag.id)}, synchronize_session=False)
 
+    # Delete the old tag from blacklists which already have the new tag.
+    Session.query(BlacklistedTag).filter(and_(
+        BlacklistedTag.tag_id == old_tag.id,
+        BlacklistedTag.user_id.in_(Session.query(BlacklistedTag.user_id).filter(BlacklistedTag.tag_id == new_tag.id)),
+    )).delete(synchronize_session=False)
+    # And update the rest.
+    Session.query(BlacklistedTag).filter(BlacklistedTag.tag_id == old_tag.id).update({"tag_id": new_tag.id})
+
 
 @view_config(route_name="directory_tag_make_synonym", request_method="POST", permission="tag_wrangling")
 def directory_tag_make_synonym(request):
