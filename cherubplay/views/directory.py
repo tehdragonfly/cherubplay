@@ -135,6 +135,24 @@ def directory(request):
     return {"requests": requests[:25], "answered": answered, "more": len(requests) == 26}
 
 
+@view_config(route_name="directory_search", request_method="GET", permission="directory")
+def directory_search(request):
+    tags = []
+    for tag_string in request.GET.get("tag", "").split(","):
+        try:
+            tag_type, name = tag_string.split(":")
+        except ValueError:
+            continue
+        tag_type = tag_type.strip()
+        name = name.strip()
+        if tag_type in Tag.type.type.enums and name:
+            tags.append((tag_type, name))
+
+    # TODO multiple tags
+    if tags:
+        return HTTPFound(request.route_path("directory_tag", type=tag_type, name=name))
+
+
 @view_config(route_name="directory_tag_list", request_method="GET", permission="tag_wrangling", renderer="layout2/directory/tag_list.mako")
 @view_config(route_name="directory_tag_list_unapproved", request_method="GET", permission="tag_wrangling", renderer="layout2/directory/tag_list.mako")
 @view_config(route_name="directory_tag_list_blacklist_default", request_method="GET", permission="tag_wrangling", renderer="layout2/directory/tag_list.mako")
