@@ -64,9 +64,12 @@ def _request_tags_from_form(form, new_request):
             continue
 
         for name in form[tag_type][:1000].split(","):
+            name = Tag.name_from_url(name).strip()
             if tag_type == "trigger" and name.lower().startswith("tw:"):
-                name = name[3:]
-            name = Tag.name_from_url(name).strip()[:100]
+                name = name[3:].strip()
+            elif name.startswith("#"):
+                name = name[1:].strip()
+            name = name[:100]
             if name == "":
                 continue
             tag_set.add((tag_type, name))
@@ -525,6 +528,7 @@ def directory_blacklist_add(request):
         if not name:
             continue
 
+        # TODO do the same TW and # replacement we do when creating a request
         name = Tag.name_from_url(name).strip()
         if not name:
             continue
