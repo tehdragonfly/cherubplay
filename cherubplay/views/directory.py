@@ -43,6 +43,15 @@ def _validate_request_form(request):
     return colour, ooc_notes, starter
 
 
+def _normalise_tag_name(tag_type, name):
+    name = Tag.name_from_url(name).strip()
+    if tag_type == "trigger" and name.lower().startswith("tw:"):
+        name = name[3:].strip()
+    elif name.startswith("#"):
+        name = name[1:].strip()
+    return name[:100]
+
+
 def _request_tags_from_form(form, new_request):
     tag_set = set()
     fandoms = set()
@@ -64,12 +73,7 @@ def _request_tags_from_form(form, new_request):
             continue
 
         for name in form[tag_type][:1000].split(","):
-            name = Tag.name_from_url(name).strip()
-            if tag_type == "trigger" and name.lower().startswith("tw:"):
-                name = name[3:].strip()
-            elif name.startswith("#"):
-                name = name[1:].strip()
-            name = name[:100]
+            name = _normalise_tag_name(tag_type, name)
             if name == "":
                 continue
             tag_set.add((tag_type, name))
@@ -524,12 +528,7 @@ def directory_blacklist_add(request):
     names = request.POST["name"][:100]
     for name in names.split(","):
 
-        name = name.strip()
-        if not name:
-            continue
-
-        # TODO do the same TW and # replacement we do when creating a request
-        name = Tag.name_from_url(name).strip()
+        name = _normalise_tag_name(tag_type, name)
         if not name:
             continue
 
