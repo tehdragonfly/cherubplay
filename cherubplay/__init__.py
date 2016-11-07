@@ -137,6 +137,7 @@ def main(global_config, **settings):
         root_factory=CherubplayRootFactory,
         settings=settings,
     )
+    config.configure_celery(global_config['__file__'])
 
     # Replace the JSON renderer so we can serialise sets.
     config.add_renderer("json", JSONRenderer)
@@ -196,6 +197,7 @@ def main(global_config, **settings):
 
     config.add_ext_route("directory", "/directory/")
     config.add_ext_route("directory_yours", "/directory/yours/")
+    config.add_route("directory_search", "/directory/search/")
     config.add_route("directory_tag_list", "/directory/tags/")
     config.add_route("directory_tag_list_unapproved", "/directory/tags/unapproved/")
     config.add_route("directory_tag_list_blacklist_default", "/directory/tags/blacklist_default/")

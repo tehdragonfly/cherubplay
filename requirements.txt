@@ -1,7 +1,9 @@
 bcrypt==2.0.0
+celery==3.1.25
 paginate==0.5.2
 psycopg2==2.6.1
 pyramid==1.5.7
+pyramid-celery==2.0.0
 pyramid-chameleon==0.3
 pyramid-debugtoolbar==2.4
 pyramid_mailer==0.14.1
