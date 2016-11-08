@@ -2,14 +2,12 @@ import transaction
 
 from datetime import datetime, timedelta
 from pyramid_celery import celery_app as app
-from sqlalchemy import and_, engine_from_config
+from sqlalchemy import and_, engine_from_config, func
 
-from cherubplay.models import Session, Request, User
+from cherubplay.models import Session, Request, RequestTag, User
 
 @app.task
 def reap_requests():
-    print app.conf["PYRAMID_REGISTRY"].settings
-
     engine = engine_from_config(app.conf["PYRAMID_REGISTRY"].settings, "sqlalchemy.")
     # TODO don't use scoped_session
     Session.configure(bind=engine)
@@ -25,3 +23,17 @@ def reap_requests():
     Session.close()
 
 
+@app.task
+def update_request_tag_ids(request_id):
+    engine = engine_from_config(app.conf["PYRAMID_REGISTRY"].settings, "sqlalchemy.")
+    # TODO don't use scoped_session
+    Session.configure(bind=engine)
+    Session.query(Request).filter(Request.id == request_id).update({
+        "tag_ids": func.array(
+            Session.query(RequestTag.tag_id)
+            .filter(RequestTag.request_id == request_id)
+            .order_by(RequestTag.tag_id).subquery()
+        ),
+    }, synchronize_session=False)
+    transaction.commit()
+    Session.close()
