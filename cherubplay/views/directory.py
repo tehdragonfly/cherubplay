@@ -10,8 +10,9 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 from uuid import uuid4
 
-from ..lib import colour_validator, preset_colours
-from ..models import Session, BlacklistedTag, Chat, ChatUser, CreateNotAllowed, Message, Request, RequestTag, Tag, TagParent, User
+from cherubplay.lib import colour_validator, preset_colours
+from cherubplay.models import Session, BlacklistedTag, Chat, ChatUser, CreateNotAllowed, Message, Request, RequestTag, Tag, TagParent, User
+from cherubplay.tasks import update_request_tag_ids
 
 
 def _find_answered(request, requests):
@@ -452,6 +453,7 @@ def directory_new_post(request):
 
     new_request.request_tags += _request_tags_from_form(request.POST, new_request)
     new_request.tag_ids = sorted([_.tag_id for _ in new_request.request_tags])
+    update_request_tag_ids.delay(new_request.id)
 
     return HTTPFound(request.route_path(
         "directory_request",
@@ -657,6 +659,7 @@ def directory_request_edit_post(context, request):
     new_tags = _request_tags_from_form(request.POST, context)
     context.request_tags += new_tags
     context.tag_ids = sorted([_.tag_id for _ in new_tags])
+    update_request_tag_ids.delay(context.id)
 
     return HTTPFound(request.route_path(
         "directory_request",
