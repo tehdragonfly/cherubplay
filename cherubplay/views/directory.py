@@ -402,7 +402,7 @@ def directory_yours(request):
         requests = requests.filter(Request.posted < before_date)
     requests = (
         requests.options(joinedload(Request.tags))
-        .order_by(Request.posted.desc())
+        .order_by(func.coalesce(Request.posted, Request.created).desc())
         .limit(26).all()
     )
 
