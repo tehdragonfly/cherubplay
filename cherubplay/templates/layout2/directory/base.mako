@@ -97,19 +97,22 @@ ${"TW:&nbsp;" if tag.type == "trigger" else ""|n}${tag.name}\
           % endif
           <div class="right">
             % if request.has_permission("admin") or request.has_permission("request.remove"):
-            % if rq.status == "removed":
-            <form action="${request.route_path("directory_request_unremove", id=rq.id)}" method="post"><button type="submit">Unremove</button></form> ·
-            % else:
-            <form action="${request.route_path("directory_request_remove", id=rq.id)}" method="post"><button type="submit">Remove</button></form> ·
-            % endif
+              % if rq.status == "removed":
+                <form action="${request.route_path("directory_request_unremove", id=rq.id)}" method="post"><button type="submit">Unremove</button></form> ·
+              % else:
+                <form action="${request.route_path("directory_request_remove", id=rq.id)}" method="post"><button type="submit">Remove</button></form> ·
+              % endif
             % endif
             % if rq.user_id == request.user.id:
-            <a href="${request.route_path("directory_request_edit", id=rq.id)}">Edit</a> ·
-            <a href="${request.route_path("directory_request_delete", id=rq.id)}">Delete</a>
-            % elif answered and rq.id in answered:
-            Answered
+              <a href="${request.route_path("directory_request_edit", id=rq.id)}">Edit</a> ·
+              <a href="${request.route_path("directory_request_delete", id=rq.id)}">Delete</a>
             % else:
-            <form action="${request.route_path("directory_request_answer", id=rq.id)}" method="post"><button type="submit">Answer</button></form>
+              <a href="https://www.tumblr.com/submit_form/cherubplay.tumblr.com/link?post[one]=Report&amp;post[two]=${request.route_url("directory_request", id=rq.id)}" target="_blank">Report</a> ·
+              % if answered and rq.id in answered:
+                Answered
+              % else:
+                <form action="${request.route_path("directory_request_answer", id=rq.id)}" method="post"><button type="submit">Answer</button></form>
+              % endif
             % endif
           </div>
         </div>
