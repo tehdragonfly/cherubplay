@@ -161,6 +161,15 @@ def directory_search(request):
         return HTTPFound(request.route_path("directory_tag", type=tag_type, name=name))
 
 
+@view_config(route_name="directory_search_autocomplete", request_method="GET", permission="directory", renderer="json")
+def directory_search_autocomplete(request):
+    if len(request.GET.get("name", "")) < 3:
+        return []
+    return Session.query(Tag).filter(and_(
+        func.lower(Tag.name).like(request.GET["name"].lower().replace("_", "\\_").replace("%", "\\%") + "%")
+    )).options(joinedload(Tag.synonym_of)).order_by(Tag.name, Tag.type).all()
+
+
 @view_config(route_name="directory_tag_list", request_method="GET", permission="tag_wrangling", renderer="layout2/directory/tag_list.mako")
 @view_config(route_name="directory_tag_list_unapproved", request_method="GET", permission="tag_wrangling", renderer="layout2/directory/tag_list.mako")
 @view_config(route_name="directory_tag_list_blacklist_default", request_method="GET", permission="tag_wrangling", renderer="layout2/directory/tag_list.mako")
