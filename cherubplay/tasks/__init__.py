@@ -1,3 +1,4 @@
+from celery import group
 from contextlib import contextmanager
 from datetime import datetime, timedelta
 from pyramid_celery import celery_app as app
@@ -48,4 +49,26 @@ def update_request_tag_ids(request_id):
                 .order_by(RequestTag.tag_id).subquery()
             ),
         }, synchronize_session=False)
+
+
+@app.task
+def check_tag_consistency():
+    with db_session() as db:
+        inconsistent_requests = db.execute("""
+            select id
+            from (
+                select
+                    id,
+                    array((
+                        select unnest(tag_ids) as u
+                        from requests as requests_inner
+                        where requests_outer.id=requests_inner.id
+                        order by u
+                    )) as sorted_tag_ids,
+                    array(select tag_id from request_tags where request_id=id order by tag_id) as actual_tags
+                from requests as requests_outer
+            ) as anon_1
+            where sorted_tag_ids != actual_tags order by id;
+        """)
+    group(update_request_tag_ids.s(_.id) for _ in inconsistent_requests).delay()
 
