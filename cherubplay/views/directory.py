@@ -145,6 +145,10 @@ def directory(request):
 
 @view_config(route_name="directory_search", request_method="GET", permission="directory")
 def directory_search(request):
+    tag_parameter = request.GET.get("tag", "")
+    if not tag_parameter:
+        return HTTPFound(request.route_path("directory"))
+
     tags = []
     for tag_string in request.GET.get("tag", "").split(","):
         try:
@@ -156,9 +160,11 @@ def directory_search(request):
         if tag_type in Tag.type.type.enums and name:
             tags.append((tag_type, name))
 
+    if not tags:
+        raise HTTPNotFound
+
     # TODO multiple tags
-    if tags:
-        return HTTPFound(request.route_path("directory_tag", type=tag_type, name=name))
+    return HTTPFound(request.route_path("directory_tag", type=tag_type, name=name))
 
 
 @view_config(route_name="directory_search_autocomplete", request_method="GET", permission="directory", renderer="json")
