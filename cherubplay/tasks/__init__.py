@@ -41,19 +41,26 @@ def reap_requests():
 
 @app.task
 def update_request_tag_ids(request_id):
+    """
+    Populate Request.tag_ids with normal tag ids and parent tag ids.
+    """
     with db_session() as db:
-        db.query(Request).filter(Request.id == request_id).update({
-            "tag_ids": func.array(
-                db.query(RequestTag.tag_id)
-                .filter(RequestTag.request_id == request_id)
-                .order_by(RequestTag.tag_id).subquery()
-            ),
-        }, synchronize_session=False)
+        db.execute("""
+            update requests set tag_ids = array(
+                with recursive tag_ids(id) as (
+                    select tag_id from request_tags where request_id=requests.id
+                    union all
+                    select parent_id from tag_parents, tag_ids where child_id=tag_ids.id
+                )
+                select distinct id from tag_ids order by id
+            ) where id=%s;
+        """ % request_id)
 
 
 @app.task
 def check_tag_consistency():
     with db_session() as db:
+        # TODO check parent tags
         inconsistent_requests = db.execute("""
             select id
             from (
