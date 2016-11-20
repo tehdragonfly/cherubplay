@@ -320,7 +320,7 @@ class Request(Base):
     colour = Column(Unicode(6), nullable=False, default=u"000000")
     ooc_notes = Column(UnicodeText, nullable=False, default=u"")
     starter = Column(UnicodeText, nullable=False, default=u"")
-    tag_ids = Column(ARRAY(Integer), nullable=False, default=list) # this makes tag filtering easier
+    tag_ids = Column(ARRAY(Integer)) # this makes tag filtering easier
 
     def tags_by_type(self):
         tags = { _: [] for _ in Tag.type.type.enums }

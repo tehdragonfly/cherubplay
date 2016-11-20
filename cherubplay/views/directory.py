@@ -1,4 +1,4 @@
-import datetime, re
+import datetime, re, transaction
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPFound, HTTPNotFound
 from pyramid.renderers import render_to_response
@@ -467,7 +467,9 @@ def directory_new_post(request):
     Session.flush()
 
     new_request.request_tags += _request_tags_from_form(request.POST, new_request)
-    new_request.tag_ids = sorted([_.tag_id for _ in new_request.request_tags])
+
+    # Commit manually to make sure the task happens after.
+    transaction.commit()
     update_request_tag_ids.delay(new_request.id)
 
     return HTTPFound(request.route_path(
@@ -673,7 +675,10 @@ def directory_request_edit_post(context, request):
 
     new_tags = _request_tags_from_form(request.POST, context)
     context.request_tags += new_tags
-    context.tag_ids = sorted([_.tag_id for _ in new_tags])
+    context.tag_ids = None
+
+    # Commit manually to make sure the task happens after.
+    transaction.commit()
     update_request_tag_ids.delay(context.id)
 
     return HTTPFound(request.route_path(
