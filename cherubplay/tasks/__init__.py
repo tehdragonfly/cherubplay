@@ -58,6 +58,13 @@ def update_request_tag_ids(request_id):
 
 
 @app.task
+def update_missing_request_tag_ids():
+    with db_session() as db:
+        requests_without_tags = db.query(Request.id).filter(Request.tag_ids == None).all()
+    group(update_request_tag_ids.s(_.id) for _ in requests_without_tags).delay()
+
+
+@app.task
 def check_tag_consistency():
     with db_session() as db:
         # TODO check parent tags
