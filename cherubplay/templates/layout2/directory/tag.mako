@@ -8,16 +8,7 @@
       <p class="middle_actions"><button type="submit">Approve</button></p>
     </form>
     % endif
-    % if synonyms:
-    <section class="tile2">
-      <h3>Synonyms</h3>
-      <ul class="request_tags">
-        % for synonym in synonyms:
-        <li>${synonym.type.replace("_", " ")}:${synonym.name}</li>
-        % endfor
-      </ul>
-    </section>
-    % else:
+    % if not synonyms:
     <form class="tile2" action="${request.route_path("directory_tag_make_synonym", **request.matchdict)}" method="post">
       <h3>Make this a synonym</h3>
       <p><select name="tag_type" required>
@@ -28,24 +19,33 @@
       </select><input type="text" name="name" maxlength="100" required><button type="submit">Save</button></p>
     </form>
     % endif
-    % if parents:
+    % if synonyms or parents or children:
     <section class="tile2">
-      <h3>Parent tags</h3>
-      <ul class="tag_list">
+      <h3>Related tags</h3>
+      % if synonyms:
+      <h4 class="request_tag_label">Tags with the same meaning</h4>
+      <ul class="tag_list related">
+        % for synonym in synonyms:
+        <li>${synonym.type.replace("_", " ")}:${synonym.name}</li>
+        % endfor
+      </ul>
+      % endif
+      % if parents:
+      <h4 class="request_tag_label">Parents</h4>
+      <ul class="request_tags related">
         % for tag in parents:
         <li><a href="${request.route_path("directory_tag", type=tag.type, name=tag.url_name)}">${tag.type.replace("_", " ")}:${tag.name}</a></li>
         % endfor
       </ul>
-    </section>
-    % endif
-    % if children:
-    <section class="tile2">
-      <h3>Child tags</h3>
-      <ul class="tag_list">
+      % endif
+      % if children:
+      <h4 class="request_tag_label">Children</h4>
+      <ul class="request_tags related">
         % for tag in children:
         <li><a href="${request.route_path("directory_tag", type=tag.type, name=tag.url_name)}">${tag.type.replace("_", " ")}:${tag.name}</a></li>
         % endfor
       </ul>
+      % endif
     </section>
     % endif
     % endif

@@ -213,8 +213,9 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 .request .status { float: right; color: #666; }
 .request.removed .status { color: #f33; }
 .request p:first-child, .request .status + p { margin: 0 0 10px; }
-.request h3 { margin: 0 0 2px 0; text-align: left; font-size: 10pt; font-weight: normal; color: #000; }
+.request h3, .request_tag_label { margin: 0 0 2px 0; text-align: left; font-size: 10pt; font-weight: normal; color: #000; }
 .request_tags { margin: 0 0 10px; padding: 0; }
+.request_tags.related { margin-top: 0; font-size: 10pt; }
 .request_tags li { display: inline; word-wrap: break-word; }
 .request_tags li:not(:last-child)::after { content: ","; }
 .request_tags li.trigger a { color: #f33; }
