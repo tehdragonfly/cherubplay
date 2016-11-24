@@ -1,6 +1,7 @@
 <%inherit file="base.mako" />\
 <% from cherubplay.models import Tag %>
 <%block name="heading">Requests tagged "${tag["type"].replace("_", " ")}:${tag["name"]}"</%block>
+    % if not "before" in request.GET:
     % if request.has_permission("tag_wrangling"):
     % if can_be_approved:
     <form class="tile2" action="${request.route_path("directory_tag_approve", **request.matchdict)}" method="post">
@@ -47,6 +48,7 @@
       </ul>
       % endif
     </section>
+    % endif
     % endif
     % endif
     % if blacklisted:

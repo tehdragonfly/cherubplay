@@ -275,12 +275,13 @@ def directory_tag(request):
 
     resp = {"tag": tag_dict, "blacklisted": False, "requests": requests[:25], "answered": answered, "more": len(requests) == 26}
 
-    if request.has_permission("tag_wrangling"):
-        if not tag.approved:
-            resp["can_be_approved"] = True
-        resp["synonyms"] = Session.query(Tag).filter(Tag.synonym_id == tag.id).order_by(Tag.type, Tag.name).all()
-        resp["parents"] = Session.query(Tag).join(TagParent, Tag.id == TagParent.parent_id).filter(TagParent.child_id == tag.id).order_by(Tag.type, Tag.name).all()
-        resp["children"] = Session.query(Tag).join(TagParent, Tag.id == TagParent.child_id).filter(TagParent.parent_id == tag.id).order_by(Tag.type, Tag.name).all()
+    if not "before" in request.GET:
+        if request.has_permission("tag_wrangling"):
+            if not tag.approved:
+                resp["can_be_approved"] = True
+            resp["synonyms"] = Session.query(Tag).filter(Tag.synonym_id == tag.id).order_by(Tag.type, Tag.name).all()
+            resp["parents"] = Session.query(Tag).join(TagParent, Tag.id == TagParent.parent_id).filter(TagParent.child_id == tag.id).order_by(Tag.type, Tag.name).all()
+            resp["children"] = Session.query(Tag).join(TagParent, Tag.id == TagParent.child_id).filter(TagParent.parent_id == tag.id).order_by(Tag.type, Tag.name).all()
 
     return resp
 
