@@ -279,9 +279,9 @@ def directory_tag(request):
         if request.has_permission("tag_wrangling"):
             if not tag.approved:
                 resp["can_be_approved"] = True
-            resp["synonyms"] = Session.query(Tag).filter(Tag.synonym_id == tag.id).order_by(Tag.type, Tag.name).all()
-            resp["parents"] = Session.query(Tag).join(TagParent, Tag.id == TagParent.parent_id).filter(TagParent.child_id == tag.id).order_by(Tag.type, Tag.name).all()
-            resp["children"] = Session.query(Tag).join(TagParent, Tag.id == TagParent.child_id).filter(TagParent.parent_id == tag.id).order_by(Tag.type, Tag.name).all()
+        resp["synonyms"] = Session.query(Tag).filter(Tag.synonym_id == tag.id).order_by(Tag.type, Tag.name).all()
+        resp["parents"] = Session.query(Tag).join(TagParent, Tag.id == TagParent.parent_id).filter(TagParent.child_id == tag.id).order_by(Tag.type, Tag.name).all()
+        resp["children"] = Session.query(Tag).join(TagParent, Tag.id == TagParent.child_id).filter(TagParent.parent_id == tag.id).order_by(Tag.type, Tag.name).all()
 
     return resp
 

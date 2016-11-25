@@ -20,6 +20,7 @@
       </select><input type="text" name="name" maxlength="100" required><button type="submit">Save</button></p>
     </form>
     % endif
+    % endif
     % if synonyms or parents or children:
     <section class="tile2">
       <h3>Related tags</h3>
@@ -48,7 +49,6 @@
       </ul>
       % endif
     </section>
-    % endif
     % endif
     % endif
     % if blacklisted:
