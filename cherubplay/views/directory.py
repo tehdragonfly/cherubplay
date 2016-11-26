@@ -279,9 +279,23 @@ def directory_tag(request):
         if request.has_permission("tag_wrangling"):
             if not tag.approved:
                 resp["can_be_approved"] = True
-        resp["synonyms"] = Session.query(Tag).filter(Tag.synonym_id == tag.id).order_by(Tag.type, Tag.name).all()
-        resp["parents"] = Session.query(Tag).join(TagParent, Tag.id == TagParent.parent_id).filter(TagParent.child_id == tag.id).order_by(Tag.type, Tag.name).all()
-        resp["children"] = Session.query(Tag).join(TagParent, Tag.id == TagParent.child_id).filter(TagParent.parent_id == tag.id).order_by(Tag.type, Tag.name).all()
+        resp["synonyms"] = (
+            Session.query(Tag)
+            .filter(Tag.synonym_id == tag.id)
+            .order_by(Tag.type, Tag.name).all()
+        )
+        resp["parents"] = (
+            Session.query(Tag)
+            .join(TagParent, Tag.id == TagParent.parent_id)
+            .filter(TagParent.child_id == tag.id)
+            .order_by(Tag.type, Tag.name).all()
+        )
+        resp["children"] = (
+            Session.query(Tag)
+            .join(TagParent, Tag.id == TagParent.child_id)
+            .filter(TagParent.parent_id == tag.id)
+            .order_by(Tag.type, Tag.name).all()
+        )
 
     return resp
 
@@ -396,6 +410,30 @@ def directory_tag_make_synonym(request):
         _make_synonym(old_type, old_name, new_type, new_name)
 
     return HTTPFound(request.route_path("directory_tag", **request.matchdict))
+
+
+@view_config(route_name="directory_tag_add_parent", request_method="POST", permission="tag_wrangling")
+def directory_tag_add_parent(request):
+    if request.matchdict["type"] not in Tag.type.type.enums or request.POST["tag_type"] not in Tag.type.type.enums:
+        raise HTTPNotFound
+
+    child_type = request.matchdict["type"]
+    child_name = Tag.name_from_url(request.matchdict["name"])
+    parent_type = request.POST["tag_type"]
+    parent_name = Tag.name_from_url(request.POST["name"]).strip()[:100]
+
+    if not child_name or not parent_name:
+        raise HTTPBadRequest
+
+    child_tag = Tag.get_or_create(child_type, child_name)
+    parent_tag = Tag.get_or_create(parent_type, parent_name)
+
+    Session.add(TagParent(parent_id=parent_tag.id, child_id=child_tag.id))
+
+    # TODO update tag_ids
+
+    return HTTPFound(request.route_path("directory_tag", **request.matchdict))
+
 
 
 @view_config(route_name="directory_yours", request_method="GET", permission="directory", renderer="layout2/directory/index.mako")
