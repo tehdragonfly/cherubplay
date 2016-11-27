@@ -70,3 +70,17 @@
     <p class="pager tile2"><a href="${request.current_route_path(_query={"before": requests[-1].posted.isoformat()})}">Next page</a></p>
     % endif
     % endif
+<%block name="tag_links">
+      % if tag_types:
+      <h3>Tag types</h3>
+      <ul>
+        % for other_tag in tag_types:
+        % if other_tag.type == tag["type"]:
+        <li>${tag["type"].replace("_", " ")}</li>
+        % else:
+        <li><a href="${request.route_path("directory_tag", type=other_tag.type, name=other_tag.url_name)}">${other_tag.type.replace("_", " ")}</a></li>
+        % endif
+        % endfor
+      </ul>
+      % endif
+</%block>

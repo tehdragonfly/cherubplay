@@ -273,7 +273,14 @@ def directory_tag(request):
 
     answered = _find_answered(request, requests)
 
-    resp = {"tag": tag_dict, "blacklisted": False, "requests": requests[:25], "answered": answered, "more": len(requests) == 26}
+    resp = {
+        "tag": tag_dict,
+        "blacklisted": False,
+        "requests": requests[:25],
+        "answered": answered,
+        "more": len(requests) == 26,
+        "tag_types": Session.query(Tag).filter(func.lower(Tag.name) == name.lower()).order_by(Tag.type).all()
+    }
 
     if not "before" in request.GET:
         if request.has_permission("tag_wrangling"):
