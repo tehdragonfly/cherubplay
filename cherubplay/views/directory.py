@@ -633,10 +633,22 @@ def directory_request(context, request):
         Chat.request_id==context.id,
     ).order_by(Chat.updated.desc()).all()
 
-    if request.matched_route.name == "directory_request_ext":
-        return {"request": context, "chats": [{"chat_user": _[0], "chat": _[1]} for _ in chats]}
+    blacklisted_tags = Session.query(Tag).filter(Tag.id.in_(
+        Session.query(RequestTag.tag_id).filter(RequestTag.request_id == context.id)
+        .intersect(Session.query(BlacklistedTag.tag_id).filter(BlacklistedTag.user_id == request.user.id))
+    )).order_by(Tag.type, Tag.name).all()
 
-    return {"chats": chats}
+    if request.matched_route.name == "directory_request_ext":
+        return {
+            "request": context,
+            "chats": [{"chat_user": _[0], "chat": _[1]} for _ in chats],
+            "blacklisted_tags": blacklisted_tags,
+        }
+
+    return {
+        "chats": chats,
+        "blacklisted_tags": blacklisted_tags,
+    }
 
 
 @view_config(route_name="directory_request_answer", request_method="POST", permission="request.answer")
