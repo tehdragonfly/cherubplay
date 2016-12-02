@@ -473,7 +473,7 @@ var cherubplay = (function() {
 		"directory_new": function() {
 			var add_tag_functions = [];
 
-			$(".tag_input").each(function() {
+			$("#new_request_form .tag_input").each(function() {
 
 				var tag_list = $(this).find(".request_tags");
 
@@ -609,6 +609,26 @@ var cherubplay = (function() {
 				add_tag_functions.forEach(function(func) { func(); });
 			});
 		},
+        "directory_blacklist": function() {
+            var maturity_name = $("select[name=maturity_name]");
+            var type_name = $("select[name=type_name]");
+            var other_name = $("input[name=name]");
+            $("select[name=tag_type]").change(function() {
+                if (this.value == "maturity") {
+                    maturity_name.show();
+                    type_name.hide();
+                    other_name.hide().val("").removeAttr("required");
+                } else if (this.value == "type") {
+                    maturity_name.hide();
+                    type_name.show();
+                    other_name.hide().val("").removeAttr("required");
+                } else {
+                    maturity_name.hide();
+                    type_name.hide();
+                    other_name.show().attr("required", "required");
+                }
+            }).change();
+        },
 		"account": function() {
 			var sound_notifications = $("#sound_notifications").click(function() {
 				localStorage.setItem("sound_notifications", this.checked);

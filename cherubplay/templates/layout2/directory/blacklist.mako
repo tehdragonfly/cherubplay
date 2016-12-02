@@ -13,6 +13,16 @@
               <option value="${tag_type}">${tag_type.replace("_", " ")}</option>
               % endfor
             </select>
+            <select name="maturity_name">
+              % for tag in maturity_tags:
+              <option value="${tag.url_name}">${tag.name}</option>
+              % endfor
+            </select>
+            <select name="type_name">
+              % for tag in type_tags:
+              <option value="${tag.url_name}">${tag.name}</option>
+              % endfor
+            </select>
             <input type="text" name="name" maxlength="100" required>
             <button type="submit">Add</button>
           </form>
@@ -28,3 +38,6 @@
         % endfor
       </ul>
     </section>
+<%block name="scripts">
+<script>cherubplay.directory_blacklist();</script>
+</%block>

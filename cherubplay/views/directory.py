@@ -553,6 +553,8 @@ def _blacklisted_tags(request, **kwargs):
             .options(contains_eager(BlacklistedTag.tag))
             .order_by(Tag.type, Tag.name).all()
         ),
+        maturity_tags=Session.query(Tag).filter(Tag.type == "maturity").all(),
+        type_tags=Session.query(Tag).filter(Tag.type == "type").all(),
         **kwargs
     )
 

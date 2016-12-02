@@ -234,6 +234,8 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 }
 .tag_list .remove_form { float: right; }
 
+select[name=maturity_name], select[name=type_name] { display: none; }
+
 table.tile2 { table-layout: fixed; max-width: 100%; padding: 0; border-collapse: collapse; }
 table.tile2 thead { background-color: #f8f8f8; border-bottom: 1px solid #eee; }
 table.tile2 tbody { font-size: 10pt; }
