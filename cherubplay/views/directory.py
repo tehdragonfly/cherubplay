@@ -592,9 +592,14 @@ def directory_blacklist_add(request):
         raise HTTPBadRequest
     tag_type = request.POST["tag_type"]
 
-    names = request.POST["name"][:100]
-    for name in names.split(","):
+    if tag_type == "maturity" and request.POST.get("maturity_name"):
+        names = request.POST["maturity_name"]
+    elif tag_type == "type" and request.POST.get("type_name"):
+        names = request.POST["type_name"]
+    else:
+        names = request.POST["name"][:100]
 
+    for name in names.split(","):
         name = _normalise_tag_name(tag_type, name)
         if not name:
             continue
