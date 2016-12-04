@@ -20,6 +20,15 @@
       </select><input type="text" name="name" maxlength="100" required><button type="submit">Save</button></p>
     </form>
     % endif
+    <form class="tile2" action="${request.route_path("directory_tag_add_parent", **request.matchdict)}" method="post">
+      <h3>Add a parent tag</h3>
+      <p><select name="tag_type" required>
+        <option value=""></option>
+        % for tag_type in Tag.type.type.enums:
+        <option value="${tag_type}">${tag_type.replace("_", " ")}</option>
+        % endfor
+      </select><input type="text" name="name" maxlength="100" required><button type="submit">Add</button></p>
+    </form>
     % endif
     % if synonyms or parents or children:
     <section class="tile2">
