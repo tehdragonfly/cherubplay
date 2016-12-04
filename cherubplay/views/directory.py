@@ -435,6 +435,21 @@ def directory_tag_add_parent(request):
     child_tag = Tag.get_or_create(child_type, child_name)
     parent_tag = Tag.get_or_create(parent_type, parent_name)
 
+    # TODO check whether the relationship already exists
+    # TODO duplicate for playing and wanted tags
+
+    # Check for circular references
+    ancestors = Session.execute("""
+        with recursive tag_ids(id) as (
+            select %s
+            union all
+            select parent_id from tag_parents, tag_ids where child_id=tag_ids.id
+        )
+        select id from tag_ids;
+    """ % parent_tag.id)
+    if child_tag.id in (_[0] for _ in ancestors):
+        raise HTTPNotFound # TODO proper error message
+
     Session.add(TagParent(parent_id=parent_tag.id, child_id=child_tag.id))
 
     # TODO update tag_ids
