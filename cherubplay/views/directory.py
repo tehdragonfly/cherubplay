@@ -419,24 +419,11 @@ def directory_tag_make_synonym(request):
     return HTTPFound(request.route_path("directory_tag", **request.matchdict))
 
 
-@view_config(route_name="directory_tag_add_parent", request_method="POST", permission="tag_wrangling")
-def directory_tag_add_parent(request):
-    if request.matchdict["type"] not in Tag.type.type.enums or request.POST["tag_type"] not in Tag.type.type.enums:
-        raise HTTPNotFound
-
-    child_type = request.matchdict["type"]
-    child_name = Tag.name_from_url(request.matchdict["name"])
-    parent_type = request.POST["tag_type"]
-    parent_name = Tag.name_from_url(request.POST["name"]).strip()[:100]
-
-    if not child_name or not parent_name:
-        raise HTTPBadRequest
-
+def _add_parent(child_type, child_name, parent_type, parent_name):
     child_tag = Tag.get_or_create(child_type, child_name)
     parent_tag = Tag.get_or_create(parent_type, parent_name)
 
     # TODO check whether the relationship already exists
-    # TODO duplicate for playing and wanted tags
 
     # Check for circular references
     ancestors = Session.execute("""
@@ -454,8 +441,42 @@ def directory_tag_add_parent(request):
 
     # TODO update tag_ids
 
-    return HTTPFound(request.route_path("directory_tag", **request.matchdict))
 
+@view_config(route_name="directory_tag_add_parent", request_method="POST", permission="tag_wrangling")
+def directory_tag_add_parent(request):
+    if request.matchdict["type"] not in Tag.type.type.enums or request.POST["tag_type"] not in Tag.type.type.enums:
+        raise HTTPNotFound
+
+    child_type = request.matchdict["type"]
+    child_name = Tag.name_from_url(request.matchdict["name"])
+    parent_type = request.POST["tag_type"]
+    parent_name = Tag.name_from_url(request.POST["name"]).strip()[:100]
+
+    if not child_name or not parent_name:
+        raise HTTPBadRequest
+
+    if (
+        child_type in ("fandom", "fandom_wanted", "character", "character_wanted", "gender", "gender_wanted")
+        and parent_type in ("fandom", "fandom_wanted", "character", "character_wanted", "gender", "gender_wanted")
+    ):
+        if child_type.endswith("_wanted"):
+            child_type_without_wanted = child_type.replace("_wanted", "")
+            child_type_with_wanted = child_type
+        else:
+            child_type_without_wanted = child_type
+            child_type_with_wanted = child_type + "_wanted"
+        if parent_type.endswith("_wanted"):
+            parent_type_without_wanted = parent_type.replace("_wanted", "")
+            parent_type_with_wanted = parent_type
+        else:
+            parent_type_without_wanted = parent_type
+            parent_type_with_wanted = parent_type + "_wanted"
+        _add_parent(child_type_without_wanted, child_name, parent_type_without_wanted, parent_name)
+        _add_parent(child_type_with_wanted, child_name, parent_type_with_wanted, parent_name)
+    else:
+        _add_parent(child_type, child_name, parent_type, parent_name)
+
+    return HTTPFound(request.route_path("directory_tag", **request.matchdict))
 
 
 @view_config(route_name="directory_yours", request_method="GET", permission="directory", renderer="layout2/directory/index.mako")
