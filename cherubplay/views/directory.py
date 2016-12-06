@@ -423,7 +423,12 @@ def _add_parent(child_type, child_name, parent_type, parent_name):
     child_tag = Tag.get_or_create(child_type, child_name)
     parent_tag = Tag.get_or_create(parent_type, parent_name)
 
-    # TODO check whether the relationship already exists
+    if Session.query(func.count("*")).select_from(TagParent).filter(and_(
+        TagParent.parent_id == parent_tag.id,
+        TagParent.child_id == child_tag.id,
+    )).scalar():
+        # Relationship already exists.
+        return
 
     # Check for circular references
     ancestors = Session.execute("""
