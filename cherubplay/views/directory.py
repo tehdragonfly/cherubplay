@@ -444,7 +444,16 @@ def _add_parent(child_type, child_name, parent_type, parent_name):
 
     Session.add(TagParent(parent_id=parent_tag.id, child_id=child_tag.id))
 
-    # TODO update tag_ids
+    for request_id, in Session.execute(
+        Request.__table__.update().values(tag_ids=None)
+        .where(Request.__table__.c.id.in_(
+            Session.query(RequestTag.request_id)
+            .filter(RequestTag.tag_id == child_tag.id)
+        ))
+        .returning(Request.__table__.c.id)
+    ):
+        # TODO commit before doing this
+        update_request_tag_ids.delay(request_id)
 
 
 @view_config(route_name="directory_tag_add_parent", request_method="POST", permission="tag_wrangling")
