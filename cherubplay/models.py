@@ -295,6 +295,7 @@ class Prompt(Base):
 
 
 class Request(Base):
+    __parent__ = Resource
     def __acl__(self):
         return (
             (Allow, Authenticated, "request.read"),
