@@ -12,7 +12,7 @@ from uuid import uuid4
 
 from cherubplay.lib import colour_validator, preset_colours
 from cherubplay.models import Session, BlacklistedTag, Chat, ChatUser, CreateNotAllowed, Message, Request, RequestTag, Tag, TagParent, User
-from cherubplay.tasks import update_request_tag_ids
+from cherubplay.tasks import update_request_tag_ids, update_missing_request_tag_ids
 
 
 def _find_answered(request, requests):
@@ -444,16 +444,14 @@ def _add_parent(child_type, child_name, parent_type, parent_name):
 
     Session.add(TagParent(parent_id=parent_tag.id, child_id=child_tag.id))
 
-    for request_id, in Session.execute(
+    Session.execute(
         Request.__table__.update().values(tag_ids=None)
         .where(Request.__table__.c.id.in_(
             Session.query(RequestTag.request_id)
             .filter(RequestTag.tag_id == child_tag.id)
         ))
         .returning(Request.__table__.c.id)
-    ):
-        # TODO commit before doing this
-        update_request_tag_ids.delay(request_id)
+    )
 
 
 @view_config(route_name="directory_tag_add_parent", request_method="POST", permission="tag_wrangling")
@@ -489,6 +487,9 @@ def directory_tag_add_parent(request):
         _add_parent(child_type_with_wanted, child_name, parent_type_with_wanted, parent_name)
     else:
         _add_parent(child_type, child_name, parent_type, parent_name)
+
+    transaction.commit()
+    update_missing_request_tag_ids.delay()
 
     return HTTPFound(request.route_path("directory_tag", **request.matchdict))
 
