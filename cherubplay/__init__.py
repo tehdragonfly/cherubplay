@@ -68,11 +68,9 @@ class CherubplayAuthenticationPolicy(object):
         if request.user is None:
             return (Everyone,)
         elif request.user.status == "banned":
-            return (Everyone, Authenticated)
+            return (Everyone, Authenticated, "banned")
         elif request.user.status == "admin":
-            return (Everyone, Authenticated, request.user.id, "active", "directory", "admin")
-        elif request.user.has_directory_access:
-            return (Everyone, Authenticated, request.user.id, "active", "directory")
+            return (Everyone, Authenticated, request.user.id, "active", "admin")
         return (Everyone, Authenticated, request.user.id, "active")
 
     def remember(self, request, principal, **kw):

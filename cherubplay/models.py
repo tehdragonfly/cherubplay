@@ -49,7 +49,6 @@ class Resource(object):
     __acl__ = (
         (Allow, Authenticated, "view"),
         (Allow, "active",      "chat"),
-        (Allow, "directory",   "directory"),
         (Allow, "admin",       "admin"),
         (Allow, "admin",       "tag_wrangling"),
     )
@@ -69,7 +68,6 @@ class User(Base):
     unban_date = Column(DateTime)
     layout_version = Column(Integer, nullable=False, default=2)
     timezone = Column(Unicode(255))
-    has_directory_access = Column(Boolean, nullable=False, default=False)
     seen_blacklist_warning = Column(Boolean, nullable=False, default=False)
 
     def __repr__(self):
@@ -301,6 +299,7 @@ class Request(Base):
             (Allow, Authenticated, "request.read"),
             (Deny,  self.user_id,  "request.answer"),
             (Allow, "active",      "request.answer"),
+            (Deny,  "banned",      "request.edit"),
             (Allow, self.user_id,  "request.edit"),
             (Allow, self.user_id,  "request.delete"),
             (Allow, "admin",       "request.remove"),
