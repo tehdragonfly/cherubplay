@@ -143,28 +143,20 @@ def directory(request):
     return {"requests": requests[:25], "answered": answered, "more": len(requests) == 26}
 
 
-@view_config(route_name="directory_search", request_method="GET", permission="view")
+@view_config(route_name="directory_search",     request_method="GET", permission="view", renderer="layout2/directory/tag_search.mako")
 def directory_search(request):
-    tag_parameter = request.GET.get("tag", "")
-    if not tag_parameter:
+
+    tag_name = request.GET.get("name", "").strip()[:100]
+    if not tag_name:
         return HTTPFound(request.route_path("directory"))
 
-    tags = []
-    for tag_string in request.GET.get("tag", "").split(","):
-        try:
-            tag_type, name = tag_string.split(":")
-        except ValueError:
-            continue
-        tag_type = tag_type.strip()
-        name = name.strip()
-        if tag_type in Tag.type.type.enums and name:
-            tags.append((tag_type, name))
+    # TODO synonym handling
+    tags = Session.query(Tag).filter(func.lower(Tag.name) == tag_name).order_by(Tag.type).all()
 
-    if not tags:
-        raise HTTPNotFound
+    if len(tags) == 1:
+        return HTTPFound(request.route_path("directory_tag", type=tags[0].type, name=tags[0].url_name))
 
-    # TODO multiple tags
-    return HTTPFound(request.route_path("directory_tag", type=tag_type, name=name))
+    return {"tags": tags}
 
 
 @view_config(route_name="directory_search_autocomplete", request_method="GET", permission="view", renderer="json")

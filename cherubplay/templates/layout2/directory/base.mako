@@ -176,7 +176,7 @@ ${"TW:&nbsp;" if tag.type == "trigger" else ""|n}${tag.name}\
       <form action="${request.route_path("directory_search")}" method="get">
         <div class="tag_input single">
           <ul class="request_tags"></ul>
-          <input type="text" class="full" name="tag" maxlength="100" placeholder="type:name" required>
+          <input type="text" class="full" name="name" maxlength="100" placeholder="Look up a tag..." required>
         </div>
         <button>Search</button>
       </form>
