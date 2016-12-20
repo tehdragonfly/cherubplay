@@ -35,7 +35,7 @@
       <h3>Related tags</h3>
       % if synonyms:
       <h4 class="request_tag_label">Tags with the same meaning</h4>
-      <ul class="tag_list related">
+      <ul class="request_tags related">
         % for synonym in synonyms:
         <li>${synonym.type.replace("_", " ")}:${synonym.name}</li>
         % endfor

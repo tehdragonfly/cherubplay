@@ -153,8 +153,20 @@ def directory_search(request):
     # TODO synonym handling
     tags = Session.query(Tag).filter(func.lower(Tag.name) == tag_name).order_by(Tag.type).all()
 
-    if len(tags) == 1:
-        return HTTPFound(request.route_path("directory_tag", type=tags[0].type, name=tags[0].url_name))
+    visible_tags = [tag for tag in tags if tag.synonym_of not in tags]
+
+    if len(visible_tags) == 1:
+        if tag.synonym_of:
+            return HTTPFound(request.route_path(
+                "directory_tag",
+                type=visible_tags[0].synonym_of.type,
+                name=visible_tags[0].synonym_of.url_name,
+            ))
+        return HTTPFound(request.route_path(
+            "directory_tag",
+            type=visible_tags[0].type,
+            name=visible_tags[0].url_name,
+        ))
 
     return {"tags": tags}
 

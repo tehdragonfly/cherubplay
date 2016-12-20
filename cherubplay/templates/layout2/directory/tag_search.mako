@@ -6,7 +6,14 @@
       <section class="tile2">
         <ul class="tag_list">
           % for tag in tags:
-            <li><a href="${request.route_path("directory_tag", type=tag.type, name=tag.url_name)}">${tag.type.replace("_", " ")}:${tag.name}</a></li>
+            % if tag.synonym_of:
+              <li>
+                ${tag.type.replace("_", " ")}:${tag.name}
+                (synonym of <a href="${request.route_path("directory_tag", type=tag.synonym_of.type, name=tag.synonym_of.url_name)}">${tag.synonym_of.type.replace("_", " ")}:${tag.synonym_of.name}</a>)
+              </li>
+            % else:
+              <li><a href="${request.route_path("directory_tag", type=tag.type, name=tag.url_name)}">${tag.type.replace("_", " ")}:${tag.name}</a></li>
+            % endif
           % endfor
         </ul>
       </section>
