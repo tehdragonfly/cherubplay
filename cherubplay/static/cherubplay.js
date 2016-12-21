@@ -610,10 +610,10 @@ var cherubplay = (function() {
 			});
 		},
         "directory_blacklist": function() {
-            var maturity_name = $("select[name=maturity_name]");
-            var type_name = $("select[name=type_name]");
-            var other_name = $("input[name=name]");
-            $("select[name=tag_type]").change(function() {
+            var maturity_name = $("#blacklist_add select[name=maturity_name]");
+            var type_name = $("#blacklist_add select[name=type_name]");
+            var other_name = $("#blacklist_add input[name=name]");
+            $("#blacklist_add select[name=tag_type]").change(function() {
                 if (this.value == "maturity") {
                     maturity_name.show();
                     type_name.hide();

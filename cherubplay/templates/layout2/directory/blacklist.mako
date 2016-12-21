@@ -7,7 +7,7 @@
     <section class="tile2">
       <ul class="tag_list">
         <li>
-          <form action="${request.route_path("directory_blacklist_add")}" method="post">
+          <form id="blacklist_add" action="${request.route_path("directory_blacklist_add")}" method="post">
             <select name="tag_type">
               % for tag_type in Tag.type.type.enums:
               <option value="${tag_type}">${tag_type.replace("_", " ")}</option>
