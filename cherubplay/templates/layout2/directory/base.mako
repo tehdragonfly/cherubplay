@@ -175,7 +175,7 @@ ${"TW:&nbsp;" if tag.type == "trigger" else ""|n}${tag.name}\
       <form action="${request.route_path("directory_search")}" method="get">
         <div class="tag_input single">
           <ul class="request_tags"></ul>
-          <input type="text" class="full" name="name" maxlength="100" placeholder="Look up a tag..." required>
+          <input id="directory_search" type="text" class="full" name="name" maxlength="100" placeholder="Look up a tag..." required>
         </div>
         <button>Search</button>
       </form>
@@ -186,3 +186,6 @@ ${"TW:&nbsp;" if tag.type == "trigger" else ""|n}${tag.name}\
 ${next.body()}
   </div>
 </main>
+<%block name="scripts">
+<script>cherubplay.directory();</script>
+</%block>

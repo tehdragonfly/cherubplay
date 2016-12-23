@@ -39,5 +39,6 @@
       </ul>
     </section>
 <%block name="scripts">
+${parent.scripts()}
 <script>cherubplay.directory_blacklist();</script>
 </%block>

@@ -96,5 +96,6 @@ New request
       </div>
     </form>
 <%block name="scripts">
+${parent.scripts()}
 <script>cherubplay.directory_new();</script>
 </%block>

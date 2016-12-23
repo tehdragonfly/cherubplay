@@ -470,6 +470,70 @@ var cherubplay = (function() {
 				prompt_colour.val(this.value).change();
 			});
 		},
+		"directory": function() {
+
+			var search_input = $("#directory_search").keydown(function(e) {
+				if (e.which == 13 || e.which == 188) { // Enter and comma
+					var current_autocomplete = autocomplete_list.find(".current");
+					if (current_autocomplete.length > 0) {
+						location.href = "/directory/" + current_autocomplete[0].dataset.urlName + "/";
+						return false;
+					} else {
+						return true;
+					}
+					return false;
+				} else if (e.which == 38 || e.which == 40) { // Up and down
+					var current_autocomplete = autocomplete_list.find(".current");
+					if (current_autocomplete.length > 0) {
+						current_autocomplete.removeClass("current");
+						var new_current = e.which == 38 ? current_autocomplete.prev() : current_autocomplete.next();
+						new_current.addClass("current");
+					} else {
+						autocomplete_list.find(e.which == 38 ? "li:last-child" : "li:first-child").addClass("current");
+					}
+				}
+				clearTimeout(autocomplete_timeout);
+				autocomplete_timeout = setTimeout(load_autocomplete, 100);
+			}).focus(function(e) {
+				autocomplete_list.css("display", "");
+				autocomplete_timeout = setTimeout(load_autocomplete, 100);
+			}).blur(function(e) {
+				autocomplete_list.css("display", "none");
+				clearTimeout(autocomplete_timeout);
+			});
+
+			var autocomplete_list = $("<ul>").addClass("autocomplete_list").insertAfter(search_input);
+			var autocomplete_timeout;
+			var last_autocomplete;
+
+			function load_autocomplete() {
+
+				if (search_input.val() == last_autocomplete) { return; }
+				last_autocomplete = search_input.val();
+
+				if (search_input.val().length < 3) { autocomplete_list.empty(); return; }
+
+				$.get("/directory/search/autocomplete/", {"name": search_input.val()}, function(data) {
+					autocomplete_list.empty();
+					data.forEach(function(tag) {
+						$("<li>").attr(
+							"data-url-name", tag.type + ":" + tag.url_name
+						).text(tag.type.replace(/_/g, " ") + ":" + tag.name).hover(function() {
+							autocomplete_list.find(".current").removeClass("current");
+							$(this).addClass("current");
+						}).mousedown(function() {
+							if (!$(this).hasClass("current")) {
+								autocomplete_list.find(".current").removeClass("current");
+								$(this).addClass("current");
+							}
+							location.href = "/directory/" + this.dataset.urlName + "/";
+						}).appendTo(autocomplete_list);
+					});
+				});
+
+			}
+
+		},
 		"directory_new": function() {
 			var add_tag_functions = [];
 
@@ -609,26 +673,26 @@ var cherubplay = (function() {
 				add_tag_functions.forEach(function(func) { func(); });
 			});
 		},
-        "directory_blacklist": function() {
-            var maturity_name = $("#blacklist_add select[name=maturity_name]");
-            var type_name = $("#blacklist_add select[name=type_name]");
-            var other_name = $("#blacklist_add input[name=name]");
-            $("#blacklist_add select[name=tag_type]").change(function() {
-                if (this.value == "maturity") {
-                    maturity_name.show();
-                    type_name.hide();
-                    other_name.hide().val("").removeAttr("required");
-                } else if (this.value == "type") {
-                    maturity_name.hide();
-                    type_name.show();
-                    other_name.hide().val("").removeAttr("required");
-                } else {
-                    maturity_name.hide();
-                    type_name.hide();
-                    other_name.show().attr("required", "required");
-                }
-            }).change();
-        },
+		"directory_blacklist": function() {
+			var maturity_name = $("#blacklist_add select[name=maturity_name]");
+			var type_name = $("#blacklist_add select[name=type_name]");
+			var other_name = $("#blacklist_add input[name=name]");
+			$("#blacklist_add select[name=tag_type]").change(function() {
+				if (this.value == "maturity") {
+					maturity_name.show();
+					type_name.hide();
+					other_name.hide().val("").removeAttr("required");
+				} else if (this.value == "type") {
+					maturity_name.hide();
+					type_name.show();
+					other_name.hide().val("").removeAttr("required");
+				} else {
+					maturity_name.hide();
+					type_name.hide();
+					other_name.show().attr("required", "required");
+				}
+			}).change();
+		},
 		"account": function() {
 			var sound_notifications = $("#sound_notifications").click(function() {
 				localStorage.setItem("sound_notifications", this.checked);

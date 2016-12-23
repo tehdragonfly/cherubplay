@@ -80,7 +80,7 @@
     % endif
     % endif
 <%block name="tag_links">
-      % if len(tag_types) > 1:
+      % if tag_types and len(tag_types) > 1:
       <h3>Tag types</h3>
       <ul>
         % for other_tag in tag_types:
