@@ -171,7 +171,6 @@ ${"TW:&nbsp;" if tag.type == "trigger" else ""|n}${tag.name}\
   </div>
   <div class="side_column">
     <nav>
-      <%block name="tag_links"></%block>
       <h3>Search</h3>
       <form action="${request.route_path("directory_search")}" method="get">
         <div class="tag_input single">
@@ -180,6 +179,7 @@ ${"TW:&nbsp;" if tag.type == "trigger" else ""|n}${tag.name}\
         </div>
         <button>Search</button>
       </form>
+      <%block name="tag_links"></%block>
     </nav>
   </div>
   <div id="content">
