@@ -501,8 +501,9 @@ var cherubplay = (function() {
 				autocomplete_list.css("display", "none");
 				clearTimeout(autocomplete_timeout);
 			});
+			var search_div = search_input.parent()
 
-			var autocomplete_list = $("<ul>").addClass("autocomplete_list").insertAfter(search_input);
+			var autocomplete_list = $("<ul>").addClass("autocomplete_list").insertAfter(search_div);
 			var autocomplete_timeout;
 			var last_autocomplete;
 
