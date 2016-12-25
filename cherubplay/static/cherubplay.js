@@ -517,9 +517,9 @@ var cherubplay = (function() {
 				$.get("/directory/search/autocomplete/", {"name": search_input.val()}, function(data) {
 					autocomplete_list.empty();
 					data.forEach(function(tag) {
-						$("<li>").attr(
+						var li = $("<li>").attr(
 							"data-url-name", tag.type + ":" + tag.url_name
-						).text(tag.type.replace(/_/g, " ") + ":" + tag.name).hover(function() {
+						).hover(function() {
 							autocomplete_list.find(".current").removeClass("current");
 							$(this).addClass("current");
 						}).mousedown(function() {
@@ -528,7 +528,10 @@ var cherubplay = (function() {
 								$(this).addClass("current");
 							}
 							location.href = "/directory/" + this.dataset.urlName + "/";
-						}).appendTo(autocomplete_list);
+						});
+						$("<div>").attr("class", "search_type").text(tag.type.replace(/_/g, " ")).appendTo(li);
+						$("<div>").attr("class", "search_name").text(tag.name).appendTo(li);
+						li.appendTo(autocomplete_list);
 					});
 				});
 
