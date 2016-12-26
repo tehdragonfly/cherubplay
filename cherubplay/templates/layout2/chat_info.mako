@@ -26,7 +26,7 @@
 % else:
   <section class="tile2 danger">
     <h3>Delete chat</h3>
-    <p>Deleting a chat is irreversible and cannot be undone, so please do not do them unless you're absolutely sure you're done with this chat.</p>
+    <p>Deleting a chat is irreversible and cannot be undone, so please do not do this unless you're absolutely sure you're done with this chat.</p>
     <p class="middle_actions"><a href="${request.route_path("chat_delete", url=request.matchdict["url"])}">Delete chat</a></p>
   </section>
 % endif
