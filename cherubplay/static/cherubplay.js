@@ -495,17 +495,32 @@ var cherubplay = (function() {
 				clearTimeout(autocomplete_timeout);
 				autocomplete_timeout = setTimeout(load_autocomplete, 100);
 			}).focus(function(e) {
+				focussed = true;
 				autocomplete_list.css("display", "");
 				autocomplete_timeout = setTimeout(load_autocomplete, 100);
 			}).blur(function(e) {
-				autocomplete_list.css("display", "none");
-				clearTimeout(autocomplete_timeout);
+				focussed = false;
+				if (!focussed && !hovered) {
+					autocomplete_list.css("display", "none");
+					clearTimeout(autocomplete_timeout);
+				}
 			});
 			var search_div = search_input.parent()
 
-			var autocomplete_list = $("<ul>").addClass("autocomplete_list").insertAfter(search_div);
+			var autocomplete_list = $("<ul>").addClass("autocomplete_list").mouseenter(function(e) {
+				hovered = true;
+			}).mouseleave(function(e) {
+				hovered = false;
+				if (!focussed && !hovered) {
+					autocomplete_list.css("display", "none");
+					clearTimeout(autocomplete_timeout);
+				}
+			}).insertAfter(search_div);
+
 			var autocomplete_timeout;
 			var last_autocomplete;
+			var focused = false;
+			var hovered = false;
 
 			function load_autocomplete() {
 
@@ -517,20 +532,14 @@ var cherubplay = (function() {
 				$.get("/directory/search/autocomplete/", {"name": search_input.val()}, function(data) {
 					autocomplete_list.empty();
 					data.forEach(function(tag) {
-						var li = $("<li>").attr(
-							"data-url-name", tag.type + ":" + tag.url_name
-						).hover(function() {
+						var li = $("<li>").hover(function() {
 							autocomplete_list.find(".current").removeClass("current");
 							$(this).addClass("current");
-						}).mousedown(function() {
-							if (!$(this).hasClass("current")) {
-								autocomplete_list.find(".current").removeClass("current");
-								$(this).addClass("current");
-							}
-							location.href = "/directory/" + this.dataset.urlName + "/";
 						});
-						$("<div>").attr("class", "search_type").text(tag.type.replace(/_/g, " ")).appendTo(li);
-						$("<div>").attr("class", "search_name").text(tag.name).appendTo(li);
+						var a = $("<a>").attr("href", "/directory/" + tag.type + ":" + tag.url_name + "/")
+						$("<div>").attr("class", "search_type").text(tag.type.replace(/_/g, " ")).appendTo(a);
+						$("<div>").attr("class", "search_name").text(tag.name).appendTo(a);
+						a.appendTo(li);
 						li.appendTo(autocomplete_list);
 					});
 				});
