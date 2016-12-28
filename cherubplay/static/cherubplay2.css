@@ -266,6 +266,7 @@ table.tile2 .synonym a { color: #ccc; }
 .autocomplete_list:empty { display: none; }
 .autocomplete_list li { padding: 4px 8px 4px 7px; word-wrap: break-word; }
 .autocomplete_list li.current { background-color: #f8f8f8; }
+.autocomplete_list li a { display: block; margin: -4px -8px -4px -7px; padding: 4px 8px 4px 7px; text-decoration: none; color: #000; }
 
 /* 3.4. Chat list */
 
