@@ -42,7 +42,7 @@
       </ul>
       % endif
       % if parents:
-      <h4 class="request_tag_label">Parents</h4>
+      <h4 class="request_tag_label">Parent tags</h4>
       <ul class="request_tags related">
         % for tag in parents:
         <li><a href="${request.route_path("directory_tag", type=tag.type, name=tag.url_name)}">${tag.type.replace("_", " ")}:${tag.name}</a></li>
@@ -50,7 +50,7 @@
       </ul>
       % endif
       % if children:
-      <h4 class="request_tag_label">Children</h4>
+      <h4 class="request_tag_label">Child tags</h4>
       <ul class="request_tags related">
         % for tag in children:
         <li><a href="${request.route_path("directory_tag", type=tag.type, name=tag.url_name)}">${tag.type.replace("_", " ")}:${tag.name}</a></li>

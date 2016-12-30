@@ -282,13 +282,21 @@ def directory_tag(request):
 
     answered = _find_answered(request, requests)
 
+    all_tag_types = (
+        Session.query(Tag)
+        .filter(func.lower(Tag.name) == name.lower())
+        .options(joinedload(Tag.synonym_of))
+        .order_by(Tag.type).all()
+    )
+    tag_types = [tag for tag in all_tag_types if tag.synonym_of not in all_tag_types]
+
     resp = {
         "tag": tag_dict,
         "blacklisted": False,
         "requests": requests[:25],
         "answered": answered,
         "more": len(requests) == 26,
-        "tag_types": Session.query(Tag).filter(func.lower(Tag.name) == name.lower()).order_by(Tag.type).all()
+        "tag_types": tag_types,
     }
 
     if not "before" in request.GET:
