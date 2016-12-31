@@ -476,7 +476,7 @@ var cherubplay = (function() {
 				if (e.which == 13 || e.which == 188) { // Enter and comma
 					var current_autocomplete = autocomplete_list.find(".current");
 					if (current_autocomplete.length > 0) {
-						location.href = "/directory/" + current_autocomplete[0].dataset.urlName + "/";
+						location.href = current_autocomplete.find("a").attr("href");
 						return false;
 					} else {
 						return true;
