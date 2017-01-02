@@ -46,6 +46,20 @@
       <p><label><input type="checkbox" id="enter_to_send"> Press enter to send</label></p>
       <p><label><input type="checkbox" id="cross_chat_notifications"> Get notifications from other chats (desktop only)</label></p>
     </section>
+    <section class="tile2">
+      <h3>Push notifications</h3>
+      <noscript>Push notifications require JavaScript, so please enable JavaScript to receive them.</noscript>
+      <div id="push_notifications_unsupported">
+        <p>Sorry, your browser or device doesn't support push notifications.</p>
+      </div>
+      <div id="push_notifications_disabled">
+        <p>Push notifications are currently disabled on this device.</p>
+        <button id="enable_push_notifications">Enable push notifications</button>
+      </div>
+      <div id="push_notifications_enabled">
+        <p>Push notifications are enabled on this device.</p>
+      </div>
+    </section>
   </div>
 </main>
 <%block name="scripts"><script>cherubplay.account();</script></%block>

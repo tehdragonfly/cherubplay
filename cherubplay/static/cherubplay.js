@@ -774,16 +774,40 @@ var cherubplay = (function() {
 			if (localStorage.getItem("cross_chat_notifications") == "true") {
 				cross_chat_notifications.attr("checked", "checked");
 			}
-			if ("serviceWorker" in navigator) {
-				navigator.serviceWorker.register("/static/cherubplay_sw.js", {"scope": "/"}).then(function(reg) {
-					window.reg = reg;
-					if (!(reg.showNotification) || !('PushManager' in window)) { return false; }
-					if (Notification.permission === "denied") { return false; }
-					navigator.serviceWorker.ready.then(function(reg) {
-						console.log("ready");
+
+			var push_notifications_unsupported = $("#push_notifications_unsupported");
+			var push_notifications_disabled = $("#push_notifications_disabled");
+			var push_notifications_enabled = $("#push_notifications_enabled");
+
+			if (!("serviceWorker" in navigator)) {
+				push_notifications_unsupported.show();
+				return false;
+			}
+			navigator.serviceWorker.register("/static/cherubplay_sw.js", {"scope": "/"}).then(function(reg) {
+				window.reg = reg;
+				if (!(reg.showNotification) || !("PushManager" in window)) {
+				push_notifications_unsupported.show();
+				return false;
+				}
+				if (Notification.permission === "denied") {
+					push_notifications_disabled.show();
+					return false;
+				}
+				navigator.serviceWorker.ready.then(function(reg) {
+					console.log("ready");
+					reg.pushManager.getSubscription().then(function(subscription) {
+						console.log(subscription);
+						if (subscription) {
+							push_notifications_enabled.show();
+						} else {
+							console.log("no subscription");
+							console.log(push_notifications_disabled);
+							push_notifications_disabled.show();
+						}
 					});
 				});
-			}
+			});
+
 		},
 		"chat": function(chat_url, own_handle) {
 
