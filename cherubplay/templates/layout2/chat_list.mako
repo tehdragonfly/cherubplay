@@ -37,10 +37,10 @@ Started ${request.user.localise_time(chat.created).strftime("%a %d %b %Y")}, las
         </div>
         % endif
         % endif
-        % if chat_user.notes != "" or chat_user.labels or (show_request and chat.request and (chat.request.status == "posted" or chat.request.user_id == request.user.id)):
+        % if chat_user.notes != "" or chat_user.labels or (show_request and chat.request and (request.user.status == "admin" or chat.request.status == "posted" or chat.request.user_id == request.user.id)):
         <hr>
         % endif
-        % if show_request and chat.request and (chat.request.status == "posted" or chat.request.user_id == request.user.id):
+        % if show_request and chat.request and (request.user.status == "admin" or chat.request.status == "posted" or chat.request.user_id == request.user.id):
         <p class="notes">From request <a href="${request.route_path("directory_request", id=chat.request_id)}">#${chat.request_id}</a></p>
         % endif
         % if chat_user.notes!="":
