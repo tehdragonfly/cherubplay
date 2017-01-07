@@ -150,7 +150,6 @@ def directory_search(request):
     if not tag_name:
         return HTTPFound(request.route_path("directory"))
 
-    # TODO synonym handling
     tags = Session.query(Tag).filter(func.lower(Tag.name) == tag_name).order_by(Tag.type).all()
 
     visible_tags = [tag for tag in tags if tag.synonym_of not in tags]
@@ -447,7 +446,7 @@ def _add_parent(child_type, child_name, parent_type, parent_name):
         # Relationship already exists.
         return
 
-    # Check for circular references
+    # Check for circular references.
     ancestors = Session.execute("""
         with recursive tag_ids(id) as (
             select %s
@@ -461,14 +460,18 @@ def _add_parent(child_type, child_name, parent_type, parent_name):
 
     Session.add(TagParent(parent_id=parent_tag.id, child_id=child_tag.id))
 
-    Session.execute(
-        Request.__table__.update().values(tag_ids=None)
-        .where(Request.__table__.c.id.in_(
-            Session.query(RequestTag.request_id)
-            .filter(RequestTag.tag_id == child_tag.id)
-        ))
-        .returning(Request.__table__.c.id)
-    )
+    # Null the tag_ids of requests in this tag and all its children.
+    Session.execute("""
+        with recursive tag_ids(id) as (
+            select %s
+            union all
+            select child_id from tag_parents, tag_ids where parent_id=tag_ids.id
+        )
+        update requests set tag_ids = null
+        where requests.id in (
+            select request_id from request_tags where tag_id in (select id from tag_ids)
+        )
+    """ % child_tag.id)
 
 
 @view_config(route_name="directory_tag_add_parent", request_method="POST", permission="tag_wrangling")
