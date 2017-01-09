@@ -107,8 +107,8 @@ def _request_tags_from_form(form, new_request):
     return tag_list
 
 
-@view_config(route_name="directory_ext", request_method="GET", permission="view", extension="json", renderer="json")
-@view_config(route_name="directory", request_method="GET", permission="view", renderer="layout2/directory/index.mako")
+@view_config(route_name="directory_ext", request_method="GET", permission="directory.read", extension="json", renderer="json")
+@view_config(route_name="directory",     request_method="GET", permission="directory.read", renderer="layout2/directory/index.mako")
 def directory(request):
 
     if request.GET.get("before"):
@@ -143,7 +143,7 @@ def directory(request):
     return {"requests": requests[:25], "answered": answered, "more": len(requests) == 26}
 
 
-@view_config(route_name="directory_search",     request_method="GET", permission="view", renderer="layout2/directory/tag_search.mako")
+@view_config(route_name="directory_search", request_method="GET", permission="directory.read", renderer="layout2/directory/tag_search.mako")
 def directory_search(request):
 
     tag_name = request.GET.get("name", "").strip()[:100]
@@ -170,7 +170,7 @@ def directory_search(request):
     return {"tags": tags}
 
 
-@view_config(route_name="directory_search_autocomplete", request_method="GET", permission="view", renderer="json")
+@view_config(route_name="directory_search_autocomplete", request_method="GET", permission="directory.read", renderer="json")
 def directory_search_autocomplete(request):
     if len(request.GET.get("name", "")) < 3:
         return []
@@ -184,9 +184,9 @@ def directory_search_autocomplete(request):
     return tags
 
 
-@view_config(route_name="directory_tag_list", request_method="GET", permission="tag_wrangling", renderer="layout2/directory/tag_list.mako")
-@view_config(route_name="directory_tag_list_unapproved", request_method="GET", permission="tag_wrangling", renderer="layout2/directory/tag_list.mako")
-@view_config(route_name="directory_tag_list_blacklist_default", request_method="GET", permission="tag_wrangling", renderer="layout2/directory/tag_list.mako")
+@view_config(route_name="directory_tag_list", request_method="GET",                   permission="directory.manage_tags", renderer="layout2/directory/tag_list.mako")
+@view_config(route_name="directory_tag_list_unapproved", request_method="GET",        permission="directory.manage_tags", renderer="layout2/directory/tag_list.mako")
+@view_config(route_name="directory_tag_list_blacklist_default", request_method="GET", permission="directory.manage_tags", renderer="layout2/directory/tag_list.mako")
 def directory_tag_list(request):
 
     try:
@@ -209,7 +209,7 @@ def directory_tag_list(request):
         "current_page": current_page,
     }
 
-@view_config(route_name="directory_tag_table", request_method="GET", permission="tag_wrangling", renderer="layout2/directory/tag_table.mako")
+@view_config(route_name="directory_tag_table", request_method="GET", permission="directory.manage_tags", renderer="layout2/directory/tag_table.mako")
 def directory_tag_table(request):
     rows = []
     last_tag_name = None
@@ -221,8 +221,8 @@ def directory_tag_table(request):
     return {"rows": rows}
 
 
-@view_config(route_name="directory_tag", request_method="GET", permission="view", renderer="layout2/directory/tag.mako")
-@view_config(route_name="directory_tag_ext", request_method="GET", permission="view", extension="json", renderer="json")
+@view_config(route_name="directory_tag",     request_method="GET", permission="directory.read", renderer="layout2/directory/tag.mako")
+@view_config(route_name="directory_tag_ext", request_method="GET", permission="directory.read", extension="json", renderer="json")
 def directory_tag(request):
 
     if request.GET.get("before"):
@@ -299,7 +299,7 @@ def directory_tag(request):
     }
 
     if not "before" in request.GET:
-        if request.has_permission("tag_wrangling"):
+        if request.has_permission("directory.manage_tags"):
             if not tag.approved:
                 resp["can_be_approved"] = True
         resp["synonyms"] = (
@@ -330,7 +330,7 @@ def _approve(tag_type, tag_name):
     tag.approved = True
 
 
-@view_config(route_name="directory_tag_approve", request_method="POST", permission="tag_wrangling")
+@view_config(route_name="directory_tag_approve", request_method="POST", permission="directory.manage_tags")
 def directory_tag_approve(request):
 
     if request.matchdict["type"] not in Tag.type.type.enums:
@@ -397,7 +397,7 @@ def _make_synonym(old_type, old_name, new_type, new_name):
     Session.query(BlacklistedTag).filter(BlacklistedTag.tag_id == old_tag.id).update({"tag_id": new_tag.id})
 
 
-@view_config(route_name="directory_tag_make_synonym", request_method="POST", permission="tag_wrangling")
+@view_config(route_name="directory_tag_make_synonym", request_method="POST", permission="directory.manage_tags")
 def directory_tag_make_synonym(request):
 
     if request.matchdict["type"] not in Tag.type.type.enums or request.POST["tag_type"] not in Tag.type.type.enums:
@@ -474,7 +474,7 @@ def _add_parent(child_type, child_name, parent_type, parent_name):
     """ % child_tag.id)
 
 
-@view_config(route_name="directory_tag_add_parent", request_method="POST", permission="tag_wrangling")
+@view_config(route_name="directory_tag_add_parent", request_method="POST", permission="directory.manage_tags")
 def directory_tag_add_parent(request):
     if request.matchdict["type"] not in Tag.type.type.enums or request.POST["tag_type"] not in Tag.type.type.enums:
         raise HTTPNotFound
@@ -514,8 +514,8 @@ def directory_tag_add_parent(request):
     return HTTPFound(request.route_path("directory_tag", **request.matchdict))
 
 
-@view_config(route_name="directory_yours", request_method="GET", permission="view", renderer="layout2/directory/index.mako")
-@view_config(route_name="directory_yours_ext", request_method="GET", permission="view", extension="json", renderer="json")
+@view_config(route_name="directory_yours",     request_method="GET", permission="directory.read", renderer="layout2/directory/index.mako")
+@view_config(route_name="directory_yours_ext", request_method="GET", permission="directory.read", extension="json", renderer="json")
 def directory_yours(request):
 
     if request.GET.get("before"):
@@ -545,12 +545,12 @@ def directory_yours(request):
     return {"requests": requests[:25], "more": len(requests) == 26}
 
 
-@view_config(route_name="directory_new", request_method="GET", permission="chat", renderer="layout2/directory/new.mako")
+@view_config(route_name="directory_new", request_method="GET", permission="directory.new_request", renderer="layout2/directory/new.mako")
 def directory_new_get(request):
     return {"form_data": {}, "preset_colours": preset_colours}
 
 
-@view_config(route_name="directory_new", request_method="POST", permission="chat", renderer="layout2/directory/new.mako")
+@view_config(route_name="directory_new", request_method="POST", permission="directory.new_request", renderer="layout2/directory/new.mako")
 def directory_new_post(request):
     try:
         colour, ooc_notes, starter = _validate_request_form(request)
@@ -596,7 +596,7 @@ def directory_new_post(request):
     ))
 
 
-@view_config(route_name="directory_new_autocomplete", request_method="GET", permission="chat", renderer="json")
+@view_config(route_name="directory_new_autocomplete", request_method="GET", permission="directory.new_request", renderer="json")
 def directory_new_autocomplete(request):
     if request.GET.get("type") not in Tag.type.type.enums or not request.GET.get("name"):
         raise HTTPBadRequest
@@ -630,13 +630,13 @@ def _blacklisted_tags(request, **kwargs):
     )
 
 
-@view_config(route_name="directory_blacklist", request_method="GET", permission="view", renderer="layout2/directory/blacklist.mako")
-@view_config(route_name="directory_blacklist_ext", request_method="GET", permission="view", extension="json", renderer="json")
+@view_config(route_name="directory_blacklist", request_method="GET",     permission="directory.read", renderer="layout2/directory/blacklist.mako")
+@view_config(route_name="directory_blacklist_ext", request_method="GET", permission="directory.read", extension="json", renderer="json")
 def directory_blacklist(request):
     return _blacklisted_tags(request)
 
 
-@view_config(route_name="directory_blacklist_setup", request_method="POST", permission="view")
+@view_config(route_name="directory_blacklist_setup", request_method="POST", permission="directory.read")
 def directory_blacklist_setup(request):
 
     if request.POST.get("blacklist") not in ("none", "default"):
@@ -656,7 +656,7 @@ def directory_blacklist_setup(request):
     return HTTPFound(request.headers.get("Referer") or request.route_path("directory"))
 
 
-@view_config(route_name="directory_blacklist_add", request_method="POST", permission="view", renderer="layout2/directory/blacklist.mako")
+@view_config(route_name="directory_blacklist_add", request_method="POST", permission="directory.read", renderer="layout2/directory/blacklist.mako")
 def directory_blacklist_add(request):
 
     if request.POST.get("tag_type") not in Tag.type.type.enums:
@@ -690,7 +690,7 @@ def directory_blacklist_add(request):
     return HTTPFound(request.route_path("directory_blacklist"))
 
 
-@view_config(route_name="directory_blacklist_remove", request_method="POST", permission="view")
+@view_config(route_name="directory_blacklist_remove", request_method="POST", permission="directory.read")
 def directory_blacklist_remove(request):
     try:
         Session.query(BlacklistedTag).filter(and_(
@@ -702,7 +702,7 @@ def directory_blacklist_remove(request):
     return HTTPFound(request.route_path("directory_blacklist"))
 
 
-@view_config(route_name="directory_request", request_method="GET", permission="request.read", renderer="layout2/directory/request.mako")
+@view_config(route_name="directory_request",     request_method="GET", permission="request.read", renderer="layout2/directory/request.mako")
 @view_config(route_name="directory_request_ext", request_method="GET", permission="request.read", extension="json", renderer="json")
 def directory_request(context, request):
 

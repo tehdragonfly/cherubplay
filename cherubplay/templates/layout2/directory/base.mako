@@ -146,7 +146,7 @@ ${"TW:&nbsp;" if tag.type == "trigger" else ""|n}${tag.name}\
         <li><a href="${request.route_path("directory_new")}">New request</a></li>
         % endif
       </ul>
-      % if request.has_permission("tag_wrangling"):
+      % if request.has_permission("directory.manage_tags"):
       <h3>Tags</h3>
       <ul>
         % if request.matched_route.name == "directory_tag_list":

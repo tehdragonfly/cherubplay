@@ -50,7 +50,9 @@ class Resource(object):
         (Allow, Authenticated, "view"),
         (Allow, "active",      "chat"),
         (Allow, "admin",       "admin"),
-        (Allow, "admin",       "tag_wrangling"),
+        (Allow, Authenticated, "directory.read"),
+        (Allow, "active",      "directory.new_request"),
+        (Allow, "admin",       "directory.manage_tags"),
     )
 
 
@@ -414,7 +416,7 @@ class Tag(Base):
             "name": self.name,
             "url_name": self.url_name,
         }
-        if request and request.user and request.has_permission("tag_wrangling"):
+        if request and request.user and request.has_permission("directory.manage_tags"):
             tag_dict["approved"] = self.approved
         return tag_dict
 

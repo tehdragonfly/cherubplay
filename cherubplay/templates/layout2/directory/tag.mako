@@ -2,7 +2,7 @@
 <% from cherubplay.models import Tag %>
 <%block name="heading">Requests tagged "${tag["type"].replace("_", " ")}:${tag["name"]}"</%block>
     % if not "before" in request.GET:
-    % if request.has_permission("tag_wrangling"):
+    % if request.has_permission("directory.manage_tags"):
     % if can_be_approved:
     <form class="tile2" action="${request.route_path("directory_tag_approve", **request.matchdict)}" method="post">
       <h3>Not approved</h3>
