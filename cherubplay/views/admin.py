@@ -133,7 +133,10 @@ def user_status(request):
     user = _get_user(request)
     if user.status != "banned" and request.POST["status"] == "banned":
         user.unban_date = None
-        Session.query(Request).filter(Request.user_id == user.id).update({"status": "removed"})
+        Session.query(Request).filter(and_(
+            Request.user_id == user.id,
+            Request.status == "posted",
+        )).update({"status": "draft"})
     user.status = request.POST["status"]
     return HTTPFound(request.route_path("admin_user", username=request.matchdict["username"], _query={ "saved": "status" }))
 
@@ -176,6 +179,10 @@ def user_ban(request):
     except (KeyError, ValueError):
         days = 1
     user.unban_date = datetime.now() + timedelta(days)
+    Session.query(Request).filter(and_(
+        Request.user_id == user.id,
+        Request.status == "posted",
+    )).update({"status": "draft"})
     return HTTPFound(request.route_path("admin_user", username=request.matchdict["username"], _query={ "saved": "status" }))
 
 
