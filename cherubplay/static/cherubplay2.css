@@ -178,11 +178,11 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 #filter_toggle + p + form, #filter_toggle:checked + p { display: none; }
 #filter_toggle:checked + p + form { display: block; }
 
-#prompt_list { margin: 20px 0; padding: 0; list-style-type: none; }
+#prompt_list { margin: 15px 0; padding: 0; list-style-type: none; }
 #prompt_list li { max-height: 190px; overflow: hidden; cursor: pointer; }
 @media (min-width: 1121px) {
     #prompt_list { display: flex; margin: 20px -10px -20px; flex-wrap: wrap; justify-content: center; }
-    #prompt_list li { width: calc(50% - 20px); margin: 0 10px 20px; }
+    #prompt_list li { margin: 0 10px 20px; flex: 1 1 calc(50% - 20px); }
 }
 #prompt_list li p { margin: 0; }
 .fade { display: block; position: absolute; top: 140px; left: 0; right: 0; height: 50px; background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1)); }
@@ -194,6 +194,8 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 
 #overlay_images { max-width: 650px; margin: 0 auto; }
 #overlay_images img { max-width: 100%; }
+
+#overlay_answer { display: block; width: 100%; max-width: 650px; margin: 20px auto; padding: 10px; font: inherit; }
 
 @media (max-width: 640px) {
     #prompt_list li { max-height: 170px; }

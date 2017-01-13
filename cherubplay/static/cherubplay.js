@@ -238,6 +238,7 @@ var cherubplay = (function() {
 					}));
 					hide_overlay();
 				}
+				e.stopPropagation();
 			});
 			$("#overlay_report").click(function(e) {
 				if (overlay_prompt_id) {
