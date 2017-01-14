@@ -192,10 +192,15 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 .show_overlay, .show_report_overlay { overflow: hidden; }
 .show_overlay #overlay, .show_report_overlay #report_overlay { display: block; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 4; overflow-y: scroll; padding: 0 30px; background-color: rgba(238, 238, 238, 0.75); }
 
+#overlay_report_and_close { position: sticky; top: 0; margin: 0 auto; z-index: 3; }
+
 #overlay_images { max-width: 650px; margin: 0 auto; }
 #overlay_images img { max-width: 100%; }
 
 #overlay_answer { display: block; width: 100%; max-width: 650px; margin: 20px auto; padding: 10px; font: inherit; }
+@media (max-width: 640px) {
+    #overlay_answer { margin: 15px auto; }
+}
 
 @media (max-width: 640px) {
     #prompt_list li { max-height: 170px; }
