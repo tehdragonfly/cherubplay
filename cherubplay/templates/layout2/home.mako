@@ -122,10 +122,12 @@
     <p>The connection to the server has been lost. Please refresh the page to try again.</p>
   </section>
   <section id="overlay">
-    <section id="overlay_report_and_close" class="tile2 pager actions">
-      <div class="left"><button id="overlay_report">Report</button></div>
-      <div class="right"><button id="overlay_close">Close</button></div>
-    </section>
+    <div id="overlay_report_and_close">
+      <section class="tile2 pager actions">
+        <div class="left"><button id="overlay_report">Report</button></div>
+        <div class="right"><button id="overlay_close">Close</button></div>
+      </section>
+    </div>
     <section class="tile2">
       <p id="overlay_text"></p>
     </section>

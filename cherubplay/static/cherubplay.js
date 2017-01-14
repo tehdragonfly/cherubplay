@@ -204,6 +204,7 @@ var cherubplay = (function() {
 
 			var overlay_prompt_id;
 			var overlay = $("#overlay");
+			var overlay_report_and_close = $("#overlay_report_and_close");
 			var overlay_text = $("#overlay_text");
 			var overlay_images = $("#overlay_images").click(function(e) { e.stopPropagation(); });
 
@@ -218,6 +219,15 @@ var cherubplay = (function() {
 					}
 				}
 				body.addClass("show_overlay");
+
+				if (
+					overlay_report_and_close.length == 1
+					// Sticky positioning doesn't work or we've run this before.
+					&& ["sticky", "-webkit-sticky", "fixed"].indexOf(getComputedStyle(overlay_report_and_close[0]).position) == -1
+				) {
+					overlay_report_and_close.addClass("fallback").css("height", overlay_report_and_close.find(".tile2").outerHeight() + "px");
+				}
+
 				overlay.scrollTop(0);
 			}
 

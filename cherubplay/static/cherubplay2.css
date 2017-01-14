@@ -69,7 +69,7 @@ h2 + main { margin-top: 0; }
     main.flex { display: flex; justify-content: center; }
     .side_column { flex: 0 1 180px; font-size: 10pt; }
     .side_column + .side_column { order: 1; }
-    .side_column nav { position: sticky; top: 45px; max-width: 180px; }
+    .side_column nav { position: -webkit-sticky; position: sticky; top: 45px; max-width: 180px; }
     .side_column:first-child nav { margin-left: auto; }
     .side_column ul { text-align: left; }
     .side_column li { padding: 1px 5px; }
@@ -192,7 +192,8 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 .show_overlay, .show_report_overlay { overflow: hidden; }
 .show_overlay #overlay, .show_report_overlay #report_overlay { display: block; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 4; overflow-y: scroll; padding: 0 30px; background-color: rgba(238, 238, 238, 0.75); }
 
-#overlay_report_and_close { position: sticky; top: 0; margin: 0 auto; z-index: 3; }
+#overlay_report_and_close { position: -webkit-sticky; position: sticky; top: 0; z-index: 3; max-width: 650px; margin: 0 auto; }
+#overlay_report_and_close.fallback .tile2 { position: fixed; z-index: 3; width: 100%; }
 
 #overlay_images { max-width: 650px; margin: 0 auto; }
 #overlay_images img { max-width: 100%; }
