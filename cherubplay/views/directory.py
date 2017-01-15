@@ -287,7 +287,7 @@ def directory_tag(request):
         .options(joinedload(Tag.synonym_of))
         .order_by(Tag.type).all()
     )
-    tag_types = [tag for tag in all_tag_types if tag.synonym_of not in all_tag_types]
+    tag_types = [_ for _ in all_tag_types if _.synonym_of not in all_tag_types]
 
     resp = {
         "tag": tag_dict,
