@@ -302,11 +302,11 @@ def directory_tag(request):
         if request.has_permission("directory.manage_tags"):
             if not tag.approved:
                 resp["can_be_approved"] = True
-        resp["synonyms"] = (
-            Session.query(Tag)
-            .filter(Tag.synonym_id == tag.id)
-            .order_by(Tag.type, Tag.name).all()
-        )
+            resp["synonyms"] = (
+                Session.query(Tag)
+                .filter(Tag.synonym_id == tag.id)
+                .order_by(Tag.type, Tag.name).all()
+            )
         resp["parents"] = (
             Session.query(Tag)
             .join(TagParent, Tag.id == TagParent.parent_id)
