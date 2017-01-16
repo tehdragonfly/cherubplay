@@ -172,7 +172,7 @@ ${"TW:&nbsp;" if tag.type == "trigger" else ""|n}${tag.name}\
   <div class="side_column">
     <nav>
       <h3>Search</h3>
-      <form action="${request.route_path("directory_search")}" method="get">
+      <form id="directory_search_form" action="${request.route_path("directory_search")}" method="get">
         <div class="tag_input single">
           <input id="directory_search" type="text" class="full" name="name" maxlength="100" placeholder="Look up a tag..." required>
         </div>

@@ -269,8 +269,19 @@ table.tile2 .synonym a { color: #ccc; }
 .side_column .tag_input { box-shadow: 0 1px 2px #eee inset; }
 
 .autocomplete_list { position: absolute; max-width: calc(100% - 52px); margin: -10px 0 0 1px; padding: 0; list-style-type: none; background-color: #fff; box-shadow: 0 1px 2px #bbb; cursor: pointer; }
-.side_column .autocomplete_list { max-width: unset; width: calc(100% - 2px); margin: -10px 0 0 1px; }
+
+#directory_search_form { position: relative; margin-top: 10px; }
+.side_column .autocomplete_list { z-index: 3; width: calc(100% - 2px); margin: -10px 0 0 1px; }
 .search_type { margin-top: 6px; font-size: 8pt; line-height: normal; color: #333; }
+
+@media (max-width: 1024px) {
+    .side_column .autocomplete_list { max-width: unset; text-align: left; }
+    .side_column .autocomplete_list li { display: block; }
+    .side_column .autocomplete_list li:after { content: ""; }
+}
+@media (min-width: 1025px) {
+    .side_column .autocomplete_list { max-width: 178px; }
+}
 
 .autocomplete_list:empty { display: none; }
 .autocomplete_list li { padding: 4px 8px 4px 7px; word-wrap: break-word; }
