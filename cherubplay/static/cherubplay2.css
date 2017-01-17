@@ -182,7 +182,7 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 #prompt_list li { max-height: 190px; overflow: hidden; cursor: pointer; }
 @media (min-width: 1121px) {
     #prompt_list { display: flex; margin: 20px -10px -20px; flex-wrap: wrap; justify-content: center; }
-    #prompt_list li { margin: 0 10px 20px; flex: 1 1 calc(50% - 20px); }
+    #prompt_list li { min-width: 500px; margin: 0 10px 20px; flex: 1 1; }
 }
 #prompt_list li p { margin: 0; }
 .fade { display: block; position: absolute; top: 140px; left: 0; right: 0; height: 50px; background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1)); }
