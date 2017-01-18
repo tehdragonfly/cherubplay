@@ -19,7 +19,7 @@ from .models import (
     Resource,
     User,
 )
-from .resources import prompt_factory, report_factory, request_factory
+from .resources import ChatContext, prompt_factory, report_factory, request_factory
 from .views import chat
 from .views import prompts
 
@@ -177,7 +177,7 @@ def main(global_config, **settings):
     config.add_ext_route("chat_list_ended", "/chats/ended/")
     config.add_ext_route("chat_list_label", "/chats/labels/{label}/")
 
-    config.add_ext_route("chat", "/chats/{url}/")
+    config.add_ext_route("chat", "/chats/{url}/", factory=ChatContext)
     config.add_route("chat_archive", "/chats/{url}/archive/")
     config.add_route("chat_info", "/chats/{url}/info/")
 

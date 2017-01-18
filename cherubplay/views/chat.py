@@ -131,68 +131,48 @@ def chat_list(request):
 
 @view_config(route_name="chat", request_method="GET")
 @view_config(route_name="chat_ext", request_method="GET", extension="json", renderer="json")
-def chat(request):
-
-    try:
-        chat = Session.query(Chat).filter(Chat.url==request.matchdict["url"]).one()
-    except NoResultFound:
-        raise HTTPNotFound
-
-    own_chat_user = None
-    if request.user is not None and request.user.status!="banned":
-        try:
-            own_chat_user = Session.query(ChatUser).filter(
-                and_(
-                    ChatUser.chat_id==chat.id,
-                    ChatUser.user_id==request.user.id,
-                )
-            ).one()
-        except NoResultFound:
-            pass
-
-    continuable = chat.status=="ongoing" and own_chat_user is not None
-
+def chat(context, request):
     # If we can continue the chat and there isn't a page number, show the
     # full chat window.
-    if ("page" not in request.GET and continuable):
+    if ("page" not in request.GET and context.is_continuable):
 
-        own_chat_user.visited = datetime.datetime.now()
+        context.chat_user.visited = datetime.datetime.now()
 
         # Test if we came here from the homepage, for automatically resuming the search.
-        from_homepage = (
-            "HTTP_REFERER" in request.environ
-            and request.environ["HTTP_REFERER"]==request.route_url("home")
+        from_homepage = request.environ.get("HTTP_REFERER") == request.route_url("home")
+
+        message_count = (
+            Session.query(func.count('*')).select_from(Message)
+            .filter(Message.chat_id == context.chat.id).scalar()
         )
 
-        message_count = Session.query(func.count('*')).select_from(Message).filter(
-            Message.chat_id==chat.id,
-        ).scalar()
-
         if message_count < 30:
-
             prompt = None
-            messages = Session.query(Message).filter(
-                Message.chat_id==chat.id,
-            ).order_by(Message.id.asc()).all()
-
+            messages = (
+                Session.query(Message)
+                .filter(Message.chat_id == context.chat.id)
+                .order_by(Message.id.asc()).all()
+            )
         else:
-
-            prompt = Session.query(Message).filter(
-                Message.chat_id==chat.id,
-            ).order_by(Message.id.asc())
-            prompt = prompt.options(joinedload(Message.user))
-            prompt = prompt.first()
-
-            messages = Session.query(Message).filter(
-                Message.chat_id==chat.id,
-            ).order_by(Message.id.desc()).limit(25)
-            messages = messages.options(joinedload(Message.user))
-            messages = messages.all()
+            prompt = (
+                Session.query(Message)
+                .filter(Message.chat_id == context.chat.id)
+                .order_by(Message.id.asc())
+                .options(joinedload(Message.user))
+                .first()
+            )
+            messages = (
+                Session.query(Message)
+                .filter(Message.chat_id == context.chat.id)
+                .order_by(Message.id.desc())
+                .options(joinedload(Message.user))
+                .limit(25).all()
+            )
             messages.reverse()
 
         # XXX needs work for group chats
         other_chat_user = Session.query(ChatUser).filter(and_(
-            ChatUser.chat_id == chat.id,
+            ChatUser.chat_id == context.chat.id,
             ChatUser.user_id != request.user.id,
         )).options(joinedload(ChatUser.user)).first()
         banned = None
@@ -201,8 +181,8 @@ def chat(request):
 
         if request.matched_route.name == "chat_ext":
             return {
-                "chat": chat,
-                "chat_user": own_chat_user,
+                "chat": context.chat,
+                "chat_user": context.chat_user,
                 "message_count": message_count,
                 "prompt": prompt,
                 "messages": messages,
@@ -214,14 +194,14 @@ def chat(request):
         # removed if they delete the chat.
         # XXX DON'T REALLY DELETE CHAT USER WHEN DELETING CHATS.
         symbol_users = None
-        if request.user is not None and request.user.status=="admin":
+        if request.user is not None and request.user.status == "admin": # TODO has_permission
             symbol_users = {
                 _.symbol_character: _.user
                 for _ in messages
                 if _.user is not None
             }
             for chat_user in Session.query(ChatUser).filter(
-                ChatUser.chat_id==chat.id
+                ChatUser.chat_id == context.chat.id
             ).options(joinedload(ChatUser.user)):
                 symbol_users[chat_user.symbol_character] = chat_user.user
 
@@ -229,8 +209,8 @@ def chat(request):
         return render_to_response(template, {
             "page": "chat",
             "preset_colours": preset_colours,
-            "chat": chat,
-            "own_chat_user": own_chat_user,
+            "chat": context.chat,
+            "own_chat_user": context.chat_user,
             "from_homepage": from_homepage,
             "prompt": prompt,
             "messages": messages,
@@ -244,38 +224,43 @@ def chat(request):
     # Update the visited time in archive view if the chat is ended.
     # We need to do this because otherwise it's impossible to mark an ended
     # chat as read.
-    if chat.status=="ended" and own_chat_user is not None:
-        own_chat_user.visited = datetime.datetime.now()
+    if context.chat.status == "ended":
+        context.chat_user.visited = datetime.datetime.now()
 
     try:
         current_page = int(request.GET["page"])
-    except:
+    except (KeyError, ValueError):
         current_page = 1
 
-    messages = Session.query(Message).filter(
-        Message.chat_id==chat.id,
+    messages = (
+        Session.query(Message)
+        .filter(Message.chat_id == context.chat.id)
     )
-    message_count = Session.query(func.count('*')).select_from(Message).filter(
-        Message.chat_id==chat.id,
+    message_count = (
+        Session.query(func.count('*')).select_from(Message)
+        .filter(Message.chat_id == context.chat.id)
     )
 
     # Hide OOC messages if the chat doesn't belong to us.
     # Also don't hide OOC messages for admins.
-    if own_chat_user is None and (request.user is None or request.user.status!="admin"):
-        messages = messages.filter(Message.type!="ooc")
-        message_count = message_count.filter(Message.type!="ooc")
+    if context.chat_user is None and (request.user is None or request.user.status != "admin"): # TODO has_permission
+        messages = messages.filter(Message.type != "ooc")
+        message_count = message_count.filter(Message.type != "ooc")
 
     # Join users if we're an admin.
-    if request.user is not None and request.user.status=="admin":
+    if request.user is not None and request.user.status == "admin": # TODO has_permission
         messages = messages.options(joinedload(Message.user))
 
-    messages = messages.order_by(Message.id.asc()).limit(25).offset((current_page-1)*25).all()
+    messages = (
+        messages.order_by(Message.id.asc())
+        .limit(25).offset((current_page - 1) * 25).all()
+    )
     message_count = message_count.scalar()
 
     if request.matched_route.name == "chat_ext":
         return {
-            "chat": chat,
-            "chat_user": own_chat_user,
+            "chat": context.chat,
+            "chat_user": context.chat_user,
             "message_count": message_count,
             "messages": messages,
         }
@@ -285,14 +270,15 @@ def chat(request):
     # removed if they delete the chat.
     # XXX DON'T REALLY DELETE CHAT USER WHEN DELETING CHATS.
     symbol_users = None
-    if request.user is not None and request.user.status=="admin":
+
+    if request.user is not None and request.user.status == "admin": # TODO has_permission
         symbol_users = {
             _.symbol_character: _.user
             for _ in messages
             if _.user is not None
         }
         for chat_user in Session.query(ChatUser).filter(
-            ChatUser.chat_id==chat.id
+            ChatUser.chat_id == context.chat.id
         ).options(joinedload(ChatUser.user)):
             symbol_users[chat_user.symbol_character] = chat_user.user
 
@@ -301,9 +287,9 @@ def chat(request):
     ) else "chat_archive.mako"
     return render_to_response(template, {
         "page": "archive",
-        "continuable": continuable,
-        "chat": chat,
-        "own_chat_user": own_chat_user,
+        "continuable": context.is_continuable,
+        "chat": context.chat,
+        "own_chat_user": context.chat_user,
         "messages": messages,
         "message_count": message_count,
         "current_page": current_page,
