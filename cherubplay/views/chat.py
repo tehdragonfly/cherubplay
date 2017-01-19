@@ -129,8 +129,8 @@ def chat_list(request):
     }, request=request)
 
 
-@view_config(route_name="chat", request_method="GET")
-@view_config(route_name="chat_ext", request_method="GET", extension="json", renderer="json")
+@view_config(route_name="chat",     request_method="GET", permission="chat.read")
+@view_config(route_name="chat_ext", request_method="GET", permission="chat.read", extension="json", renderer="json")
 def chat(context, request):
     # If we can continue the chat and there isn't a page number, show the
     # full chat window.
@@ -194,7 +194,7 @@ def chat(context, request):
         # removed if they delete the chat.
         # XXX DON'T REALLY DELETE CHAT USER WHEN DELETING CHATS.
         symbol_users = None
-        if request.user is not None and request.user.status == "admin": # TODO has_permission
+        if request.has_permission("chat.full_user_list"):
             symbol_users = {
                 _.symbol_character: _.user
                 for _ in messages
@@ -243,12 +243,12 @@ def chat(context, request):
 
     # Hide OOC messages if the chat doesn't belong to us.
     # Also don't hide OOC messages for admins.
-    if context.chat_user is None and (request.user is None or request.user.status != "admin"): # TODO has_permission
+    if not request.has_permission("chat.read_ooc"):
         messages = messages.filter(Message.type != "ooc")
         message_count = message_count.filter(Message.type != "ooc")
 
     # Join users if we're an admin.
-    if request.user is not None and request.user.status == "admin": # TODO has_permission
+    if request.has_permission("chat.full_user_list"):
         messages = messages.options(joinedload(Message.user))
 
     messages = (
@@ -271,7 +271,7 @@ def chat(context, request):
     # XXX DON'T REALLY DELETE CHAT USER WHEN DELETING CHATS.
     symbol_users = None
 
-    if request.user is not None and request.user.status == "admin": # TODO has_permission
+    if request.has_permission("chat.full_user_list"):
         symbol_users = {
             _.symbol_character: _.user
             for _ in messages

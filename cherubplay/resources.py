@@ -1,4 +1,6 @@
+from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPNotFound
+from pyramid.security import Allow, Everyone
 from sqlalchemy import and_, or_
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
@@ -11,9 +13,26 @@ from cherubplay.models import (
 class ChatContext(object):
     __parent__ = Resource
 
+    @reify
+    def __acl__(self):
+        if self.chat_user:
+            return [
+                # Everyone so banned users can see their own stuff.
+                (Allow, Everyone, "chat.read"),
+                (Allow, Everyone, "chat.read_ooc"),
+                (Allow, "admin",  "chat.full_user_list"),
+                (Allow, "active", "chat.send"),
+                (Allow, Everyone, "chat.info"),
+            ]
+        return [
+            (Allow, Everyone, "chat.read"),
+            (Allow, "admin",  "chat.read_ooc"),
+        ]
+
     def __init__(self, request):
+        self.request = request
         try:
-            if request.user and request.user.status != "banned": # TODO ???
+            if request.user:
                 self.chat, self.chat_user = Session.query(Chat, ChatUser).filter(
                     Chat.url == request.matchdict["url"],
                 ).outerjoin(ChatUser, and_(
@@ -31,9 +50,9 @@ class ChatContext(object):
             return "<ChatContext: User #%s in Chat %s>" % (self.chat_user.user_id, self.chat.id)
         return "<ChatContext: guest in Chat %s>" % self.chat.id
 
-    @property
+    @reify
     def is_continuable(self):
-        return self.chat.status == "ongoing" and self.chat_user is not None
+        return self.chat.status == "ongoing" and self.request.has_permission("chat.send")
 
 
 def prompt_factory(request):
