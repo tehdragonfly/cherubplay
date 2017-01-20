@@ -30,16 +30,16 @@ from ..models import (
 )
 
 
-@view_config(route_name="chat_list", request_method="GET", permission="view")
-@view_config(route_name="chat_list_ext", request_method="GET", permission="view", extension="json", renderer="json")
-@view_config(route_name="chat_list_unanswered", request_method="GET", permission="view")
+@view_config(route_name="chat_list",                request_method="GET", permission="view")
+@view_config(route_name="chat_list_ext",            request_method="GET", permission="view", extension="json", renderer="json")
+@view_config(route_name="chat_list_unanswered",     request_method="GET", permission="view")
 @view_config(route_name="chat_list_unanswered_ext", request_method="GET", permission="view", extension="json", renderer="json")
-@view_config(route_name="chat_list_ongoing", request_method="GET", permission="view")
-@view_config(route_name="chat_list_ongoing_ext", request_method="GET", permission="view", extension="json", renderer="json")
-@view_config(route_name="chat_list_ended", request_method="GET", permission="view")
-@view_config(route_name="chat_list_ended_ext", request_method="GET", permission="view", extension="json", renderer="json")
-@view_config(route_name="chat_list_label", request_method="GET", permission="view")
-@view_config(route_name="chat_list_label_ext", request_method="GET", permission="view", extension="json", renderer="json")
+@view_config(route_name="chat_list_ongoing",        request_method="GET", permission="view")
+@view_config(route_name="chat_list_ongoing_ext",    request_method="GET", permission="view", extension="json", renderer="json")
+@view_config(route_name="chat_list_ended",          request_method="GET", permission="view")
+@view_config(route_name="chat_list_ended_ext",      request_method="GET", permission="view", extension="json", renderer="json")
+@view_config(route_name="chat_list_label",          request_method="GET", permission="view")
+@view_config(route_name="chat_list_label_ext",      request_method="GET", permission="view", extension="json", renderer="json")
 def chat_list(request):
 
     current_page = int(request.GET.get("page", 1))
@@ -542,18 +542,21 @@ def chat_delete(request):
     return HTTPFound(request.route_path("chat_list"))
 
 
-@view_config(route_name="chat_info", request_method="GET", permission="view")
-def chat_info_get(request):
-    chat, own_chat_user = _get_chat(request, ongoing=False)
+@view_config(route_name="chat_info", request_method="GET", permission="chat.info")
+def chat_info_get(context, request):
     template = "layout2/chat_info.mako" if request.user.layout_version == 2 else "chat_info.mako"
-    return render_to_response(template, { "page": "info", "chat": chat, "own_chat_user": own_chat_user }, request)
+    return render_to_response(template, {
+        "page": "info",
+        "chat": context.chat,
+        "own_chat_user": context.chat_user,
+    }, request)
 
 
-@view_config(route_name="chat_info", renderer="chat_info.mako", request_method="POST", permission="view")
-def chat_info(request):
-    chat, own_chat_user = _get_chat(request, ongoing=False)
-    own_chat_user.title = request.POST["title"][:100]
-    own_chat_user.notes = request.POST["notes"]
+@view_config(route_name="chat_info", request_method="POST", permission="chat.info")
+def chat_info(context, request):
+    context.chat_user.title = request.POST["title"][:100]
+    context.chat_user.notes = request.POST["notes"]
+
     labels_set = set()
     for label in request.POST["labels"].lower().replace("\n", " ").split(","):
         label = label.strip()
@@ -562,6 +565,7 @@ def chat_info(request):
         labels_set.add(label.replace(" ", "_"))
     labels_list = list(labels_set)
     labels_list.sort()
-    own_chat_user.labels = labels_list
-    return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"], _query={ "saved": "info" }))
+    context.chat_user.labels = labels_list
+
+    return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"], _query={"saved": "info"}))
 

@@ -179,7 +179,7 @@ def main(global_config, **settings):
 
     config.add_ext_route("chat", "/chats/{url}/", factory=ChatContext)
     config.add_route("chat_archive", "/chats/{url}/archive/")
-    config.add_route("chat_info", "/chats/{url}/info/")
+    config.add_route("chat_info", "/chats/{url}/info/", factory=ChatContext)
 
     config.add_route("chat_draft", "/chats/{url}/draft/")
     config.add_route("chat_send", "/chats/{url}/send/")
