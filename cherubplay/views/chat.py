@@ -481,62 +481,62 @@ def _post_end_message(request, chat, own_chat_user):
         pass
 
 
-@view_config(route_name="chat_end", request_method="GET", permission="chat")
-def chat_end_get(request):
-    chat, own_chat_user = _get_chat(request)
+@view_config(route_name="chat_end", request_method="GET", permission="chat.info")
+def chat_end_get(context, request):
     prompt = Session.query(Message).filter(
-        Message.chat_id==chat.id,
+        Message.chat_id == context.chat.id,
     ).order_by(Message.id).first()
+
     last_message = Session.query(Message).filter(
-        Message.chat_id==chat.id,
+        Message.chat_id == context.chat.id,
     ).order_by(Message.id.desc()).first()
+
     template = "layout2/chat_end.mako" if request.user.layout_version == 2 else "chat_end.mako"
     return render_to_response(template, {
         "action": "end",
-        "chat": chat,
-        "own_chat_user": own_chat_user,
+        "chat": context.chat,
+        "own_chat_user": context.chat_user,
         "prompt": prompt,
         "last_message": last_message,
     }, request)
 
 
-@view_config(route_name="chat_end", request_method="POST", permission="chat")
-def chat_end(request):
-    chat, own_chat_user = _get_chat(request)
-    _post_end_message(request, chat, own_chat_user)
+@view_config(route_name="chat_end", request_method="POST", permission="chat.info")
+def chat_end_post(context, request):
+    _post_end_message(request, context.chat, context.chat_user)
     if request.is_xhr:
         return HTTPNoContent()
     if "continue_search" in request.POST:
         return HTTPFound(request.route_path("home"))
-    return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"], _query={ "saved": "end" }))
+    return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"], _query={"saved": "end"}))
 
 
-@view_config(route_name="chat_delete", request_method="GET", permission="view")
-def chat_delete_get(request):
-    chat, own_chat_user = _get_chat(request, ongoing=False)
+@view_config(route_name="chat_delete", request_method="GET", permission="chat.info")
+def chat_delete_get(context, request):
     prompt = Session.query(Message).filter(
-        Message.chat_id==chat.id,
+        Message.chat_id == context.chat.id,
     ).order_by(Message.id).first()
+
     last_message = Session.query(Message).filter(and_(
-        Message.chat_id==chat.id,
-        Message.type!="system",
+        Message.chat_id == context.chat.id,
+        Message.type != "system",
     )).order_by(Message.id.desc()).first()
+
     template = "layout2/chat_end.mako" if request.user.layout_version == 2 else "chat_end.mako"
     return render_to_response(template, {
         "action": "delete",
-        "chat": chat,
-        "own_chat_user": own_chat_user,
+        "chat": context.chat,
+        "own_chat_user": context.chat_user,
         "prompt": prompt,
         "last_message": last_message,
     }, request)
 
 
-@view_config(route_name="chat_delete", request_method="POST", permission="view")
-def chat_delete(request):
-    chat, own_chat_user = _get_chat(request, ongoing=False)
-    if chat.status=="ongoing":
-        _post_end_message(request, chat, own_chat_user)
-    Session.delete(own_chat_user)
+@view_config(route_name="chat_delete", request_method="POST", permission="chat.info")
+def chat_delete_post(context, request):
+    if context.chat.status == "ongoing":
+        _post_end_message(request, context.chat, context.chat_user)
+    Session.delete(context.chat_user)
     if request.is_xhr:
         return HTTPNoContent()
     return HTTPFound(request.route_path("chat_list"))
@@ -553,7 +553,7 @@ def chat_info_get(context, request):
 
 
 @view_config(route_name="chat_info", request_method="POST", permission="chat.info")
-def chat_info(context, request):
+def chat_info_post(context, request):
     context.chat_user.title = request.POST["title"][:100]
     context.chat_user.notes = request.POST["notes"]
 
