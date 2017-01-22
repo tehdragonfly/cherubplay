@@ -177,15 +177,14 @@ def main(global_config, **settings):
     config.add_ext_route("chat_list_ended", "/chats/ended/")
     config.add_ext_route("chat_list_label", "/chats/labels/{label}/")
 
-    config.add_ext_route("chat", "/chats/{url}/", factory=ChatContext)
-    config.add_route("chat_archive", "/chats/{url}/archive/")
-    config.add_route("chat_info", "/chats/{url}/info/", factory=ChatContext)
+    config.add_ext_route("chat",     "/chats/{url}/",      factory=ChatContext)
+    config.add_route("chat_info",    "/chats/{url}/info/", factory=ChatContext)
 
-    config.add_route("chat_draft", "/chats/{url}/draft/")
-    config.add_route("chat_send", "/chats/{url}/send/")
-    config.add_route("chat_edit", "/chats/{url}/edit/{message_id}/")
-    config.add_route("chat_end", "/chats/{url}/end/", factory=ChatContext)
-    config.add_route("chat_delete", "/chats/{url}/delete/", factory=ChatContext)
+    config.add_route("chat_draft",  "/chats/{url}/draft/",             factory=ChatContext)
+    config.add_route("chat_send",   "/chats/{url}/send/",              factory=ChatContext)
+    config.add_route("chat_edit",   "/chats/{url}/edit/{message_id}/", factory=ChatContext)
+    config.add_route("chat_end",    "/chats/{url}/end/",               factory=ChatContext)
+    config.add_route("chat_delete", "/chats/{url}/delete/",            factory=ChatContext)
 
     config.add_ext_route("prompt_list", "/prompts/")
     config.add_route("new_prompt", "/prompts/new/")

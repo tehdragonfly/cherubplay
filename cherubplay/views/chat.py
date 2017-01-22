@@ -181,12 +181,12 @@ def chat(context, request):
 
         if request.matched_route.name == "chat_ext":
             return {
-                "chat": context.chat,
-                "chat_user": context.chat_user,
+                "chat":          context.chat,
+                "chat_user":     context.chat_user,
                 "message_count": message_count,
-                "prompt": prompt,
-                "messages": messages,
-                "banned": banned,
+                "prompt":        prompt,
+                "messages":      messages,
+                "banned":        banned,
             }
 
         # List users if we're an admin.
@@ -207,16 +207,16 @@ def chat(context, request):
 
         template = "layout2/chat.mako" if request.user.layout_version == 2 else "chat.mako"
         return render_to_response(template, {
-            "page": "chat",
+            "page":           "chat",
             "preset_colours": preset_colours,
-            "chat": context.chat,
-            "own_chat_user": context.chat_user,
-            "from_homepage": from_homepage,
-            "prompt": prompt,
-            "messages": messages,
-            "message_count": message_count,
-            "symbol_users": symbol_users,
-            "banned": banned,
+            "chat":           context.chat,
+            "own_chat_user":  context.chat_user,
+            "from_homepage":  from_homepage,
+            "prompt":         prompt,
+            "messages":       messages,
+            "message_count":  message_count,
+            "symbol_users":   symbol_users,
+            "banned":         banned,
         }, request=request)
 
     # Otherwise show the archive view.
@@ -224,7 +224,7 @@ def chat(context, request):
     # Update the visited time in archive view if the chat is ended.
     # We need to do this because otherwise it's impossible to mark an ended
     # chat as read.
-    if context.chat.status == "ended":
+    if context.chat_user and context.chat.status == "ended":
         context.chat_user.visited = datetime.datetime.now()
 
     try:
@@ -259,10 +259,10 @@ def chat(context, request):
 
     if request.matched_route.name == "chat_ext":
         return {
-            "chat": context.chat,
-            "chat_user": context.chat_user,
+            "chat":          context.chat,
+            "chat_user":     context.chat_user,
             "message_count": message_count,
-            "messages": messages,
+            "messages":      messages,
         }
 
     # List users if we're an admin.
@@ -286,43 +286,20 @@ def chat(context, request):
         request.user is None or request.user.layout_version == 2
     ) else "chat_archive.mako"
     return render_to_response(template, {
-        "page": "archive",
-        "continuable": context.is_continuable,
-        "chat": context.chat,
+        "page":          "archive",
+        "continuable":   context.is_continuable,
+        "chat":          context.chat,
         "own_chat_user": context.chat_user,
-        "messages": messages,
+        "messages":      messages,
         "message_count": message_count,
-        "current_page": current_page,
-        "symbol_users": symbol_users,
+        "current_page":  current_page,
+        "symbol_users":  symbol_users,
     }, request=request)
 
 
-def _get_chat(request, ongoing=True):
-    try:
-        chat = Session.query(Chat).filter(
-            Chat.url==request.matchdict["url"],
-        )
-        if ongoing:
-            chat = chat.filter(Chat.status=="ongoing")
-        chat = chat.one()
-    except NoResultFound:
-        raise HTTPNotFound
-    try:
-        own_chat_user = Session.query(ChatUser).filter(
-            and_(
-                ChatUser.chat_id==chat.id,
-                ChatUser.user_id==request.user.id,
-            )
-        ).one()
-    except NoResultFound:
-        raise HTTPForbidden
-    return chat, own_chat_user
-
-
-@view_config(route_name="chat_draft", request_method="POST", permission="chat")
-def chat_draft(request):
-    chat, own_chat_user = _get_chat(request)
-    own_chat_user.draft = request.POST["message_text"].strip()
+@view_config(route_name="chat_draft", request_method="POST", permission="chat.info")
+def chat_draft(context, request):
+    context.chat_user.draft = request.POST["message_text"].strip()
     return HTTPNoContent()
 
 
@@ -332,10 +309,13 @@ def _validate_message_form(request):
         colour = colour[1:]
     if colour_validator.match(colour) is None:
         raise HTTPBadRequest("Invalid text colour. The colour needs to be a 6-digit hex code.")
+
     trimmed_message_text = request.POST["message_text"].strip()
-    if trimmed_message_text=="":
+    if trimmed_message_text == "":
         raise HTTPBadRequest("Message text can't be empty.")
+
     message_type = "ic"
+    # TODO don't auto-ooc when editing a message
     if (
         "message_ooc" in request.POST
         or trimmed_message_text.startswith("((")
@@ -346,114 +326,129 @@ def _validate_message_form(request):
         or trimmed_message_text.endswith("}}")
     ):
         message_type="ooc"
+
     return colour, trimmed_message_text, message_type
 
 
-@view_config(route_name="chat_send", request_method="POST", permission="chat")
-def chat_send(request):
-    chat, own_chat_user = _get_chat(request)
+@view_config(route_name="chat_send", request_method="POST", permission="chat.send")
+def chat_send(context, request):
     colour, trimmed_message_text, message_type = _validate_message_form(request)
     posted_date = datetime.datetime.now()
+
     new_message = Message(
-        chat_id=chat.id,
+        chat_id=context.chat.id,
         user_id=request.user.id,
         type=message_type,
         colour=colour,
-        symbol=own_chat_user.symbol,
+        symbol=context.chat_user.symbol,
         text=trimmed_message_text,
         posted=posted_date,
         edited=posted_date,
     )
     Session.add(new_message)
     Session.flush()
-    chat.updated = posted_date
-    chat.last_user_id = request.user.id
-    own_chat_user.last_colour = colour
-    own_chat_user.draft = ""
+
+    context.chat.updated = posted_date
+    context.chat.last_user_id = request.user.id
+
+    context.chat_user.last_colour = colour
+    context.chat_user.draft = ""
+
     try:
         # See if anyone else is online and update their ChatUser too.
-        online_symbols = set(int(_) for _ in request.pubsub.hvals("online:"+str(chat.id)))
-        for other_chat_user in Session.query(ChatUser).filter(ChatUser.chat_id == chat.id):
+        online_symbols = set(int(_) for _ in request.pubsub.hvals("online:%s" % context.chat.id))
+        for other_chat_user in Session.query(ChatUser).filter(ChatUser.chat_id == context.chat.id):
             if other_chat_user.symbol in online_symbols:
                 other_chat_user.visited = posted_date
             else:
                 request.pubsub.publish("user:" + str(other_chat_user.user_id), json.dumps({
                     "action": "notification",
-                    "url": chat.url,
-                    "title": other_chat_user.title or chat.url,
+                    "url":    context.chat.url,
+                    "title":  other_chat_user.title or context.chat.url,
                     "colour": colour,
-                    "symbol": own_chat_user.symbol_character,
-                    "text": trimmed_message_text if len(trimmed_message_text) < 100 else trimmed_message_text[:97] + "...",
+                    "symbol": context.chat_user.symbol_character,
+                    "text":   trimmed_message_text if len(trimmed_message_text) < 100 else trimmed_message_text[:97] + "...",
                 }))
     except ConnectionError:
         pass
+
     try:
-        request.pubsub.publish("chat:" + str(chat.id), json.dumps({
+        request.pubsub.publish("chat:%s" % context.chat.id, json.dumps({
             "action": "message",
             "message": {
-                "id": new_message.id,
-                "type": message_type,
+                "id":     new_message.id,
+                "type":   message_type,
                 "colour": colour,
-                "symbol": own_chat_user.symbol_character,
-                "text": trimmed_message_text,
+                "symbol": context.chat_user.symbol_character,
+                "text":   trimmed_message_text,
             },
         }))
     except ConnectionError:
         pass
+
     if request.is_xhr:
         return HTTPNoContent()
     return HTTPFound(request.route_path("chat", url=request.matchdict["url"]))
 
 
-@view_config(route_name="chat_edit", request_method="POST", permission="chat")
-def chat_edit(request):
-    chat, own_chat_user = _get_chat(request)
+@view_config(route_name="chat_edit", request_method="POST", permission="chat.send")
+def chat_edit(context, request):
     try:
         message = Session.query(Message).filter(and_(
             Message.id == request.matchdict["message_id"],
-            Message.chat_id == chat.id,
+            Message.chat_id == context.chat.id,
             Message.user_id == request.user.id,
             # XXX DATE FILTER?
         )).one()
     except NoResultFound:
         raise HTTPNotFound
+
     colour, trimmed_message_text, message_type = _validate_message_form(request)
-    message.type = message_type
+
+    message.type   = message_type
     message.colour = colour
-    message.text = trimmed_message_text
+    message.text   = trimmed_message_text
     message.edited = datetime.datetime.now()
+
     try:
-        request.pubsub.publish("chat:"+str(chat.id), json.dumps({
+        request.pubsub.publish("chat:%s" % context.chat.id, json.dumps({
             "action": "edit",
             "message": {
-                "id": message.id,
-                "type": message.type,
-                "colour": message.colour,
-                "symbol": message.symbol_character,
-                "text": message.text,
+                "id":          message.id,
+                "type":        message.type,
+                "colour":      message.colour,
+                "symbol":      message.symbol_character,
+                "text":        message.text,
                 "show_edited": message.show_edited,
             },
         }))
     except ConnectionError:
         pass
+
     if request.is_xhr:
         return HTTPNoContent()
     return HTTPFound(request.environ["HTTP_REFERER"])
 
 
 def _post_end_message(request, chat, own_chat_user):
+    update_date = datetime.datetime.now()
+
     Session.add(Message(
         chat_id=chat.id,
         type="system",
         colour="000000",
         symbol=own_chat_user.symbol,
         text=u"%s ended the chat.",
+        posted=update_date,
+        edited=update_date,
     ))
-    chat.status = "ended"
-    update_date = datetime.datetime.now()
-    chat.updated = update_date
+
+    chat.status       = "ended"
+    chat.updated      = update_date
     chat.last_user_id = None
+
     own_chat_user.visited = update_date
+
     try:
         # See if anyone else is online and update their ChatUser too.
         online_symbols = [
@@ -464,17 +459,18 @@ def _post_end_message(request, chat, own_chat_user):
             Session.query(ChatUser).filter(and_(
                 ChatUser.chat_id == chat.id,
                 ChatUser.symbol.in_(online_symbols),
-            )).update({ "visited": update_date }, synchronize_session=False)
+            )).update({"visited": update_date}, synchronize_session=False)
     except ConnectionError:
         pass
+
     try:
         request.pubsub.publish("chat:"+str(chat.id), json.dumps({
             "action": "end",
             "message": {
-                "type": "system",
+                "type":   "system",
                 "colour": "000000",
                 "symbol": own_chat_user.symbol_character,
-                "text": u"%s ended the chat.",
+                "text":   u"%s ended the chat.",
             },
         }))
     except ConnectionError:
@@ -493,11 +489,11 @@ def chat_end_get(context, request):
 
     template = "layout2/chat_end.mako" if request.user.layout_version == 2 else "chat_end.mako"
     return render_to_response(template, {
-        "action": "end",
-        "chat": context.chat,
+        "action":        "end",
+        "chat":          context.chat,
         "own_chat_user": context.chat_user,
-        "prompt": prompt,
-        "last_message": last_message,
+        "prompt":        prompt,
+        "last_message":  last_message,
     }, request)
 
 
@@ -524,11 +520,11 @@ def chat_delete_get(context, request):
 
     template = "layout2/chat_end.mako" if request.user.layout_version == 2 else "chat_end.mako"
     return render_to_response(template, {
-        "action": "delete",
-        "chat": context.chat,
+        "action":        "delete",
+        "chat":          context.chat,
         "own_chat_user": context.chat_user,
-        "prompt": prompt,
-        "last_message": last_message,
+        "prompt":        prompt,
+        "last_message":  last_message,
     }, request)
 
 
@@ -546,8 +542,8 @@ def chat_delete_post(context, request):
 def chat_info_get(context, request):
     template = "layout2/chat_info.mako" if request.user.layout_version == 2 else "chat_info.mako"
     return render_to_response(template, {
-        "page": "info",
-        "chat": context.chat,
+        "page":          "info",
+        "chat":          context.chat,
         "own_chat_user": context.chat_user,
     }, request)
 
