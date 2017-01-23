@@ -146,7 +146,7 @@ def directory(request):
 @view_config(route_name="directory_search", request_method="GET", permission="directory.read", renderer="layout2/directory/tag_search.mako")
 def directory_search(request):
 
-    tag_name = request.GET.get("name", "").strip()[:100]
+    tag_name = request.GET.get("name", "").strip()[:100].lower()
     if not tag_name:
         return HTTPFound(request.route_path("directory"))
 
