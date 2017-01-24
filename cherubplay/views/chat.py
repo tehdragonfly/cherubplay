@@ -303,7 +303,7 @@ def chat_draft(context, request):
     return HTTPNoContent()
 
 
-def _validate_message_form(request):
+def _validate_message_form(request, editing=False):
     colour = request.POST["message_colour"]
     if colour.startswith("#"):
         colour = colour[1:]
@@ -314,11 +314,9 @@ def _validate_message_form(request):
     if trimmed_message_text == "":
         raise HTTPBadRequest("Message text can't be empty.")
 
-    message_type = "ic"
-    # TODO don't auto-ooc when editing a message
-    if (
-        "message_ooc" in request.POST
-        or trimmed_message_text.startswith("((")
+    message_type = "ooc" if "message_ooc" in request.POST else "ic"
+    if not editing and (
+        trimmed_message_text.startswith("((")
         or trimmed_message_text.endswith("))")
         or trimmed_message_text.startswith("[[")
         or trimmed_message_text.endswith("]]")
@@ -403,7 +401,7 @@ def chat_edit(context, request):
     except NoResultFound:
         raise HTTPNotFound
 
-    colour, trimmed_message_text, message_type = _validate_message_form(request)
+    colour, trimmed_message_text, message_type = _validate_message_form(request, editing=True)
 
     message.type   = message_type
     message.colour = colour
