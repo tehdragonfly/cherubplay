@@ -1,6 +1,9 @@
 <%inherit file="base.mako" />\
 <%namespace name="chat_list" file="../chat_list.mako" />\
 <%block name="heading">Request #${request.context.id}</%block>
+    % if request.context.status == "draft" and request.context.duplicate_of_id:
+    <p>This request has been taken down because it is a duplicate of <a href="${request.route_path("directory_request", id=request.context.duplicate_of_id)}">request #${request.context.duplicate_of_id}</a>.</p>
+    % endif
     % if blacklisted_tags:
     % if request.context.status == "posted":
     <p>This request is visible to other users, but you can't see it in the directory because you've blacklisted some of its tags.</p>

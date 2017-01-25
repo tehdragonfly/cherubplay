@@ -323,6 +323,7 @@ class Request(Base):
     ooc_notes = Column(UnicodeText, nullable=False, default=u"")
     starter = Column(UnicodeText, nullable=False, default=u"")
     tag_ids = Column(ARRAY(Integer)) # this makes tag filtering easier
+    duplicate_of_id = Column(Integer, ForeignKey("requests.id"))
 
     def tags_by_type(self):
         tags = { _: [] for _ in Tag.type.type.enums }
@@ -442,6 +443,7 @@ PromptReport.reported_user = relationship(User, backref="reports_recieved", prim
 
 Request.user = relationship(User, backref="requests")
 Request.tags = relationship(Tag, secondary=RequestTag.__table__, order_by=(Tag.type, Tag.name), backref="requests")
+Request.duplicate_of = relationship(Request, remote_side=Request.id)
 
 RequestTag.request = relationship(Request, backref="request_tags")
 RequestTag.tag = relationship(Tag, backref="request_tags")
