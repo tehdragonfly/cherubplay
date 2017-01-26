@@ -545,6 +545,19 @@ def directory_yours(request):
     return {"requests": requests[:25], "more": len(requests) == 26}
 
 
+def _remove_duplicates(new_request):
+    Session.query(Request).filter(and_(
+        Request.id        != new_request.id,
+        Request.user_id   == new_request.user_id,
+        Request.status    == "posted",
+        Request.ooc_notes == new_request.ooc_notes,
+        Request.starter   == new_request.starter,
+    )).update({
+        "status": "draft",
+        "duplicate_of_id": new_request.id,
+    })
+
+
 @view_config(route_name="directory_new", request_method="GET", permission="directory.new_request", renderer="layout2/directory/new.mako")
 def directory_new_get(request):
     return {"form_data": {}, "preset_colours": preset_colours}
@@ -582,6 +595,8 @@ def directory_new_post(request):
     )
     Session.add(new_request)
     Session.flush()
+
+    _remove_duplicates(new_request)
 
     new_request.request_tags += _request_tags_from_form(request.POST, new_request)
 
@@ -793,9 +808,9 @@ def directory_request_edit_post(context, request):
         if "draft" in request.POST:
             status = "draft"
         elif Session.query(func.count("*")).select_from(Request).filter(and_(
+            Request.id      != context.id,
             Request.user_id == request.user.id,
-            Request.status == "posted",
-            Request.id != context.id,
+            Request.status  == "posted",
         )).scalar() >= 10:
             status = "draft"
             too_many_requests = True
@@ -803,15 +818,18 @@ def directory_request_edit_post(context, request):
             context.posted = new_date
         context.status = status
 
-    context.colour = colour
-    context.ooc_notes = ooc_notes
-    context.starter = starter
+    context.colour          = colour
+    context.ooc_notes       = ooc_notes
+    context.starter         = starter
+    context.duplicate_of_id = None
 
     Session.query(RequestTag).filter(RequestTag.request_id == context.id).delete()
 
     new_tags = _request_tags_from_form(request.POST, context)
     context.request_tags += new_tags
     context.tag_ids = None
+
+    _remove_duplicates(context)
 
     # Commit manually to make sure the task happens after.
     transaction.commit()
