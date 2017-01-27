@@ -523,8 +523,7 @@ var cherubplay = (function() {
 			}).mouseleave(function(e) {
 				hovered = false;
 				if (!focussed && !hovered) {
-					autocomplete_list.css("display", "none");
-					clearTimeout(autocomplete_timeout);
+					search_input.focus();
 				}
 			}).insertAfter(search_div);
 
