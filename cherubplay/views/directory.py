@@ -547,11 +547,11 @@ def directory_yours(request):
 
 def _remove_duplicates(new_request):
     Session.query(Request).filter(and_(
-        Request.id        != new_request.id,
-        Request.user_id   == new_request.user_id,
-        Request.status    == "posted",
-        Request.ooc_notes == new_request.ooc_notes,
-        Request.starter   == new_request.starter,
+        Request.id      != new_request.id,
+        Request.user_id == new_request.user_id,
+        Request.status  == "posted",
+        func.lower(Request.ooc_notes) == new_request.ooc_notes.lower(),
+        func.lower(Request.starter)   == new_request.starter.lower(),
     )).update({
         "status": "draft",
         "duplicate_of_id": new_request.id,
