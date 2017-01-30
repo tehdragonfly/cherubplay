@@ -1,9 +1,11 @@
 from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPNotFound
 from pyramid.security import Allow, Everyone
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, Integer
+from sqlalchemy.dialects.postgres import ARRAY
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql.expression import cast
 
 from cherubplay.models import (
     Session, Chat, ChatUser, Prompt, PromptReport, Request, RequestTag, Resource
@@ -75,6 +77,39 @@ def report_factory(request):
         ).one()
     except (ValueError, NoResultFound):
         raise HTTPNotFound
+
+
+class TagList(object):
+    __parent__ = Resource
+
+    def __init__(self, request):
+        tag_filters = []
+
+        for pair in request.matchdict["tag_string"].split(",")[:5]:
+            try:
+                tag_type, name = pair.split(":")
+            except ValueError:
+                raise HTTPNotFound
+            if tag_type not in Tag.type.type.enums:
+                raise HTTPNotFound
+
+            tag_filters.append(and_(
+                Tag.type == tag_type,
+                func.lower(Tag.name) == Tag.name_from_url(name.strip().lower()),
+            ))
+
+        self.tags = (
+            Session.query(Tag).filter(or_(*tag_filters))
+            .order_by(Tag.type, Tag.name).all()
+        )
+
+        actual_tag_string = ",".join(":".join((tag.type, tag.url_name)) for tag in self.tags)
+        if actual_tag_string != request.matchdict["tag_string"]:
+            return HTTPFound(request.route_path("directory_tag", tag_string=actual_tag_string))
+
+    @property
+    def tag_array(self):
+        return cast([tag.id for tag in self.tags], ARRAY(Integer))
 
 
 def request_factory(request):
