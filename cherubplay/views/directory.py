@@ -570,16 +570,7 @@ def directory_new_post(request):
     except ValidationError as e:
         return {"form_data": request.POST, "preset_colours": preset_colours, "error": e.message}
 
-    status = "posted"
-    too_many_requests = False
-    if "draft" in request.POST:
-        status = "draft"
-    elif Session.query(func.count("*")).select_from(Request).filter(and_(
-        Request.user_id == request.user.id,
-        Request.status == "posted",
-    )).scalar() >= 10:
-        status = "draft"
-        too_many_requests = True
+    status = "draft" if "draft" in request.POST else "posted"
 
     new_date = datetime.datetime.now()
 
@@ -604,11 +595,7 @@ def directory_new_post(request):
     transaction.commit()
     update_request_tag_ids.delay(new_request.id)
 
-    return HTTPFound(request.route_path(
-        "directory_request",
-        id=new_request.id,
-        _query={"too_many_requests": "true"} if too_many_requests else None,
-    ))
+    return HTTPFound(request.route_path("directory_request", id=new_request.id))
 
 
 @view_config(route_name="directory_new_autocomplete", request_method="GET", permission="directory.new_request", renderer="json")
@@ -802,18 +789,8 @@ def directory_request_edit_post(context, request):
     new_date = datetime.datetime.now()
     context.edited = new_date
 
-    too_many_requests = False
     if context.status != "removed":
-        status = "posted"
-        if "draft" in request.POST:
-            status = "draft"
-        elif Session.query(func.count("*")).select_from(Request).filter(and_(
-            Request.id      != context.id,
-            Request.user_id == request.user.id,
-            Request.status  == "posted",
-        )).scalar() >= 10:
-            status = "draft"
-            too_many_requests = True
+        status = "draft" if "draft" in request.POST else "posted"
         if status == "posted" and context.posted is None:
             context.posted = new_date
         context.status = status
@@ -835,11 +812,7 @@ def directory_request_edit_post(context, request):
     transaction.commit()
     update_request_tag_ids.delay(context.id)
 
-    return HTTPFound(request.route_path(
-        "directory_request",
-        id=context.id,
-        _query={"too_many_requests": "true"} if too_many_requests else None,
-    ))
+    return HTTPFound(request.route_path("directory_request", id=context.id))
 
 
 @view_config(route_name="directory_request_delete", request_method="GET", permission="request.delete", renderer="layout2/directory/request_delete.mako")

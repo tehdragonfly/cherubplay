@@ -107,9 +107,7 @@ class TagList(object):
         if actual_tag_string != request.matchdict["tag_string"]:
             return HTTPFound(request.route_path("directory_tag", tag_string=actual_tag_string))
 
-    @property
-    def tag_array(self):
-        return cast([tag.id for tag in self.tags], ARRAY(Integer))
+        self.tag_array = cast([tag.id for tag in self.tags], ARRAY(Integer))
 
 
 def request_factory(request):

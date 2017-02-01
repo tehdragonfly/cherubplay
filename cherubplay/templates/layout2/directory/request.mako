@@ -11,9 +11,6 @@
     <p>You've blacklisted some of this request's tags. When you post it, it'll be hidden from you but other users will be able to see it.</p>
     % endif
     % endif
-    % if "too_many_requests" in request.GET:
-    <p>You can't post more than 10 requests at a time. Please save another request as a draft before posting this one.</p>
-    % endif
     <section class="tile2 request ${request.context.status}">
       ${parent.render_request(request.context, expanded=True)}
     </section>
