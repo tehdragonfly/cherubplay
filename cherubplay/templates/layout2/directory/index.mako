@@ -14,6 +14,6 @@
       % endfor
     </ul>
     % if more:
-    <p class="pager tile2"><a href="${request.current_route_path(_query={"before": requests[-1].posted.isoformat()})}">Next page</a></p>
+    <p class="pager tile2"><a href="${request.current_route_path(_query={"before": (requests[-1].posted or requests[-1].created).isoformat()})}">Next page</a></p>
     % endif
     % endif
