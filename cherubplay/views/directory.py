@@ -555,7 +555,7 @@ def _remove_duplicates(new_request):
     )).update({
         "status": "draft",
         "duplicate_of_id": new_request.id,
-    })
+    }, synchronize_session=False)
 
 
 @view_config(route_name="directory_new", request_method="GET", permission="directory.new_request", renderer="layout2/directory/new.mako")
