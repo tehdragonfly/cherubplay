@@ -29,6 +29,7 @@ class ChatContext(object):
         return [
             (Allow, Everyone, "chat.read"),
             (Allow, "admin",  "chat.read_ooc"),
+            (Allow, "admin",  "chat.full_user_list"),
         ]
 
     def __init__(self, request):
