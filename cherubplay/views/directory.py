@@ -1,4 +1,4 @@
-import datetime, re, transaction
+import datetime, re, time, transaction
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPFound, HTTPNotFound
 from pyramid.renderers import render_to_response
@@ -738,6 +738,16 @@ def directory_request_answer(context, request):
         response = render_to_response("layout2/directory/already_answered.mako", {}, request)
         response.status_int = 403
         return response
+
+    key = "directory_answer_limit:%s" % request.user.id
+    current_time = time.time()
+    if request.login_store.llen(key) >= 12:
+        if current_time - float(request.login_store.lindex(key, 0)) < 3600:
+            return render_to_response("layout2/directory/answered_too_many.mako", {}, request)
+
+    request.login_store.rpush(key, current_time)
+    request.login_store.ltrim(key, -12, -1)
+    request.login_store.expire(key, 3600)
 
     request.login_store.setex("answered:%s:%s" % (request.user.id, context.id), 86400, context.id)
 
