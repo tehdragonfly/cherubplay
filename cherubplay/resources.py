@@ -1,14 +1,15 @@
 from pyramid.decorator import reify
-from pyramid.httpexceptions import HTTPNotFound
+from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.security import Allow, Everyone
-from sqlalchemy import and_, or_, Integer
+from sqlalchemy import and_, func, or_, Integer
 from sqlalchemy.dialects.postgres import ARRAY
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 
 from cherubplay.models import (
-    Session, Chat, ChatUser, Prompt, PromptReport, Request, RequestTag, Resource
+    Session, Chat, ChatUser, Prompt, PromptReport, Request, RequestTag,
+    Resource, Tag,
 )
 
 
@@ -106,7 +107,7 @@ class TagList(object):
 
         actual_tag_string = ",".join(":".join((tag.type, tag.url_name)) for tag in self.tags)
         if actual_tag_string != request.matchdict["tag_string"]:
-            return HTTPFound(request.route_path("directory_tag", tag_string=actual_tag_string))
+            raise HTTPFound(request.route_path("directory_tag", tag_string=actual_tag_string))
 
         self.tag_array = cast([tag.id for tag in self.tags], ARRAY(Integer))
 

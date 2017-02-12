@@ -19,7 +19,7 @@ from .models import (
     Resource,
     User,
 )
-from .resources import ChatContext, prompt_factory, report_factory, request_factory
+from .resources import ChatContext, prompt_factory, report_factory, TagList, request_factory
 from .views import chat
 from .views import prompts
 
@@ -193,23 +193,31 @@ def main(global_config, **settings):
     config.add_route("delete_prompt", "/prompts/{id:\d+}/delete/", factory=prompt_factory)
 
     config.add_ext_route("directory", "/directory/")
+
     config.add_ext_route("directory_yours", "/directory/yours/")
+
     config.add_route("directory_search", "/directory/search/")
     config.add_route("directory_search_autocomplete", "/directory/search/autocomplete/")
+
     config.add_route("directory_tag_list", "/directory/tags/")
     config.add_route("directory_tag_list_unapproved", "/directory/tags/unapproved/")
     config.add_route("directory_tag_list_blacklist_default", "/directory/tags/blacklist_default/")
     config.add_route("directory_tag_table", "/directory/tags/table/")
-    config.add_ext_route("directory_tag", "/directory/{type}:{name}/")
-    config.add_ext_route("directory_tag_approve", "/directory/{type}:{name}/approve/")
+
+    config.add_ext_route("directory_tag", "/directory/{tag_string:[^:]+:[^/,]+(,[^:]+:[^/,]+){0,4}}/", factory=TagList)
+
+    config.add_ext_route("directory_tag_approve",      "/directory/{type}:{name}/approve/")
     config.add_ext_route("directory_tag_make_synonym", "/directory/{type}:{name}/make_synonym/")
-    config.add_ext_route("directory_tag_add_parent", "/directory/{type}:{name}/add_parent/")
+    config.add_ext_route("directory_tag_add_parent",   "/directory/{type}:{name}/add_parent/")
+
     config.add_ext_route("directory_new", "/directory/new/")
     config.add_route("directory_new_autocomplete", "/directory/new/autocomplete/")
+
     config.add_ext_route("directory_blacklist", "/directory/blacklist/")
     config.add_route("directory_blacklist_setup", "/directory/blacklist/setup/")
     config.add_route("directory_blacklist_add", "/directory/blacklist/add/")
     config.add_route("directory_blacklist_remove", "/directory/blacklist/remove/")
+
     config.add_ext_route("directory_request", "/directory/{id:\d+}/", factory=request_factory)
     config.add_route("directory_request_answer", "/directory/{id:\d+}/answer/", factory=request_factory)
     config.add_route("directory_request_edit", "/directory/{id:\d+}/edit/", factory=request_factory)
