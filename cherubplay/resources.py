@@ -100,10 +100,12 @@ class TagList(object):
                 func.lower(Tag.name) == Tag.name_from_url(name.strip().lower()),
             ))
 
-        self.tags = (
+        self.tags = [
+            tag.synonym_of or tag for tag in
             Session.query(Tag).filter(or_(*tag_filters))
-            .order_by(Tag.type, Tag.name).all()
-        )
+            .options(joinedload(Tag.synonym_of))
+            .order_by(Tag.type, Tag.name)
+        ]
 
         actual_tag_string = ",".join(":".join((tag.type, tag.url_name)) for tag in self.tags)
         if actual_tag_string != request.matchdict["tag_string"]:
