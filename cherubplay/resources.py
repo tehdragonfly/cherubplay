@@ -8,8 +8,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 
 from cherubplay.models import (
-    Session, Chat, ChatUser, Prompt, PromptReport, Request, RequestTag,
-    Resource, Tag,
+    Session, BlacklistedTag, Chat, ChatUser, Prompt, PromptReport, Request,
+    RequestTag, Resource, Tag,
 )
 
 
@@ -87,7 +87,8 @@ class TagList(object):
     def __init__(self, request):
         tag_filters = []
 
-        for pair in request.matchdict["tag_string"].split(",")[:5]:
+        split_tag_string = request.matchdict["tag_string"].split(",")[:5]
+        for pair in split_tag_string:
             try:
                 tag_type, name = pair.split(":")
             except ValueError:
@@ -107,9 +108,19 @@ class TagList(object):
             .order_by(Tag.type, Tag.name)
         ]
 
+        if len(self.tags) < len(split_tag_string):
+            # One or more tags don't exist, so there won't be any results here.
+            raise HTTPNotFound
+
         actual_tag_string = ",".join(":".join((tag.type, tag.url_name)) for tag in self.tags)
         if actual_tag_string != request.matchdict["tag_string"]:
             raise HTTPFound(request.route_path("directory_tag", tag_string=actual_tag_string))
+
+        self.blacklisted_tags = [
+            _.tag for _ in
+            Session.query(BlacklistedTag)
+            .filter(BlacklistedTag.tag_id.in_(tag.id for tag in self.tags)).all()
+        ]
 
         self.tag_array = cast([tag.id for tag in self.tags], ARRAY(Integer))
 
