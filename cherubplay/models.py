@@ -325,6 +325,9 @@ class Request(Base):
     tag_ids = Column(ARRAY(Integer)) # this makes tag filtering easier
     duplicate_of_id = Column(Integer, ForeignKey("requests.id"))
 
+    def __repr__(self):
+        return "<Request #%s>" % self.id
+
     def tags_by_type(self):
         tags = { _: [] for _ in Tag.type.type.enums }
         for tag in self.tags:
@@ -352,6 +355,9 @@ class RequestTag(Base):
     request_id = Column(Integer, ForeignKey("requests.id"), primary_key=True)
     tag_id = Column(Integer, ForeignKey("tags.id"), primary_key=True)
 
+    def __repr__(self):
+        return "<RequestTag: Request #%s, Tag #%s>" % (self.request_id, self.tag_id)
+
     def __json__(self, request=None):
         tag_dict = self.tag.__json__(request)
         return tag_dict
@@ -361,6 +367,9 @@ class BlacklistedTag(Base):
     __tablename__ = "blacklisted_tags"
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     tag_id = Column(Integer, ForeignKey("tags.id"), primary_key=True)
+
+    def __repr__(self):
+        return "<BlacklistedTag: User #%s, Tag #%s>" % (self.user_id, self.tag_id)
 
     def __json__(self, request=None):
         tag_dict = self.tag.__json__(request)
@@ -385,6 +394,9 @@ class Tag(Base):
 
     maturity_names = [u"Safe for work", u"Not safe for work", u"NSFW extreme"]
     type_names = [u"Fluff", u"Plot-driven", u"Sexual", u"Shippy", u"Violent"]
+
+    def __repr__(self):
+        return "<Tag #%s: %s:%s>" % (self.id, self.type, self.name)
 
     @classmethod
     def get_or_create(cls, tag_type, name, allow_maturity_and_type_creation=True, create_opposite_tag=True):
@@ -426,6 +438,9 @@ class TagParent(Base):
     __tablename__ = "tag_parents"
     child_id = Column(Integer, ForeignKey("tags.id"), primary_key=True)
     parent_id = Column(Integer, ForeignKey("tags.id"), primary_key=True)
+
+    def __repr__(self):
+        return "<TagParent: Child #%s, Parent #%s>" % (self.child_id, self.parent_id)
 
 
 Chat.last_user = relationship(User)
