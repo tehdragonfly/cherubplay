@@ -223,7 +223,7 @@ def directory_tag_table(request):
 
 @view_config(route_name="directory_tag",     request_method="GET", permission="directory.read", renderer="layout2/directory/tag.mako")
 @view_config(route_name="directory_tag_ext", request_method="GET", permission="directory.read", extension="json", renderer="json")
-def directory_tag(request):
+def directory_tag(context, request):
 
     if request.GET.get("before"):
         try:
@@ -233,43 +233,22 @@ def directory_tag(request):
     else:
         before_date = None
 
-    if request.matchdict["type"] not in Tag.type.type.enums:
-        raise HTTPNotFound
-
     if not request.user.seen_blacklist_warning:
         return render_to_response("layout2/directory/blacklist_warning.mako", {}, request)
 
-    name = Tag.name_from_url(request.matchdict["name"])
+    resp = {
+        "tags": context.tags,
+        "blacklisted": context.blacklisted_tags,
+    }
 
-    try:
-        tag = Session.query(Tag).filter(and_(
-            Tag.type == request.matchdict["type"], func.lower(Tag.name) == name.lower(),
-        )).options(joinedload(Tag.synonym_of)).one()
-    except NoResultFound:
-        return {"tag": {
-            "type": request.matchdict["type"],
-            "name": request.matchdict["name"],
-        }, "blacklisted": False, "requests": [], "more": False}
+    if context.blacklisted_tags:
+        resp["requests"] = []
+        resp["more"] = False
+        return resp
 
-    if tag.synonym_of is not None:
-        return HTTPFound(request.current_route_path(type=tag.synonym_of.type, name=tag.synonym_of.url_name))
-
-    if tag.name != name:
-        return HTTPFound(request.current_route_path(name=tag.url_name))
-
-    tag_dict = tag.__json__(request)
-
-    blacklisted = Session.query(func.count("*")).select_from(BlacklistedTag).filter(and_(
-        BlacklistedTag.user_id == request.user.id, BlacklistedTag.tag_id == tag.id,
-    )).scalar()
-
-    if blacklisted:
-        return {"tag": tag_dict, "blacklisted": True, "requests": [], "more": False}
-
-    tag_array = cast([tag.id], ARRAY(Integer))
     requests = (
         Session.query(Request)
-        .filter(and_(request.user.tag_filter, Request.tag_ids.contains(tag_array)))
+        .filter(and_(request.user.tag_filter, Request.tag_ids.contains(context.tag_array)))
     )
     if before_date:
         requests = requests.filter(Request.posted < before_date)
@@ -279,46 +258,42 @@ def directory_tag(request):
         .limit(26).all()
     )
 
-    answered = _find_answered(request, requests)
+    resp["requests"] = requests[:25]
+    resp["answered"] = _find_answered(request, requests)
+    resp["more"]     = len(requests) == 26
 
-    all_tag_types = (
-        Session.query(Tag)
-        .filter(func.lower(Tag.name) == name.lower())
-        .options(joinedload(Tag.synonym_of))
-        .order_by(Tag.type).all()
-    )
-    tag_types = [_ for _ in all_tag_types if _.synonym_of not in all_tag_types]
+    if len(context.tags) == 1:
+        tag = context.tags[0]
 
-    resp = {
-        "tag": tag_dict,
-        "blacklisted": False,
-        "requests": requests[:25],
-        "answered": answered,
-        "more": len(requests) == 26,
-        "tag_types": tag_types,
-    }
+        all_tag_types = (
+            Session.query(Tag)
+            .filter(func.lower(Tag.name) == tag.name.lower())
+            .options(joinedload(Tag.synonym_of))
+            .order_by(Tag.type).all()
+        )
+        resp["types"] = [_ for _ in all_tag_types if _.synonym_of not in all_tag_types]
 
-    if not "before" in request.GET:
-        if request.has_permission("directory.manage_tags"):
-            if not tag.approved:
-                resp["can_be_approved"] = True
-            resp["synonyms"] = (
+        if not "before" in request.GET:
+            if request.has_permission("directory.manage_tags"):
+                if not tag.approved:
+                    resp["can_be_approved"] = True
+                resp["synonyms"] = (
+                    Session.query(Tag)
+                    .filter(Tag.synonym_id == tag.id)
+                    .order_by(Tag.type, Tag.name).all()
+                )
+            resp["parents"] = (
                 Session.query(Tag)
-                .filter(Tag.synonym_id == tag.id)
+                .join(TagParent, Tag.id == TagParent.parent_id)
+                .filter(TagParent.child_id == tag.id)
                 .order_by(Tag.type, Tag.name).all()
             )
-        resp["parents"] = (
-            Session.query(Tag)
-            .join(TagParent, Tag.id == TagParent.parent_id)
-            .filter(TagParent.child_id == tag.id)
-            .order_by(Tag.type, Tag.name).all()
-        )
-        resp["children"] = (
-            Session.query(Tag)
-            .join(TagParent, Tag.id == TagParent.child_id)
-            .filter(TagParent.parent_id == tag.id)
-            .order_by(Tag.type, Tag.name).all()
-        )
+            resp["children"] = (
+                Session.query(Tag)
+                .join(TagParent, Tag.id == TagParent.child_id)
+                .filter(TagParent.parent_id == tag.id)
+                .order_by(Tag.type, Tag.name).all()
+            )
 
     return resp
 
