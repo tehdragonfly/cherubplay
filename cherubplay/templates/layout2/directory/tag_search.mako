@@ -9,10 +9,10 @@
             % if tag.synonym_of:
               <li>
                 ${tag.type.replace("_", " ")}:${tag.name}
-                (synonym of <a href="${request.route_path("directory_tag", type=tag.synonym_of.type, name=tag.synonym_of.url_name)}">${tag.synonym_of.type.replace("_", " ")}:${tag.synonym_of.name}</a>)
+                (synonym of <a href="${request.route_path("directory_tag", tag_string=tag.synonym_of.tag_string)}">${tag.synonym_of.type.replace("_", " ")}:${tag.synonym_of.name}</a>)
               </li>
             % else:
-              <li><a href="${request.route_path("directory_tag", type=tag.type, name=tag.url_name)}">${tag.type.replace("_", " ")}:${tag.name}</a></li>
+              <li><a href="${request.route_path("directory_tag", tag_string=tag.tag_string)}">${tag.type.replace("_", " ")}:${tag.name}</a></li>
             % endif
           % endfor
         </ul>

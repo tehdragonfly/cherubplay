@@ -9,14 +9,15 @@
 </%block>
     % if len(request.context.tags) == 1 and not "before" in request.GET:
       % if request.has_permission("directory.manage_tags"):
+        <% current_tag = request.context.tags[0] %>
         % if can_be_approved:
-          <form class="tile2" action="${request.route_path("directory_tag_approve", **request.matchdict)}" method="post">
+          <form class="tile2" action="${request.route_path("directory_tag_approve", type=current_tag.type, name=current_tag.url_name)}" method="post">
             <h3>Not approved</h3>
             <p class="middle_actions"><button type="submit">Approve</button></p>
           </form>
         % endif
         % if not synonyms:
-          <form class="tile2" action="${request.route_path("directory_tag_make_synonym", **request.matchdict)}" method="post">
+          <form class="tile2" action="${request.route_path("directory_tag_make_synonym", type=current_tag.type, name=current_tag.url_name)}" method="post">
             <h3>Make this a synonym</h3>
             <p><select name="tag_type" required>
               <option value=""></option>
@@ -26,7 +27,7 @@
             </select><input type="text" name="name" maxlength="100" required><button type="submit">Save</button></p>
           </form>
         % endif
-        <form class="tile2" action="${request.route_path("directory_tag_add_parent", **request.matchdict)}" method="post">
+        <form class="tile2" action="${request.route_path("directory_tag_add_parent", type=current_tag.type, name=current_tag.url_name)}" method="post">
           <h3>Add a parent tag</h3>
           <p><select name="tag_type" required>
             <option value=""></option>
@@ -51,7 +52,7 @@
             <h4 class="request_tag_label">Parent tags</h4>
             <ul class="request_tags related">
               % for tag in parents:
-                <li><a href="${request.route_path("directory_tag", type=tag.type, name=tag.url_name)}">${tag.type.replace("_", " ")}:${tag.name}</a></li>
+                <li><a href="${request.route_path("directory_tag", tag_string=tag.tag_string)}">${tag.type.replace("_", " ")}:${tag.name}</a></li>
               % endfor
             </ul>
           % endif
@@ -59,7 +60,7 @@
             <h4 class="request_tag_label">Child tags</h4>
             <ul class="request_tags related">
               % for tag in children:
-                <li><a href="${request.route_path("directory_tag", type=tag.type, name=tag.url_name)}">${tag.type.replace("_", " ")}:${tag.name}</a></li>
+                <li><a href="${request.route_path("directory_tag", tag_string=tag.tag_string)}">${tag.type.replace("_", " ")}:${tag.name}</a></li>
               % endfor
             </ul>
           % endif
@@ -101,7 +102,7 @@
           % if other_tag.type == tag["type"]:
             <li>${tag["type"].replace("_", " ")}</li>
           % else:
-            <li><a href="${request.route_path("directory_tag", type=other_tag.type, name=other_tag.url_name)}">${other_tag.type.replace("_", " ")}</a></li>
+            <li><a href="${request.route_path("directory_tag", tag_string=other_tag.tag_string)}">${other_tag.type.replace("_", " ")}</a></li>
           % endif
         % endfor
       </ul>

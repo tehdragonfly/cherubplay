@@ -423,6 +423,10 @@ class Tag(Base):
     def url_name(self):
         return self.name.replace("/", "*s*").replace(":", "*c*").replace(" ", "_")
 
+    @reify
+    def tag_string(self):
+        return ":".join((self.type, self.url_name))
+
     def __json__(self, request=None):
         tag_dict = {
             "type": self.type,

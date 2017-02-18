@@ -156,16 +156,8 @@ def directory_search(request):
 
     if len(visible_tags) == 1:
         if tag.synonym_of:
-            return HTTPFound(request.route_path(
-                "directory_tag",
-                type=visible_tags[0].synonym_of.type,
-                name=visible_tags[0].synonym_of.url_name,
-            ))
-        return HTTPFound(request.route_path(
-            "directory_tag",
-            type=visible_tags[0].type,
-            name=visible_tags[0].url_name,
-        ))
+            return HTTPFound(request.route_path("directory_tag", tag_string=visible_tags[0].synonym_of.tag_string))
+        return HTTPFound(request.route_path("directory_tag", tag_string=visible_tags[0].tag_string))
 
     return {"tags": tags}
 
@@ -328,7 +320,7 @@ def directory_tag_approve(request):
 
     if "Referer" in request.headers:
         return HTTPFound(request.headers["Referer"])
-    return HTTPFound(request.route_path("directory_tag", **request.matchdict))
+    return HTTPFound(request.route_path("directory_tag", tag_string=request.matchdict["type"] + ":" + request.matchdict["name"]))
 
 
 def _make_synonym(old_type, old_name, new_type, new_name):
@@ -407,7 +399,7 @@ def directory_tag_make_synonym(request):
     else:
         _make_synonym(old_type, old_name, new_type, new_name)
 
-    return HTTPFound(request.route_path("directory_tag", **request.matchdict))
+    return HTTPFound(request.route_path("directory_tag", tag_string=request.matchdict["type"] + ":" + request.matchdict["name"]))
 
 
 def _add_parent(child_type, child_name, parent_type, parent_name):
@@ -486,7 +478,7 @@ def directory_tag_add_parent(request):
     transaction.commit()
     update_missing_request_tag_ids.delay()
 
-    return HTTPFound(request.route_path("directory_tag", **request.matchdict))
+    return HTTPFound(request.route_path("directory_tag", tag_string=request.matchdict["type"] + ":" + request.matchdict["name"]))
 
 
 @view_config(route_name="directory_yours",     request_method="GET", permission="directory.read", renderer="layout2/directory/index.mako")

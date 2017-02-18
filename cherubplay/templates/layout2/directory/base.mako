@@ -1,10 +1,10 @@
 <%inherit file="/layout2/base.mako" />\
 <%def name="tag_li(tag)">\
 <li${" class=\"trigger\"" if tag.type == "trigger" else ""|n}>\
-% if tag.type == request.matchdict.get("type") and tag.url_name == request.matchdict.get("name"):
+% if request.matched_route.name == "directory_tag" and len(request.context.tags) == 1 and request.context.tags[0] == tag:
 ${"TW:&nbsp;" if tag.type == "trigger" else ""|n}${tag.name}\
 % else:
-<a href="${request.route_path("directory_tag", type=tag.type, name=tag.url_name)}">${"TW:&nbsp;" if tag.type == "trigger" else ""|n}${tag.name}</a>\
+<a href="${request.route_path("directory_tag", tag_string=tag.tag_string)}">${"TW:&nbsp;" if tag.type == "trigger" else ""|n}${tag.name}</a>\
 % endif
 </li>\
 </%def>

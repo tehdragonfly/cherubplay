@@ -23,7 +23,7 @@ synonym\
 unapproved\
 % endif
 ">
-          <a href="${request.route_path("directory_tag", type=row[tag_type].type, name=row[tag_type].url_name)}">${row[tag_type].name}</a>
+          <a href="${request.route_path("directory_tag", tag_string=row[tag_type].tag_string)}">${row[tag_type].name}</a>
         </td>
         % else:
         <td></td>
