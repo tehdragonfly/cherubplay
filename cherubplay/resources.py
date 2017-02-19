@@ -119,7 +119,10 @@ class TagList(object):
         self.blacklisted_tags = [
             _.tag for _ in
             Session.query(BlacklistedTag)
-            .filter(BlacklistedTag.tag_id.in_(tag.id for tag in self.tags)).all()
+            .filter(and_(
+                BlacklistedTag.user_id == request.user.id,
+                BlacklistedTag.tag_id.in_(tag.id for tag in self.tags),
+            )).all()
         ]
 
         self.tag_array = cast([tag.id for tag in self.tags], ARRAY(Integer))
