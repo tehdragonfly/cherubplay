@@ -230,7 +230,7 @@ def directory_tag(context, request):
 
     resp = {
         "tags": context.tags,
-        "blacklisted": context.blacklisted_tags,
+        "blacklisted_tags": context.blacklisted_tags,
     }
 
     if context.blacklisted_tags:
