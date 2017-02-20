@@ -33,34 +33,34 @@ New request
       </p>
       <hr>
       <h3>Who you're playing</h3>
-      <label>Character:</label>
-      <div class="tag_input">
-        <ul class="request_tags"></ul>
-        <input type="text" class="full" name="character" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("character", "")}">
-      </div>
-      <label>Fandom:</label>
+      <label>Fandom(s):</label>
       <div class="tag_input">
         <ul class="request_tags"></ul>
         <input type="text" class="full" name="fandom" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("fandom", "Homestuck")}">
       </div>
-      <label>Gender:</label>
+      <label>Character(s):</label>
+      <div class="tag_input">
+        <ul class="request_tags"></ul>
+        <input type="text" class="full" name="character" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("character", "")}">
+      </div>
+      <label>Gender(s):</label>
       <div class="tag_input">
         <ul class="request_tags"></ul>
         <input type="text" class="full" name="gender" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("gender", "")}">
       </div>
       <hr>
       <h3>Who you're looking for</h3>
-      <label>Character:</label>
-      <div class="tag_input">
-        <ul class="request_tags"></ul>
-        <input type="text" class="full" name="character_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("character_wanted", "")}">
-      </div>
-      <label>Fandom:</label>
+      <label>Fandom(s):</label>
       <div class="tag_input">
         <ul class="request_tags"></ul>
         <input type="text" class="full" name="fandom_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("fandom_wanted", "Homestuck")}">
       </div>
-      <label>Gender:</label>
+      <label>Character(s):</label>
+      <div class="tag_input">
+        <ul class="request_tags"></ul>
+        <input type="text" class="full" name="character_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("character_wanted", "")}">
+      </div>
+      <label>Gender(s):</label>
       <div class="tag_input">
         <ul class="request_tags"></ul>
         <input type="text" class="full" name="gender_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("gender_wanted", "")}">

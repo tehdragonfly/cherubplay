@@ -409,9 +409,9 @@ class Tag(Base):
             Session.add(tag)
             Session.flush()
             if create_opposite_tag:
-                if tag_type in ("character", "fandom", "gender"):
+                if tag_type in ("fandom", "character", "gender"):
                     cls.get_or_create(tag_type + "_wanted", name, create_opposite_tag=False)
-                elif tag_type in ("character_wanted", "fandom_wanted", "gender_wanted"):
+                elif tag_type in ("fandom_wanted", "character_wanted", "gender_wanted"):
                     cls.get_or_create(tag_type.replace("_wanted", ""), name, create_opposite_tag=False)
         return tag
 

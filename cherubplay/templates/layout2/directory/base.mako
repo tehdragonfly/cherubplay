@@ -27,13 +27,13 @@ ${"TW:&nbsp;" if tag.type == "trigger" else ""|n}${tag.name}\
           ${tag_li(tag)}
           % endfor
         </ul>
-        % if tags_by_type["character"] or tags_by_type["fandom"] or tags_by_type["gender"]:
+        % if tags_by_type["fandom"] or tags_by_type["character"] or tags_by_type["gender"]:
         <h3>Playing:</h3>
         <ul class="request_tags">
-          % for tag in tags_by_type["character"]:
+          % for tag in tags_by_type["fandom"]:
           ${tag_li(tag)}
           % endfor
-          % for tag in tags_by_type["fandom"]:
+          % for tag in tags_by_type["character"]:
           ${tag_li(tag)}
           % endfor
           % for tag in tags_by_type["gender"]:
@@ -41,13 +41,13 @@ ${"TW:&nbsp;" if tag.type == "trigger" else ""|n}${tag.name}\
           % endfor
         </ul>
         % endif
-        % if tags_by_type["character_wanted"] or tags_by_type["fandom_wanted"] or tags_by_type["gender_wanted"]:
+        % if tags_by_type["fandom_wanted"] or tags_by_type["character_wanted"] or tags_by_type["gender_wanted"]:
         <h3>Looking for:</h3>
         <ul class="request_tags">
-          % for tag in tags_by_type["character_wanted"]:
+          % for tag in tags_by_type["fandom_wanted"]:
           ${tag_li(tag)}
           % endfor
-          % for tag in tags_by_type["fandom_wanted"]:
+          % for tag in tags_by_type["character_wanted"]:
           ${tag_li(tag)}
           % endfor
           % for tag in tags_by_type["gender_wanted"]:
