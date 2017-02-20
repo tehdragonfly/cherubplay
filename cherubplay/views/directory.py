@@ -46,7 +46,7 @@ def _validate_request_form(request):
 
 def _normalise_tag_name(tag_type, name):
     name = Tag.name_from_url(name).strip()
-    if tag_type == "trigger" and name.lower().startswith("tw:"):
+    if tag_type == "warning" and name.lower().startswith("tw:"):
         name = name[3:].strip()
     elif name.startswith("#"):
         name = name[1:].strip()

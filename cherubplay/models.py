@@ -383,7 +383,7 @@ class Tag(Base):
     __tablename__ = "tags"
     id = Column(Integer, primary_key=True)
     type = Column(Enum(
-        u"maturity", u"trigger", u"type", u"fandom", u"fandom_wanted",
+        u"maturity", u"warning", u"type", u"fandom", u"fandom_wanted",
         u"character", u"character_wanted", u"gender", u"gender_wanted", u"misc",
         name=u"tags_type",
     ), nullable=False, default=u"misc")

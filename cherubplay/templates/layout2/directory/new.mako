@@ -19,12 +19,12 @@ New request
       % if error == "blank_maturity":
       <p class="error">Please choose a maturity for your prompt.</p>
       % endif
-      <label>Trigger warnings:</label>
+      <label>Content warnings:</label>
       <div class="tag_input">
         <ul class="request_tags"></ul>
-        <input type="text" class="full" name="trigger" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("trigger", "")}">
+        <input type="text" class="full" name="warning" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("warning", "")}">
       </div>
-      <p class="help">Trigger warnings must include anything that belongs under NSFW extreme.</p>
+      <p class="help">Content warnings must include anything that belongs under NSFW extreme.</p>
       <p class="types">
         <span>Type:</span>
         % for tag_type in Tag.type_names:

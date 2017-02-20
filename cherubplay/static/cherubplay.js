@@ -630,7 +630,7 @@ var cherubplay = (function() {
 					value.split(",").forEach(function(tag_name) {
 
 						tag_name = tag_name.trim();
-						if (tag_type == "trigger") { tag_name = tag_name.replace(/^tw:\s*/gi, ""); }
+						if (tag_type == "warning") { tag_name = tag_name.replace(/^tw:\s*/gi, ""); }
 						if (!tag_name) { return; }
 
 						var existing_tags = tag_list.find("a");
@@ -642,7 +642,7 @@ var cherubplay = (function() {
 						}
 
 						var li = $("<li>").text(" ");
-						if (tag_type == "trigger") { li.addClass("trigger"); }
+						if (tag_type == "warning") { li.addClass("warning"); }
 						li.appendTo(tag_list);
 						$("<a>").attr({
 							"href": "#",
@@ -651,7 +651,7 @@ var cherubplay = (function() {
 							$(this.parentNode).remove();
 							refresh_hidden_input();
 							return false;
-						}).text((tag_type == "trigger" ? "TW: " /* no-break space */ : "") + tag_name).appendTo(li);
+						}).text(tag_name).appendTo(li);
 
 					});
 				}
