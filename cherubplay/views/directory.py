@@ -263,7 +263,7 @@ def directory_tag(context, request):
             .options(joinedload(Tag.synonym_of))
             .order_by(Tag.type).all()
         )
-        resp["types"] = [_ for _ in all_tag_types if _.synonym_of not in all_tag_types]
+        resp["tag_types"] = [_ for _ in all_tag_types if _.synonym_of not in all_tag_types]
 
         if not "before" in request.GET:
             if request.has_permission("directory.manage_tags"):

@@ -96,11 +96,12 @@
     % endif
 <%block name="tag_links">
       % if tag_types and len(tag_types) > 1:
+      <% current_tag = request.context.tags[0] %>
       <h3>Tag types</h3>
       <ul>
         % for other_tag in tag_types:
-          % if other_tag.type == tag["type"]:
-            <li>${tag["type"].replace("_", " ")}</li>
+          % if other_tag.type == current_tag.type:
+            <li>${other_tag.type.replace("_", " ")}</li>
           % else:
             <li><a href="${request.route_path("directory_tag", tag_string=other_tag.tag_string)}">${other_tag.type.replace("_", " ")}</a></li>
           % endif
