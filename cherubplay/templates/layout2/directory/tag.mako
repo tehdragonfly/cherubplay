@@ -67,6 +67,19 @@
         </section>
       % endif
     % endif
+    % if len(request.context.tags) > 1:
+      <section class="tile2">
+        <h3>Tags</h3>
+        <ul>
+          % for tag in request.context.tags:
+            <li>
+              ${tag.type.replace("_", " ")}:${tag.name}
+              (<a href="${request.route_path("directory_tag", tag_string=",".join(_.tag_string for _ in request.context.tags if _ != tag))}">x</a>)
+            </li>
+          % endfor
+        </ul>
+      </section>
+    % endif
     % if blacklisted_tags:
       % if len(request.context.tags) == 1:
         <p>This tag can't be shown because it's on your <a href="${request.route_path("directory_blacklist")}">blacklist</a>.</p>
