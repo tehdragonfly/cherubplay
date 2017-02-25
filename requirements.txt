@@ -12,6 +12,7 @@ pyramid-tm==0.12
 pytz==2015.4
 redis==2.10.3
 SQLAlchemy==1.0.6
+sqlalchemy-enum34==1.0.1
 tornado==4.2
 tornado-redis==2.4.18
 transaction==1.4.4

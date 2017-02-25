@@ -15,7 +15,7 @@ from sqlalchemy import (
     UniqueConstraint,
     Boolean,
     DateTime,
-    Enum,
+    Enum as SQLAlchemyEnum,
     Integer,
     String,
     Unicode,
@@ -25,6 +25,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy_enum34 import EnumType
 from time import mktime
 
 from sqlalchemy.orm import (
@@ -36,6 +37,7 @@ from sqlalchemy.orm import (
 from zope.sqlalchemy import ZopeTransactionExtension
 
 from cherubplay.lib import symbols
+from cherubplay.models.enums import TagType
 
 
 Session = scoped_session(sessionmaker(
@@ -61,7 +63,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     username = Column(Unicode(100), nullable=False, unique=True)
     password = Column(String(60), nullable=False)
-    status = Column(Enum(u"active", u"banned", u"admin", name="user_status"), nullable=False, default=u"active")
+    status = Column(SQLAlchemyEnum(u"active", u"banned", u"admin", name="user_status"), nullable=False, default=u"active")
     email = Column(Unicode(255))
     email_verified = Column(Boolean, nullable=False, default=False)
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
@@ -111,7 +113,7 @@ class Chat(Base):
     __tablename__ = "chats"
     id = Column(Integer, primary_key=True)
     url = Column(Unicode(100), nullable=False, unique=True)
-    status = Column(Enum(u"ongoing", u"ended", name="chat_status"), nullable=False, default=u"ongoing")
+    status = Column(SQLAlchemyEnum(u"ongoing", u"ended", name="chat_status"), nullable=False, default=u"ongoing")
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
     updated = Column(DateTime, nullable=False, default=datetime.datetime.now)
     last_user_id = Column(Integer, ForeignKey("users.id"))
@@ -135,7 +137,7 @@ class Message(Base):
     chat_id = Column(Integer, ForeignKey("chats.id"), nullable=False)
     # System messages don't have a user ID, and we may also need to set it to null if a user is deleted.
     user_id = Column(Integer, ForeignKey("users.id"))
-    type = Column(Enum(u"ic", u"ooc", u"system", name="message_type"), nullable=False, default=u"ic")
+    type = Column(SQLAlchemyEnum(u"ic", u"ooc", u"system", name="message_type"), nullable=False, default=u"ic")
     colour = Column(String(6), nullable=False, default="000000")
     symbol = Column(Integer)
     text = Column(UnicodeText, nullable=False)
@@ -180,7 +182,7 @@ class ChatUser(Base):
     symbol = Column(Integer, nullable=False)
     anonymous = Column(Boolean, nullable=False, default=True)
     visited = Column(DateTime, nullable=False, default=datetime.datetime.now)
-    status = Column(Enum(u"active", u"archived", name="chat_user_status"), nullable=False, default=u"active")
+    status = Column(SQLAlchemyEnum(u"active", u"archived", name="chat_user_status"), nullable=False, default=u"active")
     title = Column(Unicode(100), nullable=False, default=u"")
     notes = Column(UnicodeText, nullable=False, default=u"")
     labels = Column(ARRAY(Unicode(500)), nullable=False, default=list)
@@ -208,7 +210,7 @@ class ChatUser(Base):
 class PromptReport(Base, Resource):
     __tablename__ = "prompt_reports"
     id = Column(Integer, primary_key=True)
-    status = Column(Enum(
+    status = Column(SQLAlchemyEnum(
         u"open",
         u"closed",
         u"invalid",
@@ -224,7 +226,7 @@ class PromptReport(Base, Resource):
     category = Column(Unicode(100), nullable=False)
     starter = Column(Unicode(100))
     level = Column(Unicode(100), nullable=False)
-    reason = Column(Enum(
+    reason = Column(SQLAlchemyEnum(
         u"wrong_category",
         u"spam",
         u"stolen",
@@ -310,7 +312,7 @@ class Request(Base):
     __tablename__ = "requests"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    status = Column(Enum(u"draft", u"posted", u"removed", name=u"requests_status"), nullable=False, default=u"draft")
+    status = Column(SQLAlchemyEnum(u"draft", u"posted", u"removed", name=u"requests_status"), nullable=False, default=u"draft")
     # Created indicates when the request was created, and is never modified.
     created = Column(DateTime(), nullable=False, default=datetime.datetime.now)
     # Posted indicates when the request was first posted.
@@ -382,11 +384,8 @@ class CreateNotAllowed(Exception): pass
 class Tag(Base):
     __tablename__ = "tags"
     id = Column(Integer, primary_key=True)
-    type = Column(Enum(
-        u"maturity", u"warning", u"type", u"fandom", u"fandom_wanted",
-        u"character", u"character_wanted", u"gender", u"gender_wanted", u"misc",
-        name=u"tags_type",
-    ), nullable=False, default=u"misc")
+    # XXX TODO UPDATE EVERYTHING ELSE TO ACCEPT TagType
+    type = Column(EnumType(TagType, name=u"tags_type"), nullable=False, default=u"misc")
     name = Column(Unicode(100), nullable=False)
     synonym_id = Column(Integer, ForeignKey("tags.id"))
     approved = Column(Boolean, nullable=False, default=False)
@@ -396,7 +395,7 @@ class Tag(Base):
     type_names = [u"Fluff", u"Plot-driven", u"Sexual", u"Shippy", u"Violent"]
 
     def __repr__(self):
-        return "<Tag #%s: %s:%s>" % (self.id, self.type, self.name)
+        return "<Tag #%s: %s:%s>" % (self.id, self.type.value, self.name)
 
     @classmethod
     def get_or_create(cls, tag_type, name, allow_maturity_and_type_creation=True, create_opposite_tag=True):
