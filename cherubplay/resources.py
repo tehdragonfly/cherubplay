@@ -114,7 +114,7 @@ class TagList(object):
 
         actual_tag_string = ",".join(":".join((tag.type, tag.url_name)) for tag in self.tags)
         if actual_tag_string != request.matchdict["tag_string"]:
-            raise HTTPFound(request.route_path("directory_tag", tag_string=actual_tag_string))
+            raise HTTPFound(request.current_route_path(tag_string=actual_tag_string))
 
         self.blacklisted_tags = [
             _.tag for _ in
