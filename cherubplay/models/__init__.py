@@ -331,7 +331,7 @@ class Request(Base):
         return "<Request #%s>" % self.id
 
     def tags_by_type(self):
-        tags = { _: [] for _ in Tag.type.type.enums }
+        tags = { _: [] for _ in Tag.type.type.python_type }
         for tag in self.tags:
             tags[tag.type].append(tag)
         return tags
@@ -424,11 +424,11 @@ class Tag(Base):
 
     @reify
     def tag_string(self):
-        return ":".join((self.type, self.url_name))
+        return ":".join((self.type.value, self.url_name))
 
     def __json__(self, request=None):
         tag_dict = {
-            "type": self.type,
+            "type": self.type.value,
             "name": self.name,
             "url_name": self.url_name,
         }
