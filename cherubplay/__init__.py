@@ -97,7 +97,7 @@ def request_user(request):
         return None
     if user_id is not None:
         try:
-            user = Session.query(User).filter(User.id==user_id).one()
+            user = Session.query(User).filter(User.id==int(user_id)).one()
             user.last_online = datetime.datetime.now()
             user.last_ip = request.environ["REMOTE_ADDR"]
             if user.status == "banned" and user.unban_date is not None:
@@ -109,7 +109,7 @@ def request_user(request):
             # commit it here (and set the Session to not expire on commit).
             transaction.commit()
             return user
-        except NoResultFound:
+        except (ValueError, NoResultFound):
             return None
     return None
 
