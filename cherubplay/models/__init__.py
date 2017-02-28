@@ -402,16 +402,16 @@ class Tag(Base):
         try:
             tag = Session.query(cls).filter(and_(cls.type == tag_type, func.lower(cls.name) == name.lower())).one()
         except NoResultFound:
-            if not allow_maturity_and_type_creation and tag_type in ("maturity", "type"):
+            if not allow_maturity_and_type_creation and tag_type in (TagType.maturity, TagType.type):
                 raise CreateNotAllowed
             tag = cls(type=tag_type, name=name)
             Session.add(tag)
             Session.flush()
             if create_opposite_tag:
-                if tag_type in ("fandom", "character", "gender"):
-                    cls.get_or_create(tag_type + "_wanted", name, create_opposite_tag=False)
-                elif tag_type in ("fandom_wanted", "character_wanted", "gender_wanted"):
-                    cls.get_or_create(tag_type.replace("_wanted", ""), name, create_opposite_tag=False)
+                if tag_type in TagType.playing_types:
+                    cls.get_or_create(tag_type.wanted, name, create_opposite_tag=False)
+                elif tag_type in TagType.wanted_types:
+                    cls.get_or_create(tag_type.playing, name, create_opposite_tag=False)
         return tag
 
     @classmethod

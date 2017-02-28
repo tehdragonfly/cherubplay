@@ -11,6 +11,7 @@ from cherubplay.models import (
     Session, BlacklistedTag, Chat, ChatUser, Prompt, PromptReport, Request,
     RequestTag, Resource, Tag,
 )
+from cherubplay.models.enums import TagType
 
 
 class ChatContext(object):
@@ -90,10 +91,12 @@ class TagList(object):
         split_tag_string = request.matchdict["tag_string"].split(",")[:5]
         for pair in split_tag_string:
             try:
-                tag_type, name = pair.split(":")
+                tag_type_string, name = pair.split(":")
             except ValueError:
                 raise HTTPNotFound
-            if tag_type not in Tag.type.type.enums:
+            try:
+                tag_type = TagType(tag_type_string)
+            except ValueError:
                 raise HTTPNotFound
 
             tag_filters.append(and_(
@@ -112,7 +115,7 @@ class TagList(object):
             # One or more tags don't exist, so there won't be any results here.
             raise HTTPNotFound
 
-        actual_tag_string = ",".join(":".join((tag.type, tag.url_name)) for tag in self.tags)
+        actual_tag_string = ",".join(":".join((tag.type.value, tag.url_name)) for tag in self.tags)
         if actual_tag_string != request.matchdict["tag_string"]:
             raise HTTPFound(request.current_route_path(tag_string=actual_tag_string))
 

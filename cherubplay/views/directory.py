@@ -12,6 +12,7 @@ from uuid import uuid4
 
 from cherubplay.lib import colour_validator, preset_colours
 from cherubplay.models import Session, BlacklistedTag, Chat, ChatUser, CreateNotAllowed, Message, Request, RequestTag, Tag, TagParent, User
+from cherubplay.models.enums import TagType
 from cherubplay.tasks import update_request_tag_ids, update_missing_request_tag_ids
 
 
@@ -46,7 +47,7 @@ def _validate_request_form(request):
 
 def _normalise_tag_name(tag_type, name):
     name = Tag.name_from_url(name).strip()
-    if tag_type == "warning" and name.lower().startswith("tw:"):
+    if tag_type == TagType.warning and name.lower().startswith("tw:"):
         name = name[3:].strip()
     elif name.startswith("#"):
         name = name[1:].strip()
@@ -567,14 +568,23 @@ def directory_new_post(request):
 
 @view_config(route_name="directory_new_autocomplete", request_method="GET", permission="directory.new_request", renderer="json")
 def directory_new_autocomplete(request):
-    if request.GET.get("type") not in Tag.type.type.enums or not request.GET.get("name"):
+
+    try:
+        tag_type = TagType(request.GET.get("type"))
+    except ValueError:
         raise HTTPBadRequest
+
+    if not request.GET.get("name"):
+        raise HTTPBadRequest
+
     if len(request.GET["name"]) < 3:
         return []
+
     tags = Session.query(Tag).filter(and_(
-        Tag.type == request.GET["type"],
+        Tag.type == tag_type,
         func.lower(Tag.name).like(request.GET["name"].lower().replace("_", "\\_").replace("%", "\\%") + "%")
     )).options(joinedload(Tag.synonym_of)).order_by(Tag.name)
+
     return sorted(list({
         # Use the original name if this tag is a synonym.
         (tag.synonym_of.name if tag.synonym_of else tag.name)
@@ -585,18 +595,18 @@ def directory_new_autocomplete(request):
 
 
 def _blacklisted_tags(request, **kwargs):
-    return dict(
-        tags=(
+    return {
+        "tags": (
             Session.query(BlacklistedTag)
             .join(BlacklistedTag.tag)
             .filter(BlacklistedTag.user_id == request.user.id)
             .options(contains_eager(BlacklistedTag.tag))
             .order_by(Tag.type, Tag.name).all()
         ),
-        maturity_tags=Session.query(Tag).filter(Tag.type == "maturity").all(),
-        type_tags=Session.query(Tag).filter(Tag.type == "type").all(),
+        "maturity_tags": Session.query(Tag).filter(Tag.type == TagType.maturity).all(),
+        "type_tags":     Session.query(Tag).filter(Tag.type == TagType.type).all(),
         **kwargs
-    )
+    }
 
 
 @view_config(route_name="directory_blacklist", request_method="GET",     permission="directory.read", renderer="layout2/directory/blacklist.mako")
@@ -628,13 +638,14 @@ def directory_blacklist_setup(request):
 @view_config(route_name="directory_blacklist_add", request_method="POST", permission="directory.read", renderer="layout2/directory/blacklist.mako")
 def directory_blacklist_add(request):
 
-    if request.POST.get("tag_type") not in Tag.type.type.enums:
+    try:
+        tag_type = TagType(request.POST.get("tag_type"))
+    except ValueError:
         raise HTTPBadRequest
-    tag_type = request.POST["tag_type"]
 
-    if tag_type == "maturity" and request.POST.get("maturity_name"):
+    if tag_type == TagType.maturity and request.POST.get("maturity_name"):
         names = request.POST["maturity_name"]
-    elif tag_type == "type" and request.POST.get("type_name"):
+    elif tag_type == TagType.type and request.POST.get("type_name"):
         names = request.POST["type_name"]
     else:
         names = request.POST["name"][:100]
@@ -739,18 +750,18 @@ def directory_request_edit_get(context, request):
     form_data = {}
 
     for tag_type, tags in context.tags_by_type().items():
-        if tag_type == "maturity":
+        if tag_type == TagType.maturity:
             if tags: # i don't know why we wouldn't have a maturity but don't IndexError if that does happen
                 form_data["maturity"] = tags[0].name
-        elif tag_type == "type":
+        elif tag_type == TagType.type:
             for tag in tags:
                 form_data["type_" + tag.name] = "on"
         else:
-            form_data[tag_type] = ", ".join(tag.name for tag in tags)
+            form_data[tag_type.value] = ", ".join(tag.name for tag in tags)
 
-    form_data["colour"] = "#" + context.colour
+    form_data["colour"]    = "#" + context.colour
     form_data["ooc_notes"] = context.ooc_notes
-    form_data["starter"] = context.starter
+    form_data["starter"]   = context.starter
 
     return {"form_data": form_data, "preset_colours": preset_colours}
 
