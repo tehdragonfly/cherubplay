@@ -1,6 +1,7 @@
 <%inherit file="/layout2/base.mako" />\
+<%! from cherubplay.models.enums import TagType %>
 <%def name="tag_li(tag)">\
-<li${" class=\"warning\"" if tag.type == "warning" else ""|n}>\
+<li${" class=\"warning\"" if tag.type == TagType.warning else ""|n}>\
 % if request.matched_route.name == "directory_tag" and len(request.context.tags) == 1 and request.context.tags[0] == tag:
 ${tag.name}\
 % else:
@@ -17,48 +18,48 @@ ${tag.name}\
         % endif
         <% tags_by_type = rq.tags_by_type() %>
         <ul class="request_tags">
-          % for tag in tags_by_type["maturity"]:
+          % for tag in tags_by_type[TagType.maturity]:
           ${tag_li(tag)}
           % endfor
-          % for tag in tags_by_type["warning"]:
+          % for tag in tags_by_type[TagType.warning]:
           ${tag_li(tag)}
           % endfor
-          % for tag in tags_by_type["type"]:
+          % for tag in tags_by_type[TagType.type]:
           ${tag_li(tag)}
           % endfor
         </ul>
-        % if tags_by_type["fandom"] or tags_by_type["character"] or tags_by_type["gender"]:
+        % if tags_by_type[TagType.fandom] or tags_by_type[TagType.character] or tags_by_type[TagType.gender]:
         <h3>Playing:</h3>
         <ul class="request_tags">
-          % for tag in tags_by_type["fandom"]:
+          % for tag in tags_by_type[TagType.fandom]:
           ${tag_li(tag)}
           % endfor
-          % for tag in tags_by_type["character"]:
+          % for tag in tags_by_type[TagType.character]:
           ${tag_li(tag)}
           % endfor
-          % for tag in tags_by_type["gender"]:
+          % for tag in tags_by_type[TagType.gender]:
           ${tag_li(tag)}
           % endfor
         </ul>
         % endif
-        % if tags_by_type["fandom_wanted"] or tags_by_type["character_wanted"] or tags_by_type["gender_wanted"]:
+        % if tags_by_type[TagType.fandom_wanted] or tags_by_type[TagType.character_wanted] or tags_by_type[TagType.gender_wanted]:
         <h3>Looking for:</h3>
         <ul class="request_tags">
-          % for tag in tags_by_type["fandom_wanted"]:
+          % for tag in tags_by_type[TagType.fandom_wanted]:
           ${tag_li(tag)}
           % endfor
-          % for tag in tags_by_type["character_wanted"]:
+          % for tag in tags_by_type[TagType.character_wanted]:
           ${tag_li(tag)}
           % endfor
-          % for tag in tags_by_type["gender_wanted"]:
+          % for tag in tags_by_type[TagType.gender_wanted]:
           ${tag_li(tag)}
           % endfor
         </ul>
         % endif
-        % if tags_by_type["misc"]:
+        % if tags_by_type[TagType.misc]:
         <h3>Other tags:</h3>
         <ul class="request_tags">
-          % for tag in tags_by_type["misc"]:
+          % for tag in tags_by_type[TagType.misc]:
           ${tag_li(tag)}
           % endfor
         </ul>

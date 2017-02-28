@@ -57,42 +57,42 @@ def _normalise_tag_name(tag_type, name):
 def _request_tags_from_form(form, new_request):
     tag_set = set()
     fandoms = set()
-    for tag_type in Tag.type.type.enums:
+    for tag_type in Tag.type.type.python_type:
 
         # Enforce preset values for maturity.
-        if tag_type == "maturity":
+        if tag_type == TagType.maturity:
             name = form["maturity"]
             if name not in Tag.maturity_names:
                 name = "NSFW extreme"
-            tag_set.add((u"maturity", name))
+            tag_set.add((TagType.maturity, name))
             continue
 
         # Enforce preset values for type.
-        elif tag_type == "type":
+        elif tag_type == TagType.type:
             for name in Tag.type_names:
                 if "type_" + name in form:
-                    tag_set.add((u"type", name))
+                    tag_set.add((TagType.type, name))
             continue
 
-        for name in form[tag_type][:1000].split(","):
+        for name in form[tag_type.value][:1000].split(","):
             name = _normalise_tag_name(tag_type, name)
             if name == "":
                 continue
             tag_set.add((tag_type, name))
-            if tag_type in (u"fandom", u"fandom_wanted"):
+            if tag_type in (TagType.fandom, TagType.fandom_wanted):
                 fandoms.add(name.lower())
 
     # Meta types
     if new_request.starter:
-        tag_set.add((u"type", u"Starter"))
+        tag_set.add((TagType.type, u"Starter"))
     else:
-        tag_set.add((u"type", u"No starter"))
+        tag_set.add((TagType.type, u"No starter"))
 
     if len(fandoms) > 1:
-        tag_set.add((u"type", u"Crossover"))
+        tag_set.add((TagType.type, u"Crossover"))
 
     if u"homestuck" not in fandoms:
-        tag_set.add((u"type", u"Not Homestuck"))
+        tag_set.add((TagType.type, u"Not Homestuck"))
 
     tag_list = []
     used_ids = set()
