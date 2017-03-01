@@ -23,7 +23,10 @@ def _find_answered(request, requests):
     return set(int(_) for _ in pipe.execute() if _ is not None)
 
 
-class ValidationError(Exception): pass
+class ValidationError(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
 
 
 def _validate_request_form(request):
@@ -291,33 +294,12 @@ def directory_tag(context, request):
     return resp
 
 
-def _approve(tag_type, tag_name):
-    tag = Tag.get_or_create(tag_type, tag_name)
-    if tag.synonym_id is not None:
-        raise HTTPNotFound
-    tag.approved = True
-
-
 @view_config(route_name="directory_tag_approve", request_method="POST", permission="directory.manage_tags")
-def directory_tag_approve(request):
-
-    if request.matchdict["type"] not in Tag.type.type.enums:
-        raise HTTPNotFound
-
-    tag_type = request.matchdict["type"]
-    tag_name = Tag.name_from_url(request.matchdict["name"])
-
-    if tag_type in ("fandom", "fandom_wanted", "character", "character_wanted", "gender", "gender_wanted"):
-        if tag_type.endswith("_wanted"):
-            tag_type_without_wanted = tag_type.replace("_wanted", "")
-            tag_type_with_wanted = tag_type
-        else:
-            tag_type_without_wanted = tag_type
-            tag_type_with_wanted = tag_type + "_wanted"
-        _approve(tag_type_without_wanted, tag_name)
-        _approve(tag_type_with_wanted, tag_name)
-    else:
-        _approve(tag_type, tag_name)
+def directory_tag_approve(context, request):
+    for tag in context.tags:
+        if tag.synonym_id is not None:
+            raise HTTPNotFound
+        tag.approved = True
 
     if "Referer" in request.headers:
         return HTTPFound(request.headers["Referer"])

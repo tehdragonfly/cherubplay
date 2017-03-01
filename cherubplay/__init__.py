@@ -19,7 +19,7 @@ from .models import (
     Resource,
     User,
 )
-from .resources import ChatContext, prompt_factory, report_factory, TagList, request_factory
+from .resources import ChatContext, prompt_factory, report_factory, TagList, TagPair, request_factory
 from .views import chat
 from .views import prompts
 
@@ -206,7 +206,7 @@ def main(global_config, **settings):
 
     config.add_ext_route("directory_tag", "/directory/{tag_string:[^:]+:[^/,]+(,[^:]+:[^/,]+){0,4}}/", factory=TagList)
 
-    config.add_ext_route("directory_tag_approve",      "/directory/{type}:{name}/approve/")
+    config.add_ext_route("directory_tag_approve",      "/directory/{type}:{name}/approve/", factory=TagPair)
     config.add_ext_route("directory_tag_make_synonym", "/directory/{type}:{name}/make_synonym/")
     config.add_ext_route("directory_tag_add_parent",   "/directory/{type}:{name}/add_parent/")
 

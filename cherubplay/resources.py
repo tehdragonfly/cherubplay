@@ -131,6 +131,22 @@ class TagList(object):
         self.tag_array = cast([tag.id for tag in self.tags], ARRAY(Integer))
 
 
+class TagPair(object):
+    __parent__ = Resource
+
+    def __init__(self, request):
+        try:
+            request_tag_type = TagType(request.matchdict["type"])
+        except ValueError:
+            raise HTTPNotFound
+        tag_name = Tag.name_from_url(request.matchdict["name"])
+
+        self.tags = [
+            Tag.get_or_create(tag_type, tag_name)
+            for tag_type in request_tag_type.pair
+        ]
+
+
 def request_factory(request):
     if not request.user:
         raise HTTPNotFound
