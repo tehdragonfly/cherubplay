@@ -306,81 +306,53 @@ def directory_tag_approve(context, request):
     return HTTPFound(request.route_path("directory_tag", tag_string=request.matchdict["type"] + ":" + request.matchdict["name"]))
 
 
-def _make_synonym(old_type, old_name, new_type, new_name):
-
-    old_tag = Tag.get_or_create(old_type, old_name)
-
-    # A tag can't be a synonym if it has synonyms.
-    if Session.query(func.count("*")).select_from(Tag).filter(Tag.synonym_id == old_tag.id).scalar():
-        raise HTTPNotFound
-
-    new_tag = Tag.get_or_create(new_type, new_name)
-    new_tag.approved = True
-
-    if old_tag.id == new_tag.id:
-        raise HTTPNotFound
-
-    old_tag.synonym_id = new_tag.id
-
-    # Delete the old tag from reqests which already have the new tag.
-    Session.query(RequestTag).filter(and_(
-        RequestTag.tag_id == old_tag.id,
-        RequestTag.request_id.in_(Session.query(RequestTag.request_id).filter(RequestTag.tag_id == new_tag.id)),
-    )).delete(synchronize_session=False)
-    # And update the rest.
-    Session.query(RequestTag).filter(RequestTag.tag_id == old_tag.id).update({"tag_id": new_tag.id})
-
-    # And the same for the tag_ids arrays.
-    Session.query(Request).filter(
-        Request.tag_ids.contains(cast([old_tag.id, new_tag.id], ARRAY(Integer)))
-    ).update({"tag_ids": func.array_remove(Request.tag_ids, old_tag.id)}, synchronize_session=False)
-    Session.query(Request).filter(
-        Request.tag_ids.contains(cast([old_tag.id], ARRAY(Integer)))
-    ).update({"tag_ids": func.array_replace(Request.tag_ids, old_tag.id, new_tag.id)}, synchronize_session=False)
-
-    # Delete the old tag from blacklists which already have the new tag.
-    Session.query(BlacklistedTag).filter(and_(
-        BlacklistedTag.tag_id == old_tag.id,
-        BlacklistedTag.user_id.in_(Session.query(BlacklistedTag.user_id).filter(BlacklistedTag.tag_id == new_tag.id)),
-    )).delete(synchronize_session=False)
-    # And update the rest.
-    Session.query(BlacklistedTag).filter(BlacklistedTag.tag_id == old_tag.id).update({"tag_id": new_tag.id})
-
-
 @view_config(route_name="directory_tag_make_synonym", request_method="POST", permission="directory.manage_tags")
-def directory_tag_make_synonym(request):
-
-    if request.matchdict["type"] not in Tag.type.type.enums or request.POST["tag_type"] not in Tag.type.type.enums:
-        raise HTTPNotFound
-
-    old_type = request.matchdict["type"]
-    old_name = Tag.name_from_url(request.matchdict["name"])
-    new_type = request.POST["tag_type"]
-    new_name = Tag.name_from_url(request.POST["name"]).strip()[:100]
-
-    if not old_name or not new_name:
+def directory_tag_make_synonym(context, request):
+    try:
+        proposed_type = TagType(request.POST["tag_type"])
+    except ValueError:
         raise HTTPBadRequest
 
-    if (
-        old_type in ("fandom", "fandom_wanted", "character", "character_wanted", "gender", "gender_wanted")
-        and new_type in ("fandom", "fandom_wanted", "character", "character_wanted", "gender", "gender_wanted")
-    ):
-        if old_type.endswith("_wanted"):
-            old_type_without_wanted = old_type.replace("_wanted", "")
-            old_type_with_wanted = old_type
-        else:
-            old_type_without_wanted = old_type
-            old_type_with_wanted = old_type + "_wanted"
-        if new_type.endswith("_wanted"):
-            new_type_without_wanted = new_type.replace("_wanted", "")
-            new_type_with_wanted = new_type
-        else:
-            new_type_without_wanted = new_type
-            new_type_with_wanted = new_type + "_wanted"
-        _make_synonym(old_type_without_wanted, old_name, new_type_without_wanted, new_name)
-        _make_synonym(old_type_with_wanted, old_name, new_type_with_wanted, new_name)
-    else:
-        _make_synonym(old_type, old_name, new_type, new_name)
+    new_name = Tag.name_from_url(request.POST["name"]).strip()[:100]
+    if not new_name:
+        raise HTTPBadRequest
+
+    for old_tag, new_type in zip(context.tags, proposed_type.pair):
+        # A tag can't be a synonym if it has synonyms.
+        if Session.query(func.count("*")).select_from(Tag).filter(Tag.synonym_id == old_tag.id).scalar():
+            raise HTTPNotFound
+
+        new_tag = Tag.get_or_create(new_type, new_name)
+
+        if old_tag.id == new_tag.id:
+            raise HTTPNotFound
+
+        new_tag.approved = True
+        old_tag.synonym_id = new_tag.id
+
+        # Delete the old tag from reqests which already have the new tag.
+        Session.query(RequestTag).filter(and_(
+            RequestTag.tag_id == old_tag.id,
+            RequestTag.request_id.in_(Session.query(RequestTag.request_id).filter(RequestTag.tag_id == new_tag.id)),
+        )).delete(synchronize_session=False)
+        # And update the rest.
+        Session.query(RequestTag).filter(RequestTag.tag_id == old_tag.id).update({"tag_id": new_tag.id})
+
+        # And the same for the tag_ids arrays.
+        Session.query(Request).filter(
+            Request.tag_ids.contains(cast([old_tag.id, new_tag.id], ARRAY(Integer)))
+        ).update({"tag_ids": func.array_remove(Request.tag_ids, old_tag.id)}, synchronize_session=False)
+        Session.query(Request).filter(
+            Request.tag_ids.contains(cast([old_tag.id], ARRAY(Integer)))
+        ).update({"tag_ids": func.array_replace(Request.tag_ids, old_tag.id, new_tag.id)}, synchronize_session=False)
+
+        # Delete the old tag from blacklists which already have the new tag.
+        Session.query(BlacklistedTag).filter(and_(
+            BlacklistedTag.tag_id == old_tag.id,
+            BlacklistedTag.user_id.in_(Session.query(BlacklistedTag.user_id).filter(BlacklistedTag.tag_id == new_tag.id)),
+        )).delete(synchronize_session=False)
+        # And update the rest.
+        Session.query(BlacklistedTag).filter(BlacklistedTag.tag_id == old_tag.id).update({"tag_id": new_tag.id})
 
     return HTTPFound(request.route_path("directory_tag", tag_string=request.matchdict["type"] + ":" + request.matchdict["name"]))
 
