@@ -309,7 +309,7 @@ def directory_tag_approve(context, request):
 @view_config(route_name="directory_tag_make_synonym", request_method="POST", permission="directory.manage_tags")
 def directory_tag_make_synonym(context, request):
     try:
-        proposed_type = TagType(request.POST["tag_type"])
+        new_types = TagType(request.POST["tag_type"]).pair
     except ValueError:
         raise HTTPBadRequest
 
@@ -317,7 +317,13 @@ def directory_tag_make_synonym(context, request):
     if not new_name:
         raise HTTPBadRequest
 
-    for old_tag, new_type in zip(context.tags, proposed_type.pair):
+    # If one set of types is a pair and the other isn't, double them up.
+    if len(context.tags) < len(new_types):
+        context.tags = context.tags * 2
+    elif len(context.tags) > len(new_types):
+        new_types = new_types * 2
+
+    for old_tag, new_type in zip(context.tags, new_types):
         # A tag can't be a synonym if it has synonyms.
         if Session.query(func.count("*")).select_from(Tag).filter(Tag.synonym_id == old_tag.id).scalar():
             raise HTTPNotFound
