@@ -363,78 +363,59 @@ def directory_tag_make_synonym(context, request):
     return HTTPFound(request.route_path("directory_tag", tag_string=request.matchdict["type"] + ":" + request.matchdict["name"]))
 
 
-def _add_parent(child_type, child_name, parent_type, parent_name):
-    child_tag = Tag.get_or_create(child_type, child_name)
-    parent_tag = Tag.get_or_create(parent_type, parent_name)
-
-    if Session.query(func.count("*")).select_from(TagParent).filter(and_(
-        TagParent.parent_id == parent_tag.id,
-        TagParent.child_id == child_tag.id,
-    )).scalar():
-        # Relationship already exists.
-        return
-
-    # Check for circular references.
-    ancestors = Session.execute("""
-        with recursive tag_ids(id) as (
-            select %s
-            union all
-            select parent_id from tag_parents, tag_ids where child_id=tag_ids.id
-        )
-        select id from tag_ids;
-    """ % parent_tag.id)
-    if child_tag.id in (_[0] for _ in ancestors):
-        raise HTTPNotFound # TODO proper error message
-
-    Session.add(TagParent(parent_id=parent_tag.id, child_id=child_tag.id))
-
-    # Null the tag_ids of requests in this tag and all its children.
-    Session.execute("""
-        with recursive tag_ids(id) as (
-            select %s
-            union all
-            select child_id from tag_parents, tag_ids where parent_id=tag_ids.id
-        )
-        update requests set tag_ids = null
-        where requests.id in (
-            select request_id from request_tags where tag_id in (select id from tag_ids)
-        )
-    """ % child_tag.id)
-
-
 @view_config(route_name="directory_tag_add_parent", request_method="POST", permission="directory.manage_tags")
-def directory_tag_add_parent(request):
-    if request.matchdict["type"] not in Tag.type.type.enums or request.POST["tag_type"] not in Tag.type.type.enums:
-        raise HTTPNotFound
-
-    child_type = request.matchdict["type"]
-    child_name = Tag.name_from_url(request.matchdict["name"])
-    parent_type = request.POST["tag_type"]
-    parent_name = Tag.name_from_url(request.POST["name"]).strip()[:100]
-
-    if not child_name or not parent_name:
+def directory_tag_add_parent(context, request):
+    try:
+        parent_types = TagType(request.POST["tag_type"]).pair
+    except ValueError:
         raise HTTPBadRequest
 
-    if (
-        child_type in ("fandom", "fandom_wanted", "character", "character_wanted", "gender", "gender_wanted")
-        and parent_type in ("fandom", "fandom_wanted", "character", "character_wanted", "gender", "gender_wanted")
-    ):
-        if child_type.endswith("_wanted"):
-            child_type_without_wanted = child_type.replace("_wanted", "")
-            child_type_with_wanted = child_type
-        else:
-            child_type_without_wanted = child_type
-            child_type_with_wanted = child_type + "_wanted"
-        if parent_type.endswith("_wanted"):
-            parent_type_without_wanted = parent_type.replace("_wanted", "")
-            parent_type_with_wanted = parent_type
-        else:
-            parent_type_without_wanted = parent_type
-            parent_type_with_wanted = parent_type + "_wanted"
-        _add_parent(child_type_without_wanted, child_name, parent_type_without_wanted, parent_name)
-        _add_parent(child_type_with_wanted, child_name, parent_type_with_wanted, parent_name)
-    else:
-        _add_parent(child_type, child_name, parent_type, parent_name)
+    parent_name = Tag.name_from_url(request.POST["name"]).strip()[:100]
+    if not parent_name:
+        raise HTTPBadRequest
+
+    # If one set of types is a pair and the other isn't, double them up.
+    if len(context.tags) < len(parent_types):
+        context.tags = context.tags * 2
+    elif len(context.tags) > len(parent_types):
+        parent_types = parent_types * 2
+
+    for child_tag, parent_type in zip(context.tags, parent_types):
+        parent_tag = Tag.get_or_create(parent_type, parent_name)
+
+        if Session.query(func.count("*")).select_from(TagParent).filter(and_(
+            TagParent.parent_id == parent_tag.id,
+            TagParent.child_id == child_tag.id,
+        )).scalar():
+            # Relationship already exists.
+            return
+
+        # Check for circular references.
+        ancestors = Session.execute("""
+            with recursive tag_ids(id) as (
+                select %s
+                union all
+                select parent_id from tag_parents, tag_ids where child_id=tag_ids.id
+            )
+            select id from tag_ids;
+        """ % parent_tag.id)
+        if child_tag.id in (_[0] for _ in ancestors):
+            raise HTTPNotFound # TODO proper error message
+
+        Session.add(TagParent(parent_id=parent_tag.id, child_id=child_tag.id))
+
+        # Null the tag_ids of requests in this tag and all its children.
+        Session.execute("""
+            with recursive tag_ids(id) as (
+                select %s
+                union all
+                select child_id from tag_parents, tag_ids where parent_id=tag_ids.id
+            )
+            update requests set tag_ids = null
+            where requests.id in (
+                select request_id from request_tags where tag_id in (select id from tag_ids)
+            )
+        """ % child_tag.id)
 
     transaction.commit()
     update_missing_request_tag_ids.delay()
