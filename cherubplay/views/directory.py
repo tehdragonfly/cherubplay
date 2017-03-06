@@ -159,7 +159,7 @@ def directory_search(request):
     visible_tags = [tag for tag in tags if tag.synonym_of not in tags]
 
     if len(visible_tags) == 1:
-        if tag.synonym_of:
+        if visible_tags[0].synonym_of:
             return HTTPFound(request.route_path("directory_tag", tag_string=visible_tags[0].synonym_of.tag_string))
         return HTTPFound(request.route_path("directory_tag", tag_string=visible_tags[0].tag_string))
 
