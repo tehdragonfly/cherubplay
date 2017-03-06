@@ -8,11 +8,11 @@
           % for tag in tags:
             % if tag.synonym_of:
               <li>
-                ${tag.type.replace("_", " ")}:${tag.name}
-                (synonym of <a href="${request.route_path("directory_tag", tag_string=tag.synonym_of.tag_string)}">${tag.synonym_of.type.replace("_", " ")}:${tag.synonym_of.name}</a>)
+                ${tag.type.ui_value}:${tag.name}
+                (synonym of <a href="${request.route_path("directory_tag", tag_string=tag.synonym_of.tag_string)}">${tag.synonym_of.type.ui_value}:${tag.synonym_of.name}</a>)
               </li>
             % else:
-              <li><a href="${request.route_path("directory_tag", tag_string=tag.tag_string)}">${tag.type.replace("_", " ")}:${tag.name}</a></li>
+              <li><a href="${request.route_path("directory_tag", tag_string=tag.tag_string)}">${tag.type.ui_value}:${tag.name}</a></li>
             % endif
           % endfor
         </ul>

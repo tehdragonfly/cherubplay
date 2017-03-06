@@ -9,8 +9,8 @@
         <li>
           <form id="blacklist_add" action="${request.route_path("directory_blacklist_add")}" method="post">
             <select name="tag_type">
-              % for tag_type in Tag.type.type.enums:
-              <option value="${tag_type}">${tag_type.replace("_", " ")}</option>
+              % for tag_type in Tag.type.type.python_type:
+              <option value="${tag_type.value}">${tag_type.ui_value}</option>
               % endfor
             </select>
             <select name="maturity_name">
@@ -33,7 +33,7 @@
             <input type="hidden" name="tag_id" value="${tag.tag_id}">
             <button type="submit">Remove</button>
           </form>
-          ${tag.tag.type.replace("_", " ")}:${tag.tag.name}
+          ${tag.tag.type.ui_value}:${tag.tag.name}
         </li>
         % endfor
       </ul>
