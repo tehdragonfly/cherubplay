@@ -72,7 +72,7 @@ def sign_up(request):
     # Create the user.
     new_user = User(
         username=username,
-        password=hashpw(request.POST["password"].encode(), gensalt()),
+        password=hashpw(request.POST["password"].encode(), gensalt()).decode(),
         last_ip=request.environ["REMOTE_ADDR"],
     )
     Session.add(new_user)
@@ -105,7 +105,7 @@ def log_in(request):
     except NoResultFound:
         return {"log_in_error": "Username and/or password not recognised."}
 
-    if hashpw(request.POST["password"].encode(), user.password.encode()) != user.password:
+    if hashpw(request.POST["password"].encode(), user.password.encode()).decode() != user.password:
         return {"log_in_error": "Username and/or password not recognised."}
 
     # Generate session ID and add it to the login store.
