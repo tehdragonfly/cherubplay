@@ -4,7 +4,7 @@ import time
 
 from datetime import datetime, timedelta
 from hashlib import sha256
-from urlparse import urlparse
+from urllib.parse import urlparse
 from uuid import uuid4
 
 from sqlalchemy.orm.exc import NoResultFound
@@ -18,7 +18,7 @@ from tornado.websocket import WebSocketHandler
 from cherubplay.lib import colour_validator, prompt_categories, prompt_starters, prompt_levels
 from cherubplay.models import Chat, ChatUser, Message, PromptReport
 
-from db import config, get_user, login_client, sm
+from cherubplay_live.db import config, get_user, login_client, sm
 
 prompters = {}
 searchers = {}
@@ -28,7 +28,7 @@ url_regex = re.compile("https?:\/\/\S+")
 
 
 def prompt_hash(text):
-    return sha256(deduplicate_regex.sub("", text)).hexdigest()
+    return sha256(deduplicate_regex.sub("", text).encode()).hexdigest()
 
 
 class AnswerDenied(Exception):
@@ -74,7 +74,7 @@ class SearchHandler(WebSocketHandler):
             self.close()
             return
         self.socket_id = str(uuid4())
-        print "NEW SOCKET: ", self.socket_id
+        print("NEW SOCKET: ", self.socket_id)
         self.state = "idle"
         self.write_message(json.dumps({ "username": self.user.username}))
 
@@ -85,41 +85,41 @@ class SearchHandler(WebSocketHandler):
                 "action": "remove_prompt",
                 "id": self.socket_id,
             }), self.category, self.starter, self.level)
-            print "PROMPTERS:", prompters
+            print("PROMPTERS:", prompters)
         if self.socket_id in searchers:
             searchers.pop(self.socket_id)
-            print "SEARCHERS:", searchers
+            print("SEARCHERS:", searchers)
 
     def on_message(self, message_string):
         try:
             message = json.loads(message_string)
         except ValueError:
             return
-        if message["action"]=="search":
+        if message["action"] == "search":
             self.reset_state()
             self.state = "searching"
-            self.categories = set(_ for _ in message["categories"].split(",") if _ in prompt_categories)
-            self.starters = set(_ for _ in message["starters"].split(",") if _ in prompt_starters)
-            self.levels = set(_ for _ in message["levels"].split(",") if _ in prompt_levels)
+            self.categories = {_ for _ in message["categories"].split(",") if _ in prompt_categories}
+            self.starters   = {_ for _ in message["starters"].split(",")   if _ in prompt_starters  }
+            self.levels     = {_ for _ in message["levels"].split(",")     if _ in prompt_levels    }
             searchers[self.socket_id] = self
-            print "SEARCHERS:", searchers
+            print("SEARCHERS:", searchers)
             self.write_message(json.dumps({
                 "action": "prompts",
                 "prompts": [
                     {
-                        "id": _.socket_id,
-                        "colour": _.colour,
-                        "prompt": _.prompt,
+                        "id":       _.socket_id,
+                        "colour":   _.colour,
+                        "prompt":   _.prompt,
                         "category": _.category,
-                        "starter": _.starter,
-                        "level": _.level,
-                        "images": _.images,
+                        "starter":  _.starter,
+                        "level":    _.level,
+                        "images":   _.images,
                     }
                     for _ in prompters.values()
                     if _.category in self.categories and _.starter in self.starters and _.level in self.levels
                 ]
             }))
-        elif message["action"]=="prompt":
+        elif message["action"] == "prompt":
             self.reset_state()
             if colour_validator.match(message["colour"]) is None:
                 self.write_message(json.dumps({
@@ -127,7 +127,7 @@ class SearchHandler(WebSocketHandler):
                     "error": "The colour needs to be a valid hex code, for example \"#0715CD\" or \"#A15000\".",
                 }))
                 return
-            if message["prompt"].strip()=="":
+            if message["prompt"].strip() == "":
                 self.write_message(json.dumps({
                     "action": "prompt_error",
                     "error": "You can't submit a blank prompt.",
@@ -160,13 +160,13 @@ class SearchHandler(WebSocketHandler):
                     }))
             self.state = "prompting"
             prompters[self.socket_id] = self
-            print "PROMPTERS:", prompters
-            self.colour = message["colour"]
-            self.prompt = message["prompt"]
-            self.hash = message_hash
+            print("PROMPTERS:", prompters)
+            self.colour   = message["colour"]
+            self.prompt   = message["prompt"]
+            self.hash     = message_hash
             self.category = message["category"]
-            self.starter = message["starter"]
-            self.level = message["level"]
+            self.starter  = message["starter"]
+            self.level    = message["level"]
 
             self.images = []
             if datetime.now() - self.user.created >= timedelta(7):
@@ -187,19 +187,19 @@ class SearchHandler(WebSocketHandler):
                         break
 
             write_message_to_searchers(json.dumps({
-                "action": "new_prompt",
-                "id": self.socket_id,
-                "colour": self.colour,
-                "prompt": self.prompt,
+                "action":   "new_prompt",
+                "id":       self.socket_id,
+                "colour":   self.colour,
+                "prompt":   self.prompt,
                 "category": self.category,
-                "starter": self.starter,
-                "level": self.level,
-                "images": self.images,
+                "starter":  self.starter,
+                "level":    self.level,
+                "images":   self.images,
             }), self.category, self.starter, self.level)
-        elif message["action"]=="idle":
+        elif message["action"] == "idle":
             self.reset_state()
             self.state = "idle"
-        elif message["action"]=="report":
+        elif message["action"] == "report":
             if self.socket_id not in searchers or message["id"] not in prompters:
                 return
             prompter = prompters[message["id"]]
@@ -229,7 +229,7 @@ class SearchHandler(WebSocketHandler):
             ))
             Session.commit()
             del Session
-        elif message["action"]=="answer":
+        elif message["action"] == "answer":
             if self.socket_id not in searchers or message["id"] not in prompters:
                 self.write_message(json.dumps({
                     "action": "answer_error",
@@ -259,7 +259,7 @@ class SearchHandler(WebSocketHandler):
                 symbol=0,
             ))
             # Only create one ChatUser if prompter and searcher are the same person.
-            if self.user.id!=prompter.user.id:
+            if self.user.id != prompter.user.id:
                 Session.add(ChatUser(
                     chat_id=new_chat.id,
                     user_id=self.user.id,
@@ -273,7 +273,7 @@ class SearchHandler(WebSocketHandler):
                 text=prompter.prompt,
             ))
             Session.commit()
-            response = json.dumps({ "action": "chat", "url": new_chat_url })
+            response = json.dumps({"action": "chat", "url": new_chat_url})
             prompter.write_message(response)
             self.write_message(response)
             del Session
@@ -284,7 +284,7 @@ class SearchHandler(WebSocketHandler):
 def main():
     application = Application([(r"/", SearchHandler)])
     server = HTTPServer(application)
-    socket = bind_unix_socket(config.get("app:main", "cherubplay.socket_search"), mode=0777)
+    socket = bind_unix_socket(config.get("app:main", "cherubplay.socket_search"), mode=0o777)
     server.add_socket(socket)
     IOLoop.instance().start()
 

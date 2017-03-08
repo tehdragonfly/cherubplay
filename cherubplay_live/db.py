@@ -1,6 +1,6 @@
-from ConfigParser import ConfigParser
 import sys
 
+from configparser import ConfigParser
 from redis import Redis
 
 from sqlalchemy import create_engine, and_
@@ -31,15 +31,15 @@ publish_client = Redis(unix_socket_path=config.get("app:main", "cherubplay.socke
 def get_user(cookies):
     if "cherubplay" not in cookies:
         return None
-    user_id = login_client.get("session:"+cookies["cherubplay"].value)
+    user_id = login_client.get("session:" + cookies["cherubplay"].value)
     if user_id is None:
         return None
     try:
         return Session.query(User).filter(and_(
-            User.id==user_id,
-            User.status!="banned",
+            User.id == int(user_id),
+            User.status != "banned",
         )).one()
-    except NoResultFound:
+    except (ValueError, NoResultFound):
         return None
 
 def get_chat(chat_url):
