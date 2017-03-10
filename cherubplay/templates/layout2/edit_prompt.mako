@@ -7,7 +7,7 @@
   <div class="side_column"></div>
   <div id="content">
     <form class="tile2" action="${request.route_path("edit_prompt", id=request.context.id)}" method="post">
-      <h3><input type="text" id="prompt_title" name="prompt_title" placeholder="Title..." maxlength="100" required value="${request.POST.get("prompt_title") or request.context.title}"></h3>
+      <h3><input type="text" id="prompt_title" class="full" name="prompt_title" placeholder="Title..." maxlength="100" required value="${request.POST.get("prompt_title") or request.context.title}"></h3>
 % if error == "blank_title":
       <p class="error">Prompt title can't be empty.</p>
 % endif
