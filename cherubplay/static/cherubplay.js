@@ -531,6 +531,7 @@ var cherubplay = (function() {
 			var last_autocomplete;
 			var focused = false;
 			var hovered = false;
+			var active_request = null;
 
 			function load_autocomplete() {
 
@@ -539,7 +540,8 @@ var cherubplay = (function() {
 
 				if (search_input.val().length < 3) { autocomplete_list.empty(); return; }
 
-				$.get("/directory/search/autocomplete/", {"name": search_input.val()}, function(data) {
+				if (active_request) { active_request.abort(); }
+				active_request = $.get("/directory/search/autocomplete/", {"name": search_input.val()}, function(data) {
 					autocomplete_list.empty();
 					data.forEach(function(tag) {
 						var li = $("<li>").hover(function() {
@@ -656,6 +658,8 @@ var cherubplay = (function() {
 					});
 				}
 
+				var active_request = null;
+
 				function load_autocomplete() {
 
 					if (visible_input.val() == last_autocomplete) { return; }
@@ -663,7 +667,8 @@ var cherubplay = (function() {
 
 					if (visible_input.val().length < 3) { autocomplete_list.empty(); return; }
 
-					$.get("/directory/new/autocomplete/", {"type": tag_type, "name": visible_input.val()}, function(data) {
+					if (active_request) { active_request.abort(); }
+					active_request = $.get("/directory/new/autocomplete/", {"type": tag_type, "name": visible_input.val()}, function(data) {
 						autocomplete_list.empty();
 						for(i=0; i<data.length; i++) {
 							$("<li>").text(data[i]).hover(function() {
