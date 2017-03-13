@@ -594,6 +594,7 @@ var cherubplay = (function() {
 					autocomplete_timeout = setTimeout(load_autocomplete, 100);
 				}).blur(function(e) {
 					autocomplete_list.css("display", "none");
+					autocomplete_list.find(".current").removeClass("current");
 					clearTimeout(autocomplete_timeout);
 				}).addClass("full").attr({
 					"type": "text",
