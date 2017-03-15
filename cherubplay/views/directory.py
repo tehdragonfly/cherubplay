@@ -402,9 +402,9 @@ def directory_tag_add_parent(context, request):
         if child_tag.id in (_[0] for _ in ancestors):
             return HTTPFound(request.route_path(
                 "directory_tag",
-                tag_string=request.matchdict["type"] + ":" + request.matchdict["name"]),
+                tag_string=request.matchdict["type"] + ":" + request.matchdict["name"],
                 _query={"error": "circular_reference"},
-            )
+            ))
 
         Session.add(TagParent(parent_id=parent_tag.id, child_id=child_tag.id))
 
