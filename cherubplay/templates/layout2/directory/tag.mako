@@ -7,6 +7,9 @@
     Requests with ${len(request.context.tags)} tags
   % endif
 </%block>
+    % if "error" in request.GET and request.GET["error"] == "circular_reference":
+    <p>That tag can't be added as a parent because it's already a child of this tag.</p>
+    % endif
     % if len(request.context.tags) == 1 and not "before" in request.GET:
       % if request.has_permission("directory.manage_tags"):
         <% current_tag = request.context.tags[0] %>
