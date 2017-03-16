@@ -340,7 +340,7 @@ class Request(Base):
         rd = {
             "id": self.id,
             "status": self.status,
-            "posted": self.posted.isoformat(),
+            "posted": (self.posted or self.created).isoformat(),
             "edited": self.edited.isoformat(),
             "colour": self.colour,
             "ooc_notes": self.ooc_notes,
