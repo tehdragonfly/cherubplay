@@ -345,7 +345,8 @@ class Request(Base):
             "colour": self.colour,
             "ooc_notes": self.ooc_notes,
             "starter": self.starter,
-            "tags": self.tags_by_type(),
+            # Gotta have string keys.
+            "tags": {k.value: v for k, v in self.tags_by_type().items()},
         }
         if request is not None:
             rd["yours"] = request.user.id == self.user_id
