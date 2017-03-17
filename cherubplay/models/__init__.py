@@ -385,7 +385,6 @@ class CreateNotAllowed(Exception): pass
 class Tag(Base):
     __tablename__ = "tags"
     id = Column(Integer, primary_key=True)
-    # XXX TODO UPDATE EVERYTHING ELSE TO ACCEPT TagType
     type = Column(EnumType(TagType, name=u"tags_type"), nullable=False, default=u"misc")
     name = Column(Unicode(100), nullable=False)
     synonym_id = Column(Integer, ForeignKey("tags.id"))

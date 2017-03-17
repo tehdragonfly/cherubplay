@@ -86,3 +86,31 @@ def check_tag_consistency():
         """)
     group(update_request_tag_ids.s(_.id) for _ in inconsistent_requests).delay()
 
+
+@app.task
+def remove_unused_tags():
+    """
+    Unused tags are not approved, not a synonym, have no RequestTags, no
+    BlacklistedTags and no TagParents. With playing/wanted pairs both tags in
+    the pair must have none of the above.
+    """
+    remove_unused_warning_and_misc_tags.delay()
+
+
+@app.task
+def remove_unused_warning_and_misc_tags():
+    with db_session() as db:
+        db.execute("""
+            delete from tags where id in (
+                select id from tags
+                where type in ('warning', 'misc')
+                and approved=false and synonym_id is null
+                except (
+                    select tag_id from request_tags
+                    union select tag_id from blacklisted_tags
+                    union select parent_id from tag_parents
+                    union select child_id from tag_parents
+                )
+            );
+        """)
+
