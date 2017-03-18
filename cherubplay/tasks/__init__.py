@@ -95,6 +95,9 @@ def remove_unused_tags():
     the pair must have none of the above.
     """
     remove_unused_warning_and_misc_tags.delay()
+    remove_unused_tag_pairs.delay("fandom")
+    remove_unused_tag_pairs.delay("character")
+    remove_unused_tag_pairs.delay("gender")
 
 
 @app.task
@@ -113,4 +116,38 @@ def remove_unused_warning_and_misc_tags():
                 )
             );
         """)
+
+
+@app.task
+def remove_unused_tag_pairs(tag_type):
+    with db_session() as db:
+        db.execute("""
+            select * From tags
+            where type in ('{tag_type}', '{tag_type}_wanted')
+            and lower(name) in (
+                select lower(name) from tags where id in (
+                    select id from tags
+                    where type='{tag_type}'
+                    and approved=false and synonym_id is null
+                    except (
+                        select tag_id from request_tags
+                        union select tag_id from blacklisted_tags
+                        union select parent_id from tag_parents
+                        union select child_id from tag_parents
+                    )
+                )
+                intersect
+                select lower(name) from tags where id in (
+                    select id from tags
+                    where type='{tag_type}_wanted'
+                    and approved=false and synonym_id is null
+                    except (
+                        select tag_id from request_tags
+                        union select tag_id from blacklisted_tags
+                        union select parent_id from tag_parents
+                        union select child_id from tag_parents
+                    )
+                )
+            );
+        """.format(tag_type=tag_type))
 
