@@ -540,16 +540,15 @@ def directory_new_autocomplete(request):
 
 
 def _blacklisted_tags(request, **kwargs):
+    tags = (
+        Session.query(Tag).join(BlacklistedTag)
+        .filter(BlacklistedTag.user_id == request.user.id)
+        .order_by(Tag.type, Tag.name).all()
+    )
     return {
-        "tags": (
-            Session.query(BlacklistedTag)
-            .join(BlacklistedTag.tag)
-            .filter(BlacklistedTag.user_id == request.user.id)
-            .options(contains_eager(BlacklistedTag.tag))
-            .order_by(Tag.type, Tag.name).all()
-        ),
-        "maturity_tags": Session.query(Tag).filter(Tag.type == TagType.maturity).all(),
-        "type_tags":     Session.query(Tag).filter(Tag.type == TagType.type).all(),
+        "tags": tags,
+        "maturity_tags": [tag for tag in Session.query(Tag).filter(Tag.type == TagType.maturity).all() if tag not in tags],
+        "type_tags":     [tag for tag in Session.query(Tag).filter(Tag.type == TagType.type).all()     if tag not in tags],
         **kwargs
     }
 

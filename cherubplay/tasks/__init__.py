@@ -122,7 +122,7 @@ def remove_unused_warning_and_misc_tags():
 def remove_unused_tag_pairs(tag_type):
     with db_session() as db:
         db.execute("""
-            select * From tags
+            delete from tags
             where type in ('{tag_type}', '{tag_type}_wanted')
             and lower(name) in (
                 select lower(name) from tags where id in (
