@@ -8,9 +8,9 @@
       % for message in messages:
       ${parent.render_message(message, show_edit=True)}\
       % endfor
-      % if banned:
-      <li class="message_system">This user has been ${banned} banned from Cherubplay.</li>
-      % endif
+      % for banned_chat_user in banned_chat_users:
+        <li class="message_system">${banned_chat_user.symbol_character} has been ${"temporarily" if banned_chat_user.user.unban_date else "permanently"} banned from Cherubplay.</li>
+      % endfor
     </ul>
     <div id="status_bar" class="tile2 pager">&nbsp;</div>
     <section id="message_form_container" class="tile2">

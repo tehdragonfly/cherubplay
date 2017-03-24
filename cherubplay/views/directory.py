@@ -5,7 +5,7 @@ from pyramid.renderers import render_to_response
 from pyramid.view import view_config
 from sqlalchemy import and_, func, Integer, literal
 from sqlalchemy.dialects.postgres import array, ARRAY
-from sqlalchemy.orm import contains_eager, joinedload
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 from uuid import uuid4

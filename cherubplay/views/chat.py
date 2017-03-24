@@ -16,7 +16,7 @@ from pyramid.view import view_config
 from redis.exceptions import ConnectionError
 from sqlalchemy import and_, func, Unicode
 from sqlalchemy.dialects.postgres import array, ARRAY
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import contains_eager, joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 
@@ -170,23 +170,20 @@ def chat(context, request):
             )
             messages.reverse()
 
-        # XXX needs work for group chats
-        other_chat_user = Session.query(ChatUser).filter(and_(
+        banned_chat_users = Session.query(ChatUser).join(User).filter(and_(
             ChatUser.chat_id == context.chat.id,
             ChatUser.user_id != request.user.id,
-        )).options(joinedload(ChatUser.user)).first()
-        banned = None
-        if other_chat_user and other_chat_user.user.status == "banned":
-            banned = "temporarily" if other_chat_user.user.unban_date is not None else "permanently"
+            User.status == "banned",
+        )).options(contains_eager(ChatUser.user)).all()
 
         if request.matched_route.name == "chat_ext":
             return {
-                "chat":          context.chat,
-                "chat_user":     context.chat_user,
-                "message_count": message_count,
-                "prompt":        prompt,
-                "messages":      messages,
-                "banned":        banned,
+                "chat":              context.chat,
+                "chat_user":         context.chat_user,
+                "message_count":     message_count,
+                "prompt":            prompt,
+                "messages":          messages,
+                "banned_chat_users": [_.symbol_character for _ in banned_chat_users],
             }
 
         # List users if we're an admin.
@@ -207,16 +204,16 @@ def chat(context, request):
 
         template = "layout2/chat.mako" if request.user.layout_version == 2 else "chat.mako"
         return render_to_response(template, {
-            "page":           "chat",
-            "preset_colours": preset_colours,
-            "chat":           context.chat,
-            "own_chat_user":  context.chat_user,
-            "from_homepage":  from_homepage,
-            "prompt":         prompt,
-            "messages":       messages,
-            "message_count":  message_count,
-            "symbol_users":   symbol_users,
-            "banned":         banned,
+            "page":              "chat",
+            "preset_colours":    preset_colours,
+            "chat":              context.chat,
+            "own_chat_user":     context.chat_user,
+            "from_homepage":     from_homepage,
+            "prompt":            prompt,
+            "messages":          messages,
+            "message_count":     message_count,
+            "symbol_users":      symbol_users,
+            "banned_chat_users": banned_chat_users,
         }, request=request)
 
     # Otherwise show the archive view.
