@@ -24,20 +24,18 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy_enum34 import EnumType
-from time import mktime
-
 from sqlalchemy.orm import (
     relationship,
     scoped_session,
     sessionmaker,
 )
-
+from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy_enum34 import EnumType
+from time import mktime
 from zope.sqlalchemy import ZopeTransactionExtension
 
 from cherubplay.lib import symbols
-from cherubplay.models.enums import TagType
+from cherubplay.models.enums import ChatUserStatus, TagType
 
 
 Session = scoped_session(sessionmaker(
@@ -182,7 +180,7 @@ class ChatUser(Base):
     symbol = Column(Integer, nullable=False)
     anonymous = Column(Boolean, nullable=False, default=True)
     visited = Column(DateTime, nullable=False, default=datetime.datetime.now)
-    status = Column(SQLAlchemyEnum(u"active", u"archived", name="chat_user_status"), nullable=False, default=u"active")
+    status = Column(EnumType(ChatUserStatus, name=u"chat_user_status"), nullable=False, default=ChatUserStatus.active)
     title = Column(Unicode(100), nullable=False, default=u"")
     notes = Column(UnicodeText, nullable=False, default=u"")
     labels = Column(ARRAY(Unicode(500)), nullable=False, default=list)

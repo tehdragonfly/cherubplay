@@ -1,6 +1,11 @@
 from enum import Enum
 
 
+class ChatUserStatus(Enum):
+    active  = "active"
+    deleted = "deleted"
+
+
 class TagType(Enum):
     maturity         = "maturity"
     warning          = "warning"
