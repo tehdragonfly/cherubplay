@@ -12,7 +12,7 @@ from uuid import uuid4
 
 from cherubplay.lib import colour_validator, preset_colours
 from cherubplay.models import Session, BlacklistedTag, Chat, ChatUser, CreateNotAllowed, Message, Request, RequestTag, Tag, TagParent, User
-from cherubplay.models.enums import TagType
+from cherubplay.models.enums import ChatUserStatus, TagType
 from cherubplay.tasks import update_request_tag_ids, update_missing_request_tag_ids
 
 
@@ -631,8 +631,9 @@ def directory_blacklist_remove(request):
 def directory_request(context, request):
 
     chats = Session.query(ChatUser, Chat).join(Chat).filter(
-        ChatUser.user_id==request.user.id,
-        Chat.request_id==context.id,
+        ChatUser.user_id == request.user.id,
+        ChatUser.status == ChatUserStatus.active,
+        Chat.request_id == context.id,
     ).order_by(Chat.updated.desc()).all()
 
     blacklisted_tags = Session.query(Tag).filter(Tag.id.in_(

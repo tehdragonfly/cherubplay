@@ -11,17 +11,9 @@ from redis.exceptions import ConnectionError
 from sqlalchemy import and_, engine_from_config, func
 from sqlalchemy.orm.exc import NoResultFound
 
-from .models import (
-    Session,
-    Base,
-    Chat,
-    ChatUser,
-    Resource,
-    User,
-)
-from .resources import ChatContext, prompt_factory, report_factory, TagList, TagPair, request_factory
-from .views import chat
-from .views import prompts
+from cherubplay.models import Session, Base, Chat, ChatUser, Resource, User
+from cherubplay.models.enums import ChatUserStatus
+from cherubplay.resources import ChatContext, prompt_factory, report_factory, TagList, TagPair, request_factory
 
 
 JSONRenderer = JSON()
@@ -118,8 +110,9 @@ def request_unread_chats(request):
     if request.user is None:
         return 0
     return Session.query(func.count('*')).select_from(ChatUser).join(Chat).filter(and_(
-        ChatUser.user_id==request.user.id,
-        Chat.updated>ChatUser.visited,
+        ChatUser.user_id == request.user.id,
+        ChatUser.status == ChatUserStatus.active,
+        Chat.updated > ChatUser.visited,
     )).scalar()
 
 
