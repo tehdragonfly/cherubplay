@@ -11,7 +11,7 @@ from cherubplay.models import (
     Session, BlacklistedTag, Chat, ChatUser, Prompt, PromptReport, Request,
     RequestTag, Resource, Tag,
 )
-from cherubplay.models.enums import TagType
+from cherubplay.models.enums import ChatUserStatus, TagType
 
 
 class ChatContext(object):
@@ -43,6 +43,7 @@ class ChatContext(object):
                 ).outerjoin(ChatUser, and_(
                     ChatUser.chat_id == Chat.id,
                     ChatUser.user_id == request.user.id,
+                    ChatUser.status == ChatUserStatus.active,
                 )).one()
             else:
                 self.chat = Session.query(Chat).filter(Chat.url == request.matchdict["url"]).one()

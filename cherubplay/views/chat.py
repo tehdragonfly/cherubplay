@@ -20,14 +20,9 @@ from sqlalchemy.orm import contains_eager, joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 
-from ..lib import colour_validator, preset_colours
-from ..models import (
-    Session,
-    Chat,
-    ChatUser,
-    Message,
-    User,
-)
+from cherubplay.lib import colour_validator, preset_colours
+from cherubplay.models import Session, Chat, ChatUser, Message, User
+from cherubplay.models.enums import ChatUserStatus
 
 
 @view_config(route_name="chat_list",                request_method="GET", permission="view")
@@ -62,17 +57,19 @@ def chat_list(request):
 
     chats = Session.query(ChatUser, Chat, Message).join(Chat).outerjoin(
         Message,
-        Message.id==Session.query(
+        Message.id == Session.query(
             func.min(Message.id),
         ).filter(
-            Message.chat_id==Chat.id,
+            Message.chat_id == Chat.id,
         ).correlate(Chat),
     ).filter(
-        ChatUser.user_id==request.user.id,
+        ChatUser.user_id == request.user.id,
+        ChatUser.status == ChatUserStatus.active,
     )
 
     chat_count = Session.query(func.count('*')).select_from(ChatUser).filter(
-        ChatUser.user_id==request.user.id,
+        ChatUser.user_id == request.user.id,
+        ChatUser.status == ChatUserStatus.active,
     )
 
     if current_status == "unanswered":
@@ -173,6 +170,7 @@ def chat(context, request):
         banned_chat_users = Session.query(ChatUser).join(User).filter(and_(
             ChatUser.chat_id == context.chat.id,
             ChatUser.user_id != request.user.id,
+            ChatUser.status == ChatUserStatus.active,
             User.status == "banned",
         )).options(contains_eager(ChatUser.user)).all()
 
@@ -263,9 +261,8 @@ def chat(context, request):
         }
 
     # List users if we're an admin.
-    # Get this from both message users and chat users, because the latter is
+    # Get this from both message users and chat users, because the latter may be
     # removed if they delete the chat.
-    # XXX DON'T REALLY DELETE CHAT USER WHEN DELETING CHATS.
     symbol_users = None
 
     if request.has_permission("chat.full_user_list"):
@@ -352,7 +349,10 @@ def chat_send(context, request):
     try:
         # See if anyone else is online and update their ChatUser too.
         online_symbols = set(int(_) for _ in request.pubsub.hvals("online:%s" % context.chat.id))
-        for other_chat_user in Session.query(ChatUser).filter(ChatUser.chat_id == context.chat.id):
+        for other_chat_user in Session.query(ChatUser).filter(and_(
+            ChatUser.chat_id == context.chat.id,
+            ChatUser.status == ChatUserStatus.active,
+        )):
             if other_chat_user.symbol in online_symbols:
                 other_chat_user.visited = posted_date
             else:
@@ -453,6 +453,7 @@ def _post_end_message(request, chat, own_chat_user):
         if len(online_symbols) != 0:
             Session.query(ChatUser).filter(and_(
                 ChatUser.chat_id == chat.id,
+                ChatUser.status == ChatUserStatus.active,
                 ChatUser.symbol.in_(online_symbols),
             )).update({"visited": update_date}, synchronize_session=False)
     except ConnectionError:
