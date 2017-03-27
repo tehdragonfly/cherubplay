@@ -12,8 +12,8 @@ from sqlalchemy import (
     Column,
     ForeignKey,
     Index,
-    UniqueConstraint,
     Boolean,
+    CheckConstraint,
     DateTime,
     Enum as SQLAlchemyEnum,
     Integer,
@@ -173,11 +173,15 @@ class Message(Base):
 
 class ChatUser(Base):
     __tablename__ = "chat_users"
-    __table_args__ = (UniqueConstraint('chat_id', 'symbol', name='chat_user_symbol_unique'),)
+    __table_args__ = (
+        UniqueConstraint('chat_id', 'symbol', name='chat_user_symbol_unique'),
+        CheckConstraint('(symbol is not null) != (name is not null)', name='chat_user_symbol_or_name'),
+    )
     chat_id = Column(Integer, ForeignKey("chats.id"), primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     last_colour = Column(String(6), nullable=False, default="000000")
-    symbol = Column(Integer, nullable=False)
+    symbol = Column(Integer)
+    name = Column(Unicode(50))
     anonymous = Column(Boolean, nullable=False, default=True)
     visited = Column(DateTime, nullable=False, default=datetime.datetime.now)
     status = Column(EnumType(ChatUserStatus, name=u"chat_user_status"), nullable=False, default=ChatUserStatus.active)
@@ -194,6 +198,7 @@ class ChatUser(Base):
             "last_colour": self.last_colour,
             "symbol": self.symbol,
             "symbol_character": self.symbol_character,
+            "name": self.name,
             "visited": self.visited.isoformat(),
             "title": self.title,
             "notes": self.notes,
