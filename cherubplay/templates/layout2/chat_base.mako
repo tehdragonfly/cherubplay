@@ -16,11 +16,15 @@ ${own_chat_user.title or chat.url} -
 % else:
         <p>${message.text}</p>
 % endif
-        <div class="timestamp">${(request.user.localise_time(message.posted) if request.user is not None else message.posted).strftime("%Y-%m-%d %H:%M:%S")}\
-% if show_edit and own_chat_user.user_id == message.user_id:
- · <a href="#" class="edit_link">Edit</a>\
-% endif
-</div>
+        <div class="timestamp">
+          % if request.context.mode == "group":
+            ${request.context.chat_users[message.user_id].name} ·
+          % endif
+          ${(request.user.localise_time(message.posted) if request.user is not None else message.posted).strftime("%Y-%m-%d %H:%M:%S")}
+          % if show_edit and own_chat_user.user_id == message.user_id:
+            · <a href="#" class="edit_link">Edit</a>\
+          % endif
+        </div>
       </li>
 </%def>\
 % if own_chat_user:
@@ -57,6 +61,14 @@ ${own_chat_user.title or chat.url} -
         <input type="hidden" name="layout_version" value="1">
         <p>This is the new layout. <button type="submit">Return to the old layout</button></p>
       </form>
+      % if page in ("chat", "archive") and request.context.mode == "group":
+        <h3>Users</h3>
+        <ul>
+          % for user_id, chat_user in request.context.chat_users.items():
+            <li style="color: #${chat_user.last_colour}">${chat_user.name}</li>
+          % endfor
+        </ul>
+      % endif
     </nav>
   </div>
 % endif

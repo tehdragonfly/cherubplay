@@ -8,8 +8,8 @@
       % for message in messages:
       ${parent.render_message(message, show_edit=True)}\
       % endfor
-      % for banned_chat_user in banned_chat_users:
-        <li class="message_system">${banned_chat_user.symbol_character} has been ${"temporarily" if banned_chat_user.user.unban_date else "permanently"} banned from Cherubplay.</li>
+      % for banned_chat_user in request.context.banned_chat_users:
+        <li class="message_system">${banned_chat_user.symbol_character or banned_chat_user.name} has been ${"temporarily" if banned_chat_user.user.unban_date else "permanently"} banned from Cherubplay.</li>
       % endfor
     </ul>
     <div id="status_bar" class="tile2 pager">&nbsp;</div>
@@ -23,7 +23,9 @@
           </select></div>
           <label class="right" title="Talk out of character; use ((double brackets)) to automatically OOC."><input id="message_ooc" type="checkbox" name="message_ooc"> OOC</label>
         </div>
-        <span class="symbol" style="color: #${own_chat_user.last_colour};">${own_chat_user.symbol_character}</span>
+        % if own_chat_user.symbol:
+          <span class="symbol" style="color: #${own_chat_user.last_colour};">${own_chat_user.symbol_character}</span>
+        % endif
         <p><textarea id="message_text" name="message_text" placeholder="Write a message..." style="color: #${own_chat_user.last_colour}">${own_chat_user.draft}</textarea></p>
         <div class="actions">
           <div class="right"><button type="submit" id="send_button">Send</button></div>

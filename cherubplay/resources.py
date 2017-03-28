@@ -1,15 +1,16 @@
+from collections import OrderedDict
 from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.security import Allow, Everyone
 from sqlalchemy import and_, func, or_, Integer
 from sqlalchemy.dialects.postgres import ARRAY
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import contains_eager, joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 
 from cherubplay.models import (
     Session, BlacklistedTag, Chat, ChatUser, Prompt, PromptReport, Request,
-    RequestTag, Resource, Tag,
+    RequestTag, Resource, Tag, User,
 )
 from cherubplay.models.enums import ChatUserStatus, TagType
 
@@ -57,8 +58,33 @@ class ChatContext(object):
         return "<ChatContext: guest in Chat %s>" % self.chat.id
 
     @reify
+    def mode(self):
+        if self.chat_user and self.chat_user.name is not None:
+            return "group"
+        elif self.chat_users and next(iter(self.chat_users.values())).name is not None:
+            return "group"
+        return "1-on-1"
+
+    @reify
     def is_continuable(self):
         return self.chat.status == "ongoing" and self.request.has_permission("chat.send")
+
+    @reify
+    def chat_users(self):
+        return OrderedDict([
+            (chat_user.user_id, chat_user)
+            for chat_user in Session.query(ChatUser).join(User).filter(and_(
+                ChatUser.chat_id == self.chat.id,
+            )).options(contains_eager(ChatUser.user)).order_by(ChatUser.name).all()
+        ])
+
+    @reify
+    def banned_chat_users(self):
+        return [
+            _ for _ in self.chat_users.values()
+            if _.status == ChatUserStatus.active
+            and _.user.status == "banned"
+        ]
 
 
 def prompt_factory(request):

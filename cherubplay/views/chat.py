@@ -167,13 +167,6 @@ def chat(context, request):
             )
             messages.reverse()
 
-        banned_chat_users = Session.query(ChatUser).join(User).filter(and_(
-            ChatUser.chat_id == context.chat.id,
-            ChatUser.user_id != request.user.id,
-            ChatUser.status == ChatUserStatus.active,
-            User.status == "banned",
-        )).options(contains_eager(ChatUser.user)).all()
-
         if request.matched_route.name == "chat_ext":
             return {
                 "chat":              context.chat,
@@ -181,24 +174,25 @@ def chat(context, request):
                 "message_count":     message_count,
                 "prompt":            prompt,
                 "messages":          messages,
-                "banned_chat_users": [_.symbol_character for _ in banned_chat_users],
+                # TODO chat_users
+                "banned_chat_users": [_.symbol_character or _.name for _ in context.banned_chat_users],
             }
 
         # List users if we're an admin.
         # Get this from both message users and chat users, because the latter is
         # removed if they delete the chat.
-        # XXX DON'T REALLY DELETE CHAT USER WHEN DELETING CHATS.
         symbol_users = None
-        if request.has_permission("chat.full_user_list"):
-            symbol_users = {
-                _.symbol_character: _.user
-                for _ in messages
-                if _.user is not None
-            }
-            for chat_user in Session.query(ChatUser).filter(
-                ChatUser.chat_id == context.chat.id
-            ).options(joinedload(ChatUser.user)):
-                symbol_users[chat_user.symbol_character] = chat_user.user
+        # TODO uncomment
+        #if request.has_permission("chat.full_user_list"):
+        #    symbol_users = {
+        #        _.symbol_character: _.user
+        #        for _ in messages
+        #        if _.user is not None
+        #    }
+        #    for chat_user in Session.query(ChatUser).filter(
+        #        ChatUser.chat_id == context.chat.id
+        #    ).options(joinedload(ChatUser.user)):
+        #        symbol_users[chat_user.symbol_character] = chat_user.user
 
         template = "layout2/chat.mako" if request.user.layout_version == 2 else "chat.mako"
         return render_to_response(template, {
@@ -211,7 +205,6 @@ def chat(context, request):
             "messages":          messages,
             "message_count":     message_count,
             "symbol_users":      symbol_users,
-            "banned_chat_users": banned_chat_users,
         }, request=request)
 
     # Otherwise show the archive view.
@@ -265,16 +258,17 @@ def chat(context, request):
     # removed if they delete the chat.
     symbol_users = None
 
-    if request.has_permission("chat.full_user_list"):
-        symbol_users = {
-            _.symbol_character: _.user
-            for _ in messages
-            if _.user is not None
-        }
-        for chat_user in Session.query(ChatUser).filter(
-            ChatUser.chat_id == context.chat.id
-        ).options(joinedload(ChatUser.user)):
-            symbol_users[chat_user.symbol_character] = chat_user.user
+    # TODO uncomment
+    #if request.has_permission("chat.full_user_list"):
+    #    symbol_users = {
+    #        _.symbol_character: _.user
+    #        for _ in messages
+    #        if _.user is not None
+    #    }
+    #    for chat_user in Session.query(ChatUser).filter(
+    #        ChatUser.chat_id == context.chat.id
+    #    ).options(joinedload(ChatUser.user)):
+    #        symbol_users[chat_user.symbol_character] = chat_user.user
 
     template = "layout2/chat_archive.mako" if (
         request.user is None or request.user.layout_version == 2
