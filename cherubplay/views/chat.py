@@ -168,7 +168,7 @@ def chat(context, request):
             messages.reverse()
 
         if request.matched_route.name == "chat_ext":
-            return {
+            data = {
                 "chat":              context.chat,
                 "chat_user":         context.chat_user,
                 "message_count":     message_count,
@@ -177,6 +177,12 @@ def chat(context, request):
                 # TODO chat_users
                 "banned_chat_users": [_.symbol_character or _.name for _ in context.banned_chat_users],
             }
+            if context.mode == "group":
+                data["chat_users"] = [
+                    {"name": chat_user.name, "last_colour": chat_user.last_colour}
+                    for chat_user in context.chat_users.values()
+                ]
+            return data
 
         # List users if we're an admin.
         # Get this from both message users and chat users, because the latter is
