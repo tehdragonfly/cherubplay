@@ -1110,6 +1110,9 @@ var cherubplay = (function() {
 						} else if (message.action == "online") {
 							last_status_message = message.handle + " is online.";
 							status_bar.text(last_status_message);
+						} else if (message.action == "online_list") {
+							last_status_message = "Online: " + message.handles.join(", ");
+							status_bar.text(last_status_message);
 						} else if (message.action == "offline") {
 							last_status_message = message.handle + " is now offline. They will be notified of any messages you send when they next visit.";
 							status_bar.text(last_status_message);

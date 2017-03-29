@@ -57,11 +57,15 @@ class ChatHandler(WebSocketHandler):
                 "handle": self.chat_user.handle,
             }))
 
-        # See if the other person is online.
-        for handle in online_handles:
-            if handle == self.chat_user.handle:
-                continue
-            self.write_message({"action": "online", "handle": handle})
+        # See if anyone else is online.
+        online_handles_except_self = online_handles - {self.chat_user.handle}
+        if len(online_handles_except_self) == 1:
+            self.write_message({"action": "online", "handle": next(iter(online_handles_except_self))})
+        elif len(online_handles_except_self) >= 1:
+            self.write_message({
+                "action": "online_list",
+                "handles": sorted(list(online_handles)),
+            })
 
         online_user_store.connect(self.chat, self.chat_user, self.socket_id)
 
