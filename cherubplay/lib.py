@@ -80,11 +80,11 @@ class OnlineUserStore(object):
 
     def connect(self, chat, chat_user, socket_id):
         # TODO fire online/offline messages from here too?
-        self.redis.hset("online:" + str(chat.id), socket_id, chat_user.symbol)
+        self.redis.hset("online:" + str(chat.id), socket_id, chat_user.handle)
 
     def disconnect(self, chat, socket_id):
         self.redis.hdel("online:" + str(chat.id), socket_id)
 
     def online_handles(self, chat):
-        return set(int(_) for _ in self.redis.hvals("online:" + str(chat.id)))
+        return set(_.decode("utf-8") for _ in self.redis.hvals("online:" + str(chat.id)))
 

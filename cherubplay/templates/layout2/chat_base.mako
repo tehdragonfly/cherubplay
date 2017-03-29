@@ -11,7 +11,7 @@ ${own_chat_user.title or chat.url} -
 % if message.symbol is not None:
         <span class="symbol">${message.symbol_character}</span>
 % endif
-% if message.symbol is not None and message.type=="system":
+% if message.symbol is not None and message.type == "system":
         <p>${message.text % message.symbol_character}</p>
 % else:
         <p>${message.text}</p>

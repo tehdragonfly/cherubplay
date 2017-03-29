@@ -175,7 +175,7 @@ def chat(context, request):
                 "prompt":            prompt,
                 "messages":          messages,
                 # TODO chat_users
-                "banned_chat_users": [_.symbol_character or _.name for _ in context.banned_chat_users],
+                "banned_chat_users": [_.handle for _ in context.banned_chat_users],
             }
             if context.mode == "group":
                 data["chat_users"] = [
@@ -348,12 +348,12 @@ def chat_send(context, request):
 
     try:
         # See if anyone else is online and update their ChatUser too.
-        online_symbols = OnlineUserStore(request.pubsub).online_handles(context.chat)
+        online_handles = OnlineUserStore(request.pubsub).online_handles(context.chat)
         for other_chat_user in Session.query(ChatUser).filter(and_(
             ChatUser.chat_id == context.chat.id,
             ChatUser.status == ChatUserStatus.active,
         )):
-            if other_chat_user.symbol in online_symbols:
+            if other_chat_user.handle in online_handles:
                 other_chat_user.visited = posted_date
             else:
                 request.pubsub.publish("user:" + str(other_chat_user.user_id), json.dumps({
@@ -362,6 +362,7 @@ def chat_send(context, request):
                     "title":  other_chat_user.title or context.chat.url,
                     "colour": colour,
                     "symbol": context.chat_user.symbol_character,
+                    # TODO ADD NAME
                     "text":   trimmed_message_text if len(trimmed_message_text) < 100 else trimmed_message_text[:97] + "...",
                 }))
     except ConnectionError:
@@ -375,6 +376,7 @@ def chat_send(context, request):
                 "type":   message_type,
                 "colour": colour,
                 "symbol": context.chat_user.symbol_character,
+                # TODO ADD NAME
                 "text":   trimmed_message_text,
             },
         }))
@@ -413,6 +415,7 @@ def chat_edit(context, request):
                 "type":        message.type,
                 "colour":      message.colour,
                 "symbol":      message.symbol_character,
+                # TODO ADD NAME
                 "text":        message.text,
                 "show_edited": message.show_edited,
             },
@@ -446,13 +449,13 @@ def _post_end_message(request, chat, own_chat_user):
 
     try:
         # See if anyone else is online and update their ChatUser too.
-        online_symbols = OnlineUserStore(request.pubsub).online_handles(chat)
-        if len(online_symbols) != 0:
-            Session.query(ChatUser).filter(and_(
-                ChatUser.chat_id == chat.id,
-                ChatUser.status == ChatUserStatus.active,
-                ChatUser.symbol.in_(online_symbols),
-            )).update({"visited": update_date}, synchronize_session=False)
+        online_handles = OnlineUserStore(request.pubsub).online_handles(context.chat)
+        for other_chat_user in Session.query(ChatUser).filter(and_(
+            ChatUser.chat_id == context.chat.id,
+            ChatUser.status == ChatUserStatus.active,
+        )):
+            if other_chat_user.handle in online_handles:
+                other_chat_user.visited = posted_date
     except ConnectionError:
         pass
 
@@ -463,7 +466,8 @@ def _post_end_message(request, chat, own_chat_user):
                 "type":   "system",
                 "colour": "000000",
                 "symbol": own_chat_user.symbol_character,
-                "text":   u"%s ended the chat.",
+                # TODO ADD NAME
+                "text":   u"%s ended the chat." % own_chat_user.handle,
             },
         }))
     except ConnectionError:

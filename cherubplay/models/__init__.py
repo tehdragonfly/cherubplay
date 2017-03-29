@@ -209,6 +209,10 @@ class ChatUser(Base):
     def symbol_character(self):
         return symbols[self.symbol] if self.symbol is not None else None
 
+    @property
+    def handle(self):
+        return self.symbol_character or self.name
+
 
 class PromptReport(Base, Resource):
     __tablename__ = "prompt_reports"

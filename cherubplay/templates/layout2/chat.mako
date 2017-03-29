@@ -9,7 +9,7 @@
       ${parent.render_message(message, show_edit=True)}\
       % endfor
       % for banned_chat_user in request.context.banned_chat_users:
-        <li class="message_system">${banned_chat_user.symbol_character or banned_chat_user.name} has been ${"temporarily" if banned_chat_user.user.unban_date else "permanently"} banned from Cherubplay.</li>
+        <li class="message_system">${banned_chat_user.handle} has been ${"temporarily" if banned_chat_user.user.unban_date else "permanently"} banned from Cherubplay.</li>
       % endfor
     </ul>
     <div id="status_bar" class="tile2 pager">&nbsp;</div>

@@ -15,7 +15,7 @@ from tornado.websocket import WebSocketHandler
 
 from tornadoredis import Client
 
-from cherubplay.lib import colour_validator, symbols, OnlineUserStore
+from cherubplay.lib import colour_validator, OnlineUserStore
 from cherubplay.models import Chat, ChatUser, Message
 
 from cherubplay_live.db import config, get_chat, get_chat_user, get_user, publish_client, sm
@@ -48,22 +48,23 @@ class ChatHandler(WebSocketHandler):
             self.close()
             return
         self.socket_id = str(uuid4())
+
         # Fire online message, but only if this is the only tab we have open.
-        online_symbols = online_user_store.online_handles(self.chat)
-        if self.chat_user.symbol not in online_symbols:
+        online_handles = online_user_store.online_handles(self.chat)
+        if self.chat_user.handle not in online_handles:
             publish_client.publish("chat:" + str(self.chat.id), json.dumps({
                 "action": "online",
-                "symbol": self.chat_user.symbol_character,
+                "handle": self.chat_user.handle,
             }))
+
         # See if the other person is online.
-        for symbol in online_symbols:
-            if symbol == self.chat_user.symbol:
+        for handle in online_handles:
+            if handle == self.chat_user.handle:
                 continue
-            self.write_message({
-                "action": "online",
-                "symbol": symbols[symbol],
-            })
+            self.write_message({"action": "online", "handle": handle})
+
         online_user_store.connect(self.chat, self.chat_user, self.socket_id)
+
         self.redis_listen()
         self.ignore_next_message = False
         # Send the backlog if necessary.
@@ -86,6 +87,7 @@ class ChatHandler(WebSocketHandler):
                         "type":   message.type,
                         "colour": message.colour,
                         "symbol": message.symbol_character,
+                        # TODO ADD NAME
                         "text":   message.text,
                     }
                 })
@@ -96,7 +98,7 @@ class ChatHandler(WebSocketHandler):
         if message["action"] in ("typing", "stopped_typing"):
             publish_client.publish("chat:" + str(self.chat.id), json.dumps({
                 "action": message["action"],
-                "symbol": self.chat_user.symbol_character,
+                "handle": self.chat_user.handle,
             }))
             # Ignore our own typing messages.
             self.ignore_next_message = True
@@ -107,10 +109,10 @@ class ChatHandler(WebSocketHandler):
         self.redis_client.unsubscribe(("chat:" + str(self.chat.id), "user:" + str(self.user.id)))
         online_user_store.disconnect(self.chat, self.socket_id)
         # Fire offline message, but only if we don't have any other tabs open.
-        if self.chat_user.symbol not in online_user_store.online_handles(self.chat):
+        if self.chat_user.handle not in online_user_store.online_handles(self.chat):
             publish_client.publish("chat:" + str(self.chat.id), json.dumps({
                 "action": "offline",
-                "symbol": self.chat_user.symbol_character,
+                "handle": self.chat_user.handle,
             }))
         sockets.remove(self)
 
