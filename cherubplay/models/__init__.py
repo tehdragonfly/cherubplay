@@ -360,6 +360,28 @@ class Request(Base):
         return rd
 
 
+class RequestSlot(Base):
+    __tablename__ = "request_slots"
+    request_id = Column(Integer, ForeignKey("requests.id"), primary_key=True)
+    order = Column(Integer, primary_key=True)
+    description = Column(Unicode(100), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"))
+
+    def __repr__(self):
+        return "<RequestSlot: Request #%s, slot #%s" % (self.request_id, self.order)
+
+    @property
+    def taken(self):
+        return self.user_id is not None
+
+    def __json__(self, request=None):
+        return {
+            "order": self.order,
+            "description": self.description,
+            "taken": self.taken,
+        }
+
+
 class RequestTag(Base):
     __tablename__ = "request_tags"
     request_id = Column(Integer, ForeignKey("requests.id"), primary_key=True)
@@ -469,6 +491,9 @@ PromptReport.reported_user = relationship(User, backref="reports_recieved", prim
 Request.user = relationship(User, backref="requests")
 Request.tags = relationship(Tag, secondary=RequestTag.__table__, order_by=(Tag.type, Tag.name), backref="requests")
 Request.duplicate_of = relationship(Request, remote_side=Request.id)
+
+RequestSlot.request = relationship(Request, backref="slots")
+RequestSlot.user = relationship(User)
 
 RequestTag.request = relationship(Request, backref="request_tags")
 RequestTag.tag = relationship(Tag, backref="request_tags")
