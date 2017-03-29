@@ -200,7 +200,10 @@ def chat(context, request):
         #    ).options(joinedload(ChatUser.user)):
         #        symbol_users[chat_user.symbol_character] = chat_user.user
 
-        template = "layout2/chat.mako" if request.user.layout_version == 2 else "chat.mako"
+        template = "layout2/chat.mako" if (
+            context.mode == "group"
+            or request.user.layout_version == 2
+        ) else "chat.mako"
         return render_to_response(template, {
             "page":              "chat",
             "preset_colours":    preset_colours,
@@ -277,7 +280,9 @@ def chat(context, request):
     #        symbol_users[chat_user.symbol_character] = chat_user.user
 
     template = "layout2/chat_archive.mako" if (
-        request.user is None or request.user.layout_version == 2
+        context.mode == "group"
+        or request.user is None
+        or request.user.layout_version == 2
     ) else "chat_archive.mako"
     return render_to_response(template, {
         "page":          "archive",
