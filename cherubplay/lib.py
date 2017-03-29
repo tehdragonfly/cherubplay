@@ -72,3 +72,19 @@ prompt_levels = OrderedDict([
     ("nsfw", "Not safe for work"),
     ("nsfw-extreme", "NSFW extreme"),
 ])
+
+
+class OnlineUserStore(object):
+    def __init__(self, redis):
+        self.redis = redis
+
+    def connect(self, chat, chat_user, socket_id):
+        # TODO fire online/offline messages from here too?
+        self.redis.hset("online:" + str(chat.id), socket_id, chat_user.symbol)
+
+    def disconnect(self, chat, socket_id):
+        self.redis.hdel("online:" + str(chat.id), socket_id)
+
+    def online_handles(self, chat):
+        return set(int(_) for _ in self.redis.hvals("online:" + str(chat.id)))
+

@@ -15,13 +15,16 @@ from tornado.websocket import WebSocketHandler
 
 from tornadoredis import Client
 
-from cherubplay.lib import colour_validator, symbols
+from cherubplay.lib import colour_validator, symbols, OnlineUserStore
 from cherubplay.models import Chat, ChatUser, Message
 
 from cherubplay_live.db import config, get_chat, get_chat_user, get_user, publish_client, sm
 
 
 sockets = set()
+
+
+online_user_store = OnlineUserStore(publish_client)
 
 
 class ChatHandler(WebSocketHandler):
@@ -46,7 +49,7 @@ class ChatHandler(WebSocketHandler):
             return
         self.socket_id = str(uuid4())
         # Fire online message, but only if this is the only tab we have open.
-        online_symbols = set(int(_) for _ in publish_client.hvals("online:"+str(self.chat.id)))
+        online_symbols = online_user_store.online_handles(self.chat)
         if self.chat_user.symbol not in online_symbols:
             publish_client.publish("chat:" + str(self.chat.id), json.dumps({
                 "action": "online",
@@ -60,7 +63,7 @@ class ChatHandler(WebSocketHandler):
                 "action": "online",
                 "symbol": symbols[symbol],
             })
-        publish_client.hset("online:" + str(self.chat.id), self.socket_id, self.chat_user.symbol)
+        online_user_store.connect(self.chat, self.chat_user, self.socket_id)
         self.redis_listen()
         self.ignore_next_message = False
         # Send the backlog if necessary.
@@ -102,9 +105,9 @@ class ChatHandler(WebSocketHandler):
     def on_close(self):
         # Unsubscribe here and let the exit callback handle disconnecting.
         self.redis_client.unsubscribe(("chat:" + str(self.chat.id), "user:" + str(self.user.id)))
-        publish_client.hdel("online:" + str(self.chat.id), self.socket_id)
+        online_user_store.disconnect(self.chat, self.socket_id)
         # Fire offline message, but only if we don't have any other tabs open.
-        if str(self.chat_user.symbol) not in publish_client.hvals("online:" + str(self.chat.id)):
+        if self.chat_user.symbol not in online_user_store.online_handles(self.chat):
             publish_client.publish("chat:" + str(self.chat.id), json.dumps({
                 "action": "offline",
                 "symbol": self.chat_user.symbol_character,

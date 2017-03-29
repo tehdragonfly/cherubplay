@@ -20,7 +20,7 @@ from sqlalchemy.orm import contains_eager, joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 
-from cherubplay.lib import colour_validator, preset_colours
+from cherubplay.lib import colour_validator, preset_colours, OnlineUserStore
 from cherubplay.models import Session, Chat, ChatUser, Message, User
 from cherubplay.models.enums import ChatUserStatus
 
@@ -348,7 +348,7 @@ def chat_send(context, request):
 
     try:
         # See if anyone else is online and update their ChatUser too.
-        online_symbols = set(int(_) for _ in request.pubsub.hvals("online:%s" % context.chat.id))
+        online_symbols = OnlineUserStore(request.pubsub).online_handles(context.chat)
         for other_chat_user in Session.query(ChatUser).filter(and_(
             ChatUser.chat_id == context.chat.id,
             ChatUser.status == ChatUserStatus.active,
@@ -446,10 +446,7 @@ def _post_end_message(request, chat, own_chat_user):
 
     try:
         # See if anyone else is online and update their ChatUser too.
-        online_symbols = [
-            int(_) for _ in request.pubsub.hvals("online:"+str(chat.id))
-        ]
-        print(online_symbols)
+        online_symbols = OnlineUserStore(request.pubsub).online_handles(chat)
         if len(online_symbols) != 0:
             Session.query(ChatUser).filter(and_(
                 ChatUser.chat_id == chat.id,
