@@ -367,7 +367,7 @@ def chat_send(context, request):
                     "title":  other_chat_user.title or context.chat.url,
                     "colour": colour,
                     "symbol": context.chat_user.symbol_character,
-                    # TODO ADD NAME
+                    "name": context.chat_user.name,
                     "text":   trimmed_message_text if len(trimmed_message_text) < 100 else trimmed_message_text[:97] + "...",
                 }))
     except ConnectionError:
@@ -381,7 +381,7 @@ def chat_send(context, request):
                 "type":   message_type,
                 "colour": colour,
                 "symbol": context.chat_user.symbol_character,
-                # TODO ADD NAME
+                "name": context.chat_user.name,
                 "text":   trimmed_message_text,
             },
         }))
@@ -420,7 +420,7 @@ def chat_edit(context, request):
                 "type":        message.type,
                 "colour":      message.colour,
                 "symbol":      message.symbol_character,
-                # TODO ADD NAME
+                "name":        context.chat_user.name,
                 "text":        message.text,
                 "show_edited": message.show_edited,
             },
@@ -471,7 +471,7 @@ def _post_end_message(request, chat, own_chat_user):
                 "type":   "system",
                 "colour": "000000",
                 "symbol": own_chat_user.symbol_character,
-                # TODO ADD NAME
+                "name": own_chat_user.name,
                 "text":   u"%s ended the chat." % own_chat_user.handle,
             },
         }))

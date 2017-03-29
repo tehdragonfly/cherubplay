@@ -75,7 +75,10 @@ class ChatHandler(WebSocketHandler):
             except ValueError:
                 return
             Session = sm()
-            for message in Session.query(Message).filter(and_(
+            for message, chat_user in Session.query(Message, ChatUser).outerjoin(ChatUser, and_(
+                Message.chat_id == ChatUser.chat_id,
+                Message.user_id == ChatUser.user_id,
+            )).filter(and_(
                 Message.chat_id == self.chat.id,
                 Message.id > after,
             )):
@@ -87,7 +90,7 @@ class ChatHandler(WebSocketHandler):
                         "type":   message.type,
                         "colour": message.colour,
                         "symbol": message.symbol_character,
-                        # TODO ADD NAME
+                        "name":   chat_user.name if chat_user else None,
                         "text":   message.text,
                     }
                 })

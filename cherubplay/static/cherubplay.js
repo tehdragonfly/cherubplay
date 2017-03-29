@@ -859,7 +859,7 @@ var cherubplay = (function() {
 			if (body.hasClass("layout2")) {
 				$(".edit_link").click(start_editing);
 			} else {
-				$("#messages li[data-symbol=" + own_handle + "]").dblclick(start_editing);
+				$("#messages li[data-handle=" + own_handle + "]").dblclick(start_editing);
 			}
 
 			var status_bar = $("#status_bar");
@@ -979,17 +979,27 @@ var cherubplay = (function() {
 				latest_message_id = Math.max(latest_message_id, message.id);
 				// Check if we're at the bottom before rendering because rendering will mean that we're not.
 				var scroll_after_render = is_at_bottom();
+				var message_handle = (message.symbol || message.name);
 				if (body.hasClass("layout2")) {
-					var li = $("<li>").attr("id", "message_"+message.id).addClass("message_"+message.type).css("color", "#"+message.colour);
-					var timestamp = $("<div>").addClass("timestamp").text(new Date().toLocaleString())
-					if (message.symbol) {
-						li.attr("data-symbol", message.symbol);
-						if (message.symbol == own_handle) {
+					console.log(message);
+					var li = $("<li>").attr("id", "message_" + message.id).addClass("message_" + message.type).css("color", "#" + message.colour);
+					var timestamp = $("<div>").addClass("timestamp");
+					if (message.name) {
+						timestamp.text(message.name + " · ");
+					}
+					timestamp.text(timestamp.text() + new Date().toLocaleString());
+					if (message_handle) {
+						li.attr("data-handle", message_handle);
+						if (message_handle == own_handle) {
 							timestamp.text(timestamp.text() + " · ");
 							$("<a>").attr("href", "#").addClass("edit_link").text("Edit").click(start_editing).appendTo(timestamp);
 						}
+					}
+					if (message.symbol) {
 						$("<span>").addClass("symbol").text(message.symbol).appendTo(li);
-						var text = message.type == "system" ? message.text.replace("%s", message.symbol) : message.text;
+					}
+					if (message_handle && message.type == "system") {
+						var text = message.text.replace("%s", message_handle);
 					} else {
 						var text = message.text;
 					}
@@ -1111,7 +1121,9 @@ var cherubplay = (function() {
 						) {
 							$("#notification").show();
 							$("#notification_title").attr("href", "https://" + location.host + "/chats/" + message.url + "/").text(message.title);
-							$("#notification_symbol").css("color", "#" + message.colour).text(message.symbol);
+							if (message.symbol) {
+								$("#notification_symbol").css("color", "#" + message.colour).text(message.symbol);
+							}
 							$("#notification_text").css("color", "#" + message.colour).text(message.text);
 						}
 					}
