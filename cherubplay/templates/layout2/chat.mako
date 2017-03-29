@@ -46,5 +46,5 @@
         <button id="notification_close">Close</button>
     </section>
 <%block name="scripts">
-<script>cherubplay.chat("${request.matchdict["url"]}", "${own_chat_user.symbol_character}");</script>
+<script>cherubplay.chat("${request.matchdict["url"]}", "${own_chat_user.handle}");</script>
 </%block>

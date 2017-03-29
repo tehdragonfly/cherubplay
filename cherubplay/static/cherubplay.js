@@ -760,7 +760,7 @@ var cherubplay = (function() {
 				cross_chat_notifications.attr("checked", "checked");
 			}
 		},
-		"chat": function(chat_url, own_symbol) {
+		"chat": function(chat_url, own_handle) {
 
 			var latest_message_id;
 			var messages = $("#messages li");
@@ -859,7 +859,7 @@ var cherubplay = (function() {
 			if (body.hasClass("layout2")) {
 				$(".edit_link").click(start_editing);
 			} else {
-				$("#messages li[data-symbol="+own_symbol+"]").dblclick(start_editing);
+				$("#messages li[data-symbol=" + own_handle + "]").dblclick(start_editing);
 			}
 
 			var status_bar = $("#status_bar");
@@ -984,7 +984,7 @@ var cherubplay = (function() {
 					var timestamp = $("<div>").addClass("timestamp").text(new Date().toLocaleString())
 					if (message.symbol) {
 						li.attr("data-symbol", message.symbol);
-						if (message.symbol == own_symbol) {
+						if (message.symbol == own_handle) {
 							timestamp.text(timestamp.text() + " · ");
 							$("<a>").attr("href", "#").addClass("edit_link").text("Edit").click(start_editing).appendTo(timestamp);
 						}
@@ -1000,7 +1000,7 @@ var cherubplay = (function() {
 					var li = $("<li>").attr("id", "message_"+message.id).addClass("tile message_"+message.type);
 					if (message.symbol) {
 						li.attr("data-symbol", message.symbol);
-						if (message.symbol == own_symbol) {
+						if (message.symbol == own_handle) {
 							li.dblclick(start_editing);
 						}
 						if (message.type == "system") {
@@ -1072,7 +1072,7 @@ var cherubplay = (function() {
 							} else {
 								p.css("color", "#"+message.message.colour).text(message.message.symbol+": "+message.message.text);
 							}
-						} else if (message.action=="end") {
+						} else if (message.action == "end") {
 							$(body).removeClass("ongoing");
 							ws.close();
 							ended = true;
@@ -1091,17 +1091,17 @@ var cherubplay = (function() {
 							}
 							message_form_container.remove();
 							render_message(message.message);
-						} else if (message.action=="typing") {
-							if (message.symbol != own_symbol) {
-								status_bar.text(message.symbol+" is typing.");
+						} else if (message.action == "typing") {
+							if (message.handle != own_handle) {
+								status_bar.text(message.handle + " is typing.");
 							}
-						} else if (message.action=="stopped_typing") {
+						} else if (message.action == "stopped_typing") {
 							status_bar.text(last_status_message);
-						} else if (message.action=="online") {
-							last_status_message = message.symbol+" is online.";
+						} else if (message.action == "online") {
+							last_status_message = message.handle + " is online.";
 							status_bar.text(last_status_message);
-						} else if (message.action=="offline") {
-							last_status_message = message.symbol+" is now offline. They will be notified of any messages you send when they next visit.";
+						} else if (message.action == "offline") {
+							last_status_message = message.handle + " is now offline. They will be notified of any messages you send when they next visit.";
 							status_bar.text(last_status_message);
 						} else if (
 							body.hasClass("layout2")
