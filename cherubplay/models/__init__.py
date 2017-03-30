@@ -373,6 +373,7 @@ class RequestSlot(Base):
     order = Column(Integer, primary_key=True)
     description = Column(Unicode(100), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"))
+    user_name = Column(Unicode(50))
 
     def __repr__(self):
         return "<RequestSlot: Request #%s, slot #%s" % (self.request_id, self.order)
