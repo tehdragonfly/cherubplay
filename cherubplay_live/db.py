@@ -8,6 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.exc import NoResultFound
 
 from cherubplay.models import Chat, ChatUser, User
+from cherubplay.models.enums import ChatUserStatus
 
 config_path = sys.argv[1]
 config = ConfigParser()
@@ -51,8 +52,9 @@ def get_chat(chat_url):
 def get_chat_user(chat_id, user_id):
     try:
         return Session.query(ChatUser).filter(and_(
-            ChatUser.chat_id==chat_id,
-            ChatUser.user_id==user_id,
+            ChatUser.chat_id == chat_id,
+            ChatUser.user_id == user_id,
+            ChatUser.status == ChatUserStatus.active,
         )).one()
     except NoResultFound:
         return None

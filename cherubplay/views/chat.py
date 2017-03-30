@@ -436,12 +436,17 @@ def chat_edit(context, request):
 def _post_end_message(request, chat, own_chat_user):
     update_date = datetime.datetime.now()
 
+    text = "%s ended the chat."
+    notification_text = text % own_chat_user.handle
+    if own_chat_user.name:
+        text = notification_text
+
     Session.add(Message(
         chat_id=chat.id,
         type="system",
         colour="000000",
         symbol=own_chat_user.symbol,
-        text=u"%s ended the chat.",
+        text=text,
         posted=update_date,
         edited=update_date,
     ))
@@ -454,9 +459,9 @@ def _post_end_message(request, chat, own_chat_user):
 
     try:
         # See if anyone else is online and update their ChatUser too.
-        online_handles = OnlineUserStore(request.pubsub).online_handles(context.chat)
+        online_handles = OnlineUserStore(request.pubsub).online_handles(chat)
         for other_chat_user in Session.query(ChatUser).filter(and_(
-            ChatUser.chat_id == context.chat.id,
+            ChatUser.chat_id == chat.id,
             ChatUser.status == ChatUserStatus.active,
         )):
             if other_chat_user.handle in online_handles:
@@ -472,7 +477,7 @@ def _post_end_message(request, chat, own_chat_user):
                 "colour": "000000",
                 "symbol": own_chat_user.symbol_character,
                 "name":   own_chat_user.name,
-                "text":   u"%s ended the chat." % own_chat_user.handle,
+                "text":   notification_text,
             },
         }))
     except ConnectionError:
@@ -534,7 +539,12 @@ def chat_delete_get(context, request):
 def chat_delete_post(context, request):
     if context.chat.status == "ongoing":
         _post_end_message(request, context.chat, context.chat_user)
-    Session.delete(context.chat_user)
+
+    if context.mode == "group":
+        context.chat_user.status = ChatUserStatus.deleted
+    else:
+        Session.delete(context.chat_user)
+
     if request.is_xhr:
         return HTTPNoContent()
     return HTTPFound(request.route_path("chat_list"))
