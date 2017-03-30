@@ -5,7 +5,7 @@ import time
 from uuid import uuid4
 
 from sqlalchemy import and_
-
+from sqlalchemy.orm import joinedload
 from tornado.gen import engine, Task
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
@@ -79,13 +79,11 @@ class ChatHandler(WebSocketHandler):
             except ValueError:
                 return
             Session = sm()
-            for message, chat_user in Session.query(Message, ChatUser).outerjoin(ChatUser, and_(
-                Message.chat_id == ChatUser.chat_id,
-                Message.user_id == ChatUser.user_id,
-            )).filter(and_(
-                Message.chat_id == self.chat.id,
-                Message.id > after,
-            )):
+            for message in (
+                Session.query(Message)
+                .options(joinedload(Message.chat_user))
+                .filter(and_(Message.chat_id == self.chat.id, Message.id > after))
+            ):
                 print(message)
                 self.write_message({
                     "action": "message",
@@ -94,7 +92,7 @@ class ChatHandler(WebSocketHandler):
                         "type":   message.type,
                         "colour": message.colour,
                         "symbol": message.symbol_character,
-                        "name":   chat_user.name if chat_user else None,
+                        "name":   message.chat_user.name if message.chat_user else None,
                         "text":   message.text,
                     }
                 })

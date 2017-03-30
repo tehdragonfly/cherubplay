@@ -170,6 +170,13 @@ class Message(Base):
     def symbol_character(self):
         return symbols[self.symbol] if self.symbol is not None else None
 
+    @property
+    def handle(self):
+        if self.symbol_character:
+            return self.symbol_character
+        if self.user_id and self.chat_user:
+            return self.chat_user.handle
+
 
 class ChatUser(Base):
     __tablename__ = "chat_users"
@@ -480,6 +487,11 @@ Chat.request = relationship(Request)
 
 Message.chat = relationship(Chat, backref="messages")
 Message.user = relationship(User, backref="messages")
+Message.chat_user = relationship(
+    ChatUser,
+    primaryjoin=and_(Message.chat_id == ChatUser.chat_id, Message.user_id == ChatUser.user_id),
+    foreign_keys=[Message.chat_id, Message.user_id],
+)
 
 ChatUser.chat = relationship(Chat, backref="users")
 ChatUser.user = relationship(User, backref="chats")

@@ -7,13 +7,7 @@ ${own_chat_user.title or chat.url} -
 </%block>
 <%block name="body_class">layout2</%block>
 <%def name="render_message(message, show_edit=False)">\
-      <li id="message_${message.id}" class="message_${message.type}${" edited" if message.show_edited else ""}" data-handle="\
-% if message.symbol_character:
-${message.symbol_character}\
-% elif message.user_id and message.user_id in request.context.chat_users:
-${request.context.chat_users[message.user_id].name}\
-% endif
-" style="color: #${message.colour};">
+      <li id="message_${message.id}" class="message_${message.type}${" edited" if message.show_edited else ""}" data-handle="${message.handle or ""}" style="color: #${message.colour};">
 % if message.symbol is not None:
         <span class="symbol">${message.symbol_character}</span>
 % endif
@@ -24,7 +18,7 @@ ${request.context.chat_users[message.user_id].name}\
 % endif
         <div class="timestamp">
           % if request.context.mode == "group":
-            ${request.context.chat_users[message.user_id].name} ·
+            ${message.chat_user.name} ·
           % endif
           ${(request.user.localise_time(message.posted) if request.user is not None else message.posted).strftime("%Y-%m-%d %H:%M:%S")}
           % if show_edit and own_chat_user.user_id == message.user_id:
