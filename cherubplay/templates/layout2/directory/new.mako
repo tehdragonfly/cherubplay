@@ -7,7 +7,8 @@ Edit request #${request.context.id}
 New request
 % endif
 </%block>
-    <form id="new_request_form" class="tile2" action="${request.current_route_path()}" method="post">
+  <form id="new_request_form" action="${request.current_route_path()}" method="post">
+    <section class="tile2">
       <p><label>Maturity: <select name="maturity" required>
         % if request.matched_route.name != "directory_request_edit":
         <option value=""></option>
@@ -31,7 +32,8 @@ New request
         <label><input type="checkbox" name="type_${tag_type}"${" checked" if "type_" + tag_type in form_data else ""}> ${tag_type}</label>
         % endfor
       </p>
-      <hr>
+    </section>
+    <section class="tile2">
       <h3>Who you're playing</h3>
       <label>Fandom(s):</label>
       <div class="tag_input">
@@ -48,7 +50,8 @@ New request
         <ul class="request_tags"></ul>
         <input type="text" class="full" name="gender" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("gender", "")}">
       </div>
-      <hr>
+    </section>
+    <section class="tile2">
       <h3>Who you're looking for</h3>
       <label>Fandom(s):</label>
       <div class="tag_input">
@@ -65,20 +68,23 @@ New request
         <ul class="request_tags"></ul>
         <input type="text" class="full" name="gender_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("gender_wanted", "")}">
       </div>
-      <hr>
+    </section>
+    <section class="tile2">
       <h3>Other tags</h3>
       <p class="help">Other tags can contain anything else you think is relevant - AUs, kinks and the like.</p>
       <div class="tag_input">
         <ul class="request_tags"></ul>
         <input type="text" class="full" name="misc" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("misc", "")}">
       </div>
-      <hr>
+    </section>
+    <section class="tile2">
       <h3>OOC notes</h3>
       <p><textarea name="ooc_notes" placeholder="Enter your OOC notes...">${form_data.get("ooc_notes", "")}</textarea></p>
       % if error == "blank_ooc_notes_and_starter":
       <p class="error">Please write some notes and/or a starter.</p>
       % endif
-      <hr>
+    </section>
+    <section class="tile2">
       <h3>Starter</h3>
       <p class="help">If your request doesn't have a starter (eg. if it's a request without any prose, a missed connection or a MSPARP group), please leave this section blank and write everything in the OOC notes section. It'll then automatically be tagged as <a href="${request.route_path("directory_tag", tag_string="type:No_starter")}" target="_blank">type:No starter</a>.</p>
       <p><input type="color" name="colour" size="6" maxlength="7" value="${form_data.get("colour") or "#000000"}"> <select name="preset_colours">
@@ -90,11 +96,12 @@ New request
       <p class="error">Invalid text colour. The colour needs to be a 6-digit hex code.</p>
       % endif
       <p><textarea name="starter" placeholder="Enter your starter..." style="color: ${form_data.get("colour") or "#000000"}">${form_data.get("starter", "")}</textarea></p>
-      <hr>
-      <div class="actions">
-        <div class="right"><input type="submit" name="draft" value="Save draft"> · <input type="submit" name="publish" value="Publish"></div>
-      </div>
-    </form>
+    </section>
+    <div class="actions">
+      <div class="left"><input type="submit" name="draft" value="Save draft"></div>
+      <div class="right"><input type="submit" name="publish" value="Publish"></div>
+    </div>
+  </form>
 <%block name="scripts">
 ${parent.scripts()}
 <script>cherubplay.directory_new();</script>
