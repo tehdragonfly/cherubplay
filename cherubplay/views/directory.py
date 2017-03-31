@@ -11,7 +11,7 @@ from sqlalchemy.sql.expression import cast
 from uuid import uuid4
 
 from cherubplay.lib import colour_validator, preset_colours
-from cherubplay.models import Session, BlacklistedTag, Chat, ChatUser, CreateNotAllowed, Message, Request, RequestTag, Tag, TagParent, User
+from cherubplay.models import Session, BlacklistedTag, Chat, ChatUser, CreateNotAllowed, Message, Request, RequestSlot, RequestTag, Tag, TagParent, User
 from cherubplay.models.enums import ChatUserStatus, TagType
 from cherubplay.tasks import update_request_tag_ids, update_missing_request_tag_ids
 
@@ -46,6 +46,27 @@ def _validate_request_form(request):
         raise ValidationError("blank_ooc_notes_and_starter")
 
     return colour, ooc_notes, starter
+
+
+def _validate_request_slots(request):
+    if request.POST.get("mode") != "group":
+        return None, None
+
+    slot_name = request.POST.get("slot_1_name", "").strip()[:50]
+    if not slot_name:
+        raise ValidationError("not_enough_slots")
+
+    slot_descriptions = []
+    for n in range(2, 6):
+        slot_description = request.POST.get("slot_%s_description" % n, "").strip()[:10]
+        if not slot_description:
+            continue
+        slot_descriptions.append(slot_description)
+
+    if len(slot_descriptions) < 2:
+        raise ValidationError("not_enough_slots")
+
+    return slot_name, slot_descriptions
 
 
 def _normalise_tag_name(tag_type, name):
@@ -480,6 +501,7 @@ def directory_new_get(request):
 def directory_new_post(request):
     try:
         colour, ooc_notes, starter = _validate_request_form(request)
+        slot_name, slot_descriptions = _validate_request_slots(request)
     except ValidationError as e:
         return {"form_data": request.POST, "preset_colours": preset_colours, "error": e.message}
 
@@ -503,6 +525,17 @@ def directory_new_post(request):
     _remove_duplicates(new_request)
 
     new_request.request_tags += _request_tags_from_form(request.POST, new_request)
+
+    if slot_name and slot_descriptions:
+        Session.add(RequestSlot(
+            request=new_request,
+            order=1,
+            description=slot_name,
+            user_id=request.user.id,
+            user_name=slot_name,
+        ))
+        for order, description in enumerate(slot_descriptions, 2):
+            Session.add(RequestSlot(request=new_request, order=order, description=description))
 
     # Commit manually to make sure the task happens after.
     transaction.commit()

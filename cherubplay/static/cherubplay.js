@@ -701,6 +701,21 @@ var cherubplay = (function() {
 			$("#new_request_form").submit(function() {
 				add_tag_functions.forEach(function(func) { func(); });
 			});
+
+			var group_slots = $("#group_slots");
+			var required_slots = $(".required_slot");
+			$("input[name=mode]").change(function() {
+				if (this.checked) {
+					if (this.value == "group") {
+						group_slots.css("display", "block");
+						required_slots.attr("required", "required");
+					} else {
+						group_slots.css("display", "none");
+						required_slots.removeAttr("required");
+					}
+				}
+			}).change();
+
 		},
 		"directory_blacklist": function() {
 			var maturity_name = $("#blacklist_add select[name=maturity_name]");
