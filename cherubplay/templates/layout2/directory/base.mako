@@ -93,12 +93,12 @@ ${tag.name}\
         % if rq.slots:
           <% has_any_slot = rq.user_has_any_slot(request.user) %>
           % for slot in rq.slots:
-            <label>
-              Slot ${slot.order}
+            <label class="slot${slot.order}">
+              ${[None, "Black", "Red", "Blue", "Yellow", "Green"][slot.order]} lion
               % if slot.user_id == request.user.id:
-                - taken by you
+                - you
               % elif slot.taken:
-                - taken
+                - assembled
               % endif
             </label>
             <p class="slot_description ${"taken" if slot.taken else ""}">

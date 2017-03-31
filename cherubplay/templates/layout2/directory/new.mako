@@ -98,28 +98,31 @@ New request
       <p><textarea name="starter" placeholder="Enter your starter..." style="color: ${form_data.get("colour") or "#000000"}">${form_data.get("starter", "")}</textarea></p>
     </section>
     <section class="tile2">
-      <h3>Chat mode</h3>
+      <h3>Lions</h3>
+      <p class="help">The universe needs you. Zarkon's evil Galran empire is spreading across the galaxy, and Voltron is the only thing that can stand in his way. Join together with up to 4 others to become paladins of Voltron.</p>
       <ul>
-        <li><label><input type="radio" name="mode" value="1-on-1" ${"checked=\"checked\"" if form_data.get("mode") != "group" else ""|n}> 1-on-1</label></li>
-        <li><label><input type="radio" name="mode" value="group"  ${"checked=\"checked\"" if form_data.get("mode") == "group" else ""|n}> Group</label></li>
+        <li><label><input type="radio" name="mode" value="1-on-1" ${"checked=\"checked\"" if form_data.get("mode") != "group" else ""|n}> Regular chat</label></li>
+        <li><label><input type="radio" name="mode" value="group"  ${"checked=\"checked\"" if form_data.get("mode") == "group" else ""|n}> Attempt to form Voltron</label></li>
       </ul>
       <div id="group_slots">
         <hr>
-        <label>Slot 1</label>
-        <input type="text" class="full required_slot" name="slot_1_name" maxlength="50" placeholder="Your handle..." value="${form_data.get("slot_1_name", "")}">
+        <label class="slot1">Black lion</label>
+        <input type="text" class="full required_slot" name="slot_1_name" maxlength="50" placeholder="Your name..." value="${form_data.get("slot_1_name", "")}">
+        <hr>
+        <p class="help">Forming Voltron is no mean feat - it requires unparallelled levels of courage, dedication, and most importantly teamwork. Use the boxes below to describe the paladins you're looking for in your team.</p>
         % for n in range(2, 6):
           <hr>
-          <label>Slot ${n}</label>
-          <input type="text" class="full ${"required_slot" if n <= 3 else ""}" name="slot_${n}_description" maxlength="100" placeholder="What you're looking for..." value="${form_data.get("slot_%s_description" % n, "")}">
+          <label class="slot${n}">${[None, "Black", "Red", "Blue", "Yellow", "Green"][n]} lion</label>
+          <input type="text" class="full ${"required_slot" if n <= 3 else ""}" name="slot_${n}_description" maxlength="100" placeholder="The ${[None, "black", "red", "blue", "yellow", "green"][n]} lion is..." value="${form_data.get("slot_%s_description" % n, "")}">
         % endfor
         % if error == "not_enough_slots":
-        <p class="error">Please fill in at least 3 slots.</p>
+        <p class="error">Please fill in at least two other lions to accompany you.</p>
         % endif
       </div>
     </section>
     <div class="actions">
-      <div class="left"><input type="submit" name="draft" value="Save draft"></div>
       <div class="right"><input type="submit" name="publish" value="Publish"></div>
+      <div class="left"><input type="submit" name="draft" value="Save draft"></div>
     </div>
   </form>
 <%block name="scripts">

@@ -2,7 +2,7 @@
 <%namespace name="chat_list" file="../chat_list.mako" />\
 <%block name="heading">Request #${request.context.id}</%block>
     % if request.GET.get("answer_status") == "waiting":
-    <p>You've answered this request. Once all the remaining slots are filled a new chat will be created.</p>
+    <p>You've entered your lion. Once all the other paladins are assembled, you will join together and form Voltron.</p>
     % endif
     % if request.context.status == "draft" and request.context.duplicate_of_id:
     <p>This request has been taken down because it is a duplicate of <a href="${request.route_path("directory_request", id=request.context.duplicate_of_id)}">request #${request.context.duplicate_of_id}</a>.</p>
