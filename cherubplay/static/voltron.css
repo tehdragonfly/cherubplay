@@ -1,0 +1,13 @@
+header { background-color: #222; background-image: radial-gradient(500px at center 300px, #999, #222); }
+#nav { background-image: linear-gradient(to right, #06a 5%, #090, #dd0, #900 95%); }
+
+h1, h2, h3, h4, h5, h6 { color: #099; }
+a { color: #099; }
+
+.unread { box-shadow: 0 1px 4px #099; }
+
+.slot1 { #222; }
+.slot2 { #900; }
+.slot3 { #06a; }
+.slot4 { #dd0; }
+.slot5 { #090; }
