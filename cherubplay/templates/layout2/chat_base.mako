@@ -66,9 +66,9 @@ ${own_chat_user.title or chat.url} -
       % endif
       % if page in ("chat", "archive") and request.context.mode == "group":
         <h3>Users</h3>
-        <ul>
+        <ul id="chat_user_list">
           % for user_id, chat_user in request.context.chat_users.items():
-            <li style="color: #${chat_user.last_colour}">${chat_user.name}</li>
+            <li class="${chat_user.status.value if request.context.chat.status == "ongoing" else ""}" style="color: #${chat_user.last_colour}">${chat_user.name}</li>
           % endfor
         </ul>
       % endif

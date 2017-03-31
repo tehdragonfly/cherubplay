@@ -433,15 +433,15 @@ def chat_edit(context, request):
     return HTTPFound(request.environ["HTTP_REFERER"])
 
 
-def _post_end_message(request, chat, own_chat_user):
+def _post_end_message(request, chat, own_chat_user, action="ended"):
     update_date = datetime.datetime.now()
 
-    text = "%s ended the chat."
+    text = "%%s %s the chat." % action
     notification_text = text % own_chat_user.handle
     if own_chat_user.name:
         text = notification_text
 
-    Session.add(Message(
+    message = Message(
         chat_id=chat.id,
         type="system",
         colour="000000",
@@ -449,12 +449,15 @@ def _post_end_message(request, chat, own_chat_user):
         text=text,
         posted=update_date,
         edited=update_date,
-    ))
+    )
+    Session.add(message)
+    Session.flush()
 
-    chat.status       = "ended"
-    chat.updated      = update_date
-    chat.last_user_id = None
+    if action == "ended":
+        chat.status       = "ended"
+        chat.last_user_id = None
 
+    chat.updated          = update_date
     own_chat_user.visited = update_date
 
     try:
@@ -465,14 +468,15 @@ def _post_end_message(request, chat, own_chat_user):
             ChatUser.status == ChatUserStatus.active,
         )):
             if other_chat_user.handle in online_handles:
-                other_chat_user.visited = posted_date
+                other_chat_user.visited = update_date
     except ConnectionError:
         pass
 
     try:
         request.pubsub.publish("chat:"+str(chat.id), json.dumps({
-            "action": "end",
+            "action": "end" if action == "ended" else "message",
             "message": {
+                "id":     message.id,
                 "type":   "system",
                 "colour": "000000",
                 "symbol": own_chat_user.symbol_character,
@@ -486,6 +490,9 @@ def _post_end_message(request, chat, own_chat_user):
 
 @view_config(route_name="chat_end", request_method="GET", permission="chat.info")
 def chat_end_get(context, request):
+    if context.chat.status == "ended" or len(context.active_chat_users) > 2:
+        raise HTTPNotFound
+
     prompt = Session.query(Message).filter(
         Message.chat_id == context.chat.id,
     ).order_by(Message.id).first()
@@ -506,16 +513,25 @@ def chat_end_get(context, request):
 
 @view_config(route_name="chat_end", request_method="POST", permission="chat.info")
 def chat_end_post(context, request):
+    if context.chat.status == "ended" or len(context.active_chat_users) > 2:
+        raise HTTPNotFound
+
     _post_end_message(request, context.chat, context.chat_user)
+
     if request.is_xhr:
         return HTTPNoContent()
+
     if "continue_search" in request.POST:
         return HTTPFound(request.route_path("home"))
+
     return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"], _query={"saved": "end"}))
 
 
 @view_config(route_name="chat_delete", request_method="GET", permission="chat.info")
 def chat_delete_get(context, request):
+    if context.chat.status == "ongoing" and len(context.active_chat_users) > 2:
+        raise HTTPNotFound
+
     prompt = Session.query(Message).filter(
         Message.chat_id == context.chat.id,
     ).order_by(Message.id).first()
@@ -537,6 +553,9 @@ def chat_delete_get(context, request):
 
 @view_config(route_name="chat_delete", request_method="POST", permission="chat.info")
 def chat_delete_post(context, request):
+    if context.chat.status == "ongoing" and len(context.active_chat_users) > 2:
+        raise HTTPNotFound
+
     if context.chat.status == "ongoing":
         _post_end_message(request, context.chat, context.chat_user)
 
@@ -547,6 +566,45 @@ def chat_delete_post(context, request):
 
     if request.is_xhr:
         return HTTPNoContent()
+    return HTTPFound(request.route_path("chat_list"))
+
+
+@view_config(route_name="chat_leave", request_method="GET", permission="chat.info")
+def chat_leave_get(context, request):
+    if context.chat.status == "ended" or len(context.active_chat_users) <= 2:
+        raise HTTPNotFound
+
+    prompt = Session.query(Message).filter(
+        Message.chat_id == context.chat.id,
+    ).order_by(Message.id).first()
+
+    last_message = Session.query(Message).filter(and_(
+        Message.chat_id == context.chat.id,
+        Message.type != "system",
+    )).order_by(Message.id.desc()).first()
+
+    return render_to_response("layout2/chat_end.mako", {
+        "action":        "leave",
+        "chat":          context.chat,
+        "own_chat_user": context.chat_user,
+        "prompt":        prompt,
+        "last_message":  last_message,
+    }, request)
+
+
+@view_config(route_name="chat_leave", request_method="POST", permission="chat.info")
+def chat_leave_post(context, request):
+    if context.chat.status == "ongoing" and len(context.active_chat_users) <= 2:
+        raise HTTPNotFound
+
+    if context.chat.status == "ongoing":
+        _post_end_message(request, context.chat, context.chat_user, "left")
+
+    if context.mode == "group":
+        context.chat_user.status = ChatUserStatus.deleted
+    else:
+        Session.delete(context.chat_user)
+
     return HTTPFound(request.route_path("chat_list"))
 
 

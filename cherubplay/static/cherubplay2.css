@@ -329,6 +329,8 @@ body.ongoing main { margin-bottom: 0; }
 #message_form p:first-child { margin-top: 0; }
 #message_form textarea { height: 100px; }
 
+#chat_user_list .deleted { text-decoration: line-through; }
+
 .tile.continue { text-align: center; }
 
 .delete_preview { position: relative; }
