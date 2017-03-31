@@ -687,8 +687,46 @@ def directory_request(context, request):
     }
 
 
+
+def _get_current_slot(context, request):
+    try:
+        order = int(request.GET.get("slot"))
+    except (TypeError, ValueError):
+        raise HTTPNotFound
+
+    for slot in context.slots:
+        if slot.order == order:
+            current_slot = slot
+            break
+    else:
+        raise HTTPNotFound
+
+    if slot.taken:
+        raise ValidationError("slot_taken")
+
+    if context.user_has_any_slot(request.user):
+        raise ValidationError("already_answered")
+
+    return current_slot
+
+
+@view_config(route_name="directory_request_answer", request_method="GET", permission="request.answer")
+def directory_request_answer_get(context, request):
+    if not context.slots:
+        raise HTTPNotFound
+
+    try:
+        current_slot = _get_current_slot(context, request)
+    except ValidationError as e:
+        response = render_to_response("layout2/directory/%s.mako" % e.message, {}, request)
+        response.status_int = 403
+        return response
+
+    return render_to_response("layout2/directory/slot_name.mako", {}, request)
+
+
 @view_config(route_name="directory_request_answer", request_method="POST", permission="request.answer")
-def directory_request_answer(context, request):
+def directory_request_answer_post(context, request):
 
     if request.login_store.get("answered:%s:%s" % (request.user.id, context.id)):
         response = render_to_response("layout2/directory/already_answered.mako", {}, request)
@@ -701,6 +739,24 @@ def directory_request_answer(context, request):
         if current_time - float(request.login_store.lindex(key, 0)) < 3600:
             return render_to_response("layout2/directory/answered_too_many.mako", {}, request)
 
+    if context.slots:
+        try:
+            current_slot = _get_current_slot(context, request)
+        except ValidationError as e:
+            response = render_to_response("layout2/directory/%s.mako" % e.message, {}, request)
+            response.status_int = 403
+            return response
+
+        slot_name = request.POST.get("name", "").strip()[:50]
+        if not slot_name:
+            return render_to_response("layout2/directory/slot_name.mako", {"error": "blank_name"}, request)
+
+        current_slot.user_id   = request.user.id
+        current_slot.user_name = slot_name
+
+        if not context.all_slots_taken:
+            return HTTPFound(request.route_path("directory_request", id=context.id, _query={"answer_status": "waiting"}))
+
     request.login_store.rpush(key, current_time)
     request.login_store.ltrim(key, -12, -1)
     request.login_store.expire(key, 3600)
@@ -711,13 +767,24 @@ def directory_request_answer(context, request):
     Session.add(new_chat)
     Session.flush()
 
-    Session.add(ChatUser(chat_id=new_chat.id, user_id=context.user_id, symbol=0, last_colour=context.colour))
-    Session.add(ChatUser(chat_id=new_chat.id, user_id=request.user.id, symbol=1))
+    if context.slots:
+        for slot in context.slots:
+            # XXX DEDUPLICATE NAMES
+            new_chat_user = ChatUser(chat_id=new_chat.id, user_id=slot.user_id, name=slot.user_name)
+            if slot.user_id == context.user_id:
+                new_chat_user.last_colour = context.colour
+            else:
+                slot.user_id   = None
+                slot.user_name = None
+            Session.add(new_chat_user)
+    else:
+        Session.add(ChatUser(chat_id=new_chat.id, user_id=context.user_id, symbol=0, last_colour=context.colour))
+        Session.add(ChatUser(chat_id=new_chat.id, user_id=request.user.id, symbol=1))
 
     if context.ooc_notes:
-        Session.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=0, text=context.ooc_notes))
+        Session.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=None if context.slots else 0, text=context.ooc_notes))
     if context.starter:
-        Session.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=0, colour=context.colour, text=context.starter))
+        Session.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=None if context.slots else 0, colour=context.colour, text=context.starter))
 
     return HTTPFound(request.route_path("chat", url=new_chat.url))
 

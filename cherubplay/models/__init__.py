@@ -353,7 +353,11 @@ class Request(Base):
     def user_has_any_slot(self, user):
         if user.id == self.user_id:
             return True
-        any(user.id == slot.user_id for slot in self.slots)
+        return any(user.id == slot.user_id for slot in self.slots)
+
+    @property
+    def all_slots_taken(self):
+        return all(slot.taken for slot in self.slots)
 
     def __json__(self, request=None):
         rd = {

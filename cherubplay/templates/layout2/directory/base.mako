@@ -103,7 +103,7 @@ ${tag.name}\
             </label>
             <p class="slot_description ${"taken" if slot.taken else ""}">
               ${slot.description}
-              % if not has_any_slot and not slot.taken:
+              % if not has_any_slot and not slot.taken and not (answered and rq.id in answered):
                 <a href="${request.route_path("directory_request_answer", id=rq.id, _query={"slot": slot.order})}">Answer</a>
               % endif
             </p>
