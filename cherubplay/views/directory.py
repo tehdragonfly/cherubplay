@@ -1,5 +1,6 @@
 import datetime, re, time, transaction
 
+from itertools import zip_longest
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPFound, HTTPNotFound
 from pyramid.renderers import render_to_response
 from pyramid.view import view_config
@@ -819,6 +820,13 @@ def directory_request_edit_get(context, request):
     form_data["colour"]    = "#" + context.colour
     form_data["ooc_notes"] = context.ooc_notes
     form_data["starter"]   = context.starter
+    form_data["mode"]      = "group" if context.slots else "1-on-1"
+
+    for slot in context.slots:
+        if slot.order == 1:
+            form_data["slot_1_name"] = slot.user_name or ""
+        else:
+            form_data["slot_%s_description" % slot.order] = slot.description or ""
 
     return {"form_data": form_data, "preset_colours": preset_colours}
 
@@ -827,7 +835,8 @@ def directory_request_edit_get(context, request):
 def directory_request_edit_post(context, request):
 
     try:
-        colour, ooc_notes, starter = _validate_request_form(request)
+        colour, ooc_notes, starter   = _validate_request_form(request)
+        slot_name, slot_descriptions = _validate_request_slots(request)
     except ValidationError as e:
         return {"form_data": request.POST, "preset_colours": preset_colours, "error": e.message}
 
@@ -850,6 +859,20 @@ def directory_request_edit_post(context, request):
     new_tags = _request_tags_from_form(request.POST, context)
     context.request_tags += new_tags
     context.tag_ids = None
+
+    if slot_name and slot_descriptions:
+        for order, new_description, existing_slot in zip_longest(range(1, 6), [slot_name] + slot_descriptions, context.slots):
+            if new_description and existing_slot:
+                existing_slot.order       = order
+                existing_slot.description = new_description
+                if order == 1:
+                    existing_slot.user_name = new_description
+            elif new_description:
+                Session.add(RequestSlot(request=context, order=order, description=new_description))
+            elif existing_slot:
+                Session.delete(existing_slot)
+    else:
+        Session.query(RequestSlot).filter(RequestSlot.request_id == context.id).delete()
 
     _remove_duplicates(context)
 

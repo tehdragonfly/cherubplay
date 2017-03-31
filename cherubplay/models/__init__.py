@@ -385,7 +385,7 @@ class RequestSlot(Base):
     user_name = Column(Unicode(50))
 
     def __repr__(self):
-        return "<RequestSlot: Request #%s, slot #%s" % (self.request_id, self.order)
+        return "<RequestSlot: Request #%s, slot #%s>" % (self.request_id, self.order)
 
     @property
     def taken(self):
