@@ -5,7 +5,7 @@ from pyramid.renderers import render_to_response
 from pyramid.view import view_config
 from sqlalchemy import and_, func, Integer, literal
 from sqlalchemy.dialects.postgres import array, ARRAY
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, subqueryload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 from uuid import uuid4
@@ -154,7 +154,7 @@ def directory(request):
     if before_date:
         requests = requests.filter(Request.posted < before_date)
     requests = (
-        requests.options(joinedload(Request.tags))
+        requests.options(joinedload(Request.tags), subqueryload(Request.slots))
         .order_by(Request.posted.desc())
         .limit(26).all()
     )
@@ -270,7 +270,7 @@ def directory_tag(context, request):
     if before_date:
         requests = requests.filter(Request.posted < before_date)
     requests = (
-        requests.options(joinedload(Request.tags))
+        requests.options(joinedload(Request.tags), subqueryload(Request.slots))
         .order_by(Request.posted.desc())
         .limit(26).all()
     )
@@ -467,7 +467,7 @@ def directory_yours(request):
     if before_date:
         requests = requests.filter(Request.posted < before_date)
     requests = (
-        requests.options(joinedload(Request.tags))
+        requests.options(joinedload(Request.tags), subqueryload(Request.slots))
         .order_by(func.coalesce(Request.posted, Request.created).desc())
         .limit(26).all()
     )

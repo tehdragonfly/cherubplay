@@ -90,6 +90,26 @@ ${tag.name}\
         % endif
         % if request.matched_route.name != "directory_request_delete":
         <hr>
+        % if rq.slots:
+          <% has_any_slot = rq.user_has_any_slot(request.user) %>
+          % for slot in rq.slots:
+            <label>
+              Slot ${slot.order}
+              % if slot.user_id == request.user.id:
+                - taken by you
+              % elif slot.taken:
+                - taken
+              % endif
+            </label>
+            <p class="slot_description ${"taken" if slot.taken else ""}">
+              ${slot.description}
+              % if not has_any_slot and not slot.taken:
+                <a href="${request.route_path("directory_request_answer", id=rq.id, _query={"slot": slot.order})}">Answer</a>
+              % endif
+            </p>
+            <hr>
+          % endfor
+        % endif
         <div class="actions">
           % if not expanded:
           <div class="left"><a href="${request.route_path("directory_request", id=rq.id)}">${request.user.localise_time(rq.posted or rq.created).strftime("%Y-%m-%d %H:%M")}</a></div>
@@ -108,11 +128,11 @@ ${tag.name}\
               <a href="${request.route_path("directory_request_edit", id=rq.id)}">Edit</a> ·
               <a href="${request.route_path("directory_request_delete", id=rq.id)}">Delete</a>
             % else:
-              <a href="https://www.tumblr.com/submit_form/cherubplay.tumblr.com/link?post[one]=Report&amp;post[two]=${request.route_url("directory_request", id=rq.id)}" target="_blank">Report</a> ·
+              <a href="https://www.tumblr.com/submit_form/cherubplay.tumblr.com/link?post[one]=Report&amp;post[two]=${request.route_url("directory_request", id=rq.id)}" target="_blank">Report</a>
               % if answered and rq.id in answered:
-                Answered
-              % else:
-                <form action="${request.route_path("directory_request_answer", id=rq.id)}" method="post"><button type="submit">Answer</button></form>
+                · Answered
+              % elif not rq.slots:
+                · <form action="${request.route_path("directory_request_answer", id=rq.id)}" method="post"><button type="submit">Answer</button></form>
               % endif
             % endif
           </div>

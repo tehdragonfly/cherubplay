@@ -350,6 +350,11 @@ class Request(Base):
             tags[tag.type].append(tag)
         return tags
 
+    def user_has_any_slot(self, user):
+        if user.id == self.user_id:
+            return True
+        any(user.id == slot.user_id for slot in self.slots)
+
     def __json__(self, request=None):
         rd = {
             "id": self.id,
@@ -504,8 +509,8 @@ PromptReport.reported_user = relationship(User, backref="reports_recieved", prim
 Request.user = relationship(User, backref="requests")
 Request.tags = relationship(Tag, secondary=RequestTag.__table__, order_by=(Tag.type, Tag.name), backref="requests")
 Request.duplicate_of = relationship(Request, remote_side=Request.id)
+Request.slots = relationship(RequestSlot, backref="request", order_by=RequestSlot.order)
 
-RequestSlot.request = relationship(Request, backref="slots")
 RequestSlot.user = relationship(User)
 
 RequestTag.request = relationship(Request, backref="request_tags")

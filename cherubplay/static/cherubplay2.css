@@ -228,6 +228,9 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 .request_tags li { display: inline; word-wrap: break-word; }
 .request_tags li:not(:last-child)::after { content: ","; }
 .request_tags li.warning a { color: #f33; }
+.request .slot_description { margin-top: 0; white-space: unset; }
+.request .slot_description.taken { text-decoration: line-through; }
+.request .slot_description a { float: right; }
 
 #new_request_form .types { white-space: unset; }
 #new_request_form .types span { display: block; font-size: 10pt; color: #333; }
