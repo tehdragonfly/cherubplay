@@ -768,14 +768,26 @@ def directory_request_answer_post(context, request):
     Session.flush()
 
     if context.slots:
+        used_names = set()
         for slot in context.slots:
-            # XXX DEDUPLICATE NAMES
+
+            if slot.user_name in used_names:
+                for n in range(2, 6):
+                    attempt = slot.user_name + (" (%s)" % n)
+                    if attempt not in used_names:
+                        slot.user_name = attempt
+                        break
+
+            used_names.add(slot.user_name)
+
             new_chat_user = ChatUser(chat_id=new_chat.id, user_id=slot.user_id, name=slot.user_name)
+
             if slot.user_id == context.user_id:
                 new_chat_user.last_colour = context.colour
             else:
                 slot.user_id   = None
                 slot.user_name = None
+
             Session.add(new_chat_user)
     else:
         Session.add(ChatUser(chat_id=new_chat.id, user_id=context.user_id, symbol=0, last_colour=context.colour))
