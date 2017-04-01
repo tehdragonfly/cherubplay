@@ -59,7 +59,7 @@ def _validate_request_slots(request):
 
     slot_descriptions = []
     for n in range(2, 6):
-        slot_description = request.POST.get("slot_%s_description" % n, "").strip()[:10]
+        slot_description = request.POST.get("slot_%s_description" % n, "").strip()[:100]
         if not slot_description:
             continue
         slot_descriptions.append(slot_description)
