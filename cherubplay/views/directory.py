@@ -119,6 +119,9 @@ def _request_tags_from_form(form, new_request):
     if u"homestuck" not in fandoms:
         tag_set.add((TagType.type, u"Not Homestuck"))
 
+    if form.get("mode") == "group":
+        tag_set.add((TagType.type, u"Group chat"))
+
     tag_list = []
     used_ids = set()
     for tag_type, name in tag_set:
