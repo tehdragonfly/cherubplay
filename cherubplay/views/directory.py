@@ -871,7 +871,11 @@ def directory_request_edit_post(context, request):
                 if order == 1:
                     existing_slot.user_name = new_description
             elif new_description:
-                Session.add(RequestSlot(request=context, order=order, description=new_description))
+                new_slot = RequestSlot(request=context, order=order, description=new_description)
+                if order == 1:
+                    new_slot.user_id   = context.user_id
+                    new_slot.user_name = new_description
+                Session.add(new_slot)
             elif existing_slot:
                 Session.delete(existing_slot)
     else:

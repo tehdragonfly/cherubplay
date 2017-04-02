@@ -117,6 +117,9 @@ class TagList(object):
     __parent__ = Resource
 
     def __init__(self, request):
+        if not request.user:
+            raise HTTPNotFound
+
         tag_filters = []
 
         split_tag_string = request.matchdict["tag_string"].split(",")[:5]
