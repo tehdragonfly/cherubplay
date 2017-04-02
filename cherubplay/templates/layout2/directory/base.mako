@@ -93,7 +93,7 @@ ${tag.name}\
         % if rq.slots:
           <% has_any_slot = rq.user_has_any_slot(request.user) %>
           % for slot in rq.slots:
-            <label>
+            <label class="slot${slot.order}">
               Slot ${slot.order}
               % if slot.user_id == request.user.id:
                 - taken by you

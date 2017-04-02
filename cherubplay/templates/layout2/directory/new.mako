@@ -105,11 +105,11 @@ New request
       </ul>
       <div id="group_slots">
         <hr>
-        <label>Slot 1</label>
+        <label class="slot1">Slot 1</label>
         <input type="text" class="full required_slot" name="slot_1_name" maxlength="50" placeholder="Your handle..." value="${form_data.get("slot_1_name", "")}">
         % for n in range(2, 6):
           <hr>
-          <label>Slot ${n}</label>
+          <label class="slot${n}">Slot ${n}</label>
           <input type="text" class="full ${"required_slot" if n <= 3 else ""}" name="slot_${n}_description" maxlength="100" placeholder="What you're looking for..." value="${form_data.get("slot_%s_description" % n, "")}">
         % endfor
         % if error == "not_enough_slots":
@@ -118,8 +118,8 @@ New request
       </div>
     </section>
     <div class="actions">
-      <div class="left"><input type="submit" name="draft" value="Save draft"></div>
       <div class="right"><input type="submit" name="publish" value="Publish"></div>
+      <div class="left"><input type="submit" name="draft" value="Save draft"></div>
     </div>
   </form>
 <%block name="scripts">
