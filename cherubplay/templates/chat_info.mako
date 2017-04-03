@@ -15,7 +15,14 @@ ${chat_base.render_subnav("info", chat, own_chat_user)}
     <p><input type="text" id="chat_notes_labels" name="labels" placeholder="Labels..." value="${", ".join(_.replace("_", " ") for _ in own_chat_user.labels)}" maxlength="500"></textarea></p>
     <button type="submit">Save</button>
   </form>
-% if chat.status == "ongoing":
+% if chat.status == "ongoing" and len(request.context.active_chat_users) > 2:
+  <section class="tile danger">
+    <h3>Leave chat</h3>
+    <p>If you leave this chat it will no longer appear on your chats page and you won't be able to take part in it, but the other participants will be able to continue.</p>
+    <p>Leaving a chat is irreversible and cannot be undone, so please do not do this unless you're absolutely sure you're done with this chat.</p>
+    <p class="links"><a href="${request.route_path("chat_leave", url=request.matchdict["url"])}">Leave chat</a></p>
+  </section>
+% elif chat.status == "ongoing":
   <section class="tile danger">
     <h3>End or delete chat</h3>
     <p>Ending a chat prevents any further messages from being sent, and deleting it also deletes it from the your chats page. These actions are both irreversible and cannot be undone, so please do not do them unless you're absolutely sure you're done with this chat.</p>
