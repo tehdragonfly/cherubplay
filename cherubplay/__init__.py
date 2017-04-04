@@ -204,6 +204,8 @@ def main(global_config, **settings):
     config.add_ext_route("directory_tag_make_synonym", "/directory/{type}:{name}/make_synonym/", factory=TagPair)
     config.add_ext_route("directory_tag_add_parent",   "/directory/{type}:{name}/add_parent/",   factory=TagPair)
 
+    config.add_route("directory_random", "/directory/random/")
+
     config.add_ext_route("directory_new", "/directory/new/")
     config.add_route("directory_new_autocomplete", "/directory/new/autocomplete/")
 

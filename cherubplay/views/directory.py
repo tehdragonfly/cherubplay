@@ -483,6 +483,20 @@ def directory_yours(request):
     return {"requests": requests[:25], "more": len(requests) == 26}
 
 
+@view_config(route_name="directory_random", request_method="GET", permission="directory.read")
+def directory_random(request):
+    # TODO blacklists etc.
+    request_query = (
+        Session.query(Request.id)
+        .filter(and_(
+            Request.user_id != request.user.id,
+            Request.status == "posted",
+        ))
+        .order_by(func.random()).first()
+    )
+    return HTTPFound(request.route_path("directory_request", id=request_query[0]))
+
+
 def _remove_duplicates(new_request):
     Session.query(Request).filter(and_(
         Request.id      != new_request.id,

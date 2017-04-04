@@ -199,6 +199,8 @@ ${tag.name}\
         </div>
         <button>Search</button>
       </form>
+      <h3>Lucky dip</h3>
+      <p><a href="${request.route_path("directory_random")}">Find a random request</a></p>
       <%block name="tag_links"></%block>
     </nav>
   </div>
