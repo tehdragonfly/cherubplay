@@ -485,12 +485,11 @@ def directory_yours(request):
 
 @view_config(route_name="directory_random", request_method="GET", permission="directory.read")
 def directory_random(request):
-    # TODO blacklists etc.
     request_query = (
         Session.query(Request.id)
         .filter(and_(
             Request.user_id != request.user.id,
-            Request.status == "posted",
+            request.user.tag_filter,
         ))
         .order_by(func.random()).first()
     )
