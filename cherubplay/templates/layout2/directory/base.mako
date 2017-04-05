@@ -147,43 +147,47 @@ ${tag.name}\
     <nav>
       <ul>
         % if request.matched_route.name == "directory" and not "before" in request.GET:
-        <li>Directory</li>
+          <li>Directory</li>
         % else:
-        <li><a href="${request.route_path("directory")}">Directory</a></li>
+          <li><a href="${request.route_path("directory")}">Directory</a></li>
         % endif
         % if request.matched_route.name == "directory_blacklist":
-        <li>Blacklisted tags</li>
+          <li>Blacklisted tags</li>
         % else:
-        <li><a href="${request.route_path("directory_blacklist")}">Blacklisted tags</a></li>
+          <li><a href="${request.route_path("directory_blacklist")}">Blacklisted tags</a></li>
         % endif
         % if request.matched_route.name == "directory_yours":
-        <li>Your requests</li>
+          <li>Your requests</li>
         % else:
-        <li><a href="${request.route_path("directory_yours")}">Your requests</a></li>
+          <li><a href="${request.route_path("directory_yours")}">Your requests</a></li>
         % endif
         % if request.matched_route.name == "directory_new":
-        <li>New request</li>
+          <li>New request</li>
         % else:
-        <li><a href="${request.route_path("directory_new")}">New request</a></li>
+          <li><a href="${request.route_path("directory_new")}">New request</a></li>
         % endif
+      </ul>
+      <h3>Lucky dip</h3>
+      <ul>
+        <li><a href="${request.route_path("directory_random")}">Find a random request</a></li>
       </ul>
       % if request.has_permission("directory.manage_tags"):
       <h3>Tags</h3>
       <ul>
         % if request.matched_route.name == "directory_tag_list":
-        <li>All tags</li>
+          <li>All tags</li>
         % else:
-        <li><a href="${request.route_path("directory_tag_list")}">All tags</a></li>
+          <li><a href="${request.route_path("directory_tag_list")}">All tags</a></li>
         % endif
         % if request.matched_route.name == "directory_tag_list_unapproved":
-        <li>Unapproved tags</li>
+          <li>Unapproved tags</li>
         % else:
-        <li><a href="${request.route_path("directory_tag_list_unapproved")}">Unapproved tags</a></li>
+          <li><a href="${request.route_path("directory_tag_list_unapproved")}">Unapproved tags</a></li>
         % endif
         % if request.matched_route.name == "directory_tag_list_blacklist_default":
-        <li>Blacklist default tags</li>
+          <li>Blacklist default tags</li>
         % else:
-        <li><a href="${request.route_path("directory_tag_list_blacklist_default")}">Blacklist default tags</a></li>
+          <li><a href="${request.route_path("directory_tag_list_blacklist_default")}">Blacklist default tags</a></li>
         % endif
         <li><a href="${request.route_path("directory_tag_table")}">Table</a></li>
       </ul>
@@ -199,8 +203,6 @@ ${tag.name}\
         </div>
         <button>Search</button>
       </form>
-      <h3>Lucky dip</h3>
-      <p><a href="${request.route_path("directory_random")}">Find a random request</a></p>
       <%block name="tag_links"></%block>
     </nav>
   </div>
