@@ -58,6 +58,7 @@
       </div>
       <div id="push_notifications_enabled">
         <p>Push notifications are enabled on this device.</p>
+        <button id="disable_push_notifications">Disable push notifications</button>
       </div>
     </section>
   </div>

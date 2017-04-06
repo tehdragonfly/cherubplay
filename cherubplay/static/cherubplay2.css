@@ -358,5 +358,5 @@ body.ongoing main { margin-bottom: 0; }
 #confirmation:empty { display: none; }
 #confirmation:empty + .tile2 { margin-top: 0; }
 
-#push_notifications_unsupported, #push_notifications_disabled, #push_notifications_enabled { display: none; }
+#push_notifications_disabled, #push_notifications_enabled { display: none; }
 

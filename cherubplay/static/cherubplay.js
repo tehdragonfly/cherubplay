@@ -780,30 +780,45 @@ var cherubplay = (function() {
 			var push_notifications_enabled = $("#push_notifications_enabled");
 
 			if (!("serviceWorker" in navigator)) {
-				push_notifications_unsupported.show();
 				return false;
 			}
 			navigator.serviceWorker.register("/static/cherubplay_sw.js", {"scope": "/"}).then(function(reg) {
 				window.reg = reg;
 				if (!(reg.showNotification) || !("PushManager" in window)) {
-				push_notifications_unsupported.show();
-				return false;
+					return false;
 				}
 				if (Notification.permission === "denied") {
 					push_notifications_disabled.show();
 					return false;
 				}
 				navigator.serviceWorker.ready.then(function(reg) {
-					console.log("ready");
 					reg.pushManager.getSubscription().then(function(subscription) {
-						console.log(subscription);
+						push_notifications_unsupported.hide();
 						if (subscription) {
 							push_notifications_enabled.show();
 						} else {
-							console.log("no subscription");
-							console.log(push_notifications_disabled);
 							push_notifications_disabled.show();
 						}
+					});
+					$("#enable_push_notifications").click(function() {
+						reg.pushManager.getSubscription().then(function(subscription) {
+							if (!subscription) {
+								reg.pushManager.subscribe().then(function(subscription) {
+									push_notifications_enabled.show();
+									push_notifications_disabled.hide();
+								});
+							}
+						});
+					});
+					$("#disable_push_notifications").click(function() {
+						reg.pushManager.getSubscription().then(function(subscription) {
+							if (subscription) {
+								subscription.unsubscribe().then(function() {
+									push_notifications_enabled.hide();
+									push_notifications_disabled.show();
+								});
+							}
+						});
 					});
 				});
 			});
