@@ -54,6 +54,7 @@
       </div>
       <div id="push_notifications_disabled">
         <p>Push notifications are currently disabled on this device.</p>
+        <p id="push_notifications_denied">You've previously blocked push notifications on Cherubplay. You may need to remove the block in your browser's settings before you can enable push notifications.</p>
         <button id="enable_push_notifications">Enable push notifications</button>
       </div>
       <div id="push_notifications_enabled">

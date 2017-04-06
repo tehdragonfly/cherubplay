@@ -776,8 +776,9 @@ var cherubplay = (function() {
 			}
 
 			var push_notifications_unsupported = $("#push_notifications_unsupported");
-			var push_notifications_disabled = $("#push_notifications_disabled");
-			var push_notifications_enabled = $("#push_notifications_enabled");
+			var push_notifications_disabled    = $("#push_notifications_disabled");
+			var push_notifications_denied      = $("#push_notifications_denied");
+			var push_notifications_enabled     = $("#push_notifications_enabled");
 
 			if (!("serviceWorker" in navigator)) {
 				return false;
@@ -788,8 +789,7 @@ var cherubplay = (function() {
 					return false;
 				}
 				if (Notification.permission === "denied") {
-					push_notifications_disabled.show();
-					return false;
+					push_notifications_denied.show();
 				}
 				navigator.serviceWorker.ready.then(function(reg) {
 					reg.pushManager.getSubscription().then(function(subscription) {
@@ -805,6 +805,7 @@ var cherubplay = (function() {
 							if (!subscription) {
 								reg.pushManager.subscribe().then(function(subscription) {
 									push_notifications_enabled.show();
+									push_notifications_denied.hide();
 									push_notifications_disabled.hide();
 								});
 							}
