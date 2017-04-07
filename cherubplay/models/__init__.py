@@ -107,6 +107,13 @@ class User(Base):
         return utc_datetime.astimezone(timezone(self.timezone))
 
 
+class PushEndpoint(Base):
+    __tablename__ = "push_endpoints"
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    url = Column(Unicode(500), nullable=False)
+
+
 class Chat(Base):
     __tablename__ = "chats"
     id = Column(Integer, primary_key=True)
@@ -491,6 +498,8 @@ class TagParent(Base):
     def __repr__(self):
         return "<TagParent: Child #%s, Parent #%s>" % (self.child_id, self.parent_id)
 
+
+PushEndpoint.user = relationship(User, backref="push_endpoints")
 
 Chat.last_user = relationship(User)
 Chat.request = relationship(Request)
