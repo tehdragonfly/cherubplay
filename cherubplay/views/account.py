@@ -1,15 +1,17 @@
 from bcrypt import gensalt, hashpw
-from pyramid.httpexceptions import HTTPFound, HTTPNoContent, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNoContent, HTTPNotFound
 from pyramid.renderers import render, render_to_response
 from pyramid.view import view_config
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message as EmailMessage
+from sqlalchemy import and_
 from sqlalchemy.orm.exc import NoResultFound
 from uuid import uuid4
 
-from ..lib import email_validator
-from ..models import (
+from cherubplay.lib import email_validator
+from cherubplay.models import (
     Session,
+    PushEndpoint,
     User,
 )
 
@@ -231,4 +233,36 @@ def account_reset_password_post(request):
     response.set_cookie("cherubplay", new_session_id, 31536000)
 
     return response
+
+
+@view_config(route_name="account_push_subscribe", request_method="POST")
+def account_push_subscribe(request):
+    endpoint_url = request.POST.get("endpoint")
+    if not endpoint_url or len(endpoint_url) > 500 or not endpoint_url.startswith("https://"):
+        raise HTTPBadRequest
+
+    existing_endpoint = Session.query(PushEndpoint).filter(and_(
+        PushEndpoint.user_id == request.user.id,
+        PushEndpoint.url == endpoint_url,
+    )).first()
+    if existing_endpoint:
+        raise HTTPNoContent
+
+    Session.add(PushEndpoint(user_id=request.user_id, url=endpoint_url))
+
+    return HTTPNoContent
+
+
+@view_config(route_name="account_push_unsubscribe", request_method="POST")
+def account_push_subscribe(request):
+    endpoint_url = request.POST.get("endpoint")
+    if not endpoint_url or len(endpoint_url) > 500 or not endpoint_url.startswith("https://"):
+        raise HTTPBadRequest
+
+    Session.query(PushEndpoint).filter(and_(
+        PushEndpoint.user_id == request.user.id,
+        PushEndpoint.url == endpoint_url,
+    )).delete()
+
+    return HTTPNoContent
 

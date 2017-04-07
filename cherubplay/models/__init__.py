@@ -111,7 +111,7 @@ class PushEndpoint(Base):
     __tablename__ = "push_endpoints"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    url = Column(Unicode(500), nullable=False)
+    url = Column(Unicode(500), nullable=False, unique=True)
 
 
 class Chat(Base):
