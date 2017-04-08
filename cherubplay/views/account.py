@@ -235,7 +235,7 @@ def account_reset_password_post(request):
     return response
 
 
-@view_config(route_name="account_push_subscribe", request_method="POST")
+@view_config(route_name="account_push_subscribe", request_method="POST", permission="view")
 def account_push_subscribe(request):
     endpoint_url = request.POST.get("endpoint")
     if not endpoint_url or len(endpoint_url) > 500 or not endpoint_url.startswith("https://"):
@@ -248,13 +248,13 @@ def account_push_subscribe(request):
     if existing_endpoint:
         raise HTTPNoContent
 
-    Session.add(PushEndpoint(user_id=request.user_id, url=endpoint_url))
+    Session.add(PushEndpoint(user_id=request.user.id, url=endpoint_url))
 
-    return HTTPNoContent
+    return HTTPNoContent()
 
 
-@view_config(route_name="account_push_unsubscribe", request_method="POST")
-def account_push_subscribe(request):
+@view_config(route_name="account_push_unsubscribe", request_method="POST", permission="view")
+def account_push_unsubscribe(request):
     endpoint_url = request.POST.get("endpoint")
     if not endpoint_url or len(endpoint_url) > 500 or not endpoint_url.startswith("https://"):
         raise HTTPBadRequest
@@ -264,5 +264,5 @@ def account_push_subscribe(request):
         PushEndpoint.url == endpoint_url,
     )).delete()
 
-    return HTTPNoContent
+    return HTTPNoContent()
 
