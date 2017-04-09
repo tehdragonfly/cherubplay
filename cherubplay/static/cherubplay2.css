@@ -232,6 +232,7 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 .request .slot_description.taken { text-decoration: line-through; }
 .request .slot_description a { float: right; }
 
+#new_request_form .tile2 { position: static; /* prevent tiles from appearing in front of the autocomplete list */ }
 #new_request_form .types { white-space: unset; }
 #new_request_form .types span { display: block; font-size: 10pt; color: #333; }
 #new_request_form .types label { display: inline-block; margin-right: 10px; font-size: 12pt; color: #000; }
