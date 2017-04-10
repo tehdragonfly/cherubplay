@@ -110,7 +110,10 @@ def chat_list(request):
 
     labels = (
         Session.query(func.unnest(ChatUser.labels), func.count("*"))
-        .filter(ChatUser.user_id == request.user.id)
+        .filter(and_(
+            ChatUser.user_id == request.user.id,
+            ChatUser.status  == ChatUserStatus.active,
+        ))
         .group_by(func.unnest(ChatUser.labels))
         .order_by(func.count("*").desc(), func.unnest(ChatUser.labels).asc()).all()
     )
