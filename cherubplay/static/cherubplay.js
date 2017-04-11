@@ -484,6 +484,7 @@ var cherubplay = (function() {
 		"directory": function() {
 
 			var search_input = $("#directory_search").keydown(function(e) {
+				clearTimeout(autocomplete_timeout);
 				if (e.which == 13 || e.which == 188) { // Enter and comma
 					var current_autocomplete = autocomplete_list.find(".current");
 					if (current_autocomplete.length > 0) {
@@ -503,7 +504,6 @@ var cherubplay = (function() {
 						autocomplete_list.find(e.which == 38 ? "li:last-child" : "li:first-child").addClass("current");
 					}
 				}
-				clearTimeout(autocomplete_timeout);
 				autocomplete_timeout = setTimeout(load_autocomplete, 100);
 			}).focus(function(e) {
 				focussed = true;
