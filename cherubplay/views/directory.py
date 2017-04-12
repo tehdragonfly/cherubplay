@@ -818,6 +818,19 @@ def directory_request_answer_post(context, request):
     return HTTPFound(request.route_path("chat", url=new_chat.url))
 
 
+@view_config(route_name="directory_request_unanswer", request_method="POST", permission="request.answer")
+def directory_request_unanswer_get(context, request):
+    if request.user.id == context.user_id:
+        raise HTTPNotFound
+
+    for slot in context.slots:
+        if request.user.id == slot.user_id:
+            slot.user_id = None
+            return HTTPFound(request.route_path("directory_request", id=context.id))
+
+    raise HTTPNotFound
+
+
 @view_config(route_name="directory_request_edit", request_method="GET", permission="request.edit", renderer="layout2/directory/new.mako")
 def directory_request_edit_get(context, request):
 
