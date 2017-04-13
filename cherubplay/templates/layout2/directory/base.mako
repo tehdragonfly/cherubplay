@@ -101,12 +101,23 @@ ${tag.name}\
                 - taken
               % endif
             </label>
-            <p class="slot_description ${"taken" if slot.taken else ""}">
-              ${slot.description}
-              % if not has_any_slot and not slot.taken and not (answered and rq.id in answered):
-                <a href="${request.route_path("directory_request_answer", id=rq.id, _query={"slot": slot.order})}">Answer</a>
-              % endif
-            </p>
+
+            % if slot.user_id == request.user.id and request.user.id != rq.user_id:
+              <form class="slot_unanswer" action="${request.route_path("directory_request_unanswer", id=rq.id)}" method="post">
+                <p class="slot_description ${"taken" if slot.taken else ""}">
+                  ${slot.description}
+                  <button type="submit">Unanswer</button>
+                </p>
+              </form>
+            % else:
+              <p class="slot_description ${"taken" if slot.taken else ""}">
+                ${slot.description}
+                % if not has_any_slot and not slot.taken and not (answered and rq.id in answered):
+                  <a href="${request.route_path("directory_request_answer", id=rq.id, _query={"slot": slot.order})}">Answer</a>
+                % endif
+              </p>
+            % endif
+
             <hr>
           % endfor
         % endif

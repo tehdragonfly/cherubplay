@@ -230,7 +230,7 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 .request_tags li.warning a { color: #f33; }
 .request .slot_description { margin-top: 0; white-space: unset; }
 .request .slot_description.taken { text-decoration: line-through; }
-.request .slot_description a { float: right; }
+.request .slot_description a, .request .slot_description button { float: right; }
 
 #new_request_form .tile2 { position: static; /* prevent tiles from appearing in front of the autocomplete list */ }
 #new_request_form .types { white-space: unset; }
