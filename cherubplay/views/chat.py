@@ -191,17 +191,16 @@ def chat(context, request):
         # Get this from both message users and chat users, because the latter is
         # removed if they delete the chat.
         symbol_users = None
-        # TODO uncomment
-        #if request.has_permission("chat.full_user_list"):
-        #    symbol_users = {
-        #        _.symbol_character: _.user
-        #        for _ in messages
-        #        if _.user is not None
-        #    }
-        #    for chat_user in Session.query(ChatUser).filter(
-        #        ChatUser.chat_id == context.chat.id
-        #    ).options(joinedload(ChatUser.user)):
-        #        symbol_users[chat_user.symbol_character] = chat_user.user
+        if context.mode == "1-on-1" and request.has_permission("chat.full_user_list"):
+            symbol_users = {
+                _.symbol_character: _.user
+                for _ in messages
+                if _.user is not None
+            }
+            for chat_user in Session.query(ChatUser).filter(
+                ChatUser.chat_id == context.chat.id
+            ).options(joinedload(ChatUser.user)):
+                symbol_users[chat_user.symbol_character] = chat_user.user
 
         template = "layout2/chat.mako" if (
             context.mode == "group"
@@ -271,16 +270,16 @@ def chat(context, request):
     symbol_users = None
 
     # TODO uncomment
-    #if request.has_permission("chat.full_user_list"):
-    #    symbol_users = {
-    #        _.symbol_character: _.user
-    #        for _ in messages
-    #        if _.user is not None
-    #    }
-    #    for chat_user in Session.query(ChatUser).filter(
-    #        ChatUser.chat_id == context.chat.id
-    #    ).options(joinedload(ChatUser.user)):
-    #        symbol_users[chat_user.symbol_character] = chat_user.user
+    if context.mode == "1-on-1" and request.has_permission("chat.full_user_list"):
+        symbol_users = {
+            _.symbol_character: _.user
+            for _ in messages
+            if _.user is not None
+        }
+        for chat_user in Session.query(ChatUser).filter(
+            ChatUser.chat_id == context.chat.id
+        ).options(joinedload(ChatUser.user)):
+            symbol_users[chat_user.symbol_character] = chat_user.user
 
     template = "layout2/chat_archive.mako" if (
         context.mode == "group"

@@ -67,9 +67,21 @@ ${own_chat_user.title or chat.url} -
       % if page in ("chat", "archive") and request.context.mode == "group":
         <h3>Users</h3>
         <ul id="chat_user_list">
-          % for user_id, chat_user in request.context.chat_users.items():
-            <li class="${chat_user.status.value if request.context.chat.status == "ongoing" else ""}" style="color: #${chat_user.last_colour}">${chat_user.name}</li>
-          % endfor
+          % if request.has_permission("chat.full_user_list"):
+            % for user_id, chat_user in request.context.chat_users.items():
+              <li class="${chat_user.status.value if request.context.chat.status == "ongoing" else ""}">
+                <a href="${request.route_path("admin_user", username=chat_user.user.username)}" style="color: #${chat_user.last_colour}">
+                  ${chat_user.name}
+                </a>
+              </li>
+            % endfor
+          % else:
+            % for user_id, chat_user in request.context.chat_users.items():
+              <li class="${chat_user.status.value if request.context.chat.status == "ongoing" else ""}" style="color: #${chat_user.last_colour}">
+                ${chat_user.name}
+              </li>
+            % endfor
+          % endif
         </ul>
       % endif
     </nav>
