@@ -1008,6 +1008,11 @@ var cherubplay = (function() {
 				localStorage.setItem("autoprompt", "yes");
 			});
 
+			var user_list_entries = {};
+			$("#chat_user_list [data-handle]").each(function(index, item) {
+				user_list_entries[item.dataset.handle] = item;
+			});
+
 			var notification_audio;
 			function play_notification_audio() {
 				if (localStorage.getItem("sound_notifications") == "true") {
@@ -1048,7 +1053,6 @@ var cherubplay = (function() {
 				var scroll_after_render = is_at_bottom();
 				var message_handle = (message.symbol || message.name);
 				if (body.hasClass("layout2")) {
-					console.log(message);
 					var li = $("<li>").attr("id", "message_" + message.id).addClass("message_" + message.type).css("color", "#" + message.colour);
 					var timestamp = $("<div>").addClass("timestamp");
 					if (message.name) {
@@ -1126,13 +1130,16 @@ var cherubplay = (function() {
 				function ws_onmessage(e) {
 					if (!ended) {
 						message = JSON.parse(e.data);
-						if (message.action=="message") {
+						if (message.action == "message") {
 							render_message(message.message);
 							if (!body.hasClass("layout2")) {
-								last_status_message = "Last message: "+new Date().toLocaleString();
+								last_status_message = "Last message: " + new Date().toLocaleString();
 							}
 							status_bar.text(last_status_message);
-						} else if (message.action=="edit") {
+							if (message.message.name && user_list_entries && user_list_entries[message.message.name]) {
+								user_list_entries[message.message.name].style.color = "#" + message.message.colour;
+							}
+						} else if (message.action == "edit") {
 							status_bar.text(last_status_message);
 							var li = $("#message_"+message.message.id);
 							if (li.length == 0) {
