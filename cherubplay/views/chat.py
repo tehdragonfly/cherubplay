@@ -305,7 +305,7 @@ def chat_draft(context, request):
 
 
 def _validate_message_form(request, editing=False):
-    colour = request.POST["message_colour"]
+    colour = request.POST.get("message_colour", "000000")
     if colour.startswith("#"):
         colour = colour[1:]
     if colour_validator.match(colour) is None:
