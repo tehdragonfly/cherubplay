@@ -177,7 +177,6 @@ def chat(context, request):
                 "message_count":     message_count,
                 "prompt":            prompt,
                 "messages":          messages,
-                # TODO chat_users
                 "banned_chat_users": [_.handle for _ in context.banned_chat_users],
             }
             if context.mode == "group":
@@ -269,7 +268,6 @@ def chat(context, request):
     # removed if they delete the chat.
     symbol_users = None
 
-    # TODO uncomment
     if context.mode == "1-on-1" and request.has_permission("chat.full_user_list"):
         symbol_users = {
             _.symbol_character: _.user
@@ -402,7 +400,6 @@ def chat_edit(context, request):
             Message.id == request.matchdict["message_id"],
             Message.chat_id == context.chat.id,
             Message.user_id == request.user.id,
-            # XXX DATE FILTER?
         )).one()
     except NoResultFound:
         raise HTTPNotFound

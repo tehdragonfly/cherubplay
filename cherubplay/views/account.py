@@ -1,3 +1,5 @@
+import json
+
 from bcrypt import gensalt, hashpw
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNoContent, HTTPNotFound
 from pyramid.renderers import render, render_to_response
@@ -11,7 +13,7 @@ from uuid import uuid4
 from cherubplay.lib import email_validator
 from cherubplay.models import (
     Session,
-    PushEndpoint,
+    PushSubscription,
     User,
 )
 
@@ -237,32 +239,47 @@ def account_reset_password_post(request):
 
 @view_config(route_name="account_push_subscribe", request_method="POST", permission="view")
 def account_push_subscribe(request):
-    endpoint_url = request.POST.get("endpoint")
-    if not endpoint_url or len(endpoint_url) > 500 or not endpoint_url.startswith("https://"):
+    if len(request.POST.get("subscription", "")) > 5000:
+        raise HTTPBadReqest
+
+    try:
+        subscription = json.loads(request.POST.get("subscription", ""))
+    except ValueError:
         raise HTTPBadRequest
 
-    existing_endpoint = Session.query(PushEndpoint).filter(and_(
-        PushEndpoint.user_id == request.user.id,
-        PushEndpoint.url == endpoint_url,
-    )).first()
-    if existing_endpoint:
-        raise HTTPNoContent
+    if not subscription.get("endpoint", "").startswith("https://"):
+        raise HTTPBadRequest
 
-    Session.add(PushEndpoint(user_id=request.user.id, url=endpoint_url))
+    for existing_subscription in Session.query(PushSubscription).filter(
+        PushSubscription.user_id == request.user.id,
+    ):
+        if existing_subscription.data["endpoint"] == subscription["endpoint"]:
+            existing_subscription.data = subscription
+            return HTTPNoContent()
+
+    Session.add(PushSubscription(user_id=request.user.id, data=subscription))
 
     return HTTPNoContent()
 
 
 @view_config(route_name="account_push_unsubscribe", request_method="POST", permission="view")
 def account_push_unsubscribe(request):
-    endpoint_url = request.POST.get("endpoint")
-    if not endpoint_url or len(endpoint_url) > 500 or not endpoint_url.startswith("https://"):
+    if len(request.POST.get("subscription", "")) > 5000:
+        raise HTTPBadReqest
+
+    try:
+        subscription = json.loads(request.POST.get("subscription", ""))
+    except ValueError:
         raise HTTPBadRequest
 
-    Session.query(PushEndpoint).filter(and_(
-        PushEndpoint.user_id == request.user.id,
-        PushEndpoint.url == endpoint_url,
-    )).delete()
+    if not subscription.get("endpoint", "").startswith("https://"):
+        raise HTTPBadRequest
+
+    for existing_subscription in Session.query(PushSubscription).filter(
+        PushSubscription.user_id == request.user.id,
+    ):
+        if existing_subscription.data["endpoint"] == subscription["endpoint"]:
+            Session.delete(existing_subscription)
 
     return HTTPNoContent()
 

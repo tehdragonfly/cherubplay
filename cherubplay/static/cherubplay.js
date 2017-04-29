@@ -804,7 +804,7 @@ var cherubplay = (function() {
 						reg.pushManager.getSubscription().then(function(subscription) {
 							if (!subscription) {
 								reg.pushManager.subscribe().then(function(subscription) {
-									$.post("/account/push/subscribe/", {"endpoint": subscription.endpoint});
+									$.post("/account/push/subscribe/", {"subscription": JSON.stringify(subscription.toJSON())});
 									push_notifications_enabled.show();
 									push_notifications_denied.hide();
 									push_notifications_disabled.hide();
@@ -816,7 +816,7 @@ var cherubplay = (function() {
 						reg.pushManager.getSubscription().then(function(subscription) {
 							if (subscription) {
 								subscription.unsubscribe().then(function() {
-									$.post("/account/push/unsubscribe/", {"endpoint": subscription.endpoint});
+									$.post("/account/push/unsubscribe/", {"subscription": JSON.stringify(subscription.toJSON())});
 									push_notifications_enabled.hide();
 									push_notifications_disabled.show();
 								});

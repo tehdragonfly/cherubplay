@@ -22,7 +22,7 @@ from sqlalchemy import (
     UnicodeText,
     UniqueConstraint,
 )
-from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (
     relationship,
@@ -107,11 +107,11 @@ class User(Base):
         return utc_datetime.astimezone(timezone(self.timezone))
 
 
-class PushEndpoint(Base):
-    __tablename__ = "push_endpoints"
+class PushSubscription(Base):
+    __tablename__ = "push_subscriptions"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    url = Column(Unicode(500), nullable=False, unique=True)
+    data = Column(JSONB(), nullable=False)
 
 
 class Chat(Base):
@@ -499,7 +499,7 @@ class TagParent(Base):
         return "<TagParent: Child #%s, Parent #%s>" % (self.child_id, self.parent_id)
 
 
-PushEndpoint.user = relationship(User, backref="push_endpoints")
+PushSubscription.user = relationship(User, backref="push_subscriptions")
 
 Chat.last_user = relationship(User)
 Chat.request = relationship(Request)
