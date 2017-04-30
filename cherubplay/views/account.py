@@ -1,7 +1,7 @@
 import json
 
 from bcrypt import gensalt, hashpw
-from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNoContent, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNoContent, HTTPNotFound, HTTPRequestEntityTooLarge
 from pyramid.renderers import render, render_to_response
 from pyramid.view import view_config
 from pyramid_mailer import get_mailer
@@ -240,7 +240,7 @@ def account_reset_password_post(request):
 @view_config(route_name="account_push_subscribe", request_method="POST", permission="view")
 def account_push_subscribe(request):
     if len(request.POST.get("subscription", "")) > 5000:
-        raise HTTPBadReqest
+        raise HTTPRequestEntityTooLarge
 
     try:
         subscription = json.loads(request.POST.get("subscription", ""))
@@ -265,7 +265,7 @@ def account_push_subscribe(request):
 @view_config(route_name="account_push_unsubscribe", request_method="POST", permission="view")
 def account_push_unsubscribe(request):
     if len(request.POST.get("subscription", "")) > 5000:
-        raise HTTPBadReqest
+        raise HTTPRequestEntityTooLarge
 
     try:
         subscription = json.loads(request.POST.get("subscription", ""))
