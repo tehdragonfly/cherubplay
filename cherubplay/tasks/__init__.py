@@ -1,13 +1,19 @@
+import requests
+
 from celery import group
 from contextlib import contextmanager
 from datetime import datetime, timedelta
+from logging import getLogger
 from pyramid_celery import celery_app as app
 from sqlalchemy import and_, engine_from_config, func
 from sqlalchemy.dialects.postgresql import INTERVAL
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import cast
 
-from cherubplay.models import Request, RequestTag, User
+from cherubplay.models import PushSubscription, Request, RequestTag, User
+
+
+log = getLogger(__name__)
 
 
 engine = engine_from_config(app.conf["PYRAMID_REGISTRY"].settings, "sqlalchemy.")
@@ -150,4 +156,15 @@ def remove_unused_tag_pairs(tag_type):
                 )
             );
         """.format(tag_type=tag_type))
+
+
+@app.task
+def trigger_push_notification(user_id):
+    with db_session() as db:
+        subscriptions = db.query(PushSubscription).filter(PushSubscription.user_id == user_id).all()
+        for subscription in subscriptions:
+            response = requests.post(subscription.data["endpoint"])
+            if response.status_code in (404, 410):
+                log.warn("Subscription %s for user %s no longer exists." % (subscription.id, user_id))
+                db.delete(subscription)
 

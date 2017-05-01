@@ -23,6 +23,7 @@ from sqlalchemy.sql.expression import cast
 from cherubplay.lib import colour_validator, preset_colours, OnlineUserStore
 from cherubplay.models import Session, Chat, ChatUser, Message, User
 from cherubplay.models.enums import ChatUserStatus
+from cherubplay.tasks import trigger_push_notification
 
 
 @view_config(route_name="chat_list",                request_method="GET", permission="view")
@@ -370,6 +371,7 @@ def chat_send(context, request):
                     "name":   context.chat_user.name,
                     "text":   trimmed_message_text if len(trimmed_message_text) < 100 else trimmed_message_text[:97] + "...",
                 }))
+                trigger_push_notification.delay(other_chat_user.user_id)
     except ConnectionError:
         pass
 
