@@ -130,6 +130,24 @@ def chat_list(request):
     }, request=request)
 
 
+@view_config(route_name="chat_notification", request_method="GET", permission="chat", renderer="json")
+def chat_notification(request):
+    chat_user = Session.query(ChatUser).join(Chat).filter(and_(
+        ChatUser.user_id == request.user.id,
+        ChatUser.status == ChatUserStatus.active,
+        Chat.updated > ChatUser.visited,
+    )).first()
+
+    if not chat_user:
+        return None
+
+    return (
+        Session.query(Message)
+        .filter(Message.chat_id == chat_user.user_id)
+        .order_by(Message.id.desc()).first()
+    )
+
+
 @view_config(route_name="chat",     request_method="GET", permission="chat.read")
 @view_config(route_name="chat_ext", request_method="GET", permission="chat.read", extension="json", renderer="json")
 def chat(context, request):

@@ -170,6 +170,8 @@ def main(global_config, **settings):
     config.add_ext_route("chat_list_ended", "/chats/ended/")
     config.add_ext_route("chat_list_label", "/chats/labels/{label}/")
 
+    config.add_ext_route("chat_notification", "/chats/notification/")
+
     config.add_ext_route("chat",     "/chats/{url}/",      factory=ChatContext)
     config.add_route("chat_info",    "/chats/{url}/info/", factory=ChatContext)
 
