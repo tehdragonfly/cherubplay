@@ -6,11 +6,11 @@ self.onmessage = function(e) {
 }
 
 self.addEventListener("push", function(event) {
-    event.waitUntil(fetch("/chats/notification/").then(function(response) {
-        event.waitUntil(response.json().then(function(body) {
-            self.registration.showNotification("Cherubplay", {
-                body: body,
-            });
-        }));
+    event.waitUntil(fetch("/chats/notification/", {credentials: "same-origin"}).then(function(response) {
+        return response.json();
+    }).then(function(body) {
+        self.registration.showNotification("Cherubplay", {
+            body: body,
+        });
     }));
 });
