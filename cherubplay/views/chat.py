@@ -136,7 +136,7 @@ def chat_notification(request):
         ChatUser.user_id == request.user.id,
         ChatUser.status == ChatUserStatus.active,
         Chat.updated > ChatUser.visited,
-    )).first()
+    )).order_by(Chat.updated.desc()).first()
     if not own_chat_user:
         return None
 
