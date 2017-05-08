@@ -13,6 +13,11 @@ self.addEventListener("push", function(event) {
             self.registration.showNotification(body.title, {
                 body: body.handle + ": " + body.text,
                 data: {url: body.url},
+                actions: [
+                    {action: "chat",    title: "Chat"},
+                    {action: "archive", title: "Archive"},
+                    {action: "info",    title: "Info"},
+                ],
             });
         }
     }));
@@ -26,6 +31,11 @@ self.addEventListener("notificationclick", function(event) {
             var path = "/chats/" + event.notification.data.url + "/";
         } else {
             var path = "/chats/";
+        }
+        if (event.action && event.action == "archive") {
+            path += "?page=1";
+        } else if (event.action && event.action == "info") {
+            path += "info/";
         }
         for (var client of client_list) {
             if (client.url == location.origin + path && "focus" in client) {
