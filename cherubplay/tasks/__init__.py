@@ -162,9 +162,17 @@ def remove_unused_tag_pairs(tag_type):
 def trigger_push_notification(user_id):
     with db_session() as db:
         subscriptions = db.query(PushSubscription).filter(PushSubscription.user_id == user_id).all()
-        for subscription in subscriptions:
-            response = requests.post(subscription.data["endpoint"])
-            if response.status_code in (404, 410):
-                log.warn("Subscription %s for user %s no longer exists." % (subscription.id, user_id))
-                db.delete(subscription)
+        group(post_push_notification.s(_.id, _.data["endpoint"]) for _ in subscriptions).delay()
+
+
+@app.task
+def post_push_notification(subscription_id, endpoint):
+    response = requests.post(endpoint)
+    if response.status_code in (404, 410):
+        log.info("Subscription %s no longer exists." % subscription_id)
+        with db_session() as db:
+            db.query(PushSubscription).filter(PushSubscription)
+    elif response.status_code not in (200, 201):
+        log.warn("Push endpoint for subscription %s returned status %s" % (subscription_id, response.status_code))
+
 
