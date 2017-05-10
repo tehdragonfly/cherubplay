@@ -1184,12 +1184,19 @@ var cherubplay = (function() {
 						} else if (message.action == "online") {
 							last_status_message = message.handle + " is online.";
 							status_bar.text(last_status_message);
+							user_list_entries[message.handle].classList.add("online");
 						} else if (message.action == "online_list") {
 							last_status_message = "Online: " + message.handles.join(", ");
 							status_bar.text(last_status_message);
+							for (var handle of message.handles) {
+								if (user_list_entries[handle]) {
+									user_list_entries[handle].classList.add("online");
+								}
+							}
 						} else if (message.action == "offline") {
 							last_status_message = message.handle + " is now offline. They will be notified of any messages you send when they next visit.";
 							status_bar.text(last_status_message);
+							user_list_entries[message.handle].classList.remove("online");
 						} else if (
 							body.hasClass("layout2")
 							&& window.innerWidth > 1024
