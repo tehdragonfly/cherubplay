@@ -1126,6 +1126,9 @@ var cherubplay = (function() {
 						document.title = "Connected - " + original_title;
 						play_notification_audio();
 					}
+					if (user_list_entries[own_handle]) {
+						user_list_entries[own_handle].classList.add("online");
+					}
 				}
 				function ws_onmessage(e) {
 					if (!ended) {
@@ -1213,6 +1216,9 @@ var cherubplay = (function() {
 					}
 				}
 				function ws_onclose(e) {
+					if (user_list_entries[own_handle]) {
+						user_list_entries[own_handle].classList.remove("online");
+					}
 					if (ended) { return; }
 					status_bar.text("Live updates currently unavailable. Please refresh to see new messages.");
 					// Only try to re-connect if we've managed to connect before.
