@@ -13,6 +13,7 @@ self.addEventListener("push", function(event) {
             self.registration.showNotification(body.title, {
                 body: body.handle + ": " + body.text,
                 data: {url: body.url},
+                icon: "/static/icon-128.png",
                 actions: [
                     {action: "chat",    title: "Chat"},
                     {action: "archive", title: "Archive"},
