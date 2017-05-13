@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#393">
 <link rel="stylesheet" href="/static/cherubplay2.css?30">
 <link rel="shortcut icon" href="/static/favicon.ico">
+<link rel="manifest" href="/static/manifest.json">
 </head>
 <body class="<%block name="body_class"></%block>">
 

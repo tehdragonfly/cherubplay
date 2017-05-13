@@ -64,4 +64,4 @@
     </section>
   </div>
 </main>
-<%block name="scripts"><script>cherubplay.account();</script></%block>
+<%block name="scripts"><script>cherubplay.account("${request.registry.settings["push.public_key"]}");</script></%block>

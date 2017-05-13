@@ -1,5 +1,12 @@
 var cherubplay = (function() {
 
+	function urlBase64ToUint8Array(base64String) {
+		const padding = '='.repeat((4 - base64String.length % 4) % 4);
+		const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+		const rawData = window.atob(base64);
+		return Uint8Array.from([...rawData].map((char) => char.charCodeAt(0)));
+	}
+
 	var colour_regex = /^#[0-9a-f]{6}$/i;
 
 	var body = $(document.body);
@@ -737,7 +744,7 @@ var cherubplay = (function() {
 				}
 			}).change();
 		},
-		"account": function() {
+		"account": function(application_server_key) {
 			var sound_notifications = $("#sound_notifications").click(function() {
 				localStorage.setItem("sound_notifications", this.checked);
 				if (this.checked) {
@@ -803,7 +810,10 @@ var cherubplay = (function() {
 					$("#enable_push_notifications").click(function() {
 						reg.pushManager.getSubscription().then(function(subscription) {
 							if (!subscription) {
-								reg.pushManager.subscribe().then(function(subscription) {
+								reg.pushManager.subscribe({
+										userVisibleOnly: true,
+										applicationServerKey: urlBase64ToUint8Array(application_server_key),
+									}).then(function(subscription) {
 									$.post("/account/push/subscribe/", {"subscription": JSON.stringify(subscription.toJSON())});
 									push_notifications_enabled.show();
 									push_notifications_denied.hide();

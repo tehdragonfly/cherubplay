@@ -1,0 +1,16 @@
+{
+    "name": "Cherubplay",
+    "short_name": "Cherubplay",
+    "scope": "/",
+    "start_url": "/",
+    "display": "browser",
+    "background_color": "#eee",
+    "theme_color": "#393",
+    "description": "Trollplay 2",
+    "lang": "en-GB",
+    "icons": [{
+        "src": "/static/icon-128.png",
+        "sizes": "128x128",
+        "type": "image/png"
+    }]
+}
