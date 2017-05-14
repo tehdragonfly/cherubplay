@@ -10,16 +10,28 @@ self.addEventListener("push", function(event) {
         return response.json();
     }).then(function(body) {
         if (body) {
-            self.registration.showNotification(body.title, {
+            var options = {
                 body: body.handle + ": " + body.text,
                 data: {url: body.url},
                 icon: "/static/icon-128.png",
-                actions: [
-                    {action: "chat",    title: "Chat"},
-                    {action: "archive", title: "Archive"},
-                    {action: "info",    title: "Info"},
-                ],
-            });
+            }
+
+            if ("actions" in Notification.prototype) {
+                if (Notification.maxActions == 2) {
+                    options.actions = [
+                        {action: "chat", title: "Chat"},
+                        {action: "info", title: "Info"},
+                    ]
+                } else if (Notification.maxActions >= 3) {
+                    options.actions = [
+                        {action: "chat",    title: "Chat"},
+                        {action: "archive", title: "Archive"},
+                        {action: "info",    title: "Info"},
+                    ]
+                }
+            }
+
+            self.registration.showNotification(body.title, options);
         }
     }));
 });
