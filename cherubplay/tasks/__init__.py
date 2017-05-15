@@ -1,4 +1,4 @@
-import requests
+import jwt, requests, time
 
 from celery import group
 from contextlib import contextmanager
@@ -167,12 +167,30 @@ def trigger_push_notification(user_id):
 
 @app.task
 def post_push_notification(subscription_id, endpoint):
-    response = requests.post(endpoint)
+    settings = app.conf["PYRAMID_REGISTRY"].settings
+    response = requests.post(
+        endpoint,
+        headers={
+            "Authorization": "Bearer " + jwt.encode(
+                {
+                    "aud": "https://fcm.googleapis.com", # TODO
+                    "sub": "mailto:mysticdragonfly@hotmail.co.uk",
+                    "exp": int(time.time()) + 86400,
+                },
+                settings["push.private_key"],
+                algorithm="ES256",
+            ).decode(),
+            "Crypto-Key": "p256ecdsa=" + settings["push.public_key"],
+            "Ttl": "86400",
+        },
+    )
     if response.status_code in (404, 410):
         log.info("Subscription %s no longer exists." % subscription_id)
         with db_session() as db:
-            db.query(PushSubscription).filter(PushSubscription)
+            db.query(PushSubscription).filter(PushSubscription.id == subscription_id).delete()
     elif response.status_code not in (200, 201):
-        log.warn("Push endpoint for subscription %s returned status %s" % (subscription_id, response.status_code))
-
+        log.warn("Push endpoint for subscription %s returned status %s:" % (subscription_id, response.status_code))
+        log.debug(response.request.headers)
+        log.debug(response.headers)
+        log.debug(response.text)
 

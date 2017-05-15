@@ -1,6 +1,10 @@
+import binascii
 import datetime
 import transaction
 
+from base64 import urlsafe_b64decode
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric.ec import SECP256R1, derive_private_key
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPFound
@@ -121,6 +125,16 @@ def main(global_config, **settings):
     engine = engine_from_config(settings, "sqlalchemy.")
     Session.configure(bind=engine)
     Base.metadata.bind = engine
+
+    if "push.private_key" in settings:
+        settings["push.private_key"] = derive_private_key(
+            int(binascii.hexlify(urlsafe_b64decode(
+                settings["push.private_key"].encode()
+                + b"===="[len(settings["push.private_key"]) % 4:]
+            )), 16),
+            curve=SECP256R1(),
+            backend=default_backend(),
+        )
 
     config = CherubplayConfigurator(
         authentication_policy=CherubplayAuthenticationPolicy(),
