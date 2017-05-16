@@ -132,13 +132,15 @@ def chat_list(request):
 
 @view_config(route_name="chat_notification", request_method="GET", permission="chat", renderer="json")
 def chat_notification(request):
-    own_chat_user, chat = Session.query(ChatUser, Chat).join(Chat).filter(and_(
+    result = Session.query(ChatUser, Chat).join(Chat).filter(and_(
         ChatUser.user_id == request.user.id,
         ChatUser.status == ChatUserStatus.active,
         Chat.updated > ChatUser.visited,
     )).order_by(Chat.updated.desc()).first()
-    if not own_chat_user:
+    if not result:
         return None
+
+    own_chat_user, chat = result
 
     message = (
         Session.query(Message)

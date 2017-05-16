@@ -9,6 +9,7 @@ from sqlalchemy import and_, engine_from_config, func
 from sqlalchemy.dialects.postgresql import INTERVAL
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import cast
+from urllib.parse import urlparse
 
 from cherubplay.models import PushSubscription, Request, RequestTag, User
 
@@ -173,7 +174,7 @@ def post_push_notification(subscription_id, endpoint):
         headers={
             "Authorization": "Bearer " + jwt.encode(
                 {
-                    "aud": "https://fcm.googleapis.com", # TODO
+                    "aud": "https://" + urlparse(endpoint).hostname,
                     "sub": "mailto:mysticdragonfly@hotmail.co.uk",
                     "exp": int(time.time()) + 86400,
                 },
