@@ -1137,6 +1137,7 @@ var cherubplay = (function() {
 						play_notification_audio();
 					}
 					if (user_list_entries[own_handle]) {
+						document.getElementById("chat_user_list").classList.add("connected");
 						user_list_entries[own_handle].classList.add("online");
 					}
 				}
@@ -1227,6 +1228,7 @@ var cherubplay = (function() {
 				}
 				function ws_onclose(e) {
 					if (user_list_entries[own_handle]) {
+						document.getElementById("chat_user_list").classList.remove("connected");
 						user_list_entries[own_handle].classList.remove("online");
 					}
 					if (ended) { return; }
