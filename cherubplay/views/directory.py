@@ -778,8 +778,6 @@ def directory_request_answer_post(context, request):
     request.login_store.ltrim(key, -12, -1)
     request.login_store.expire(key, 3600)
 
-    request.login_store.setex("answered:%s:%s" % (request.user.id, context.id), 86400, context.id)
-
     new_chat = Chat(url=str(uuid4()), request_id=context.id)
     Session.add(new_chat)
     Session.flush()
@@ -787,6 +785,9 @@ def directory_request_answer_post(context, request):
     if context.slots:
         used_names = set()
         for slot in context.slots:
+
+            if slot.user_id != context.user_id:
+                request.login_store.setex("answered:%s:%s" % (slot.user_id, context.id), 86400, context.id)
 
             if slot.user_name in used_names:
                 for n in range(2, 6):
@@ -807,6 +808,7 @@ def directory_request_answer_post(context, request):
 
             Session.add(new_chat_user)
     else:
+        request.login_store.setex("answered:%s:%s" % (request.user.id, context.id), 86400, context.id)
         Session.add(ChatUser(chat_id=new_chat.id, user_id=context.user_id, symbol=0, last_colour=context.colour))
         Session.add(ChatUser(chat_id=new_chat.id, user_id=request.user.id, symbol=1))
 
