@@ -104,6 +104,7 @@ New request
         <li><label><input type="radio" name="mode" value="group"  ${"checked=\"checked\"" if form_data.get("mode") == "group" else ""|n}> Group</label></li>
       </ul>
       <div id="group_slots">
+        <p class="help">Enter your own name and up to 4 characters you're looking for below. When all the slots are filled, a group chat will begin.</p>
         <hr>
         <label class="slot1">Slot 1</label>
         <input type="text" class="full required_slot" name="slot_1_name" maxlength="50" placeholder="Your handle..." value="${form_data.get("slot_1_name", "")}">
