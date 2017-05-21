@@ -185,18 +185,3 @@ def user_ban(request):
     )).update({"status": "draft"})
     return HTTPFound(request.route_path("admin_user", username=request.matchdict["username"], _query={ "saved": "status" }))
 
-
-@view_config(route_name="api_users", request_method="GET", permission="admin", renderer="json")
-def api_users(request):
-    if not request.GET.get("email_address"):
-        raise HTTPNotFound
-    return {
-        "users": [
-            {"id": user.id, "username": user.username} for user in
-            Session.query(User).filter(and_(
-                func.lower(User.email) == request.GET["email_address"].strip().lower()[:100],
-                User.email_verified == True,
-            ))
-        ]
-    }
-
