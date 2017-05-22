@@ -89,7 +89,7 @@ def _request_tags_from_form(form, new_request):
             name = form["maturity"]
             if name not in Tag.maturity_names:
                 name = "NSFW extreme"
-            tag_set.add((TagType.maturity, name))
+            maturity = name
             continue
 
         # Enforce preset values for type.
@@ -122,16 +122,29 @@ def _request_tags_from_form(form, new_request):
     if form.get("mode") == "group":
         tag_set.add((TagType.type, u"Group chat"))
 
+    bump_maturity = False
+
     tag_list = []
     used_ids = set()
     for tag_type, name in tag_set:
         tag = Tag.get_or_create(tag_type, name)
+
+        if tag.bump_maturity or (tag.synonym_id and tag.synonym_of.bump_maturity):
+            bump_maturity = True
+
         tag_id = (tag.synonym_id or tag.id)
+
         # Remember IDs to skip synonyms.
         if tag_id in used_ids:
             continue
         used_ids.add(tag_id)
+
         tag_list.append(RequestTag(tag_id=tag_id))
+
+    if bump_maturity:
+        tag_list.append(RequestTag(tag_id=Tag.get_or_create(TagType.maturity, "NSFW extreme").id))
+    else:
+        tag_list.append(RequestTag(tag_id=Tag.get_or_create(TagType.maturity, maturity).id))
 
     return tag_list
 

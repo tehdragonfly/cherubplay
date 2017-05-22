@@ -25,6 +25,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (
+    joinedload,
     relationship,
     scoped_session,
     sessionmaker,
@@ -438,11 +439,12 @@ class CreateNotAllowed(Exception): pass
 class Tag(Base):
     __tablename__ = "tags"
     id = Column(Integer, primary_key=True)
-    type = Column(EnumType(TagType, name=u"tags_type"), nullable=False, default=u"misc")
-    name = Column(Unicode(100), nullable=False)
-    synonym_id = Column(Integer, ForeignKey("tags.id"))
-    approved = Column(Boolean, nullable=False, default=False)
+    type              = Column(EnumType(TagType, name=u"tags_type"), nullable=False, default=u"misc")
+    name              = Column(Unicode(100), nullable=False)
+    synonym_id        = Column(Integer, ForeignKey("tags.id"))
+    approved          = Column(Boolean, nullable=False, default=False)
     blacklist_default = Column(Boolean, nullable=False, default=False)
+    bump_maturity     = Column(Boolean, nullable=False, default=False)
 
     maturity_names = [u"Safe for work", u"Not safe for work", u"NSFW extreme"]
     type_names = [u"Fluff", u"Plot-driven", u"Sexual", u"Shippy", u"Violent"]
@@ -453,7 +455,15 @@ class Tag(Base):
     @classmethod
     def get_or_create(cls, tag_type, name, allow_maturity_and_type_creation=True, create_opposite_tag=True):
         try:
-            tag = Session.query(cls).filter(and_(cls.type == tag_type, func.lower(cls.name) == name.lower())).one()
+            tag = (
+                Session.query(cls)
+                .filter(and_(
+                    cls.type == tag_type,
+                    func.lower(cls.name) == name.lower()
+                ))
+                .options(joinedload(Tag.synonym_of))
+                .one()
+            )
         except NoResultFound:
             if not allow_maturity_and_type_creation and tag_type in (TagType.maturity, TagType.type):
                 raise CreateNotAllowed
