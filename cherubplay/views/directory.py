@@ -374,6 +374,24 @@ def directory_tag_make_synonym(context, request):
         new_tag.approved = True
         old_tag.synonym_id = new_tag.id
 
+        # Bump maturity if necessary.
+        if new_tag.bump_maturity and not old_tag.bump_maturity:
+            Session.query(RequestTag).filter(and_(
+                RequestTag.request_id.in_(
+                    Session.query(RequestTag.request_id)
+                    .filter(RequestTag.tag_id == old_tag.id)
+                ),
+                RequestTag.tag_id.in_(
+                    Session.query(Tag.id).filter(and_(
+                        Tag.type == TagType.maturity,
+                        Tag.name.in_(("Safe for work", "Not safe for work")),
+                    ))
+                ),
+            )).update({"tag_id": Session.query(Tag.id).filter(and_(
+                Tag.type == TagType.maturity,
+                Tag.name == "NSFW extreme",
+            )).scalar()}, synchronize_session=False)
+
         # Delete the old tag from reqests which already have the new tag.
         Session.query(RequestTag).filter(and_(
             RequestTag.tag_id == old_tag.id,
