@@ -390,7 +390,7 @@ def directory_tag_make_synonym(context, request):
             )).update({"tag_id": Session.query(Tag.id).filter(and_(
                 Tag.type == TagType.maturity,
                 Tag.name == "NSFW extreme",
-            )).scalar()}, synchronize_session=False)
+            )).as_scalar()}, synchronize_session=False)
 
         # Delete the old tag from reqests which already have the new tag.
         Session.query(RequestTag).filter(and_(
