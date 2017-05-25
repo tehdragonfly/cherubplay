@@ -483,6 +483,14 @@ def directory_tag_add_parent(context, request):
     return HTTPFound(request.route_path("directory_tag", tag_string=request.matchdict["type"] + ":" + request.matchdict["name"]))
 
 
+@view_config(route_name="directory_tag_bump_maturity", request_method="POST", permission="directory.manage_tags")
+def directory_tag_bump_maturity(context, request):
+    for tag in context.tags:
+        tag.bump_maturity = request.POST.get("bump_maturity") == "on"
+
+    return HTTPFound(request.route_path("directory_tag", tag_string=request.matchdict["type"] + ":" + request.matchdict["name"]))
+
+
 @view_config(route_name="directory_yours",     request_method="GET", permission="directory.read", renderer="layout2/directory/index.mako")
 @view_config(route_name="directory_yours_ext", request_method="GET", permission="directory.read", extension="json", renderer="json")
 def directory_yours(request):
