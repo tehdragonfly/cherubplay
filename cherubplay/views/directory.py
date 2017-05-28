@@ -488,6 +488,23 @@ def directory_tag_bump_maturity(context, request):
     for tag in context.tags:
         tag.bump_maturity = request.POST.get("bump_maturity") == "on"
 
+        if request.POST.get("bump_maturity") == "on":
+            Session.query(RequestTag).filter(and_(
+                RequestTag.request_id.in_(
+                    Session.query(RequestTag.request_id)
+                    .filter(RequestTag.tag_id == tag.id)
+                ),
+                RequestTag.tag_id.in_(
+                    Session.query(Tag.id).filter(and_(
+                        Tag.type == TagType.maturity,
+                        Tag.name.in_(("Safe for work", "Not safe for work")),
+                    ))
+                ),
+            )).update({"tag_id": Session.query(Tag.id).filter(and_(
+                Tag.type == TagType.maturity,
+                Tag.name == "NSFW extreme",
+            )).as_scalar()}, synchronize_session=False)
+
     return HTTPFound(request.route_path("directory_tag", tag_string=request.matchdict["type"] + ":" + request.matchdict["name"]))
 
 
