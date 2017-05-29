@@ -477,6 +477,7 @@ def directory_tag_add_parent(context, request):
             )
         """ % child_tag.id)
 
+    # Commit manually to make sure the task happens after.
     transaction.commit()
     update_missing_request_tag_ids.delay()
 
@@ -504,6 +505,17 @@ def directory_tag_bump_maturity(context, request):
                 Tag.type == TagType.maturity,
                 Tag.name == "NSFW extreme",
             )).as_scalar()}, synchronize_session=False)
+
+            Session.query(Request).filter(and_(
+                Request.id.in_(
+                    Session.query(RequestTag.request_id)
+                    .filter(RequestTag.tag_id == tag.id)
+                ),
+            )).update({"tag_ids": None}, synchronize_session=False)
+
+    # Commit manually to make sure the task happens after.
+    transaction.commit()
+    update_missing_request_tag_ids.delay()
 
     return HTTPFound(request.route_path("directory_tag", tag_string=request.matchdict["type"] + ":" + request.matchdict["name"]))
 
