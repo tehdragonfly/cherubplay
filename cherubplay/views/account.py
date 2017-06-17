@@ -270,7 +270,7 @@ def account_push_subscribe(request):
 
 @view_config(route_name="account_push_unsubscribe", request_method="POST", permission="view")
 def account_push_unsubscribe(request):
-    validate_push_subscription_payload(request)
+    subscription = validate_push_subscription_payload(request)
 
     for existing_subscription in Session.query(PushSubscription).filter(
         PushSubscription.user_id == request.user.id,
