@@ -4,7 +4,7 @@ var cherubplay = (function() {
 		const padding = '='.repeat((4 - base64String.length % 4) % 4);
 		const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
 		const rawData = window.atob(base64);
-		return Uint8Array.from(rawData.split("").map(function (c) { c.charCodeAt(0); }));
+		return Uint8Array.from(rawData.split("").map(function (c) { return c.charCodeAt(0); }));
 	}
 
 	var colour_regex = /^#[0-9a-f]{6}$/i;
@@ -811,9 +811,9 @@ var cherubplay = (function() {
 						reg.pushManager.getSubscription().then(function(subscription) {
 							if (!subscription) {
 								reg.pushManager.subscribe({
-										userVisibleOnly: true,
-										applicationServerKey: urlBase64ToUint8Array(application_server_key),
-									}).then(function(subscription) {
+									userVisibleOnly: true,
+									applicationServerKey: urlBase64ToUint8Array(application_server_key),
+								}).then(function(subscription) {
 									$.post("/account/push/subscribe/", {"subscription": JSON.stringify(subscription.toJSON())});
 									push_notifications_enabled.show();
 									push_notifications_denied.hide();
