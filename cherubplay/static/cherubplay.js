@@ -1,9 +1,9 @@
 var cherubplay = (function() {
 
 	function urlBase64ToUint8Array(base64String) {
-		const padding = '='.repeat((4 - base64String.length % 4) % 4);
-		const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
-		const rawData = window.atob(base64);
+		var padding = '='.repeat((4 - base64String.length % 4) % 4);
+		var base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+		var rawData = window.atob(base64);
 		return Uint8Array.from(rawData.split("").map(function (c) { return c.charCodeAt(0); }));
 	}
 
