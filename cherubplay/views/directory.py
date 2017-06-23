@@ -400,13 +400,13 @@ def directory_tag_make_synonym(context, request):
         # And update the rest.
         Session.query(RequestTag).filter(RequestTag.tag_id == old_tag.id).update({"tag_id": new_tag.id})
 
-        # And the same for the tag_ids arrays.
+        # Null the tag_ids arrays.
         Session.query(Request).filter(
             Request.tag_ids.contains(cast([old_tag.id, new_tag.id], ARRAY(Integer)))
-        ).update({"tag_ids": func.array_remove(Request.tag_ids, old_tag.id)}, synchronize_session=False)
+        ).update({"tag_ids": None)}, synchronize_session=False)
         Session.query(Request).filter(
             Request.tag_ids.contains(cast([old_tag.id], ARRAY(Integer)))
-        ).update({"tag_ids": func.array_replace(Request.tag_ids, old_tag.id, new_tag.id)}, synchronize_session=False)
+        ).update({"tag_ids": None)}, synchronize_session=False)
 
         # Delete the old tag from blacklists which already have the new tag.
         Session.query(BlacklistedTag).filter(and_(
@@ -415,6 +415,10 @@ def directory_tag_make_synonym(context, request):
         )).delete(synchronize_session=False)
         # And update the rest.
         Session.query(BlacklistedTag).filter(BlacklistedTag.tag_id == old_tag.id).update({"tag_id": new_tag.id})
+
+    # Commit manually to make sure the task happens after.
+    transaction.commit()
+    update_missing_request_tag_ids.delay()
 
     return HTTPFound(request.route_path("directory_tag", tag_string=request.matchdict["type"] + ":" + request.matchdict["name"]))
 
