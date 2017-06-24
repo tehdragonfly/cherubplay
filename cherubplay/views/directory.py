@@ -403,10 +403,10 @@ def directory_tag_make_synonym(context, request):
         # Null the tag_ids arrays.
         Session.query(Request).filter(
             Request.tag_ids.contains(cast([old_tag.id, new_tag.id], ARRAY(Integer)))
-        ).update({"tag_ids": None)}, synchronize_session=False)
+        ).update({"tag_ids": None}, synchronize_session=False)
         Session.query(Request).filter(
             Request.tag_ids.contains(cast([old_tag.id], ARRAY(Integer)))
-        ).update({"tag_ids": None)}, synchronize_session=False)
+        ).update({"tag_ids": None}, synchronize_session=False)
 
         # Delete the old tag from blacklists which already have the new tag.
         Session.query(BlacklistedTag).filter(and_(

@@ -80,6 +80,24 @@ var cherubplay = (function() {
 		}
 	});
 
+	// Title changes
+
+	var original_title = document.title;
+
+	function set_title(new_title) {
+		if (!new_title) {
+			document.title = original_title;
+		} else {
+			document.title = new_title + " - " + original_title;
+		}
+	}
+
+	function visibility_handler(e) {
+		window.setTimeout(function() {
+			set_title();
+		}, 200);
+	}
+
 	return {
 		"home": function() {
 
@@ -476,6 +494,16 @@ var cherubplay = (function() {
 			ws.onclose = function(e) {
 				if (!e.wasClean) {
 					change_mode();
+					if (document.hidden || document.webkitHidden || document.msHidden) {
+						set_title("Disconnected");
+						if (typeof document.hidden !== "undefined") {
+							document.addEventListener("visibilitychange", visibility_handler);
+						} else if (typeof document.msHidden !== "undefined") {
+							document.addEventListener("msvisibilitychange", visibility_handler);
+						} else if (typeof document.webkitHidden !== "undefined") {
+							document.addEventListener("webkitvisibilitychange", visibility_handler);
+						}
+					}
 				}
 			}
 
@@ -865,18 +893,10 @@ var cherubplay = (function() {
 				}
 			}
 
-			var original_title = document.title;
-
 			var typing = false;
 			var typing_timeout;
 			var ended = false;
 			var continue_timeout;
-
-			function visibility_handler() {
-				window.setTimeout(function() {
-					document.title = original_title;
-				}, 200);
-			}
 
 			var messages = $("#messages");
 
@@ -1109,7 +1129,7 @@ var cherubplay = (function() {
 					scroll_to_bottom();
 				}
 				if (document.hidden || document.webkitHidden || document.msHidden) {
-					document.title = "New message - " + original_title;
+					set_title("New message");
 					play_notification_audio();
 				}
 			}
@@ -1133,7 +1153,7 @@ var cherubplay = (function() {
 					status_bar.text(last_status_message);
 					scroll_to_bottom();
 					if (document.hidden || document.webkitHidden || document.msHidden) {
-						document.title = "Connected - " + original_title;
+						set_title("Connected");
 						play_notification_audio();
 					}
 					if (user_list_entries[own_handle]) {
