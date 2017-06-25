@@ -317,6 +317,7 @@ var cherubplay = (function() {
 			// Prompt mode
 
 			var prompt_form = $("#prompt_mode form").submit(function(e) {
+				prompt_title.text("");
 				if (prompt_id.length > 0 && prompt_info.css("display") == "none") {
 					change_mode("wait_mode");
 					$.ajax("/prompts/" + prompt_id.val() + ".json", {
@@ -328,6 +329,7 @@ var cherubplay = (function() {
 							}
 							localStorage.setItem("new_or_saved_prompt", "saved_prompt");
 							localStorage.setItem("prompt_id", prompt_id.val());
+							prompt_title.text(data.title);
 							ws.send(JSON.stringify({
 								"action": "prompt",
 								"colour": data.colour,
@@ -434,6 +436,8 @@ var cherubplay = (function() {
 			if (saved_prompt_level) {
 				prompt_level.val(saved_prompt_level);
 			}
+
+			var prompt_title = $("#prompt_title");
 
 			// Communication
 

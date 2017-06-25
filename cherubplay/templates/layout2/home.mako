@@ -111,7 +111,7 @@
   </section>
   <section id="wait_mode">
     <h2>Searching...</h2>
-    <p>Your prompt has been posted. Stick around while people look at it - it'll only stay up while you have this tab open.</p>
+    <p>Your prompt <strong id="prompt_title"></strong> has been posted. Stick around while people look at it - it'll only stay up while you have this tab open.</p>
     <p><button class="prompt_button">Edit prompt</button> <button class="answer_button">Back to available prompts</button></p>
     % if not request.user.email_verified:
     <p class="banner">Remember to <a href="${request.route_path("account")}" target="_blank">set up an e-mail address</a>. If you ever forget your password, we can use it to send you a new one.</p>
