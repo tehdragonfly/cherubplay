@@ -1050,12 +1050,17 @@ var cherubplay = (function() {
 			var notification_audio;
 			function play_notification_audio() {
 				if (localStorage.getItem("sound_notifications") == "true") {
+					var last_sound_notification = parseInt(localStorage.getItem("last_sound_notification"));
+					if (last_sound_notification && (last_sound_notification - new Date().getTime()) < 5000) {
+						return false;
+					}
 					if (!notification_audio) {
 						var notification_audio = $("<audio autoplay>");
 						$("<source>").attr("src", "/static/carne_vale.ogg").appendTo(notification_audio);
 						$("<source>").attr("src", "/static/carne_vale.mp3").appendTo(notification_audio);
 					}
 					notification_audio[0].play();
+					localStorage.setItem("last_sound_notification", new Date().getTime());
 				}
 			}
 
