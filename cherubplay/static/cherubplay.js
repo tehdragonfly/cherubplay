@@ -1051,7 +1051,9 @@ var cherubplay = (function() {
 			function play_notification_audio() {
 				if (localStorage.getItem("sound_notifications") == "true") {
 					var last_sound_notification = parseInt(localStorage.getItem("last_sound_notification"));
-					if (last_sound_notification && (last_sound_notification - new Date().getTime()) < 5000) {
+                    console.log(last_sound_notification);
+                    console.log(last_sound_notification - new Date().getTime());
+					if (last_sound_notification && (new Date().getTime() - last_sound_notification) < 5000) {
 						return false;
 					}
 					if (!notification_audio) {
