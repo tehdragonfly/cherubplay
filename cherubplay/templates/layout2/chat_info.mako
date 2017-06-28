@@ -1,4 +1,5 @@
 <%inherit file="chat_base.mako" />\
+<% from cherubplay.models.enums import ChatUserStatus %>
 <%block name="title">Info - ${own_chat_user.title or chat.url} - </%block>
 % if request.GET.get("saved") == "end":
   <p>This chat has now been ended.</p>
@@ -17,6 +18,22 @@
       </div>
     </div>
   </form>
+% if request.context.mode == "group":
+  <section class="tile2">
+    <h3>Dramatis personae</h3>
+    <ul class="tag_list">
+      % for user_id, chat_user in request.context.chat_users.items():
+        <li class="${chat_user.status.value if request.context.chat.status == "ongoing" else ""}" style="color: #${chat_user.last_colour}">
+          % if request.context.chat.status == "ongoing" and chat_user.status == ChatUserStatus.deleted:
+            <del>${chat_user.name}</del>
+          % else:
+            ${chat_user.name}
+          % endif
+        </li>
+      % endfor
+    </ul>
+  </section>
+% endif
 % if chat.status == "ongoing" and len(request.context.active_chat_users) > 2:
   <section class="tile2 danger">
     <h3>Leave chat</h3>
