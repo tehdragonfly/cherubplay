@@ -667,3 +667,22 @@ def chat_info_post(context, request):
 
     return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"], _query={"saved": "info"}))
 
+
+@view_config(route_name="chat_change_name", request_method="POST", permission="chat.change_name")
+def chat_change_name(context, request):
+    if not request.POST.get("name", "").strip():
+        raise HTTPBadRequest
+
+    chosen_name = request.POST["name"][:50]
+    for chat_user in context.chat_users.values():
+        if chat_user == context.chat_user:
+            continue
+        if chat_user.name == chosen_name:
+            return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"], _query={"error": "name_taken"}))
+
+    context.chat_user.name = chosen_name
+
+    # TODO send a message
+
+    return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"], _query={"saved": "name"}))
+

@@ -28,6 +28,7 @@ class ChatContext(object):
                 (Allow, "admin",  "chat.full_user_list"),
                 (Allow, "active", "chat.send"),
                 (Allow, Everyone, "chat.info"),
+                (Allow, "active", "chat.change_name"),
             ]
         return [
             (Allow, Everyone, "chat.read"),

@@ -18,13 +18,25 @@
       </div>
     </div>
   </form>
-% if request.context.mode == "group":
+% if request.context.chat.status == "ongoing" and request.context.mode == "group":
   <section class="tile2">
     <h3>Dramatis personae</h3>
     <ul class="tag_list">
       % for user_id, chat_user in request.context.chat_users.items():
-        <li class="${chat_user.status.value if request.context.chat.status == "ongoing" else ""}" style="color: #${chat_user.last_colour}">
-          % if request.context.chat.status == "ongoing" and chat_user.status == ChatUserStatus.deleted:
+        <li style="color: #${chat_user.last_colour}">
+          % if chat_user.user_id == request.user.id:
+            % if request.GET.get("error") == "name_taken":
+              <p class="error">Someone else has already chosen that name. Please choose another.</p>
+            % endif
+            <form action="${request.route_path("chat_change_name", url=request.context.chat.url)}" method="post">
+              <input type="text" name="name" value="${chat_user.name}" class="full" maxlength="50" required placeholder="Your handle...">
+              <div class="actions">
+                <div class="right">
+                  <button type="submit">Save</button>
+                </div>
+              </div>
+            </form>
+          % elif chat_user.status == ChatUserStatus.deleted:
             <del>${chat_user.name}</del>
           % else:
             ${chat_user.name}

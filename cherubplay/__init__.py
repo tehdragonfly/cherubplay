@@ -186,8 +186,9 @@ def main(global_config, **settings):
 
     config.add_ext_route("chat_notification", "/chats/notification/")
 
-    config.add_ext_route("chat",     "/chats/{url}/",      factory=ChatContext)
-    config.add_route("chat_info",    "/chats/{url}/info/", factory=ChatContext)
+    config.add_ext_route("chat",         "/chats/{url}/",             factory=ChatContext)
+    config.add_route("chat_info",        "/chats/{url}/info/",        factory=ChatContext)
+    config.add_route("chat_change_name", "/chats/{url}/change_name/", factory=ChatContext)
 
     config.add_route("chat_draft",  "/chats/{url}/draft/",             factory=ChatContext)
     config.add_route("chat_send",   "/chats/{url}/send/",              factory=ChatContext)
