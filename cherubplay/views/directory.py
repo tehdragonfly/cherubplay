@@ -900,6 +900,7 @@ def directory_request_unanswer_get(context, request):
     for slot in context.slots:
         if request.user.id == slot.user_id:
             slot.user_id = None
+            slot.user_name = None
             return HTTPFound(
                 request.headers.get("Referer")
                 or request.route_path("directory_request", id=context.id)
