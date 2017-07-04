@@ -726,6 +726,11 @@ def chat_change_name(context, request):
                 "text":   text,
             },
         }))
+        request.pubsub.publish("chat:" + str(context.chat.id), json.dumps({
+            "action":   "name_change",
+            "old_name": old_name,
+            "new_name": context.chat_user.name,
+        }))
     except ConnectionError:
         pass
 

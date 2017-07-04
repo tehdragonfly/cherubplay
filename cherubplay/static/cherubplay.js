@@ -1051,8 +1051,6 @@ var cherubplay = (function() {
 			function play_notification_audio() {
 				if (localStorage.getItem("sound_notifications") == "true") {
 					var last_sound_notification = parseInt(localStorage.getItem("last_sound_notification"));
-                    console.log(last_sound_notification);
-                    console.log(last_sound_notification - new Date().getTime());
 					if (last_sound_notification && (new Date().getTime() - last_sound_notification) < 5000) {
 						return false;
 					}
@@ -1238,6 +1236,13 @@ var cherubplay = (function() {
 									user_list_entries[handle].classList.add("online");
 								}
 							});
+						} else if (message.action == "name_change") {
+							if (user_list_entries && user_list_entries[message.old_name]) {
+								var changed_entry = user_list_entries[message.old_name];
+								user_list_entries[message.new_name] = changed_entry;
+								changed_entry.innerText = " " + message.new_name;
+								changed_entry.dataset.handle = message.new_name;
+							}
 						} else if (message.action == "offline") {
 							last_status_message = message.handle + " is now offline. They will be notified of any messages you send when they next visit.";
 							status_bar.text(last_status_message);
