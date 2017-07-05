@@ -9,8 +9,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 
 from cherubplay.models import (
-    Session, BlacklistedTag, Chat, ChatUser, Prompt, PromptReport, Request,
-    RequestTag, Resource, Tag, User,
+    Session, BlacklistedTag, Chat, ChatUser, Message, Prompt, PromptReport,
+    Request, RequestTag, Resource, Tag, User,
 )
 from cherubplay.models.enums import ChatUserStatus, TagType
 
@@ -90,6 +90,14 @@ class ChatContext(object):
             if _.status == ChatUserStatus.active
             and _.user.status == "banned"
         ]
+
+    @reify
+    def first_message(self):
+        return (
+            Session.query(Message)
+            .filter(Message.chat_id == context.chat.id)
+            .order_by(Message.id).first()
+        )
 
 
 def prompt_factory(request):
