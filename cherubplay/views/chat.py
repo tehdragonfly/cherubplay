@@ -757,5 +757,51 @@ def chat_remove_user(context, request):
 
     chat_user.status = ChatUserStatus.deleted
 
+    update_date = datetime.datetime.now()
+    text        = "%s has been removed from the chat." % chat_user.name
+
+    message = Message(
+        chat_id=context.chat.id,
+        type="system",
+        colour="000000",
+        symbol=chat_user.symbol,
+        text=text,
+        posted=update_date,
+        edited=update_date,
+    )
+    Session.add(message)
+    Session.flush()
+
+    chat.updated              = update_date
+    context.chat_user.visited = update_date
+
+    try:
+        # See if anyone else is online and update their ChatUser too.
+        # TODO make a MessageService or something for this
+        online_handles = OnlineUserStore(request.pubsub).online_handles(context.chat)
+        for other_chat_user in Session.query(ChatUser).filter(and_(
+            ChatUser.chat_id == context.chat.id,
+            ChatUser.status == ChatUserStatus.active,
+        )):
+            if other_chat_user.handle in online_handles:
+                other_chat_user.visited = update_date
+    except ConnectionError:
+        pass
+
+    try:
+        request.pubsub.publish("chat:" + str(context.chat.id), json.dumps({
+            "action": "message",
+            "message": {
+                "id":     message.id,
+                "type":   "system",
+                "colour": "000000",
+                "symbol": chat_user.symbol_character,
+                "name":   chat_user.name,
+                "text":   text,
+            },
+        }))
+    except ConnectionError:
+        pass
+
     return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"]))
 

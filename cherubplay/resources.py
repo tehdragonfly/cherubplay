@@ -95,7 +95,7 @@ class ChatContext(object):
     def first_message(self):
         return (
             Session.query(Message)
-            .filter(Message.chat_id == context.chat.id)
+            .filter(Message.chat_id == self.chat.id)
             .order_by(Message.id).first()
         )
 
