@@ -1242,6 +1242,9 @@ var cherubplay = (function() {
 								user_list_entries[message.new_name] = changed_entry;
 								changed_entry.innerText = " " + message.new_name;
 								changed_entry.dataset.handle = message.new_name;
+								if (message.old_name == own_handle) {
+									own_handle = message.new_name;
+								}
 							}
 						} else if (message.action == "offline") {
 							last_status_message = message.handle + " is now offline. They will be notified of any messages you send when they next visit.";
