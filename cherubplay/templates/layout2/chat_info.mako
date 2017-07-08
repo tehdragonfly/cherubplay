@@ -29,25 +29,25 @@
               <p class="error">Someone else has already chosen that name. Please choose another.</p>
             % endif
             <form action="${request.route_path("chat_change_name", url=request.context.chat.url)}" method="post">
-              <input type="text" name="name" value="${chat_user.name}" class="full" maxlength="50" required placeholder="Your handle...">
-              <div class="actions">
-                <div class="right">
-                  <button type="submit">Save</button>
-                </div>
+              <div style="float: right;">
+                <button type="submit">Save</button>
+              </div>
+              <div style="overflow: hidden;">
+                <input type="text" name="name" value="${chat_user.name}" class="full" maxlength="50" required placeholder="Your handle...">
               </div>
             </form>
           % elif chat_user.status == ChatUserStatus.deleted:
             <del>${chat_user.name}</del>
-          % else:
-            ${chat_user.name}
+          % elif request.context.first_message and request.context.first_message.user_id == request.user.id:
             <form action="${request.route_path("chat_remove_user", url=request.context.chat.url)}" method="post">
               <input type="hidden" name="name" value="${chat_user.name}">
               <div class="actions">
-                <div class="right">
-                  <button type="submit">Remove</button>
-                </div>
+                <div class="left">${chat_user.name}</div>
+                <div class="right"><button type="submit">Remove</button></div>
               </div>
             </form>
+          % else:
+            ${chat_user.name}
           % endif
         </li>
       % endfor
