@@ -673,7 +673,11 @@ def chat_change_name(context, request):
     if not request.POST.get("name", "").strip():
         raise HTTPBadRequest
 
-    chosen_name = request.POST["name"][:50]
+    chosen_name = request.POST["name"].strip()[:50]
+
+    if chosen_name == context.chat_user.name:
+        return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"], _query={"saved": "name"}))
+
     for chat_user in context.chat_users.values():
         if chat_user == context.chat_user:
             continue
