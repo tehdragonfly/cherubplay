@@ -804,6 +804,10 @@ def chat_remove_user(context, request):
                 "text":   text,
             },
         }))
+        request.pubsub.publish(
+            "chat:%s:user:%s" % (chat_user.chat_id, chat_user.user_id),
+            "kicked",
+        )
     except ConnectionError:
         pass
 

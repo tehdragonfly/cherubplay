@@ -69,6 +69,12 @@ class ChatHandler(WebSocketHandler):
 
         online_user_store.connect(self.chat, self.chat_user, self.socket_id)
 
+        self.redis_channels = (
+            "chat:%s" % self.chat.id,
+            "user:%s" % self.user.id,
+            "chat:%s:user:%s" % (self.chat.id, self.user.id),
+        )
+
         self.redis_listen()
         self.ignore_next_message = False
         # Send the backlog if necessary.
@@ -111,7 +117,7 @@ class ChatHandler(WebSocketHandler):
 
     def on_close(self):
         # Unsubscribe here and let the exit callback handle disconnecting.
-        self.redis_client.unsubscribe(("chat:" + str(self.chat.id), "user:" + str(self.user.id)))
+        self.redis_client.unsubscribe(self.redis_channels)
         online_user_store.disconnect(self.chat, self.socket_id)
         # Fire offline message, but only if we don't have any other tabs open.
         if self.chat_user.handle not in online_user_store.online_handles(self.chat):
@@ -124,12 +130,15 @@ class ChatHandler(WebSocketHandler):
     @engine
     def redis_listen(self):
         self.redis_client = Client(unix_socket_path=config.get("app:main", "cherubplay.socket_pubsub"))
-        yield Task(self.redis_client.subscribe, ("chat:"+str(self.chat.id), "user:"+str(self.user.id)))
+        yield Task(self.redis_client.subscribe, self.redis_channels)
         self.redis_client.listen(self.on_redis_message, self.on_redis_unsubscribe)
 
     def on_redis_message(self, message):
-        if message.kind=="message":
-            if not self.ignore_next_message:
+        if message.kind == "message":
+            if message.body == "kicked":
+                self.write_message("{\"action\":\"kicked\"}")
+                self.close()
+            elif not self.ignore_next_message:
                 self.write_message(message.body)
                 print("redis message:", message.body)
             else:
