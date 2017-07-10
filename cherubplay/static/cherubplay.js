@@ -1199,12 +1199,12 @@ var cherubplay = (function() {
 							} else {
 								p.css("color", "#"+message.message.colour).text(message.message.symbol+": "+message.message.text);
 							}
-						} else if (message.action == "end") {
+						} else if (message.action == "end" || message.action == "kicked") {
 							$(body).removeClass("ongoing");
 							ws.close();
 							ended = true;
 							$(".editing").removeClass("editing");
-							if (search_again.length>0) {
+							if (message.action == "end" && search_again.length > 0) {
 								continue_timeout = window.setTimeout(function() {
 									localStorage.setItem("autoprompt", "yes");
 									window.location = "/";
@@ -1217,7 +1217,9 @@ var cherubplay = (function() {
 								status_bar.hide();
 							}
 							message_form_container.remove();
-							render_message(message.message);
+							if (message.message) {
+								render_message(message.message);
+							}
 						} else if (message.action == "typing") {
 							if (message.handle != own_handle) {
 								status_bar.text(message.handle + " is typing.");
