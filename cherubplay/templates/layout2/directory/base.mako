@@ -98,7 +98,7 @@ ${tag.name}\
               % if slot.user_id == request.user.id:
                 - taken by you
               % elif slot.taken:
-                - taken
+                - taken by ${slot.user_name}
               % endif
             </label>
 
