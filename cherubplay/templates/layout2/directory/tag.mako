@@ -124,4 +124,12 @@
         % endfor
       </ul>
       % endif
+      % if len(request.context.tags) == 1 and not blacklisted_tags:
+        <h3>Blacklist</h3>
+        <form action="${request.route_path("directory_blacklist_add")}" method="post">
+          <input type="hidden" name="tag_type" value="${request.context.tags[0].type.value}">
+          <input type="hidden" name="name" value="${request.context.tags[0].name}">
+          <ul><li><button type="submit">Add to blacklist</button></li></ul>
+        </form>
+      % endif
 </%block>
