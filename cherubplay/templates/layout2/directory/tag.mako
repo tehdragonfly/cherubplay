@@ -78,6 +78,17 @@
             <li>
               ${tag.type.ui_value}:${tag.name}
               (<a href="${request.route_path("directory_tag", tag_string=",".join(_.tag_string for _ in request.context.tags if _ != tag))}">x</a>)
+              <div class="actions">
+                <div class="right">
+                  <form action="${request.route_path("directory_blacklist_add")}" method="post">
+                    <input type="hidden" name="tag_type" value="${tag.type.value}">
+                    <input type="hidden" name="name" value="${tag.name}">
+                    <ul><li><button type="submit">Add to blacklist</button></li></ul>
+                  </form>
+                </div>
+              </div>
+
+
             </li>
           % endfor
         </ul>
