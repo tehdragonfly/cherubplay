@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import datetime
+import datetime, re
 
 from collections import OrderedDict
 from pyramid.decorator import reify
@@ -454,6 +454,7 @@ class Tag(Base):
 
     @classmethod
     def get_or_create(cls, tag_type, name, allow_maturity_and_type_creation=True, create_opposite_tag=True):
+        name = re.sub("\s+", " ", name)
         try:
             tag = (
                 Session.query(cls)
