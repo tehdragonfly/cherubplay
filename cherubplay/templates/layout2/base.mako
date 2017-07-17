@@ -31,11 +31,13 @@
       <li><form action="${request.route_path("log_out")}" method="post"><button type="submit" id="nav_log_out">Log out</button></form></li>
     </ul>
   </nav>
-  <% news = request.login_store.get("news") %>
-  % if news:
-    <aside id="news">
-      News: ${news.decode("utf-8")|n}
-    </aside>
+  % if request.show_news:
+    <% news = request.login_store.get("news") %>
+    % if news:
+      <aside id="news">
+        News: ${news.decode("utf-8")|n}
+      </aside>
+    % endif
   % endif
 % elif request.matched_route.name != "home":
 % if "cherubplay.read_only" not in request.registry.settings:

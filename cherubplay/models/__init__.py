@@ -72,6 +72,7 @@ class User(Base):
     layout_version = Column(Integer, nullable=False, default=2)
     timezone = Column(Unicode(255))
     seen_blacklist_warning = Column(Boolean, nullable=False, default=False)
+    last_read_news = Column(DateTime)
 
     def __repr__(self):
         return "<User #%s: %s>" % (self.id, self.username)
