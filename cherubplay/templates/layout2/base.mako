@@ -36,6 +36,7 @@
     % if news:
       <aside id="news">
         News: ${news.decode("utf-8")|n}
+        <a href="#" id="news_hide">Hide</a>
       </aside>
     % endif
   % endif

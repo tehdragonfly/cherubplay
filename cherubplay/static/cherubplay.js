@@ -98,6 +98,13 @@ var cherubplay = (function() {
 		}, 200);
 	}
 
+	// News
+	$("#news_hide").click(function() {
+		$("#news").remove();
+		$.post("/account/read_news/");
+		return false;
+	});
+
 	return {
 		"home": function() {
 

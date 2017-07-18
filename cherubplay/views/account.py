@@ -1,4 +1,4 @@
-import json
+import datetime, json
 
 from bcrypt import gensalt, hashpw
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNoContent, HTTPNotFound, HTTPRequestEntityTooLarge
@@ -278,5 +278,13 @@ def account_push_unsubscribe(request):
         if existing_subscription.data["endpoint"] == subscription["endpoint"]:
             Session.delete(existing_subscription)
 
+    return HTTPNoContent()
+
+
+@view_config(route_name="account_read_news", request_method="POST", permission="view")
+def account_read_news(request):
+    Session.query(User).filter(User.id == request.user.id).update({
+        "last_read_news": datetime.datetime.now(),
+    })
     return HTTPNoContent()
 
