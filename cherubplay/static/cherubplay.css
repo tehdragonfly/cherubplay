@@ -228,6 +228,15 @@ header img {
 
 }
 
+/* News banner */
+
+#news {
+	padding: 3px 5px;
+	background-color: #f8f8f8;
+	color: #393;
+	text-align: center;
+}
+
 /* Main */
 
 main {
