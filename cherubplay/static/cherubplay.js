@@ -112,7 +112,7 @@ var cherubplay = (function() {
 
 			function change_mode(new_mode) {
 				body.removeClass("answer_mode").removeClass("prompt_mode").removeClass("wait_mode");
-				if (ws.readyState==1 && new_mode=="answer_mode") {
+				if (ws.readyState == 1 && new_mode == "answer_mode") {
 					ws.send(JSON.stringify({
 						"action": "search",
 						"categories": answer_string(answer_categories),
@@ -668,7 +668,7 @@ var cherubplay = (function() {
 					refresh_hidden_input();
 				}
 				// Remember these so we can run them on submit.
-				add_tag_functions.push(add_tag)
+				add_tag_functions.push(add_tag);
 
 				function remove_tag() {
 					tag_list.find("li:last-child").remove();

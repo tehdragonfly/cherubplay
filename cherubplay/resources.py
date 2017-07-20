@@ -158,7 +158,7 @@ class TagList(object):
             # One or more tags don't exist, so there won't be any results here.
             raise HTTPNotFound
 
-        actual_tag_string = ",".join(":".join((tag.type.value, tag.url_name)) for tag in self.tags)
+        actual_tag_string = ",".join(tag.tag_string for tag in self.tags)
         if actual_tag_string != request.matchdict["tag_string"]:
             raise HTTPFound(request.current_route_path(tag_string=actual_tag_string))
 
@@ -172,6 +172,12 @@ class TagList(object):
         ]
 
         self.tag_array = cast([tag.id for tag in self.tags], ARRAY(Integer))
+
+    def tag_string_plus(self, extra_tag):
+        tag_list = list(self.tags)
+        tag_list.append(extra_tag)
+        tag_list.sort(key=lambda tag: (Tag.type, Tag.name))
+        return ",".join(tag.tag_string for tag in tag_list)
 
 
 class TagPair(object):

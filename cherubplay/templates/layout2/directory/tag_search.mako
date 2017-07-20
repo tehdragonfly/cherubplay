@@ -9,10 +9,10 @@
             % if tag.synonym_of:
               <li>
                 ${tag.type.ui_value}:${tag.name}
-                (synonym of <a href="${request.route_path("directory_tag", tag_string=tag.synonym_of.tag_string)}">${tag.synonym_of.type.ui_value}:${tag.synonym_of.name}</a>)
+                (synonym of <a href="${request.route_path("directory_tag", tag_string=(request.context.tag_string_plus(tag.synonym_of) if request.matched_route.name == "directory_tag_search" else tag.synonym_of.tag_string))}">${tag.synonym_of.type.ui_value}:${tag.synonym_of.name}</a>)
               </li>
             % else:
-              <li><a href="${request.route_path("directory_tag", tag_string=tag.tag_string)}">${tag.type.ui_value}:${tag.name}</a></li>
+              <li><a href="${request.route_path("directory_tag", tag_string=(request.context.tag_string_plus(tag) if request.matched_route.name == "directory_tag_search" else tag.tag_string))}">${tag.type.ui_value}:${tag.name}</a></li>
             % endif
           % endfor
         </ul>

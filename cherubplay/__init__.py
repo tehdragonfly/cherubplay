@@ -230,6 +230,7 @@ def main(global_config, **settings):
     config.add_route("directory_tag_table", "/directory/tags/table/")
 
     config.add_ext_route("directory_tag", "/directory/{tag_string:[^:]+:[^/,]+(,[^:]+:[^/,]+){0,4}}/", factory=TagList)
+    config.add_ext_route("directory_tag_search", "/directory/{tag_string:[^:]+:[^/,]+(,[^:]+:[^/,]+){0,4}}/search/", factory=TagList)
 
     config.add_ext_route("directory_tag_approve",       "/directory/{type}:{name}/approve/",       factory=TagPair)
     config.add_ext_route("directory_tag_make_synonym",  "/directory/{type}:{name}/make_synonym/",  factory=TagPair)

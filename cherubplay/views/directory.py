@@ -185,14 +185,20 @@ def directory(request):
     return {"requests": requests[:25], "answered": answered, "more": len(requests) == 26}
 
 
-@view_config(route_name="directory_search", request_method="GET", permission="directory.read", renderer="layout2/directory/tag_search.mako")
-def directory_search(request):
+@view_config(route_name="directory_search",     request_method="GET", permission="directory.read", renderer="layout2/directory/tag_search.mako")
+@view_config(route_name="directory_tag_search", request_method="GET", permission="directory.read", renderer="layout2/directory/tag_search.mako")
+def directory_search(context, request):
+    if request.matched_route.name == "directory_tag_search" and len(context.tags) == 5:
+        raise HTTPNotFound
 
     tag_name = request.GET.get("name", "").strip()[:100].lower()
     if not tag_name:
         return HTTPFound(request.route_path("directory"))
 
-    tags = Session.query(Tag).filter(func.lower(Tag.name) == tag_name).order_by(Tag.type).all()
+    tags = Session.query(Tag).filter(func.lower(Tag.name) == tag_name)
+    if request.matched_route.name == "directory_tag_search":
+        tags = tags.filter(~Tag.id.in_(_.id for _ in context.tags))
+    tags = tags.order_by(Tag.type).all()
 
     visible_tags = [tag for tag in tags if tag.synonym_of not in tags]
 
