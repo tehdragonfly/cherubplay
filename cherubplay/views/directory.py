@@ -203,9 +203,12 @@ def directory_search(context, request):
     visible_tags = [tag for tag in tags if tag.synonym_of not in tags]
 
     if len(visible_tags) == 1:
-        if visible_tags[0].synonym_of:
-            return HTTPFound(request.route_path("directory_tag", tag_string=visible_tags[0].synonym_of.tag_string))
-        return HTTPFound(request.route_path("directory_tag", tag_string=visible_tags[0].tag_string))
+        redirect_tag = visible_tags[0].synonym_of or visible_tags[0]
+        if request.matched_route.name == "directory_tag_search":
+            redirect_tag_string = context.tag_string_plus(redirect_tag)
+        else:
+            redirect_tag_string = redirect_tag.tag_string
+        return HTTPFound(request.route_path("directory_tag", tag_string=redirect_tag_string))
 
     return {"tags": tags}
 
