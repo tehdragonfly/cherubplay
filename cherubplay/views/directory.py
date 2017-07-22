@@ -217,14 +217,21 @@ def directory_search(context, request):
 def directory_search_autocomplete(request):
     if len(request.GET.get("name", "")) < 3:
         return []
-    tags = []
+
+    added_tags = set()
+    response   = []
+
     for tag in Session.query(Tag).filter(and_(
         func.lower(Tag.name).like(request.GET["name"].lower().replace("_", "\\_").replace("%", "\\%") + "%")
     )).options(joinedload(Tag.synonym_of)).order_by(Tag.name, Tag.type).all():
         tag_to_add = tag.synonym_of if tag.synonym_id is not None else tag
-        if tag_to_add not in tags:
-            tags.append(tag_to_add)
-    return tags
+        if tag_to_add not in added_tags:
+            json_dict = tag.__json__()
+            json_dict["url"] = request.route_path("directory_tag", tag_string=tag.tag_string)
+            response.append(json_dict)
+            added_tags.add(tag_to_add)
+
+    return response
 
 
 @view_config(route_name="directory_tag_list", request_method="GET",                   permission="directory.manage_tags", renderer="layout2/directory/tag_list.mako")

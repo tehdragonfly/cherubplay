@@ -594,7 +594,7 @@ var cherubplay = (function() {
 							autocomplete_list.find(".current").removeClass("current");
 							$(this).addClass("current");
 						});
-						var a = $("<a>").attr("href", "/directory/" + tag.type + ":" + tag.url_name + "/")
+						var a = $("<a>").attr("href", tag.url);
 						$("<div>").attr("class", "search_type").text(tag.type.replace(/_/g, " ")).appendTo(a);
 						$("<div>").attr("class", "search_name").text(tag.name).appendTo(a);
 						a.appendTo(li);
