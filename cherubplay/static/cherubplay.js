@@ -587,7 +587,7 @@ var cherubplay = (function() {
 				if (search_input.val().length < 3) { autocomplete_list.empty(); return; }
 
 				if (active_request) { active_request.abort(); }
-				active_request = $.get("/directory/search/autocomplete/", {"name": search_input.val()}, function(data) {
+				active_request = $.get(search_input[0].form.dataset.autocompletePath, {"name": search_input.val()}, function(data) {
 					autocomplete_list.empty();
 					data.forEach(function(tag) {
 						var li = $("<li>").hover(function() {

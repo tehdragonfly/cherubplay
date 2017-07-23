@@ -208,7 +208,18 @@ ${tag.name}\
   <div class="side_column">
     <nav>
       <h3>Search</h3>
-      <form id="directory_search_form" action="${request.route_path("directory_search")}" method="get">
+      % if "tag_string" in request.matchdict:
+        <%
+          search_path = request.route_path("directory_tag_search", tag_string=request.matchdict["tag_string"])
+          autocomplete_path = request.route_path("directory_tag_search_autocomplete", tag_string=request.matchdict["tag_string"])
+        %>
+      % else:
+        <%
+          search_path = request.route_path("directory_search")
+          autocomplete_path = request.route_path("directory_search_autocomplete")
+        %>
+      % endif
+      <form id="directory_search_form" action="${search_path}" method="get" data-autocomplete-path="${autocomplete_path}">
         <div class="tag_input single">
           <input id="directory_search" type="text" class="full" name="name" maxlength="100" placeholder="Look up a tag..." required>
         </div>

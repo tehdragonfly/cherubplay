@@ -213,21 +213,26 @@ def directory_search(context, request):
     return {"tags": tags}
 
 
-@view_config(route_name="directory_search_autocomplete", request_method="GET", permission="directory.read", renderer="json")
-def directory_search_autocomplete(request):
+@view_config(route_name="directory_search_autocomplete",     request_method="GET", permission="directory.read", renderer="json")
+@view_config(route_name="directory_tag_search_autocomplete", request_method="GET", permission="directory.read", renderer="json")
+def directory_search_autocomplete(context, request):
     if len(request.GET.get("name", "")) < 3:
         return []
 
     added_tags = set()
     response   = []
 
+    # TODO exclude current tags
     for tag in Session.query(Tag).filter(and_(
-        func.lower(Tag.name).like(request.GET["name"].lower().replace("_", "\\_").replace("%", "\\%") + "%")
+        func.lower(Tag.name).like(request.GET["name"].lower().replace("_", "\\_").replace("%", "\\%") + "%"),
     )).options(joinedload(Tag.synonym_of)).order_by(Tag.name, Tag.type).all():
         tag_to_add = tag.synonym_of if tag.synonym_id is not None else tag
         if tag_to_add not in added_tags:
-            json_dict = tag.__json__()
-            json_dict["url"] = request.route_path("directory_tag", tag_string=tag.tag_string)
+            json_dict = tag_to_add.__json__()
+            if request.matched_route.name == "directory_tag_search_autocomplete":
+                json_dict["url"] = request.route_path("directory_tag", tag_string=context.tag_string_plus(tag_to_add))
+            else:
+                json_dict["url"] = request.route_path("directory_tag", tag_string=tag_to_add.tag_string)
             response.append(json_dict)
             added_tags.add(tag_to_add)
 
