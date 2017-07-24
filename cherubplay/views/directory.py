@@ -222,10 +222,15 @@ def directory_search_autocomplete(context, request):
     added_tags = set()
     response   = []
 
-    # TODO exclude current tags
-    for tag in Session.query(Tag).filter(and_(
-        func.lower(Tag.name).like(request.GET["name"].lower().replace("_", "\\_").replace("%", "\\%") + "%"),
-    )).options(joinedload(Tag.synonym_of)).order_by(Tag.name, Tag.type).all():
+    tag_query = Session.query(Tag).filter(
+        func.lower(Tag.name)
+        .like(request.GET["name"].lower().replace("_", "\\_").replace("%", "\\%") + "%")
+    )
+    if request.matched_route.name == "directory_tag_search_autocomplete":
+        tag_query = tag_query.filter(~Tag.id.in_(_.id for _ in context.tags))
+    tag_query = tag_query.options(joinedload(Tag.synonym_of)).order_by(Tag.name, Tag.type).all()
+
+    for tag in tag_query:
         tag_to_add = tag.synonym_of if tag.synonym_id is not None else tag
         if tag_to_add not in added_tags:
             json_dict = tag_to_add.__json__()

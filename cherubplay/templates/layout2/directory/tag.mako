@@ -83,7 +83,7 @@
                   <form action="${request.route_path("directory_blacklist_add")}" method="post">
                     <input type="hidden" name="tag_type" value="${tag.type.value}">
                     <input type="hidden" name="name" value="${tag.name}">
-                    <ul><li><button type="submit">Add to blacklist</button></li></ul>
+                    <button type="submit">Add to blacklist</button>
                   </form>
                 </div>
               </div>
