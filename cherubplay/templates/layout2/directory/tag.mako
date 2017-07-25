@@ -122,6 +122,15 @@
       % endif
     % endif
 <%block name="tag_links">
+      % if len(request.context.tags) < 5:
+        <h3>Add to search</h3>
+        <form class="directory_search_form" action="${request.route_path("directory_tag_search", tag_string=request.matchdict["tag_string"])}" method="get" data-autocomplete-path="${request.route_path("directory_tag_search_autocomplete", tag_string=request.matchdict["tag_string"])}">
+          <div class="tag_input single">
+            <input type="text" class="directory_search full" name="name" maxlength="100" placeholder="Look up a tag..." required>
+          </div>
+          <button>Search</button>
+        </form>
+      % endif
       % if tag_types and len(tag_types) > 1:
       <% current_tag = request.context.tags[0] %>
       <h3>Tag types</h3>

@@ -528,82 +528,84 @@ var cherubplay = (function() {
 			});
 		},
 		"directory": function() {
+			$(".directory_search").each(function(index, input) {
 
-			var search_input = $("#directory_search").keydown(function(e) {
-				clearTimeout(autocomplete_timeout);
-				if (e.which == 13 || e.which == 188) { // Enter and comma
-					var current_autocomplete = autocomplete_list.find(".current");
-					if (current_autocomplete.length > 0) {
-						location.href = current_autocomplete.find("a").attr("href");
-						return false;
-					} else {
-						return true;
-					}
-					return false;
-				} else if (e.which == 38 || e.which == 40) { // Up and down
-					var current_autocomplete = autocomplete_list.find(".current");
-					if (current_autocomplete.length > 0) {
-						current_autocomplete.removeClass("current");
-						var new_current = e.which == 38 ? current_autocomplete.prev() : current_autocomplete.next();
-						new_current.addClass("current");
-					} else {
-						autocomplete_list.find(e.which == 38 ? "li:last-child" : "li:first-child").addClass("current");
-					}
-				}
-				autocomplete_timeout = setTimeout(load_autocomplete, 100);
-			}).focus(function(e) {
-				focussed = true;
-				autocomplete_list.css("display", "");
-				autocomplete_timeout = setTimeout(load_autocomplete, 100);
-			}).blur(function(e) {
-				focussed = false;
-				if (!focussed && !hovered) {
-					autocomplete_list.css("display", "none");
+				var search_input = $(input).keydown(function(e) {
 					clearTimeout(autocomplete_timeout);
-				}
-			});
-			var search_div = search_input.parent()
-
-			var autocomplete_list = $("<ul>").addClass("autocomplete_list").mouseenter(function(e) {
-				hovered = true;
-			}).mouseleave(function(e) {
-				hovered = false;
-				if (!focussed && !hovered) {
-					search_input.focus();
-				}
-			}).insertAfter(search_div);
-
-			var autocomplete_timeout;
-			var last_autocomplete;
-			var focused = false;
-			var hovered = false;
-			var active_request = null;
-
-			function load_autocomplete() {
-
-				if (search_input.val() == last_autocomplete) { return; }
-				last_autocomplete = search_input.val();
-
-				if (search_input.val().length < 3) { autocomplete_list.empty(); return; }
-
-				if (active_request) { active_request.abort(); }
-				active_request = $.get(search_input[0].form.dataset.autocompletePath, {"name": search_input.val()}, function(data) {
-					autocomplete_list.empty();
-					data.forEach(function(tag) {
-						var li = $("<li>").hover(function() {
-							autocomplete_list.find(".current").removeClass("current");
-							$(this).addClass("current");
-						});
-						var a = $("<a>").attr("href", tag.url);
-						$("<div>").attr("class", "search_type").text(tag.type.replace(/_/g, " ")).appendTo(a);
-						$("<div>").attr("class", "search_name").text(tag.name).appendTo(a);
-						a.appendTo(li);
-						li.appendTo(autocomplete_list);
-					});
+					if (e.which == 13 || e.which == 188) { // Enter and comma
+						var current_autocomplete = autocomplete_list.find(".current");
+						if (current_autocomplete.length > 0) {
+							location.href = current_autocomplete.find("a").attr("href");
+							return false;
+						} else {
+							return true;
+						}
+						return false;
+					} else if (e.which == 38 || e.which == 40) { // Up and down
+						var current_autocomplete = autocomplete_list.find(".current");
+						if (current_autocomplete.length > 0) {
+							current_autocomplete.removeClass("current");
+							var new_current = e.which == 38 ? current_autocomplete.prev() : current_autocomplete.next();
+							new_current.addClass("current");
+						} else {
+							autocomplete_list.find(e.which == 38 ? "li:last-child" : "li:first-child").addClass("current");
+						}
+					}
+					autocomplete_timeout = setTimeout(load_autocomplete, 100);
+				}).focus(function(e) {
+					focussed = true;
+					autocomplete_list.css("display", "");
+					autocomplete_timeout = setTimeout(load_autocomplete, 100);
+				}).blur(function(e) {
+					focussed = false;
+					if (!focussed && !hovered) {
+						autocomplete_list.css("display", "none");
+						clearTimeout(autocomplete_timeout);
+					}
 				});
+				var search_div = search_input.parent()
 
-			}
+				var autocomplete_list = $("<ul>").addClass("autocomplete_list").mouseenter(function(e) {
+					hovered = true;
+				}).mouseleave(function(e) {
+					hovered = false;
+					if (!focussed && !hovered) {
+						search_input.focus();
+					}
+				}).insertAfter(search_div);
 
+				var autocomplete_timeout;
+				var last_autocomplete;
+				var focused = false;
+				var hovered = false;
+				var active_request = null;
+
+				function load_autocomplete() {
+
+					if (search_input.val() == last_autocomplete) { return; }
+					last_autocomplete = search_input.val();
+
+					if (search_input.val().length < 3) { autocomplete_list.empty(); return; }
+
+					if (active_request) { active_request.abort(); }
+					active_request = $.get(search_input[0].form.dataset.autocompletePath, {"name": search_input.val()}, function(data) {
+						autocomplete_list.empty();
+						data.forEach(function(tag) {
+							var li = $("<li>").hover(function() {
+								autocomplete_list.find(".current").removeClass("current");
+								$(this).addClass("current");
+							});
+							var a = $("<a>").attr("href", tag.url);
+							$("<div>").attr("class", "search_type").text(tag.type.replace(/_/g, " ")).appendTo(a);
+							$("<div>").attr("class", "search_name").text(tag.name).appendTo(a);
+							a.appendTo(li);
+							li.appendTo(autocomplete_list);
+						});
+					});
+
+				}
+
+			});
 		},
 		"directory_new": function() {
 			var add_tag_functions = [];
