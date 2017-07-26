@@ -1,3 +1,4 @@
+import time
 import transaction
 import uuid
 
@@ -184,4 +185,16 @@ def user_ban(request):
         Request.status == "posted",
     )).update({"status": "draft"})
     return HTTPFound(request.route_path("admin_user", username=request.matchdict["username"], _query={ "saved": "status" }))
+
+
+@view_config(route_name="admin_news", request_method="GET", permission="admin", renderer="layout2/admin/news.mako")
+def admin_news_get(request):
+    return {}
+
+
+@view_config(route_name="admin_news", request_method="POST", permission="admin", renderer="layout2/admin/news.mako")
+def admin_news_post(request):
+    request.login_store.set("news", request.POST.get("news", ""))
+    request.login_store.set("news_last_updated", time.mktime(datetime.now().timetuple()))
+    return HTTPFound(request.route_path("amin_news"))
 
