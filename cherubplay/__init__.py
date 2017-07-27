@@ -125,7 +125,7 @@ def request_show_news(request):
         return False
 
     try:
-        last_updated = datetime.datetime.fromtimestamp(int(request.login_store.get("news_last_updated")))
+        last_updated = datetime.datetime.fromtimestamp(float(request.login_store.get("news_last_updated")))
     except (TypeError, ValueError):
         return False
 

@@ -196,5 +196,5 @@ def admin_news_get(request):
 def admin_news_post(request):
     request.login_store.set("news", request.POST.get("news", ""))
     request.login_store.set("news_last_updated", time.mktime(datetime.now().timetuple()))
-    return HTTPFound(request.route_path("amin_news"))
+    return HTTPFound(request.route_path("admin_news"))
 
