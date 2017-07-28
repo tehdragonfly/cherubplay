@@ -194,7 +194,13 @@ def admin_news_get(request):
 
 @view_config(route_name="admin_news", request_method="POST", permission="admin", renderer="layout2/admin/news.mako")
 def admin_news_post(request):
-    request.login_store.set("news", request.POST.get("news", ""))
-    request.login_store.set("news_last_updated", time.mktime(datetime.now().timetuple()))
+    news = request.POST.get("news", "").strip()
+
+    if news:
+        request.login_store.set("news", news)
+        request.login_store.set("news_last_updated", time.mktime(datetime.now().timetuple()))
+    else:
+        request.login_store.delete("news", "news_last_updated")
+
     return HTTPFound(request.route_path("admin_news"))
 
