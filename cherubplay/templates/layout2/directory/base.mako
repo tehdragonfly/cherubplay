@@ -207,7 +207,11 @@ ${tag.name}\
   </div>
   <div class="side_column">
     <nav>
-      <h3>Search</h3>
+      % if request.matched_route.name == "directory_tag":
+        <h3>New search</h3>
+      % else:
+        <h3>Search</h3>
+      % endif
       <form class="directory_search_form" action="${request.route_path("directory_search")}" method="get" data-autocomplete-path="${request.route_path("directory_search_autocomplete")}">
         <div class="tag_input single">
           <input type="text" class="directory_search full" name="name" maxlength="100" placeholder="Look up a tag..." required>
