@@ -581,7 +581,7 @@ def directory_yours(request):
     return {"requests": requests[:25], "more": len(requests) == 26}
 
 
-@view_config(route_name="directory_random", request_method="GET", permission="directory.read")
+@view_config(route_name="directory_random", request_method="GET", permission="directory.read", renderer="layout2/directory/lucky_dip_failed.mako")
 def directory_random(request):
     request_query = (
         Session.query(Request.id)
@@ -591,7 +591,9 @@ def directory_random(request):
         ))
         .order_by(func.random()).first()
     )
-    return HTTPFound(request.route_path("directory_request", id=request_query[0]))
+    if request_query:
+        return HTTPFound(request.route_path("directory_request", id=request_query[0]))
+    return {}
 
 
 def _remove_duplicates(new_request):
