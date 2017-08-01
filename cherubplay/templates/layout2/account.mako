@@ -12,8 +12,6 @@
     <p id="confirmation">Your e-mail address has been changed.</p>
 % elif request.GET.get("saved") == "password":
     <p id="confirmation">Your password has been changed.</p>
-% else:
-    <p id="confirmation"></p>
 % endif
     <form class="tile2" action="${request.route_path("account_email_address")}" method="post">
       <h3>E-mail address</h3>
@@ -35,6 +33,7 @@
     </form>
     <section class="tile2">
       <h3>Chat options</h3>
+      <p id="option_confirmation"></p>
       <p><label><input type="checkbox" id="sound_notifications"> Enable sound notifications</label></p>
       <p><label><input type="checkbox" id="enter_to_send"> Press enter to send</label></p>
       <p><label><input type="checkbox" id="cross_chat_notifications"> Get notifications from other chats (desktop only)</label></p>

@@ -789,11 +789,10 @@ var cherubplay = (function() {
 			var sound_notifications = $("#sound_notifications").click(function() {
 				localStorage.setItem("sound_notifications", this.checked);
 				if (this.checked) {
-					$("#confirmation").text("Sound notifications are now enabled.");
+					$("#option_confirmation").text("Sound notifications are now enabled.");
 				} else {
-					$("#confirmation").text("Sound notifications are now disabled.");
+					$("#option_confirmation").text("Sound notifications are now disabled.");
 				}
-				window.scroll(0, 0);
 			});
 			if (localStorage.getItem("sound_notifications") == "true") {
 				sound_notifications.attr("checked", "checked");
@@ -801,11 +800,10 @@ var cherubplay = (function() {
 			var enter_to_send = $("#enter_to_send").click(function() {
 				localStorage.setItem("enter_to_send", this.checked);
 				if (this.checked) {
-					$("#confirmation").text("Pressing enter to send is now enabled.");
+					$("#option_confirmation").text("Pressing enter to send is now enabled.");
 				} else {
-					$("#confirmation").text("Pressing enter to send is now disabled.");
+					$("#option_confirmation").text("Pressing enter to send is now disabled.");
 				}
-				window.scroll(0, 0);
 			});
 			if (localStorage.getItem("enter_to_send") == "true") {
 				enter_to_send.attr("checked", "checked");
@@ -813,11 +811,10 @@ var cherubplay = (function() {
 			var cross_chat_notifications = $("#cross_chat_notifications").click(function() {
 				localStorage.setItem("cross_chat_notifications", this.checked);
 				if (this.checked) {
-					$("#confirmation").text("Notifications from other chats are now enabled.");
+					$("#option_confirmation").text("Notifications from other chats are now enabled.");
 				} else {
-					$("#confirmation").text("Notifications from other chats are now disabled.");
+					$("#option_confirmation").text("Notifications from other chats are now disabled.");
 				}
-				window.scroll(0, 0);
 			});
 			if (localStorage.getItem("cross_chat_notifications") == "true") {
 				cross_chat_notifications.attr("checked", "checked");
