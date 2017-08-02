@@ -38,6 +38,7 @@
   </form>
   <section class="tile">
     <h3>Chat options</h3>
+    <p id="option_confirmation"></p>
     <p><label><input type="checkbox" id="sound_notifications"> Enable sound notifications</label></p>
     <p><label><input type="checkbox" id="enter_to_send"> Press enter to send</label></p>
   </section>
