@@ -121,13 +121,13 @@ var cherubplay = (function() {
 					}));
 					body.addClass("answer_mode");
 					localStorage.setItem("last_mode", "answer_mode");
-				} else if (ws.readyState==1 && new_mode=="prompt_mode") {
+				} else if (ws.readyState == 1 && new_mode == "prompt_mode") {
 					ws.send('{"action":"idle"}');
 					body.addClass("prompt_mode");
 					localStorage.setItem("last_mode", "prompt_mode");
-				} else if (ws.readyState==1 && new_mode=="wait_mode") {
+				} else if (ws.readyState == 1 && new_mode == "wait_mode") {
 					body.addClass("wait_mode");
-				} else if (ws.readyState==3) {
+				} else if (ws.readyState == 3) {
 					body.addClass("connection_error");
 				}
 			}
@@ -142,7 +142,7 @@ var cherubplay = (function() {
 			}
 
 			function load_checkboxes(index, checkbox) {
-				var checked = localStorage.getItem("answer_"+checkbox.name);
+				var checked = localStorage.getItem("answer_" + checkbox.name);
 				// Check Homestuck and SFW by default.
 				// Should we do this as a dict?
 				if (!checked && (["homestuck", "starter", "no-starter", "sfw"].indexOf(checkbox.name) != -1)) {
@@ -153,13 +153,13 @@ var cherubplay = (function() {
 			}
 
 			var answer_categories = $("#answer_categories input").change(change_answer_mode).each(load_checkboxes);
-			var answer_starters = $("#answer_starters input").change(change_answer_mode).each(load_checkboxes);
-			var answer_levels = $("#answer_levels input").change(change_answer_mode).each(load_checkboxes);
+			var answer_starters   = $("#answer_starters input"  ).change(change_answer_mode).each(load_checkboxes);
+			var answer_levels     = $("#answer_levels input"    ).change(change_answer_mode).each(load_checkboxes);
 
 			function answer_string(checkboxes) {
 				var array = []
 				checkboxes.each(function(index, checkbox) {
-					localStorage.setItem("answer_"+checkbox.name, checkbox.checked);
+					localStorage.setItem("answer_" + checkbox.name, checkbox.checked);
 					if (checkbox.checked) {
 						array.push(checkbox.name);
 					}
@@ -170,7 +170,7 @@ var cherubplay = (function() {
 			var filter_toggle = $("#filter_toggle");
 
 			var filter_sites = $("#filter_sites input").each(function(index, checkbox) {
-				checkbox.checked = localStorage.getItem("filter_"+checkbox.name) == "true";
+				checkbox.checked = localStorage.getItem("filter_" + checkbox.name) == "true";
 			});
 
 			var filter_custom = $("#filter_custom");
@@ -199,7 +199,7 @@ var cherubplay = (function() {
 
 			var filter_form = $("#categories form").submit(function() {
 				filter_sites.each(function(index, checkbox) {
-					localStorage.setItem("filter_"+checkbox.name, checkbox.checked);
+					localStorage.setItem("filter_" + checkbox.name, checkbox.checked);
 				});
 				localStorage.setItem("filter_custom", filter_custom.val());
 				filter_phrases = make_filter_phrases();
@@ -212,7 +212,7 @@ var cherubplay = (function() {
 
 			function check_filter_phrases(prompt) {
 				var prompt_text = prompt.prompt.toLowerCase();
-				for (var i=0; i<filter_phrases.length; i++) {
+				for (var i = 0; i < filter_phrases.length; i++) {
 					if (prompt_text.indexOf(filter_phrases[i]) != -1) {
 						return false;
 					}
@@ -228,7 +228,7 @@ var cherubplay = (function() {
 				if (filter_phrases.length == 0 || check_filter_phrases(prompt)) {
 					prompt_data[prompt.id] = prompt;
 					var li = $("<li>").attr("id", prompt.id).addClass(tile_class).click(show_overlay);
-					$("<p>").css("color", "#"+prompt.colour).text(prompt.prompt).appendTo(li);
+					$("<p>").css("color", "#" + prompt.colour).text(prompt.prompt).appendTo(li);
 					$("<div>").addClass("fade").appendTo(li);
 					li.appendTo(prompt_list);
 				}
@@ -306,20 +306,20 @@ var cherubplay = (function() {
 					return;
 				}
 				ws.send(JSON.stringify({
-					"action": "report",
-					"id": overlay_prompt_id,
-					"reason": reason,
+					"action":   "report",
+					"id":       overlay_prompt_id,
+					"reason":   reason,
 					"category": report_category.val(),
-					"starter": report_starter.val(),
-					"level": report_level.val(),
+					"starter":  report_starter.val(),
+					"level":    report_level.val(),
 				}));
 				hide_report_overlay();
 				hide_overlay();
 				alert("Thanks for the report!");
 			});
 			var report_category = $("#report_category");
-			var report_starter = $("#report_starter");
-			var report_level = $("#report_level");
+			var report_starter  = $("#report_starter");
+			var report_level    = $("#report_level");
 
 			// Prompt mode
 
@@ -338,12 +338,12 @@ var cherubplay = (function() {
 							localStorage.setItem("prompt_id", prompt_id.val());
 							prompt_title.text(data.title);
 							ws.send(JSON.stringify({
-								"action": "prompt",
-								"colour": data.colour,
-								"prompt": data.text,
+								"action":   "prompt",
+								"colour":   data.colour,
+								"prompt":   data.text,
 								"category": data.category,
-								"starter": data.starter,
-								"level": data.level,
+								"starter":  data.starter,
+								"level":    data.level,
 							}));
 						},
 						error: function() {
@@ -363,7 +363,7 @@ var cherubplay = (function() {
 					return false;
 				}
 				prompt_text.val(prompt_text.val().trim());
-				if (prompt_text.val()=="") {
+				if (prompt_text.val() == "") {
 					alert("You can't submit a blank prompt.");
 					return false;
 				}
@@ -404,11 +404,11 @@ var cherubplay = (function() {
 				key_counter++;
 				if (key_counter == 10) {
 					key_counter = 0;
-					localStorage.setItem("prompt_colour", prompt_colour.val());
-					localStorage.setItem("prompt_text", prompt_text.val());
+					localStorage.setItem("prompt_colour",   prompt_colour.val());
+					localStorage.setItem("prompt_text",     prompt_text.val());
 					localStorage.setItem("prompt_category", prompt_category.val());
-					localStorage.setItem("prompt_starter", prompt_starter.val());
-					localStorage.setItem("prompt_level", prompt_level.val());
+					localStorage.setItem("prompt_starter",  prompt_starter.val());
+					localStorage.setItem("prompt_level",    prompt_level.val());
 				}
 			});
 			var prompt_category = $("#prompt_category");
@@ -416,12 +416,12 @@ var cherubplay = (function() {
 			var prompt_level = $("#prompt_level");
 
 			var saved_new_or_saved_prompt = localStorage.getItem("new_or_saved_prompt");
-			var saved_prompt_id = localStorage.getItem("prompt_id");
-			var saved_prompt_colour = localStorage.getItem("prompt_colour");
-			var saved_prompt_text = localStorage.getItem("prompt_text");
+			var saved_prompt_id       = localStorage.getItem("prompt_id");
+			var saved_prompt_colour   = localStorage.getItem("prompt_colour");
+			var saved_prompt_text     = localStorage.getItem("prompt_text");
 			var saved_prompt_category = localStorage.getItem("prompt_category");
-			var saved_prompt_starter = localStorage.getItem("prompt_starter");
-			var saved_prompt_level = localStorage.getItem("prompt_level");
+			var saved_prompt_starter  = localStorage.getItem("prompt_starter");
+			var saved_prompt_level    = localStorage.getItem("prompt_level");
 			if (prompt_id.length > 0) {
 				if (saved_new_or_saved_prompt) {
 					$("#" + saved_new_or_saved_prompt).prop("checked", "checked").change();
@@ -461,9 +461,9 @@ var cherubplay = (function() {
 
 			ws.onopen = function(e) {
 				window.setTimeout(ping, 8000);
-				var last_mode = localStorage.getItem("last_mode");
+				var last_mode  = localStorage.getItem("last_mode");
 				var autoprompt = localStorage.getItem("autoprompt");
-				if (last_mode=="prompt_mode" && autoprompt && saved_prompt_colour && saved_prompt_text && saved_prompt_category && saved_prompt_starter && saved_prompt_level) {
+				if (last_mode == "prompt_mode" && autoprompt && saved_prompt_colour && saved_prompt_text && saved_prompt_category && saved_prompt_starter && saved_prompt_level) {
 					prompt_form.submit();
 				} else if (last_mode) {
 					change_mode(last_mode);
@@ -475,30 +475,30 @@ var cherubplay = (function() {
 
 			ws.onmessage = function(e) {
 				message = JSON.parse(e.data);
-				if (message.action=="prompts") {
+				if (message.action == "prompts") {
 					$(prompt_list).empty();
 					prompt_data = {};
-					for (var i=0; i<message.prompts.length; i++) {
+					for (var i = 0; i < message.prompts.length; i++) {
 						render_prompt(message.prompts[i]);
 					}
-				} else if (message.action=="new_prompt") {
+				} else if (message.action == "new_prompt") {
 					render_prompt(message);
-				} else if (message.action=="remove_prompt") {
+				} else if (message.action == "remove_prompt") {
 					delete prompt_data[message.id];
-					if (message.id==overlay_prompt_id) {
+					if (message.id == overlay_prompt_id) {
 						hide_overlay();
 						alert("Sorry, either this prompt has been taken or the prompter has disconnected :(");
 					}
-					$("#"+message.id).remove();
-				} else if (message.action=="answer_error") {
+					$("#" + message.id).remove();
+				} else if (message.action == "answer_error") {
 					alert(message.error);
 					change_mode("answer_mode");
-				} else if (message.action=="prompt_error") {
+				} else if (message.action == "prompt_error") {
 					change_mode("prompt_mode");
 					alert(message.error);
-				} else if (message.action=="chat") {
+				} else if (message.action == "chat") {
 					change_mode();
-					window.location.href="/chats/"+message.url+"/";
+					window.location.href = "/chats/" + message.url + "/";
 				}
 			}
 
