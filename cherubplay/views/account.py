@@ -281,6 +281,14 @@ def account_push_unsubscribe(request):
     return HTTPNoContent()
 
 
+@view_config(route_name="account_away_message", request_method="POST", permission="view")
+def account_away_message(request):
+    Session.query(User).filter(User.id == request.user.id).update({
+        "away_message": request.POST.get("away_message", "").strip()[:255] or None,
+    })
+    return HTTPFound(request.route_path("account"))
+
+
 @view_config(route_name="account_read_news", request_method="POST", permission="view")
 def account_read_news(request):
     Session.query(User).filter(User.id == request.user.id).update({
