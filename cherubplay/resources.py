@@ -92,6 +92,14 @@ class ChatContext(object):
         ]
 
     @reify
+    def away_chat_users(self):
+        return [
+            _ for _ in self.chat_users.values()
+            if _.status == ChatUserStatus.active
+            and _.user.away_message
+        ]
+
+    @reify
     def first_message(self):
         return (
             Session.query(Message)

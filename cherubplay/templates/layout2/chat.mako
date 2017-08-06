@@ -11,6 +11,11 @@
       % for banned_chat_user in request.context.banned_chat_users:
         <li class="message_system">${banned_chat_user.handle} has been ${"temporarily" if banned_chat_user.user.unban_date else "permanently"} banned from Cherubplay.</li>
       % endfor
+      % for away_chat_user in request.context.away_chat_users:
+        <li class="message_system"><p>${away_chat_user.handle} has marked their account as away. They left this message:
+
+${away_chat_user.user.away_message}</p></li>
+      % endfor
     </ul>
     <div id="status_bar" class="tile2 pager">&nbsp;</div>
     <section id="message_form_container" class="tile2">
