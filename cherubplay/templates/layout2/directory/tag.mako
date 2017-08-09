@@ -73,12 +73,14 @@
     % if len(request.context.tags) > 1:
       <section class="tile2">
         <h3>Tags</h3>
-        <ul>
+        <ul class="tag_list">
           % for tag in request.context.tags:
             <li>
-              ${tag.type.ui_value}:${tag.name}
-              (<a href="${request.route_path("directory_tag", tag_string=",".join(_.tag_string for _ in request.context.tags if _ != tag))}">x</a>)
               <div class="actions">
+                <div class="left">
+                  ${tag.type.ui_value}:${tag.name}
+                  (<a href="${request.route_path("directory_tag", tag_string=",".join(_.tag_string for _ in request.context.tags if _ != tag))}">x</a>)
+                </div>
                 <div class="right">
                   <form action="${request.route_path("directory_blacklist_add")}" method="post">
                     <input type="hidden" name="tag_type" value="${tag.type.value}">
