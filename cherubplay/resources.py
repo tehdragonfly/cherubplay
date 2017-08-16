@@ -1,3 +1,5 @@
+import transaction
+
 from collections import OrderedDict
 from pyramid.decorator import reify
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
@@ -13,6 +15,7 @@ from cherubplay.models import (
     Request, RequestTag, Resource, Tag, User,
 )
 from cherubplay.models.enums import ChatUserStatus, TagType
+from cherubplay.tasks import update_missing_request_tag_ids
 
 
 class ChatContext(object):
@@ -202,6 +205,38 @@ class TagPair(object):
             Tag.get_or_create(tag_type, tag_name)
             for tag_type in request_tag_type.pair
         ]
+
+    def set_bump_maturity(self, value: bool):
+        for tag in self.tags:
+            tag.bump_maturity = value
+
+            if value:
+                Session.query(RequestTag).filter(and_(
+                    RequestTag.request_id.in_(
+                        Session.query(RequestTag.request_id)
+                        .filter(RequestTag.tag_id == tag.id)
+                    ),
+                    RequestTag.tag_id.in_(
+                        Session.query(Tag.id).filter(and_(
+                            Tag.type == TagType.maturity,
+                            Tag.name.in_(("Safe for work", "Not safe for work")),
+                        ))
+                    ),
+                )).update({"tag_id": Session.query(Tag.id).filter(and_(
+                    Tag.type == TagType.maturity,
+                    Tag.name == "NSFW extreme",
+                )).as_scalar()}, synchronize_session=False)
+
+                Session.query(Request).filter(and_(
+                    Request.id.in_(
+                        Session.query(RequestTag.request_id)
+                        .filter(RequestTag.tag_id == tag.id)
+                    ),
+                )).update({"tag_ids": None}, synchronize_session=False)
+
+        # Commit manually to make sure the task happens after.
+        transaction.commit()
+        update_missing_request_tag_ids.delay()
 
 
 def request_factory(request):

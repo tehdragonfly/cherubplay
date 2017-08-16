@@ -516,37 +516,7 @@ def directory_tag_add_parent(context, request):
 
 @view_config(route_name="directory_tag_bump_maturity", request_method="POST", permission="directory.manage_tags")
 def directory_tag_bump_maturity(context, request):
-    for tag in context.tags:
-        tag.bump_maturity = request.POST.get("bump_maturity") == "on"
-
-        if request.POST.get("bump_maturity") == "on":
-            Session.query(RequestTag).filter(and_(
-                RequestTag.request_id.in_(
-                    Session.query(RequestTag.request_id)
-                    .filter(RequestTag.tag_id == tag.id)
-                ),
-                RequestTag.tag_id.in_(
-                    Session.query(Tag.id).filter(and_(
-                        Tag.type == TagType.maturity,
-                        Tag.name.in_(("Safe for work", "Not safe for work")),
-                    ))
-                ),
-            )).update({"tag_id": Session.query(Tag.id).filter(and_(
-                Tag.type == TagType.maturity,
-                Tag.name == "NSFW extreme",
-            )).as_scalar()}, synchronize_session=False)
-
-            Session.query(Request).filter(and_(
-                Request.id.in_(
-                    Session.query(RequestTag.request_id)
-                    .filter(RequestTag.tag_id == tag.id)
-                ),
-            )).update({"tag_ids": None}, synchronize_session=False)
-
-    # Commit manually to make sure the task happens after.
-    transaction.commit()
-    update_missing_request_tag_ids.delay()
-
+    context.set_bump_maturity(request.POST.get("bump_maturity") == "on")
     return HTTPFound(request.route_path("directory_tag", tag_string=request.matchdict["type"] + ":" + request.matchdict["name"]))
 
 
