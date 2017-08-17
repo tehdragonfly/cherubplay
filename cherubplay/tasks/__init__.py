@@ -17,12 +17,16 @@ from cherubplay.models import PushSubscription, Request, RequestTag, User
 log = getLogger(__name__)
 
 
-engine = engine_from_config(app.conf["PYRAMID_REGISTRY"].settings, "sqlalchemy.")
-sm = sessionmaker(bind=engine, autoflush=False)
+engine = None
+sm = None
 
 
 @contextmanager
 def db_session():
+    global engine, sm
+    if not engine:
+        engine = engine_from_config(app.conf["PYRAMID_REGISTRY"].settings, "sqlalchemy.")
+        sm = sessionmaker(bind=engine, autoflush=False)
     db = sm()
     try:
         yield db
