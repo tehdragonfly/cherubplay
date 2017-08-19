@@ -9,15 +9,8 @@ from sqlalchemy import and_, func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
-from ..lib import prompt_categories, prompt_starters, prompt_levels
-from ..models import (
-    Session,
-    Chat,
-    ChatUser,
-    PromptReport,
-    Request,
-    User,
-)
+from cherubplay.lib import prompt_categories, prompt_starters, prompt_levels
+from cherubplay.models import Session, Chat, ChatUser, PromptReport, Request, User
 
 
 status_filters = {
@@ -114,38 +107,26 @@ def report_post(context, request):
     return _report_form(context, request)
 
 
-def _get_user(request):
-    try:
-        return Session.query(User).filter(User.username==request.matchdict["username"]).one()
-    except (ValueError, NoResultFound):
-        raise HTTPNotFound
-
-
 @view_config(route_name="admin_user", renderer="layout2/admin/user.mako", request_method="GET", permission="admin")
-def user(request):
-    user = _get_user(request)
-    return {
-        "user": user,
-    }
+def user(context, request):
+    return {}
 
 
 @view_config(route_name="admin_user_status", request_method="POST", permission="admin")
-def user_status(request):
-    user = _get_user(request)
-    if user.status != "banned" and request.POST["status"] == "banned":
-        user.unban_date = None
+def user_status(context, request):
+    if context.status != "banned" and request.POST["status"] == "banned":
+        context.unban_date = None
         Session.query(Request).filter(and_(
-            Request.user_id == user.id,
+            Request.user_id == context.id,
             Request.status == "posted",
         )).update({"status": "draft"})
-    user.status = request.POST["status"]
-    return HTTPFound(request.route_path("admin_user", username=request.matchdict["username"], _query={ "saved": "status" }))
+    context.status = request.POST["status"]
+    return HTTPFound(request.route_path("admin_user", username=context.username, _query={"saved": "status"}))
 
 
 @view_config(route_name="admin_user_chat", request_method="POST", permission="admin")
-def user_chat(request):
-    user = _get_user(request)
-    if user.status == "banned" or user.id == request.user.id:
+def user_chat(context, request):
+    if context.status == "banned" or context.id == request.user.id:
         raise HTTPNotFound
     new_chat = Chat(url=str(uuid.uuid4()))
     Session.add(new_chat)
@@ -160,11 +141,11 @@ def user_chat(request):
         chat_id=new_chat.id,
         user_id=request.user.id,
         symbol=0,
-        title="Chat with %s" % user.username,
+        title="Chat with %s" % context.username,
     ))
     Session.add(ChatUser(
         chat_id=new_chat.id,
-        user_id=user.id,
+        user_id=context.id,
         symbol=1,
         title="Admin chat"
     ))
@@ -172,19 +153,18 @@ def user_chat(request):
 
 
 @view_config(route_name="admin_user_ban", request_method="POST", permission="admin")
-def user_ban(request):
-    user = _get_user(request)
-    user.status = "banned"
+def user_ban(context, request):
+    context.status = "banned"
     try:
         days = int(request.POST["days"])
     except (KeyError, ValueError):
         days = 1
-    user.unban_date = datetime.now() + timedelta(days)
+    context.unban_date = datetime.now() + timedelta(days)
     Session.query(Request).filter(and_(
-        Request.user_id == user.id,
+        Request.user_id == context.id,
         Request.status == "posted",
     )).update({"status": "draft"})
-    return HTTPFound(request.route_path("admin_user", username=request.matchdict["username"], _query={ "saved": "status" }))
+    return HTTPFound(request.route_path("admin_user", username=context.username, _query={"saved": "status"}))
 
 
 @view_config(route_name="admin_news", request_method="GET", permission="admin", renderer="layout2/admin/news.mako")

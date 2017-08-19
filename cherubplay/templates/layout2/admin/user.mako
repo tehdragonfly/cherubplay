@@ -1,7 +1,7 @@
 <%inherit file="../base.mako" />\
-<%block name="title">#${user.id} ${user.username} - </%block>
+<%block name="title">#${request.context.id} ${request.context.username} - </%block>
 <%block name="body_class">layout2</%block>
-<h2>#${user.id} ${user.username}</h2>
+<h2>#${request.context.id} ${request.context.username}</h2>
 <main class="flex">
   <div class="side_column">
     <nav>
@@ -17,54 +17,54 @@
   <div class="side_column"></div>
   <div id="content">
 % if request.GET.get("saved") == "status":
-    <p>Status set to <strong>${user.status}</strong>.</p>
+    <p>Status set to <strong>${request.context.status}</strong>.</p>
 % endif
     <section class="tile2">
       <h3>Info</h3>
-      <p>Status: ${user.status.capitalize()}\
-% if user.status == "banned" and user.unban_date is not None:
- (expires ${request.user.localise_time(user.unban_date).strftime("%d %b %Y, %H:%M:%S")})
+      <p>Status: ${request.context.status.capitalize()}\
+% if request.context.status == "banned" and request.context.unban_date is not None:
+ (expires ${request.user.localise_time(request.context.unban_date).strftime("%d %b %Y, %H:%M:%S")})
 % endif
 </p>
-      <p>E-mail address: ${user.email}</p>
-      <p>Created: ${request.user.localise_time(user.created).strftime("%d %b %Y, %H:%M:%S")}\
-% if request.user.timezone != user.timezone:
- (${user.localise_time(user.created).strftime("%d %b %Y, %H:%M:%S")})\
+      <p>E-mail address: ${request.context.email}</p>
+      <p>Created: ${request.user.localise_time(request.context.created).strftime("%d %b %Y, %H:%M:%S")}\
+% if request.user.timezone != request.context.timezone:
+ (${request.context.localise_time(request.context.created).strftime("%d %b %Y, %H:%M:%S")})\
 % endif
 </p>
-      <p>Last online: ${request.user.localise_time(user.last_online).strftime("%d %b %Y, %H:%M:%S")}\
-% if request.user.timezone != user.timezone:
- (${user.localise_time(user.last_online).strftime("%d %b %Y, %H:%M:%S")})\
+      <p>Last online: ${request.user.localise_time(request.context.last_online).strftime("%d %b %Y, %H:%M:%S")}\
+% if request.user.timezone != request.context.timezone:
+ (${request.context.localise_time(request.context.last_online).strftime("%d %b %Y, %H:%M:%S")})\
 % endif
 </p>
-      <p>Time zone: ${user.timezone}</p>
-      <p>Last IP address: ${user.last_ip}</p>
-      <p>Layout version: ${user.layout_version}</p>
+      <p>Time zone: ${request.context.timezone}</p>
+      <p>Last IP address: ${request.context.last_ip}</p>
+      <p>Layout version: ${request.context.layout_version}</p>
     </section>
     <section class="tile2">
       <h3>Actions</h3>
       <form action="${request.route_path("admin_user_status", username=request.matchdict["username"])}" method="post">
         <p>Set status: <select name="status">
           <option value="active"\
-% if user.status == "active":
+% if request.context.status == "active":
  selected="selected"\
 % endif
 >Active</option>
           <option value="admin"\
-% if user.status == "admin":
+% if request.context.status == "admin":
  selected="selected"\
 % endif
 >Admin</option>
           <option value="banned"\
-% if user.status == "banned":
+% if request.context.status == "banned":
  selected="selected"\
 % endif
 >Banned</option>
         </select> <button type="submit">Save</button></p>
       </form>
-% if user.status != "banned" and user.id != request.user.id:
+% if request.context.status != "banned" and request.context.id != request.user.id:
       <form action="${request.route_path("admin_user_chat", username=request.matchdict["username"])}" method="post">
-        <p><button type="submit">Chat with ${user.username}</button></p>
+        <p><button type="submit">Chat with ${request.context.username}</button></p>
       </form>
       <form action="${request.route_path("admin_user_ban", username=request.matchdict["username"])}" method="post">
         <input type="hidden" name="days" value="1">

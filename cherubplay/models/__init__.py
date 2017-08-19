@@ -58,6 +58,7 @@ class Resource(object):
 
 
 class User(Base):
+    __parent__ = Resource
     __tablename__ = "users"
     id = Column(Integer, primary_key=True)
     username = Column(Unicode(100), nullable=False, unique=True)

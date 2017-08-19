@@ -256,3 +256,10 @@ def request_factory(request):
     except (ValueError, NoResultFound):
         raise HTTPNotFound
 
+
+def user_factory(request):
+    try:
+        return Session.query(User).filter(User.username == request.matchdict["username"]).one()
+    except (ValueError, NoResultFound):
+        raise HTTPNotFound
+

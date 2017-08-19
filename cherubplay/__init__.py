@@ -17,7 +17,10 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from cherubplay.models import Session, Base, Chat, ChatUser, Resource, User
 from cherubplay.models.enums import ChatUserStatus
-from cherubplay.resources import ChatContext, prompt_factory, report_factory, TagList, TagPair, request_factory
+from cherubplay.resources import (
+    ChatContext, prompt_factory, report_factory, TagList, TagPair,
+    request_factory, user_factory,
+)
 
 
 JSONRenderer = JSON()
@@ -269,15 +272,15 @@ def main(global_config, **settings):
     config.add_route("account_away_message",     "/account/away_message/")
     config.add_route("account_read_news",        "/account/read_news/")
 
-    config.add_route("admin_report_list", "/admin/reports/")
-    config.add_route("admin_report_list_closed", "/admin/reports/closed/")
+    config.add_route("admin_report_list",         "/admin/reports/")
+    config.add_route("admin_report_list_closed",  "/admin/reports/closed/")
     config.add_route("admin_report_list_invalid", "/admin/reports/invalid/")
-    config.add_ext_route("admin_report", "/admin/reports/{id}/", factory=report_factory)
-    config.add_route("admin_user", "/admin/user/{username}/")
-    config.add_route("admin_user_status", "/admin/user/{username}/status/")
-    config.add_route("admin_user_chat", "/admin/user/{username}/chat/")
-    config.add_route("admin_user_ban", "/admin/user/{username}/ban/")
-    config.add_route("admin_news", "/admin/news/")
+    config.add_ext_route("admin_report",          "/admin/reports/{id}/", factory=report_factory)
+    config.add_route("admin_user",                "/admin/user/{username}/",        factory=user_factory)
+    config.add_route("admin_user_status",         "/admin/user/{username}/status/", factory=user_factory)
+    config.add_route("admin_user_chat",           "/admin/user/{username}/chat/",   factory=user_factory)
+    config.add_route("admin_user_ban",            "/admin/user/{username}/ban/",    factory=user_factory)
+    config.add_route("admin_news",                "/admin/news/")
 
     config.scan()
     return config.make_wsgi_app()
