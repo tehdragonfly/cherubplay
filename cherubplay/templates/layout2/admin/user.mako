@@ -75,6 +75,9 @@
         <p><button type="submit">Ban for 7 days</button></p>
       </form>
 % endif
+      <form action="${request.route_path("admin_user_reset_password", username=request.matchdict["username"])}" method="post">
+        <p><button type="submit">Reset password</button></p>
+      </form>
     </section>
   </div>
 </main>
