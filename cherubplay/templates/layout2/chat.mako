@@ -5,12 +5,14 @@
       ${parent.render_message(prompt)}\
       <li class="message_system"><a href="${request.route_path("chat", url=request.matchdict["url"], _query={ "page": 1 })}">${message_count-26} more messages</a></li>
       % endif
-      % for message in messages:
+      % for message in messages:trailer
       ${parent.render_message(message, show_edit=True)}\
       % endfor
-      % for banned_chat_user in request.context.banned_chat_users:
-        <li class="message_system">${banned_chat_user.handle} has been ${"temporarily" if banned_chat_user.user.unban_date else "permanently"} banned from Cherubplay.</li>
-      % endfor
+      % if request.context.mode != "group":
+        % for banned_chat_user in request.context.banned_chat_users:
+          <li class="message_system">${banned_chat_user.handle} has been ${"temporarily" if banned_chat_user.user.unban_date else "permanently"} banned from Cherubplay.</li>
+        % endfor
+      % endif
       % for away_chat_user in request.context.away_chat_users:
         <li class="message_system"><p>${away_chat_user.handle} has marked their account as away. They left this message:
 

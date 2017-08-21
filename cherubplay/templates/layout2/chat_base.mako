@@ -73,6 +73,9 @@ ${own_chat_user.title or chat.url} -
             % for user_id, chat_user in request.context.chat_users.items():
               <li class="${chat_user.status.value if request.context.chat.status == "ongoing" else ""}" style="color: #${chat_user.last_colour}" data-handle="${chat_user.name}">
                 ${chat_user.name}
+                % if chat_user in request.context.banned_chat_users:
+                  (${"temporarily" if chat_user.user.unban_date else "permanently"} banned)
+                % endif
               </li>
             % endfor
           % endif
