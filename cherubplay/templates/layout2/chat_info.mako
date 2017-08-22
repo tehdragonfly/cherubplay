@@ -42,7 +42,12 @@
             <form action="${request.route_path("chat_remove_user", url=request.context.chat.url)}" method="post">
               <input type="hidden" name="name" value="${chat_user.name}">
               <div class="actions">
-                <div class="left">${chat_user.name}</div>
+                <div class="left">
+                  ${chat_user.name}
+                  % if chat_user in request.context.banned_chat_users:
+                    (${"temporarily" if chat_user.user.unban_date else "permanently"} banned)
+                  % endif
+                </div>
                 <div class="right"><button type="submit">Remove</button></div>
               </div>
             </form>

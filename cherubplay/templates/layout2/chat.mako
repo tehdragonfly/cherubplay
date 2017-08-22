@@ -5,7 +5,7 @@
       ${parent.render_message(prompt)}\
       <li class="message_system"><a href="${request.route_path("chat", url=request.matchdict["url"], _query={ "page": 1 })}">${message_count-26} more messages</a></li>
       % endif
-      % for message in messages:trailer
+      % for message in messages:
       ${parent.render_message(message, show_edit=True)}\
       % endfor
       % if request.context.mode != "group":
