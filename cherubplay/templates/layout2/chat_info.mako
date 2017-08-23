@@ -46,6 +46,10 @@
                   ${chat_user.name}
                   % if chat_user in request.context.banned_chat_users:
                     (${"temporarily" if chat_user.user.unban_date else "permanently"} banned)
+                  % elif chat_user.user.away_message:
+                    <p>${chat_user.handle} has marked their account as away. They left this message:
+
+${chat_user.user.away_message}</p>
                   % endif
                 </div>
                 <div class="right"><button type="submit">Remove</button></div>
