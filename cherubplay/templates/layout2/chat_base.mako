@@ -75,6 +75,8 @@ ${own_chat_user.title or chat.url} -
                 ${chat_user.name}
                 % if chat_user in request.context.banned_chat_users:
                   (${"temporarily" if chat_user.user.unban_date else "permanently"} banned)
+                % elif chat_user in request.context.away_chat_users:
+                  (away)
                 % endif
               </li>
             % endfor
