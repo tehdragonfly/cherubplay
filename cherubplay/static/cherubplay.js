@@ -973,7 +973,7 @@ var cherubplay = (function() {
 			var last_status_message = status_bar.text().trim() || "Connected.";
 
 			var message_form_container = $("#message_form_container").dblclick(function() {
-				if ($(this).hasClass("editing")) {
+				if ($(this).hasClass("editing") && !body.hasClass("layout2")) {
 					cancel_editing();
 				}
 			});
