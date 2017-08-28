@@ -194,17 +194,20 @@ class TagList(object):
 class TagPair(object):
     __parent__ = Resource
 
-    def __init__(self, request):
+    def __init__(self, tag_type: TagType, tag_name: str, allow_maturity_and_type_creation=False):
+        self.tags = [
+            Tag.get_or_create(pair_tag_type, tag_name, allow_maturity_and_type_creation)
+            for pair_tag_type in tag_type.pair
+        ]
+
+    @classmethod
+    def from_request(cls, request):
         try:
             request_tag_type = TagType(request.matchdict["type"])
         except ValueError:
             raise HTTPNotFound
         tag_name = Tag.name_from_url(request.matchdict["name"])
-
-        self.tags = [
-            Tag.get_or_create(tag_type, tag_name)
-            for tag_type in request_tag_type.pair
-        ]
+        return cls(request_tag_type, tag_name)
 
     def set_bump_maturity(self, value: bool):
         for tag in self.tags:
