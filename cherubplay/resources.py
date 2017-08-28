@@ -238,6 +238,75 @@ class TagPair(object):
         transaction.commit()
         update_missing_request_tag_ids.delay()
 
+    def make_synonym(self, new_type: TagType, new_name: str):
+        new_types = new_type.pair
+
+        # If one set of types is a pair and the other isn't, double them up.
+        if len(self.tags) < len(new_types):
+            self.tags = self.tags * 2
+        elif len(self.tags) > len(new_types):
+            new_types = new_types * 2
+
+        for old_tag, new_type in zip(self.tags, new_types):
+            # A tag can't be a synonym if it has synonyms.
+            if Session.query(func.count("*")).select_from(Tag).filter(Tag.synonym_id == old_tag.id).scalar():
+                raise ValueError("tag %s has synonyms" % old_tag)
+
+            new_tag = Tag.get_or_create(new_type, new_name)
+
+            if old_tag.id == new_tag.id:
+                raise ValueError("can't synonym tag %s to itself" % old_tag)
+
+            new_tag.approved = True
+            old_tag.synonym_id = new_tag.id
+
+            # Bump maturity if necessary.
+            if new_tag.bump_maturity and not old_tag.bump_maturity:
+                Session.query(RequestTag).filter(and_(
+                    RequestTag.request_id.in_(
+                        Session.query(RequestTag.request_id)
+                        .filter(RequestTag.tag_id == old_tag.id)
+                    ),
+                    RequestTag.tag_id.in_(
+                        Session.query(Tag.id).filter(and_(
+                            Tag.type == TagType.maturity,
+                            Tag.name.in_(("Safe for work", "Not safe for work")),
+                        ))
+                    ),
+                )).update({"tag_id": Session.query(Tag.id).filter(and_(
+                    Tag.type == TagType.maturity,
+                    Tag.name == "NSFW extreme",
+                )).as_scalar()}, synchronize_session=False)
+
+            # Delete the old tag from reqests which already have the new tag.
+            Session.query(RequestTag).filter(and_(
+                RequestTag.tag_id == old_tag.id,
+                RequestTag.request_id.in_(Session.query(RequestTag.request_id).filter(RequestTag.tag_id == new_tag.id)),
+            )).delete(synchronize_session=False)
+            # And update the rest.
+            Session.query(RequestTag).filter(RequestTag.tag_id == old_tag.id).update({"tag_id": new_tag.id})
+
+            # Null the tag_ids arrays.
+            Session.query(Request).filter(
+                Request.tag_ids.contains(cast([old_tag.id, new_tag.id], ARRAY(Integer)))
+            ).update({"tag_ids": None}, synchronize_session=False)
+            Session.query(Request).filter(
+                Request.tag_ids.contains(cast([old_tag.id], ARRAY(Integer)))
+            ).update({"tag_ids": None}, synchronize_session=False)
+
+            # Delete the old tag from blacklists which already have the new tag.
+            Session.query(BlacklistedTag).filter(and_(
+                BlacklistedTag.tag_id == old_tag.id,
+                BlacklistedTag.user_id.in_(
+                    Session.query(BlacklistedTag.user_id).filter(BlacklistedTag.tag_id == new_tag.id)),
+            )).delete(synchronize_session=False)
+            # And update the rest.
+            Session.query(BlacklistedTag).filter(BlacklistedTag.tag_id == old_tag.id).update({"tag_id": new_tag.id})
+
+        # Commit manually to make sure the task happens after.
+        transaction.commit()
+        update_missing_request_tag_ids.delay()
+
 
 def request_factory(request):
     if not request.user:
