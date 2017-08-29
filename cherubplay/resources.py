@@ -194,6 +194,12 @@ class TagList(object):
 class CircularReferenceException(Exception): pass
 
 
+def _trigger_update_missing_request_tag_ids(status):
+    if not status:
+        return
+    update_missing_request_tag_ids.delay()
+
+
 class TagPair(object):
     __parent__ = Resource
 
@@ -240,9 +246,7 @@ class TagPair(object):
                     ),
                 )).update({"tag_ids": None}, synchronize_session=False)
 
-        # Commit manually to make sure the task happens after.
-        transaction.commit()
-        update_missing_request_tag_ids.delay()
+        transaction.get().addAfterCommitHook(_trigger_update_missing_request_tag_ids)
 
     def make_synonym(self, new_type: TagType, new_name: str):
         new_types = new_type.pair
@@ -309,9 +313,7 @@ class TagPair(object):
             # And update the rest.
             Session.query(BlacklistedTag).filter(BlacklistedTag.tag_id == old_tag.id).update({"tag_id": new_tag.id})
 
-        # Commit manually to make sure the task happens after.
-        transaction.commit()
-        update_missing_request_tag_ids.delay()
+        transaction.get().addAfterCommitHook(_trigger_update_missing_request_tag_ids)
 
     def add_parent(self, parent_type: TagType, parent_name: str):
         parent_types = parent_type.pair
@@ -359,9 +361,7 @@ class TagPair(object):
                 )
             """ % child_tag.id)
 
-        # Commit manually to make sure the task happens after.
-        transaction.commit()
-        update_missing_request_tag_ids.delay()
+        transaction.get().addAfterCommitHook(_trigger_update_missing_request_tag_ids)
 
 
 def request_factory(request):

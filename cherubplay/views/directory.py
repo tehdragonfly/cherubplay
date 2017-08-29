@@ -147,6 +147,14 @@ def _request_tags_from_form(form, new_request):
     return tag_list
 
 
+def _trigger_update_request_tag_ids(request_id: int):
+    def hook(status):
+        if not status:
+            return
+        update_request_tag_ids.delay(request_id)
+    return hook
+
+
 @view_config(route_name="directory_ext", request_method="GET", permission="directory.read", extension="json", renderer="json")
 @view_config(route_name="directory",     request_method="GET", permission="directory.read", renderer="layout2/directory/index.mako")
 def directory(request):
@@ -520,9 +528,7 @@ def directory_new_post(request):
         for order, description in enumerate(slot_descriptions, 2):
             Session.add(RequestSlot(request=new_request, order=order, description=description))
 
-    # Commit manually to make sure the task happens after.
-    transaction.commit()
-    update_request_tag_ids.delay(new_request.id)
+    transaction.get().addAfterCommitHook(_trigger_update_request_tag_ids(new_request.id))
 
     return HTTPFound(request.route_path("directory_request", id=new_request.id))
 
@@ -881,9 +887,7 @@ def directory_request_edit_post(context, request):
 
     _remove_duplicates(context)
 
-    # Commit manually to make sure the task happens after.
-    transaction.commit()
-    update_request_tag_ids.delay(context.id)
+    transaction.get().addAfterCommitHook(_trigger_update_request_tag_ids(context.id))
 
     return HTTPFound(request.route_path("directory_request", id=context.id))
 
