@@ -12,7 +12,7 @@ from sqlalchemy.sql.expression import cast
 
 from cherubplay.models import (
     Session, BlacklistedTag, Chat, ChatUser, Message, Prompt, PromptReport,
-    Request, RequestTag, Resource, Tag, User,
+    Request, RequestTag, Resource, Tag, TagParent, User,
 )
 from cherubplay.models.enums import ChatUserStatus, TagType
 from cherubplay.tasks import update_missing_request_tag_ids
@@ -191,12 +191,15 @@ class TagList(object):
         return ",".join(tag.tag_string for tag in tag_list)
 
 
+class CircularReferenceException(Exception): pass
+
+
 class TagPair(object):
     __parent__ = Resource
 
-    def __init__(self, tag_type: TagType, tag_name: str, allow_maturity_and_type_creation=False):
+    def __init__(self, tag_type: TagType, tag_name: str, **kwargs):
         self.tags = [
-            Tag.get_or_create(pair_tag_type, tag_name, allow_maturity_and_type_creation)
+            Tag.get_or_create(pair_tag_type, tag_name, **kwargs)
             for pair_tag_type in tag_type.pair
         ]
 
@@ -305,6 +308,56 @@ class TagPair(object):
             )).delete(synchronize_session=False)
             # And update the rest.
             Session.query(BlacklistedTag).filter(BlacklistedTag.tag_id == old_tag.id).update({"tag_id": new_tag.id})
+
+        # Commit manually to make sure the task happens after.
+        transaction.commit()
+        update_missing_request_tag_ids.delay()
+
+    def add_parent(self, parent_type: TagType, parent_name: str):
+        parent_types = parent_type.pair
+
+        # If one set of types is a pair and the other isn't, double them up.
+        if len(self.tags) < len(parent_types):
+            self.tags = self.tags * 2
+        elif len(self.tags) > len(parent_types):
+            parent_types = parent_types * 2
+
+        for child_tag, parent_type in zip(self.tags, parent_types):
+            parent_tag = Tag.get_or_create(parent_type, parent_name)
+
+            if Session.query(func.count("*")).select_from(TagParent).filter(and_(
+                            TagParent.parent_id == parent_tag.id,
+                            TagParent.child_id == child_tag.id,
+            )).scalar():
+                # Relationship already exists.
+                return
+
+            # Check for circular references.
+            ancestors = Session.execute("""
+                with recursive tag_ids(id) as (
+                    select %s
+                    union all
+                    select parent_id from tag_parents, tag_ids where child_id=tag_ids.id
+                )
+                select id from tag_ids;
+            """ % parent_tag.id)
+            if child_tag.id in (_[0] for _ in ancestors):
+                raise CircularReferenceException
+
+            Session.add(TagParent(parent_id=parent_tag.id, child_id=child_tag.id))
+
+            # Null the tag_ids of requests in this tag and all its children.
+            Session.execute("""
+                with recursive tag_ids(id) as (
+                    select %s
+                    union all
+                    select child_id from tag_parents, tag_ids where parent_id=tag_ids.id
+                )
+                update requests set tag_ids = null
+                where requests.id in (
+                    select request_id from request_tags where tag_id in (select id from tag_ids)
+                )
+            """ % child_tag.id)
 
         # Commit manually to make sure the task happens after.
         transaction.commit()

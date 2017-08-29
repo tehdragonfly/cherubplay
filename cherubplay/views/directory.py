@@ -1,20 +1,18 @@
-import datetime, re, time, transaction
+import datetime, time, transaction
 
 from itertools import zip_longest
-from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPFound, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
 from pyramid.renderers import render_to_response
 from pyramid.view import view_config
-from sqlalchemy import and_, func, Integer, literal
-from sqlalchemy.dialects.postgres import array, ARRAY
+from sqlalchemy import and_, func, literal
 from sqlalchemy.orm import joinedload, subqueryload
-from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.expression import cast
 from uuid import uuid4
 
 from cherubplay.lib import colour_validator, preset_colours
 from cherubplay.models import Session, BlacklistedTag, Chat, ChatUser, CreateNotAllowed, Message, Request, RequestSlot, RequestTag, Tag, TagParent, User
 from cherubplay.models.enums import ChatUserStatus, TagType
-from cherubplay.tasks import update_request_tag_ids, update_missing_request_tag_ids
+from cherubplay.resources import CircularReferenceException
+from cherubplay.tasks import update_request_tag_ids
 
 
 def _find_answered(request, requests):
@@ -383,8 +381,12 @@ def directory_tag_make_synonym(context, request):
 
     try:
         context.make_synonym(new_type, new_name)
-    except ValueError:
-        raise HTTPNotFound
+    except CircularReferenceException:
+        return HTTPFound(request.route_path(
+            "directory_tag",
+            tag_string=request.matchdict["type"] + ":" + request.matchdict["name"],
+            _query={"error": "circular_reference"},
+        ))
 
     return HTTPFound(request.route_path("directory_tag", tag_string=request.matchdict["type"] + ":" + request.matchdict["name"]))
 
@@ -392,7 +394,7 @@ def directory_tag_make_synonym(context, request):
 @view_config(route_name="directory_tag_add_parent", request_method="POST", permission="directory.manage_tags")
 def directory_tag_add_parent(context, request):
     try:
-        parent_types = TagType(request.POST["tag_type"]).pair
+        parent_type = TagType(request.POST["tag_type"])
     except ValueError:
         raise HTTPBadRequest
 
@@ -400,56 +402,10 @@ def directory_tag_add_parent(context, request):
     if not parent_name:
         raise HTTPBadRequest
 
-    # If one set of types is a pair and the other isn't, double them up.
-    if len(context.tags) < len(parent_types):
-        context.tags = context.tags * 2
-    elif len(context.tags) > len(parent_types):
-        parent_types = parent_types * 2
-
-    for child_tag, parent_type in zip(context.tags, parent_types):
-        parent_tag = Tag.get_or_create(parent_type, parent_name)
-
-        if Session.query(func.count("*")).select_from(TagParent).filter(and_(
-            TagParent.parent_id == parent_tag.id,
-            TagParent.child_id == child_tag.id,
-        )).scalar():
-            # Relationship already exists.
-            return
-
-        # Check for circular references.
-        ancestors = Session.execute("""
-            with recursive tag_ids(id) as (
-                select %s
-                union all
-                select parent_id from tag_parents, tag_ids where child_id=tag_ids.id
-            )
-            select id from tag_ids;
-        """ % parent_tag.id)
-        if child_tag.id in (_[0] for _ in ancestors):
-            return HTTPFound(request.route_path(
-                "directory_tag",
-                tag_string=request.matchdict["type"] + ":" + request.matchdict["name"],
-                _query={"error": "circular_reference"},
-            ))
-
-        Session.add(TagParent(parent_id=parent_tag.id, child_id=child_tag.id))
-
-        # Null the tag_ids of requests in this tag and all its children.
-        Session.execute("""
-            with recursive tag_ids(id) as (
-                select %s
-                union all
-                select child_id from tag_parents, tag_ids where parent_id=tag_ids.id
-            )
-            update requests set tag_ids = null
-            where requests.id in (
-                select request_id from request_tags where tag_id in (select id from tag_ids)
-            )
-        """ % child_tag.id)
-
-    # Commit manually to make sure the task happens after.
-    transaction.commit()
-    update_missing_request_tag_ids.delay()
+    try:
+        context.add_parent(parent_type, parent_name)
+    except ValueError:
+        raise HTTPNotFound
 
     return HTTPFound(request.route_path("directory_tag", tag_string=request.matchdict["type"] + ":" + request.matchdict["name"]))
 
