@@ -263,17 +263,18 @@ def directory_tag_list(request):
     tag_query = Session.query(Tag)
     tag_count_query = Session.query(func.count("*")).select_from(Tag)
     if request.matched_route.name == "directory_tag_list_unapproved":
-        tag_query = tag_query.filter(and_(Tag.synonym_id == None, Tag.approved == False))
-        tag_count_query = tag_count_query.filter(and_(Tag.synonym_id == None, Tag.approved == False))
+        tag_query = tag_query.filter(and_(Tag.synonym_id is None, Tag.approved is False))
+        tag_count_query = tag_count_query.filter(and_(Tag.synonym_id is None, Tag.approved is False))
     elif request.matched_route.name == "directory_tag_list_blacklist_default":
-        tag_query = tag_query.filter(Tag.blacklist_default == True)
-        tag_count_query = tag_count_query.filter(Tag.blacklist_default == True)
+        tag_query = tag_query.filter(Tag.blacklist_default is True)
+        tag_count_query = tag_count_query.filter(Tag.blacklist_default is True)
 
     return {
         "tags": tag_query.options(joinedload(Tag.synonym_of)).order_by(Tag.type, Tag.name).limit(250).offset((current_page-1)*250).all(),
         "tag_count": tag_count_query.scalar(),
         "current_page": current_page,
     }
+
 
 @view_config(route_name="directory_tag_table", request_method="GET", permission="directory.manage_tags", renderer="layout2/directory/tag_table.mako")
 def directory_tag_table(request):
@@ -339,7 +340,7 @@ def directory_tag(context, request):
         )
         resp["tag_types"] = [_ for _ in all_tag_types if _.synonym_of not in all_tag_types]
 
-        if not "before" in request.GET:
+        if "before" not in request.GET:
             if request.has_permission("directory.manage_tags"):
                 if not tag.approved:
                     resp["can_be_approved"] = True
@@ -593,7 +594,7 @@ def directory_blacklist_setup(request):
     if request.POST["blacklist"] == "default":
         Session.execute(BlacklistedTag.__table__.insert().from_select(
             ["user_id", "tag_id"],
-            Session.query(literal(request.user.id), Tag.id).filter(Tag.blacklist_default == True)
+            Session.query(literal(request.user.id), Tag.id).filter(Tag.blacklist_default is True)
         ))
 
     Session.query(User).filter(User.id == request.user.id).update({"seen_blacklist_warning": True})
@@ -676,7 +677,6 @@ def directory_request(context, request):
     }
 
 
-
 def _get_current_slot(context, request):
     try:
         order = int(request.GET.get("slot"))
@@ -705,7 +705,7 @@ def directory_request_answer_get(context, request):
         raise HTTPNotFound
 
     try:
-        current_slot = _get_current_slot(context, request)
+        _get_current_slot(context, request)
     except ValidationError as e:
         response = render_to_response("layout2/directory/%s.mako" % e.message, {}, request)
         response.status_int = 403

@@ -1,8 +1,5 @@
-from __future__ import print_function
-
 import datetime
 import json
-import transaction
 
 from pyramid.httpexceptions import (
     HTTPBadRequest,
@@ -15,13 +12,13 @@ from pyramid.renderers import render_to_response
 from pyramid.view import view_config
 from redis.exceptions import ConnectionError
 from sqlalchemy import and_, func, Unicode
-from sqlalchemy.dialects.postgres import array, ARRAY
-from sqlalchemy.orm import contains_eager, joinedload
+from sqlalchemy.dialects.postgres import ARRAY
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 
 from cherubplay.lib import colour_validator, preset_colours, OnlineUserStore
-from cherubplay.models import Session, Chat, ChatUser, Message, User
+from cherubplay.models import Session, Chat, ChatUser, Message
 from cherubplay.models.enums import ChatUserStatus
 from cherubplay.tasks import trigger_push_notification
 
@@ -83,8 +80,8 @@ def chat_list(request):
             Chat.last_user_id != request.user.id,
         ))
     elif current_status is not None:
-        chats = chats.filter(Chat.status==current_status)
-        chat_count = chat_count.join(Chat).filter(Chat.status==current_status)
+        chats = chats.filter(Chat.status == current_status)
+        chat_count = chat_count.join(Chat).filter(Chat.status == current_status)
 
     if current_label is not None:
         label_array = cast([current_label], ARRAY(Unicode(500)))
@@ -94,7 +91,7 @@ def chat_list(request):
     chats = chats.options(joinedload(Chat.request)).order_by(Chat.updated.desc()).limit(25).offset((current_page-1)*25).all()
 
     # 404 on empty pages, unless it's the first page.
-    if current_page!=1 and len(chats)==0:
+    if current_page != 1 and len(chats) == 0:
         raise HTTPNotFound
 
     chat_count = chat_count.scalar()
@@ -166,7 +163,7 @@ def chat_notification(request):
 def chat(context, request):
     # If we can continue the chat and there isn't a page number, show the
     # full chat window.
-    if ("page" not in request.GET and context.is_continuable):
+    if "page" not in request.GET and context.is_continuable:
 
         context.chat_user.visited = datetime.datetime.now()
 
@@ -354,7 +351,7 @@ def _validate_message_form(request, editing=False):
         or trimmed_message_text.startswith("{{")
         or trimmed_message_text.endswith("}}")
     ):
-        message_type="ooc"
+        message_type = "ooc"
 
     return colour, trimmed_message_text, message_type
 
