@@ -551,11 +551,11 @@ var cherubplay = (function() {
 							autocomplete_list.find(e.which == 38 ? "li:last-child" : "li:first-child").addClass("current");
 						}
 					}
-					autocomplete_timeout = setTimeout(load_autocomplete, 100);
+					autocomplete_timeout = setTimeout(load_autocomplete, 250);
 				}).focus(function(e) {
 					focussed = true;
 					autocomplete_list.css("display", "");
-					autocomplete_timeout = setTimeout(load_autocomplete, 100);
+					autocomplete_timeout = setTimeout(load_autocomplete, 250);
 				}).blur(function(e) {
 					focussed = false;
 					if (!focussed && !hovered) {
@@ -636,10 +636,10 @@ var cherubplay = (function() {
 						}
 					}
 					clearTimeout(autocomplete_timeout);
-					autocomplete_timeout = setTimeout(load_autocomplete, 100);
+					autocomplete_timeout = setTimeout(load_autocomplete, 250);
 				}).focus(function(e) {
 					autocomplete_list.css("display", "");
-					autocomplete_timeout = setTimeout(load_autocomplete, 100);
+					autocomplete_timeout = setTimeout(load_autocomplete, 250);
 				}).blur(function(e) {
 					autocomplete_list.css("display", "none");
 					autocomplete_list.find(".current").removeClass("current");
