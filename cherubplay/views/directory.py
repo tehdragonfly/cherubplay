@@ -6,6 +6,7 @@ from pyramid.renderers import render_to_response
 from pyramid.view import view_config
 from sqlalchemy import and_, func, literal
 from sqlalchemy.orm import joinedload, subqueryload
+from sqlalchemy.orm.exc import NoResultFound
 from uuid import uuid4
 
 from cherubplay.lib import colour_validator, preset_colours
@@ -286,6 +287,44 @@ def directory_tag_table(request):
             rows.append({})
         rows[-1][tag.type] = tag
     return {"rows": rows}
+
+
+@view_config(route_name="directory_user_ext", request_method="GET", permission="admin", extension="json", renderer="json")
+@view_config(route_name="directory_user",     request_method="GET", permission="admin", renderer="layout2/directory/index.mako")
+def directory_user(request):
+
+    try:
+        user = Session.query(User).filter(func.lower(User.username) == request.matchdict["username"].lower()).one()
+    except NoResultFound:
+        raise HTTPNotFound
+
+    if user.username != request.matchdict["username"]:
+        raise HTTPFound(request.current_route_path(username=user.username))
+
+    if request.GET.get("before"):
+        try:
+            before_date = datetime.datetime.strptime(request.GET["before"], "%Y-%m-%dT%H:%M:%S.%f")
+        except ValueError:
+            raise HTTPNotFound
+    else:
+        before_date = None
+
+    requests = Session.query(Request).filter(Request.user_id == user.id)
+    if before_date:
+        requests = requests.filter(Request.posted < before_date)
+    requests = (
+        requests.options(joinedload(Request.tags), subqueryload(Request.slots))
+        .order_by(Request.posted.desc())
+        .limit(26).all()
+    )
+
+    # 404 on empty pages, unless it's the first page.
+    if not requests and "before" in request.GET:
+        raise HTTPNotFound
+
+    answered = _find_answered(request, requests)
+
+    return {"requests": requests[:25], "answered": answered, "more": len(requests) == 26}
 
 
 @view_config(route_name="directory_tag",     request_method="GET", permission="directory.read", renderer="layout2/directory/tag.mako")

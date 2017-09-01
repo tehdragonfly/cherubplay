@@ -14,7 +14,13 @@ ${tag.name}\
         <div class="status">${rq.status.capitalize()}</div>
         % endif
         % if request.has_permission("admin"):
-        <p>User: <a href="${request.route_path("admin_user", username=rq.user.username)}">${rq.user.username}</a></p>
+          <p>\
+          % if request.matched_route.name == "directory_user":
+            User: ${rq.user.username}
+          % else:
+            User: <a href="${request.route_path("directory_user", username=rq.user.username)}">${rq.user.username}</a>
+          % endif
+          </p>
         % endif
         <% tags_by_type = rq.tags_by_type() %>
         <ul class="request_tags">

@@ -232,6 +232,8 @@ def main(global_config, **settings):
     config.add_route("directory_tag_list_blacklist_default", "/directory/tags/blacklist_default/")
     config.add_route("directory_tag_table", "/directory/tags/table/")
 
+    config.add_ext_route("directory_user", "/directory/user:{username}/")
+
     config.add_ext_route("directory_tag", "/directory/{tag_string:[^:]+:[^/,]+(,[^:]+:[^/,]+){0,4}}/", factory=TagList)
     config.add_ext_route("directory_tag_search", "/directory/{tag_string:[^:]+:[^/,]+(,[^:]+:[^/,]+){0,4}}/search/", factory=TagList)
     config.add_ext_route("directory_tag_search_autocomplete", "/directory/{tag_string:[^:]+:[^/,]+(,[^:]+:[^/,]+){0,4}}/search/autocomplete/", factory=TagList)
