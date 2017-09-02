@@ -15,11 +15,9 @@ ${tag.name}\
         % endif
         % if request.has_permission("admin"):
           <p>\
-          % if request.matched_route.name == "directory_user":
-            User: ${rq.user.username}
-          % else:
-            User: <a href="${request.route_path("directory_user", username=rq.user.username)}">${rq.user.username}</a>
-          % endif
+            User: ${rq.user.username} \
+            (<a href="${request.route_path("directory_user", username=rq.user.username)}">requests</a>, \
+            <a href="${request.route_path("admin_user", username=rq.user.username)}">admin page</a>)
           </p>
         % endif
         <% tags_by_type = rq.tags_by_type() %>
