@@ -954,6 +954,6 @@ def directory_request_remove(context, request):
 
 @view_config(route_name="directory_request_unremove", request_method="POST", permission="request.remove")
 def directory_request_unremove(context, request):
-    context.status = "posted"
+    context.status = "draft"
     return HTTPFound(request.route_path("directory_request", id=context.id))
 
