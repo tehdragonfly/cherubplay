@@ -756,7 +756,13 @@ def chat_remove_user(context, request):
     else:
         raise HTTPNotFound
 
+    end_chat = len(context.active_chat_users) <= 2
+
     chat_user.status = ChatUserStatus.deleted
+
+    # Don't leave the OP on their own.
+    if end_chat:
+        return chat_end_post(context, request)
 
     update_date = datetime.datetime.now()
     text        = "%s has been removed from the chat." % chat_user.name
