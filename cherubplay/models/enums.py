@@ -1,6 +1,11 @@
 from enum import Enum
 
 
+class ChatMode(Enum):
+    one_on_one = "one_on_one"
+    group      = "group"
+
+
 class ChatUserStatus(Enum):
     active  = "active"
     deleted = "deleted"

@@ -36,7 +36,7 @@ from time import mktime
 from zope.sqlalchemy import ZopeTransactionExtension
 
 from cherubplay.lib import symbols
-from cherubplay.models.enums import ChatUserStatus, TagType
+from cherubplay.models.enums import ChatMode, ChatUserStatus, TagType
 
 
 Session = scoped_session(sessionmaker(
@@ -120,13 +120,14 @@ class PushSubscription(Base):
 
 class Chat(Base):
     __tablename__ = "chats"
-    id = Column(Integer, primary_key=True)
-    url = Column(Unicode(100), nullable=False, unique=True)
-    status = Column(SQLAlchemyEnum(u"ongoing", u"ended", name="chat_status"), nullable=False, default=u"ongoing")
-    created = Column(DateTime, nullable=False, default=datetime.datetime.now)
-    updated = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    id           = Column(Integer, primary_key=True)
+    url          = Column(Unicode(100), nullable=False, unique=True)
+    mode         = Column(EnumType(ChatMode, name=u"chat_mode"), nullable=False, default=ChatMode.one_on_one)
+    status       = Column(SQLAlchemyEnum(u"ongoing", u"ended", name="chat_status"), nullable=False, default=u"ongoing")
+    created      = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    updated      = Column(DateTime, nullable=False, default=datetime.datetime.now)
     last_user_id = Column(Integer, ForeignKey("users.id"))
-    request_id = Column(Integer, ForeignKey("requests.id"))
+    request_id   = Column(Integer, ForeignKey("requests.id"))
 
     def __repr__(self):
         return "<Chat #%s: %s>" % (self.id, self.url)

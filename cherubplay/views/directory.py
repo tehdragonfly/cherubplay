@@ -11,7 +11,7 @@ from uuid import uuid4
 
 from cherubplay.lib import colour_validator, preset_colours
 from cherubplay.models import Session, BlacklistedTag, Chat, ChatUser, CreateNotAllowed, Message, Request, RequestSlot, RequestTag, Tag, TagParent, User
-from cherubplay.models.enums import ChatUserStatus, TagType
+from cherubplay.models.enums import ChatMode, ChatUserStatus, TagType
 from cherubplay.resources import CircularReferenceException
 from cherubplay.tasks import update_request_tag_ids
 
@@ -790,6 +790,10 @@ def directory_request_answer_post(context, request):
     request.login_store.expire(key, 3600)
 
     new_chat = Chat(url=str(uuid4()), request_id=context.id)
+
+    if context.slots:
+        new_chat.mode = ChatMode.group
+
     Session.add(new_chat)
     Session.flush()
 
