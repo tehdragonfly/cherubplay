@@ -792,7 +792,8 @@ def directory_request_answer_post(context, request):
     new_chat = Chat(url=str(uuid4()), request_id=context.id)
 
     if context.slots:
-        new_chat.mode = ChatMode.group
+        new_chat.mode  = ChatMode.group
+        new_chat.op_id = context.user_id
 
     Session.add(new_chat)
     Session.flush()
