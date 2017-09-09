@@ -19,7 +19,7 @@ from sqlalchemy.sql.expression import cast
 
 from cherubplay.lib import colour_validator, preset_colours, OnlineUserStore
 from cherubplay.models import Session, Chat, ChatUser, Message
-from cherubplay.models.enums import ChatUserStatus
+from cherubplay.models.enums import ChatMode, ChatUserStatus
 from cherubplay.tasks import trigger_push_notification
 
 
@@ -208,7 +208,7 @@ def chat(context, request):
                 "messages":          messages,
                 "banned_chat_users": [_.handle for _ in context.banned_chat_users],
             }
-            if context.mode == "group":
+            if context.chat.mode == ChatMode.group:
                 data["chat_users"] = [
                     {"name": chat_user.name, "last_colour": chat_user.last_colour}
                     for chat_user in context.chat_users.values()
@@ -219,7 +219,7 @@ def chat(context, request):
         # Get this from both message users and chat users, because the latter is
         # removed if they delete the chat.
         symbol_users = None
-        if context.mode == "1-on-1" and request.has_permission("chat.full_user_list"):
+        if context.chat.mode == ChatMode.one_on_one and request.has_permission("chat.full_user_list"):
             symbol_users = {
                 _.symbol_character: _.user
                 for _ in messages
@@ -231,7 +231,7 @@ def chat(context, request):
                 symbol_users[chat_user.symbol_character] = chat_user.user
 
         template = "layout2/chat.mako" if (
-            context.mode == "group"
+            context.chat.mode == ChatMode.group
             or request.user.layout_version == 2
         ) else "chat.mako"
         return render_to_response(template, {
@@ -297,7 +297,7 @@ def chat(context, request):
     # removed if they delete the chat.
     symbol_users = None
 
-    if context.mode == "1-on-1" and request.has_permission("chat.full_user_list"):
+    if context.chat.mode == ChatMode.one_on_one and request.has_permission("chat.full_user_list"):
         symbol_users = {
             _.symbol_character: _.user
             for _ in messages
@@ -309,7 +309,7 @@ def chat(context, request):
             symbol_users[chat_user.symbol_character] = chat_user.user
 
     template = "layout2/chat_archive.mako" if (
-        context.mode == "group"
+        context.chat.mode == ChatMode.group
         or request.user is None
         or request.user.layout_version == 2
     ) else "chat_archive.mako"
@@ -588,7 +588,7 @@ def chat_delete_post(context, request):
     if context.chat.status == "ongoing":
         _post_end_message(request, context.chat, context.chat_user)
 
-    if context.mode == "group":
+    if context.chat.mode == ChatMode.group:
         context.chat_user.status = ChatUserStatus.deleted
     else:
         Session.delete(context.chat_user)
@@ -629,7 +629,7 @@ def chat_leave_post(context, request):
     if context.chat.status == "ongoing":
         _post_end_message(request, context.chat, context.chat_user, "left")
 
-    if context.mode == "group":
+    if context.chat.mode == ChatMode.group:
         context.chat_user.status = ChatUserStatus.deleted
     else:
         Session.delete(context.chat_user)

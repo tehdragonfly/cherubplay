@@ -62,14 +62,6 @@ class ChatContext(object):
         return "<ChatContext: guest in Chat %s>" % self.chat.id
 
     @reify
-    def mode(self):
-        if self.chat_user and self.chat_user.name is not None:
-            return "group"
-        elif self.chat_users and next(iter(self.chat_users.values())).name is not None:
-            return "group"
-        return "1-on-1"
-
-    @reify
     def is_continuable(self):
         return self.chat.status == "ongoing" and self.request.has_permission("chat.send")
 

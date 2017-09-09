@@ -1,4 +1,5 @@
 <%inherit file="base.mako" />\
+<% from cherubplay.models.enums import ChatMode %>
 <% from cherubplay.lib import symbols %>
 <%block name="title">
 % if own_chat_user:
@@ -17,7 +18,7 @@ ${own_chat_user.title or chat.url} -
         <p>${message.text}</p>
 % endif
         <div class="timestamp">
-          % if request.context.mode == "group" and message.handle:
+          % if request.context.chat.mode == ChatMode.group and message.handle:
             ${message.handle} ·
           % endif
           ${(request.user.localise_time(message.posted) if request.user is not None else message.posted).strftime("%Y-%m-%d %H:%M:%S")}
@@ -58,7 +59,7 @@ ${own_chat_user.title or chat.url} -
   </div>
   <div class="side_column">
     <nav>
-      % if page in ("chat", "archive") and request.context.mode == "group":
+      % if page in ("chat", "archive") and request.context.chat.mode == ChatMode.group:
         <h3>Users</h3>
         <ul id="chat_user_list">
           % if request.has_permission("chat.full_user_list"):

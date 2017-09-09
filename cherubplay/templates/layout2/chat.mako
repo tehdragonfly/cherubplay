@@ -1,4 +1,5 @@
 <%inherit file="chat_base.mako" />\
+<% from cherubplay.models.enums import ChatMode %>
 <%block name="body_class">layout2 ongoing</%block>
     <ul id="messages" class="tile2">
       % if prompt:
@@ -8,7 +9,7 @@
       % for message in messages:
       ${parent.render_message(message, show_edit=True)}\
       % endfor
-      % if request.context.mode != "group":
+      % if request.context.chat.mode != ChatMode.group:
         % for banned_chat_user in request.context.banned_chat_users:
           <li class="message_system">${banned_chat_user.handle} has been ${"temporarily" if banned_chat_user.user.unban_date else "permanently"} banned from Cherubplay.</li>
         % endfor
