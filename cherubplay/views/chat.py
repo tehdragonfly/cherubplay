@@ -738,13 +738,8 @@ def chat_change_name(context, request):
     return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"], _query={"saved": "name"}))
 
 
-@view_config(route_name="chat_remove_user", request_method="POST", permission="chat.send")
+@view_config(route_name="chat_remove_user", request_method="POST", permission="chat.remove_user")
 def chat_remove_user(context, request):
-    # Not a permission so we don't have to calculate it every time we generate
-    # the ACL.
-    if context.first_message.user_id != request.user.id:
-        raise HTTPForbidden
-
     if not request.POST.get("name", "").strip():
         raise HTTPBadRequest
 

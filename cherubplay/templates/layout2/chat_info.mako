@@ -38,7 +38,7 @@
             </form>
           % elif chat_user.status == ChatUserStatus.deleted:
             <del>${chat_user.name}</del>
-          % elif request.context.first_message and request.context.first_message.user_id == request.user.id:
+          % elif request.has_permission("chat.remove_user"):
             <form action="${request.route_path("chat_remove_user", url=request.context.chat.url)}" method="post">
               <input type="hidden" name="name" value="${chat_user.name}">
               <div class="actions">

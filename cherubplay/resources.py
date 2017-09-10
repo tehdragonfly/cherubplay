@@ -26,12 +26,13 @@ class ChatContext(object):
         if self.chat_user:
             return [
                 # Everyone so banned users can see their own stuff.
-                (Allow, Everyone, "chat.read"),
-                (Allow, Everyone, "chat.read_ooc"),
-                (Allow, "admin",  "chat.full_user_list"),
-                (Allow, "active", "chat.send"),
-                (Allow, Everyone, "chat.info"),
-                (Allow, "active", "chat.change_name"),
+                (Allow, Everyone,        "chat.read"),
+                (Allow, Everyone,        "chat.read_ooc"),
+                (Allow, "admin",         "chat.full_user_list"),
+                (Allow, "active",        "chat.send"),
+                (Allow, Everyone,        "chat.info"),
+                (Allow, "active",        "chat.change_name"),
+                (Allow, self.chat.op_id, "chat.remove_user"),
             ]
         return [
             (Allow, Everyone, "chat.read"),
@@ -93,14 +94,6 @@ class ChatContext(object):
             if _.status == ChatUserStatus.active
             and _.user.away_message
         ]
-
-    @reify
-    def first_message(self):
-        return (
-            Session.query(Message)
-            .filter(Message.chat_id == self.chat.id)
-            .order_by(Message.id).first()
-        )
 
 
 def prompt_factory(request):
