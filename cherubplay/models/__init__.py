@@ -517,8 +517,9 @@ class TagParent(Base):
 
 PushSubscription.user = relationship(User, backref="push_subscriptions")
 
-Chat.last_user = relationship(User)
-Chat.request = relationship(Request)
+Chat.last_user = relationship(User, foreign_keys=Chat.last_user_id)
+Chat.op        = relationship(User, foreign_keys=Chat.op_id)
+Chat.request   = relationship(Request)
 
 Message.chat = relationship(Chat, backref="messages")
 Message.user = relationship(User, backref="messages")
