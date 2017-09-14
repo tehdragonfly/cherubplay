@@ -703,9 +703,11 @@ def chat_change_name(context, request):
     context.chat_user.visited = update_date
 
     try:
+        online_user_store = OnlineUserStore(request.pubsub)
+        online_user_store.rename(context.chat, old_name, chosen_name)
         # See if anyone else is online and update their ChatUser too.
         # TODO make a MessageService or something for this
-        online_handles = OnlineUserStore(request.pubsub).online_handles(context.chat)
+        online_handles = online_user_store.online_handles(context.chat)
         for other_chat_user in Session.query(ChatUser).filter(and_(
             ChatUser.chat_id == context.chat.id,
             ChatUser.status == ChatUserStatus.active,
