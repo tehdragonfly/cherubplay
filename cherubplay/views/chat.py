@@ -358,6 +358,12 @@ def _validate_message_form(request, editing=False):
 
 @view_config(route_name="chat_send", request_method="POST", permission="chat.send")
 def chat_send(context, request):
+    most_recent_message = (
+        Session.query(Message)
+        .filter(Message.chat_id == context.chat.id)
+        .order_by(Message.id.desc()).first()
+    )
+
     colour, trimmed_message_text, message_type = _validate_message_form(request)
     posted_date = datetime.datetime.now()
 
@@ -389,7 +395,9 @@ def chat_send(context, request):
         )):
             if other_chat_user.handle in online_handles:
                 other_chat_user.visited = posted_date
-            else:
+            # Only trigger notifications if the user has seen the most recent message.
+            # This stops us from getting multiple notifications about the same chat.
+            elif not most_recent_message or other_chat_user.visited > most_recent_message.posted:
                 request.pubsub.publish("user:" + str(other_chat_user.user_id), json.dumps({
                     "action": "notification",
                     "url":    context.chat.url,

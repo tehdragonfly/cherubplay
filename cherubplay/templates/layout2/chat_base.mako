@@ -8,6 +8,7 @@ ${own_chat_user.title or chat.url} -
 </%block>
 <%block name="body_class">layout2</%block>
 <%def name="render_message(message, show_edit=False)">\
+<% from cherubplay.models.enums import ChatMode %>\
       <li id="message_${message.id}" class="message_${message.type}${" edited" if message.show_edited else ""}" data-handle="${message.handle or ""}" style="color: #${message.colour};">
 % if message.symbol is not None:
         <span class="symbol">${message.symbol_character}</span>
