@@ -2,9 +2,8 @@
 
 import datetime, re
 
-from collections import OrderedDict
 from pyramid.decorator import reify
-from pyramid.security import Allow, Authenticated, Deny, Everyone
+from pyramid.security import Allow, Authenticated, Deny
 from pytz import timezone, utc
 from sqlalchemy import (
     and_,
@@ -32,7 +31,6 @@ from sqlalchemy.orm import (
 )
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_enum34 import EnumType
-from time import mktime
 from zope.sqlalchemy import ZopeTransactionExtension
 
 from cherubplay.lib import symbols
@@ -94,7 +92,7 @@ class User(Base):
                 self.tag_status_filter,
                 ~Request.tag_ids.overlap(
                     Session.query(func.array_agg(BlacklistedTag.tag_id))
-                   .filter(BlacklistedTag.user_id == self.id)
+                    .filter(BlacklistedTag.user_id == self.id)
                 ),
             )
 
