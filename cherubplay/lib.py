@@ -87,7 +87,7 @@ class OnlineUserStore(object):
 
     def rename(self, chat, old_handle, new_handle):
         for socket_id, current_handle in self.redis.hgetall("online:" + str(chat.id)).items():
-            if current_handle == old_handle:
+            if current_handle.decode() == old_handle:
                 self.redis.hset("online:" + str(chat.id), socket_id, new_handle)
 
     def online_handles(self, chat):
