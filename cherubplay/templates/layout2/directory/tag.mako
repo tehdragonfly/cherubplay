@@ -12,33 +12,39 @@
     % endif
     % if len(request.context.tags) == 1 and not "before" in request.GET:
       % if request.has_permission("directory.manage_tags"):
-        <% current_tag = request.context.tags[0] %>
-        % if can_be_approved:
-          <form class="tile2" action="${request.route_path("directory_tag_approve", type=current_tag.type.value, name=current_tag.url_name)}" method="post">
-            <h3>Not approved</h3>
-            <p class="middle_actions"><button type="submit">Approve</button></p>
+        <section class="tile2">
+          <h3>Actions</h3>
+          <% current_tag = request.context.tags[0] %>
+          % if can_be_approved:
+            <form action="${request.route_path("directory_tag_approve", type=current_tag.type.value, name=current_tag.url_name)}" method="post">
+              <p>Not approved. <button type="submit">Approve</button></p>
+            </form>
+            <hr>
+          % endif
+          % if not synonyms:
+            <form action="${request.route_path("directory_tag_make_synonym", type=current_tag.type.value, name=current_tag.url_name)}" method="post">
+              <p><label>Make this a synonym</label>
+                <select name="tag_type" required>
+                  <option value=""></option>
+                  % for tag_type in Tag.type.type.python_type:
+                    <option value="${tag_type.value}">${tag_type.ui_value}</option>
+                  % endfor
+                </select><input type="text" name="name" maxlength="100" required><button type="submit">Save</button>
+              </p>
+            </form>
+            <hr>
+          % endif
+          <form action="${request.route_path("directory_tag_add_parent", type=current_tag.type.value, name=current_tag.url_name)}" method="post">
+            <p><label>Add a parent tag:</label>
+              <select name="tag_type" required>
+                <option value=""></option>
+                % for tag_type in Tag.type.type.python_type:
+                  <option value="${tag_type.value}">${tag_type.ui_value}</option>
+                % endfor
+              </select><input type="text" name="name" maxlength="100" required><button type="submit">Add</button>
+            </p>
           </form>
-        % endif
-        % if not synonyms:
-          <form class="tile2" action="${request.route_path("directory_tag_make_synonym", type=current_tag.type.value, name=current_tag.url_name)}" method="post">
-            <h3>Make this a synonym</h3>
-            <p><select name="tag_type" required>
-              <option value=""></option>
-              % for tag_type in Tag.type.type.python_type:
-                <option value="${tag_type.value}">${tag_type.ui_value}</option>
-              % endfor
-            </select><input type="text" name="name" maxlength="100" required><button type="submit">Save</button></p>
-          </form>
-        % endif
-        <form class="tile2" action="${request.route_path("directory_tag_add_parent", type=current_tag.type.value, name=current_tag.url_name)}" method="post">
-          <h3>Add a parent tag</h3>
-          <p><select name="tag_type" required>
-            <option value=""></option>
-            % for tag_type in Tag.type.type.python_type:
-              <option value="${tag_type.value}">${tag_type.ui_value}</option>
-            % endfor
-          </select><input type="text" name="name" maxlength="100" required><button type="submit">Add</button></p>
-        </form>
+        </section>
       % endif
       % if synonyms or parents or children:
         <section class="tile2">
