@@ -110,6 +110,8 @@ input.full, textarea { margin: 0; padding: 0; border: 0; width: 100%; background
 label input.full { font-size: 1rem; color: #000; }
 textarea { resize: vertical; }
 
+.tile2 > form:last-child > p:last-child { margin-bottom: 0; }
+
 /* 2.2. Tile */
 
 .tile2 {
@@ -237,6 +239,7 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 .request .slot_description a, .request .slot_description button { float: right; }
 
 #new_request_form .tile2 { position: static; /* prevent tiles from appearing in front of the autocomplete list */ }
+#new_request_form .tile2:first-child { margin-top: 0; }
 #new_request_form .types { white-space: unset; }
 #new_request_form .types span { display: block; font-size: 10pt; color: #333; }
 #new_request_form .types label { display: inline-block; margin-right: 10px; font-size: 12pt; color: #000; }
