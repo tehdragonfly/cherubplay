@@ -92,10 +92,24 @@ var cherubplay = (function() {
 		}
 	}
 
+	function is_hidden() {
+		return document.hidden || document.webkitHidden || document.msHidden;
+	}
+
 	function visibility_handler(e) {
 		window.setTimeout(function() {
 			set_title();
 		}, 200);
+	}
+
+	function add_visibility_handler() {
+		if (typeof document.hidden !== "undefined") {
+			document.addEventListener("visibilitychange", visibility_handler);
+		} else if (typeof document.msHidden !== "undefined") {
+			document.addEventListener("msvisibilitychange", visibility_handler);
+		} else if (typeof document.webkitHidden !== "undefined") {
+			document.addEventListener("webkitvisibilitychange", visibility_handler);
+		}
 	}
 
 	// News
@@ -505,15 +519,9 @@ var cherubplay = (function() {
 			ws.onclose = function(e) {
 				if (!e.wasClean) {
 					change_mode();
-					if (document.hidden || document.webkitHidden || document.msHidden) {
+					if (is_hidden()) {
 						set_title("Disconnected");
-						if (typeof document.hidden !== "undefined") {
-							document.addEventListener("visibilitychange", visibility_handler);
-						} else if (typeof document.msHidden !== "undefined") {
-							document.addEventListener("msvisibilitychange", visibility_handler);
-						} else if (typeof document.webkitHidden !== "undefined") {
-							document.addEventListener("webkitvisibilitychange", visibility_handler);
-						}
+						add_visibility_handler();
 					}
 				}
 			}
@@ -1285,13 +1293,7 @@ var cherubplay = (function() {
 						window.setTimeout(launch_websocket, 2000);
 					}
 				}
-				if (typeof document.hidden !== "undefined") {
-					document.addEventListener("visibilitychange", visibility_handler);
-				} else if (typeof document.msHidden !== "undefined") {
-					document.addEventListener("msvisibilitychange", visibility_handler);
-				} else if (typeof document.webkitHidden !== "undefined") {
-					document.addEventListener("webkitvisibilitychange", visibility_handler);
-				}
+				add_visibility_handler();
 				launch_websocket();
 			} else {
 				var ws = {
