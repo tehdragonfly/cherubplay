@@ -39,6 +39,10 @@
         <a href="#" id="news_hide">Hide</a>
       </aside>
     % endif
+  % elif request.user.away_message:
+    <aside id="news">
+      Your account is marked as away. If you're back, remember to remove your away message in your <a href="${request.route_path("account")}">account settings</a>.
+    </aside>
   % endif
 % elif request.matched_route.name != "home":
 % if "cherubplay.read_only" not in request.registry.settings:
