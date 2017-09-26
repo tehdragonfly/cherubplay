@@ -86,7 +86,7 @@ New request
     </section>
     <section class="tile2">
       <h3>Starter</h3>
-      <p class="help">If your request doesn't have a starter (eg. if it's a request without any prose, a missed connection or a MSPARP group), please leave this section blank and write everything in the OOC notes section. It'll then automatically be tagged as <a href="${request.route_path("directory_tag", tag_string="type:No_starter")}" target="_blank">type:No starter</a>.</p>
+      <p class="help">If your request doesn't have a starter (eg. if it's a request without any prose, a missed connection or an MxRP group), please leave this section blank and write everything in the OOC notes section. It'll then automatically be tagged as <a href="${request.route_path("directory_tag", tag_string="type:No_starter")}" target="_blank">type:No starter</a>.</p>
       <p><input type="color" name="colour" size="6" maxlength="7" value="${form_data.get("colour") or "#000000"}"> <select name="preset_colours">
         % for hex, name in preset_colours:
         <option value="#${hex}">${name}</option>
