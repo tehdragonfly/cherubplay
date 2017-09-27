@@ -205,6 +205,9 @@ var cherubplay = (function() {
 				filter_sites.each(function(index, checkbox) {
 					if (checkbox.checked) {
 						filter_phrases.push(checkbox.name);
+						if (checkbox.name == "msparp") {
+							filter_phrases.push("mxrp");
+						}
 					}
 				});
 				return filter_phrases;
