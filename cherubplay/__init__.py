@@ -45,12 +45,11 @@ class ExtensionPredicate(object):
         return request.matchdict["ext"] == self.extension
 
 
-class CherubplayConfigurator(Configurator):
-    def add_ext_route(self, name, pattern, **kwargs):
-        self.add_route(name, pattern, **kwargs)
-        ext_name = name + "_ext"
-        ext_pattern = (pattern[:-1] if pattern.endswith("/") else pattern) + ".{ext}"
-        self.add_route(ext_name, ext_pattern, **kwargs)
+def add_ext_route(configurator, name, pattern, **kwargs):
+    configurator.add_route(name, pattern, **kwargs)
+    ext_name = name + "_ext"
+    ext_pattern = (pattern[:-1] if pattern.endswith("/") else pattern) + ".{ext}"
+    configurator.add_route(ext_name, ext_pattern, **kwargs)
 
 
 class CherubplayAuthenticationPolicy(object):
@@ -151,7 +150,7 @@ def main(global_config, **settings):
             backend=default_backend(),
         )
 
-    config = CherubplayConfigurator(
+    config = Configurator(
         authentication_policy=CherubplayAuthenticationPolicy(),
         authorization_policy=ACLAuthorizationPolicy(),
         root_factory=CherubplayRootFactory,
@@ -186,6 +185,8 @@ def main(global_config, **settings):
 
     config.add_static_view("static", "static", cache_max_age=3600)
 
+    # Method for adding routes with extensions.
+    config.add_directive("add_ext_route", add_ext_route)
     config.add_view_predicate("extension", ExtensionPredicate)
 
     config.add_route("home", "/")
