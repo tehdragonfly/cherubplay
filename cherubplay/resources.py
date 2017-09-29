@@ -77,7 +77,10 @@ class ChatContext(object):
 
     @reify
     def active_chat_users(self):
-        return OrderedDict([(k, v) for k, v in self.chat_users.items() if v.status == ChatUserStatus.active])
+        return [
+            _ for _ in self.chat_users.values()
+            if _.status == ChatUserStatus.active
+        ]
 
     @reify
     def banned_chat_users(self):
