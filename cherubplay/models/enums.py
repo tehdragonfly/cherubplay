@@ -11,6 +11,12 @@ class ChatUserStatus(Enum):
     deleted = "deleted"
 
 
+class MessageType(Enum):
+    ic     = "ic"
+    ooc    = "ooc"
+    system = "system"
+
+
 class TagType(Enum):
     maturity         = "maturity"
     warning          = "warning"

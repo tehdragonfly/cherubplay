@@ -19,7 +19,7 @@ from sqlalchemy.sql.expression import cast
 
 from cherubplay.lib import colour_validator, preset_colours, OnlineUserStore
 from cherubplay.models import Session, Chat, ChatUser, Message
-from cherubplay.models.enums import ChatMode, ChatUserStatus
+from cherubplay.models.enums import ChatMode, ChatUserStatus, MessageType
 from cherubplay.tasks import trigger_push_notification
 
 
@@ -271,8 +271,8 @@ def chat(context, request):
     # Hide OOC messages if the chat doesn't belong to us.
     # Also don't hide OOC messages for admins.
     if not request.has_permission("chat.read_ooc"):
-        messages = messages.filter(Message.type != "ooc")
-        message_count = message_count.filter(Message.type != "ooc")
+        messages = messages.filter(Message.type != MessageType.ooc)
+        message_count = message_count.filter(Message.type != MessageType.ooc)
 
     # Join users if we're an admin.
     if request.has_permission("chat.full_user_list"):
@@ -342,7 +342,6 @@ def _validate_message_form(request, editing=False):
     if trimmed_message_text == "":
         raise HTTPBadRequest("Message text can't be empty.")
 
-    message_type = "ooc" if "message_ooc" in request.POST else "ic"
     if not editing and (
         trimmed_message_text.startswith("((")
         or trimmed_message_text.endswith("))")
@@ -351,7 +350,9 @@ def _validate_message_form(request, editing=False):
         or trimmed_message_text.startswith("{{")
         or trimmed_message_text.endswith("}}")
     ):
-        message_type = "ooc"
+        message_type = MessageType.ooc
+    else:
+        message_type = MessageType.ooc if "message_ooc" in request.POST else MessageType.ic
 
     return colour, trimmed_message_text, message_type
 
@@ -454,7 +455,7 @@ def chat_edit(context, request):
             "action": "edit",
             "message": {
                 "id":          message.id,
-                "type":        message.type,
+                "type":        message.type.value,
                 "colour":      message.colour,
                 "symbol":      message.symbol_character,
                 "name":        message.chat_user.name,
@@ -480,7 +481,7 @@ def _post_end_message(request, chat, own_chat_user, action="ended"):
 
     message = Message(
         chat_id=chat.id,
-        type="system",
+        type=MessageType.system,
         colour="000000",
         symbol=own_chat_user.symbol,
         text=text,
@@ -575,7 +576,7 @@ def chat_delete_get(context, request):
 
     last_message = Session.query(Message).filter(and_(
         Message.chat_id == context.chat.id,
-        Message.type != "system",
+        Message.type != MessageType.system,
     )).order_by(Message.id.desc()).first()
 
     template = "layout2/chat_end.mako" if request.user.layout_version == 2 else "chat_end.mako"
@@ -617,7 +618,7 @@ def chat_leave_get(context, request):
 
     last_message = Session.query(Message).filter(and_(
         Message.chat_id == context.chat.id,
-        Message.type != "system",
+        Message.type != MessageType.system,
     )).order_by(Message.id.desc()).first()
 
     return render_to_response("layout2/chat_end.mako", {
@@ -697,7 +698,7 @@ def chat_change_name(context, request):
 
     message = Message(
         chat_id=context.chat.id,
-        type="system",
+        type=MessageType.system,
         colour="000000",
         symbol=context.chat_user.symbol,
         text=text,
@@ -774,7 +775,7 @@ def chat_remove_user(context, request):
 
     message = Message(
         chat_id=context.chat.id,
-        type="system",
+        type=MessageType.system,
         colour="000000",
         symbol=chat_user.symbol,
         text=text,

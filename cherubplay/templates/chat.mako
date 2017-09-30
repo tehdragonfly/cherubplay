@@ -2,14 +2,15 @@
 <% from cherubplay.lib import symbols %>
 <%block name="title">${own_chat_user.title or chat.url} - </%block>
 <%def name="render_message(message)">\
-    <li id="message_${message.id}" class="tile message_${message.type}\
+<% from cherubplay.models.enums import MessageType %>\
+    <li id="message_${message.id}" class="tile message_${message.type.value}\
 % if message.show_edited:
  edited\
 % endif
 "\
 % if message.symbol is not None:
  data-symbol="${message.symbol_character}">
-% if message.type=="system":
+% if message.type == MessageType.system:
       <p style="color: #${message.colour};">${message.text % message.symbol_character}</p>
 % else:
       <p style="color: #${message.colour};">${message.symbol_character}: ${message.text}</p>

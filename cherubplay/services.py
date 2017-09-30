@@ -4,6 +4,7 @@ from sqlalchemy import and_
 
 from cherubplay.lib import OnlineUserStore
 from cherubplay.models import ChatUser, ChatUserStatus, Message, Session
+from cherubplay.models.enums import MessageType
 from cherubplay.tasks import trigger_push_notification
 
 
@@ -12,7 +13,7 @@ class MessageService(object):
         self.pubsub = pubsub
         self.chat   = chat
 
-    def _send_message(self, chat_user, type, colour, text):
+    def _send_message(self, chat_user: ChatUser, type: MessageType, colour: str, text: str):
         posted_date = datetime.datetime.now()
 
         new_message = Message(
@@ -69,17 +70,17 @@ class MessageService(object):
         except ConnectionError:
             pass
 
-    def send_message(self, chat_user, type, colour, text):
+    def send_message(self, chat_user: ChatUser, type: MessageType, colour: str, text: str):
         self._send_message(chat_user, type, colour, text)
         chat_user.last_colour = colour
         chat_user.draft = ""
 
-    def send_end_message(self, chat_user):
+    def send_end_message(self, chat_user: ChatUser):
         raise NotImplementedError
 
-    def send_leave_message(self, chat_user):
+    def send_leave_message(self, chat_user: ChatUser):
         raise NotImplementedError
 
-    def send_kick_message(self, chat_user):
+    def send_kick_message(self, chat_user: ChatUser):
         raise NotImplementedError
 

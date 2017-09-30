@@ -34,7 +34,7 @@ from sqlalchemy_enum34 import EnumType
 from zope.sqlalchemy import ZopeTransactionExtension
 
 from cherubplay.lib import symbols
-from cherubplay.models.enums import ChatMode, ChatUserStatus, TagType
+from cherubplay.models.enums import ChatMode, ChatUserStatus, MessageType, TagType
 
 
 Session = scoped_session(sessionmaker(
@@ -152,7 +152,7 @@ class Message(Base):
     chat_id = Column(Integer, ForeignKey("chats.id"), nullable=False)
     # System messages don't have a user ID, and we may also need to set it to null if a user is deleted.
     user_id = Column(Integer, ForeignKey("users.id"))
-    type = Column(SQLAlchemyEnum(u"ic", u"ooc", u"system", name="message_type"), nullable=False, default=u"ic")
+    type = Column(EnumType(MessageType, name=u"message_type"), nullable=False, default=MessageType.ic)
     colour = Column(String(6), nullable=False, default="000000")
     symbol = Column(Integer)
     text = Column(UnicodeText, nullable=False)
@@ -169,7 +169,7 @@ class Message(Base):
     def __json__(self, request=None):
         return {
             "id": self.id,
-            "type": self.type,
+            "type": self.type.value,
             "colour": self.colour,
             "symbol": self.symbol,
             "symbol_character": self.symbol_character,
