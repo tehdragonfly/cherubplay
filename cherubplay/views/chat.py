@@ -20,6 +20,7 @@ from sqlalchemy.sql.expression import cast
 from cherubplay.lib import colour_validator, preset_colours, OnlineUserStore
 from cherubplay.models import Session, Chat, ChatUser, Message
 from cherubplay.models.enums import ChatMode, ChatUserStatus, MessageType
+from cherubplay.services import MessageService
 from cherubplay.tasks import trigger_push_notification
 
 
@@ -366,66 +367,9 @@ def chat_send(context, request):
     )
 
     colour, trimmed_message_text, message_type = _validate_message_form(request)
-    posted_date = datetime.datetime.now()
 
-    new_message = Message(
-        chat_id=context.chat.id,
-        user_id=request.user.id,
-        type=message_type,
-        colour=colour,
-        symbol=context.chat_user.symbol,
-        text=trimmed_message_text,
-        posted=posted_date,
-        edited=posted_date,
-    )
-    Session.add(new_message)
-    Session.flush()
-
-    context.chat.updated = posted_date
-    context.chat.last_user_id = request.user.id
-
-    context.chat_user.last_colour = colour
-    context.chat_user.draft = ""
-
-    try:
-        # See if anyone else is online and update their ChatUser too.
-        online_handles = OnlineUserStore(request.pubsub).online_handles(context.chat)
-        for other_chat_user in Session.query(ChatUser).filter(and_(
-            ChatUser.chat_id == context.chat.id,
-            ChatUser.status == ChatUserStatus.active,
-        )):
-            if other_chat_user.handle in online_handles:
-                other_chat_user.visited = posted_date
-            # Only trigger notifications if the user has seen the most recent message.
-            # This stops us from getting multiple notifications about the same chat.
-            elif not most_recent_message or other_chat_user.visited > most_recent_message.posted:
-                request.pubsub.publish("user:" + str(other_chat_user.user_id), json.dumps({
-                    "action": "notification",
-                    "url":    context.chat.url,
-                    "title":  other_chat_user.title or context.chat.url,
-                    "colour": colour,
-                    "symbol": context.chat_user.symbol_character,
-                    "name":   context.chat_user.name,
-                    "text":   trimmed_message_text if len(trimmed_message_text) < 100 else trimmed_message_text[:97] + "...",
-                }))
-                trigger_push_notification.delay(other_chat_user.user_id)
-    except ConnectionError:
-        pass
-
-    try:
-        request.pubsub.publish("chat:%s" % context.chat.id, json.dumps({
-            "action": "message",
-            "message": {
-                "id":     new_message.id,
-                "type":   message_type,
-                "colour": colour,
-                "symbol": context.chat_user.symbol_character,
-                "name":   context.chat_user.name,
-                "text":   trimmed_message_text,
-            },
-        }))
-    except ConnectionError:
-        pass
+    message_service = MessageService(request.pubsub, context.chat)
+    message_service.send_message(context.chat_user, message_type, colour, trimmed_message_text)
 
     if request.is_xhr:
         return HTTPNoContent()

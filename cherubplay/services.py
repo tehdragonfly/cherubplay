@@ -60,7 +60,7 @@ class MessageService(object):
                 "action": "message",
                 "message": {
                     "id":     new_message.id,
-                    "type":   type,
+                    "type":   type.value,
                     "colour": colour,
                     "symbol": chat_user.symbol_character,
                     "name":   chat_user.name,
