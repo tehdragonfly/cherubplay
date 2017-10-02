@@ -34,7 +34,7 @@ from sqlalchemy_enum34 import EnumType
 from zope.sqlalchemy import ZopeTransactionExtension
 
 from cherubplay.lib import symbols
-from cherubplay.models.enums import ChatMode, ChatUserStatus, TagType
+from cherubplay.models.enums import ChatMode, ChatUserStatus, TagType, TagSuggestionType
 
 
 Session = scoped_session(sessionmaker(
@@ -513,6 +513,14 @@ class TagParent(Base):
         return "<TagParent: Child #%s, Parent #%s>" % (self.child_id, self.parent_id)
 
 
+class TagSuggestion(Base):
+    __tablename__ = "tag_suggestions"
+    tag_id  = Column(Integer, ForeignKey("tags.id"),  primary_key=True)
+    type    = Column(EnumType(TagSuggestionType, name=u"tag_suggestions_type"), primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    target_id = Column(Integer, ForeignKey("tags.id"))
+
+
 PushSubscription.user = relationship(User, backref="push_subscriptions")
 
 Chat.last_user = relationship(User, foreign_keys=Chat.last_user_id)
@@ -551,6 +559,10 @@ Tag.synonym_of = relationship(Tag, backref="synonyms", remote_side=Tag.id)
 
 TagParent.child = relationship(Tag, foreign_keys=TagParent.child_id, backref="parents")
 TagParent.parent = relationship(Tag, foreign_keys=TagParent.parent_id, backref="children")
+
+TagSuggestion.tag    = relationship(Tag, foreign_keys=TagSuggestion.tag_id)
+TagSuggestion.user   = relationship(User)
+TagSuggestion.target = relationship(Tag, foreign_keys=TagSuggestion.target_id)
 
 
 # XXX indexes on requests table
