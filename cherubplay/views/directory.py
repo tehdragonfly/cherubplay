@@ -416,6 +416,13 @@ def directory_tag_approve(context, request):
     return HTTPFound(request.route_path("directory_tag", tag_string=request.matchdict["type"] + ":" + request.matchdict["name"]))
 
 
+@view_config(route_name="directory_tag_suggest", request_method="GET", permission="directory.read", renderer="layout2/directory/tag_suggest.mako")
+def directory_tag_suggest(context, request):
+    if context.tags[0].type in (TagType.maturity, TagType.type):
+        raise HTTPNotFound
+    return {}
+
+
 @view_config(route_name="directory_tag_make_synonym", request_method="POST", permission="directory.manage_tags")
 def directory_tag_make_synonym(context, request):
     try:
