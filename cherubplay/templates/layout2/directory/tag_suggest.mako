@@ -7,6 +7,10 @@
   <section class="tile2">
     <h3>Add a parent tag</h3>
   </section>
-  <section class="tile2">
+  <form class="tile2" action="${request.current_route_path()}" method="post">
     <h3>Restrict to NSFW extreme</h3>
-  </section>
+    <input type="hidden" name="type" value="set_bump_maturity">
+    <div class="actions">
+      <div class="right"><button type="submit">Restrict to NSFW extreme</button></div>
+    </div>
+  </form>
