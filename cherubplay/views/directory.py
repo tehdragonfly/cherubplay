@@ -423,7 +423,15 @@ def directory_tag_approve(context, request):
 def directory_tag_suggest_get(context, request):
     if context.tags[0].type in (TagType.maturity, TagType.type):
         raise HTTPNotFound
-    return {}
+    return {
+        "existing_suggestions": {
+            suggestion.type: suggestion
+            for suggestion in Session.query(TagSuggestion).filter(and_(
+                TagSuggestion.tag_id  == context.tags[0].id,
+                TagSuggestion.user_id == request.user.id,
+            )).all()
+        }
+    }
 
 
 @view_config(route_name="directory_tag_suggest", request_method="POST", permission="directory.read")
