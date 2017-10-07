@@ -34,7 +34,7 @@ from sqlalchemy_enum34 import EnumType
 from zope.sqlalchemy import ZopeTransactionExtension
 
 from cherubplay.lib import symbols
-from cherubplay.models.enums import ChatMode, ChatUserStatus, TagType, TagSuggestionType
+from cherubplay.models.enums import ChatMode, ChatUserStatus, TagType
 
 
 Session = scoped_session(sessionmaker(
@@ -513,15 +513,18 @@ class TagParent(Base):
         return "<TagParent: Child #%s, Parent #%s>" % (self.child_id, self.parent_id)
 
 
-class TagSuggestion(Base):
-    __tablename__ = "tag_suggestions"
-    __table_args__ = (
-        CheckConstraint("(type = 'set_bump_maturity') != (target_id is not null)", name='bump_maturity_or_target'),
-    )
+class TagMakeSynonymSuggestion(Base):
+    __tablename__ = "tag_make_synonym_suggestions"
     tag_id  = Column(Integer, ForeignKey("tags.id"),  primary_key=True)
-    type    = Column(EnumType(TagSuggestionType, name=u"tag_suggestions_type"), primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     target_id = Column(Integer, ForeignKey("tags.id"))
+    created = Column(DateTime, nullable=False, default=datetime.datetime.now)
+
+
+class TagBumpMaturitySuggestion(Base):
+    __tablename__ = "tag_bump_maturity_suggestions"
+    tag_id = Column(Integer, ForeignKey("tags.id"),  primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
 
 
@@ -564,9 +567,12 @@ Tag.synonym_of = relationship(Tag, backref="synonyms", remote_side=Tag.id)
 TagParent.child = relationship(Tag, foreign_keys=TagParent.child_id, backref="parents")
 TagParent.parent = relationship(Tag, foreign_keys=TagParent.parent_id, backref="children")
 
-TagSuggestion.tag    = relationship(Tag, foreign_keys=TagSuggestion.tag_id)
-TagSuggestion.user   = relationship(User)
-TagSuggestion.target = relationship(Tag, foreign_keys=TagSuggestion.target_id)
+TagMakeSynonymSuggestion.tag     = relationship(Tag, foreign_keys=TagMakeSynonymSuggestion.tag_id)
+TagMakeSynonymSuggestion.user    = relationship(User)
+TagMakeSynonymSuggestion.target  = relationship(Tag, foreign_keys=TagMakeSynonymSuggestion.target_id)
+
+TagBumpMaturitySuggestion.tag  = relationship(Tag)
+TagBumpMaturitySuggestion.user = relationship(User)
 
 
 # XXX indexes on requests table

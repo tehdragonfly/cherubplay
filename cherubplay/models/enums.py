@@ -53,9 +53,3 @@ class TagType(Enum):
 TagType.playing_types = {TagType.fandom,        TagType.character,        TagType.gender}
 TagType.wanted_types =  {TagType.fandom_wanted, TagType.character_wanted, TagType.gender_wanted}
 
-
-class TagSuggestionType(Enum):
-    set_bump_maturity = "set_bump_maturity"
-    make_synonym      = "make_synonym"
-    add_parent        = "add_parent"
-

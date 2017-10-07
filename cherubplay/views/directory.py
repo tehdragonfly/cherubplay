@@ -12,9 +12,9 @@ from uuid import uuid4
 from cherubplay.lib import colour_validator, preset_colours
 from cherubplay.models import (
     Session, BlacklistedTag, Chat, ChatUser, CreateNotAllowed, Message, Request,
-    RequestSlot, RequestTag, Tag, TagParent, TagSuggestion, User,
+    RequestSlot, RequestTag, Tag, TagParent, TagBumpMaturitySuggestion, User,
 )
-from cherubplay.models.enums import ChatMode, ChatUserStatus, TagType, TagSuggestionType
+from cherubplay.models.enums import ChatMode, ChatUserStatus, TagType
 from cherubplay.resources import CircularReferenceException
 from cherubplay.tasks import update_request_tag_ids
 
@@ -424,43 +424,30 @@ def directory_tag_suggest_get(context, request):
     if context.tags[0].type in (TagType.maturity, TagType.type):
         raise HTTPNotFound
     return {
-        "existing_suggestions": {
-            suggestion.type: suggestion
-            for suggestion in Session.query(TagSuggestion).filter(and_(
-                TagSuggestion.tag_id  == context.tags[0].id,
-                TagSuggestion.user_id == request.user.id,
-            )).all()
-        }
+        "set_bump_maturity": Session.query(TagBumpMaturitySuggestion).filter(and_(
+            TagBumpMaturitySuggestion.tag_id  == context.tags[0].id,
+            TagBumpMaturitySuggestion.user_id == request.user.id,
+        )).first()
     }
 
 
-@view_config(route_name="directory_tag_suggest", request_method="POST", permission="directory.read")
+@view_config(route_name="directory_tag_suggest_bump_maturity", request_method="POST", permission="directory.read")
 def directory_tag_suggest_post(context, request):
-    try:
-        suggestion_type = TagSuggestionType(request.POST.get("type"))
-    except ValueError:
-        raise HTTPBadRequest
-
-    if suggestion_type != TagSuggestionType.set_bump_maturity:
-        raise NotImplementedError
-
-    suggestion = Session.query(TagSuggestion).filter(and_(
-        TagSuggestion.tag_id  == context.tags[0].id,
-        TagSuggestion.user_id == request.user.id,
-        TagSuggestion.type    == suggestion_type,
+    suggestion = Session.query(TagBumpMaturitySuggestion).filter(and_(
+        TagBumpMaturitySuggestion.tag_id  == context.tags[0].id,
+        TagBumpMaturitySuggestion.user_id == request.user.id,
     )).first()
 
     if not suggestion:
-        suggestion = TagSuggestion(
+        suggestion = TagBumpMaturitySuggestion(
             # Don't mirror these, just use the playing tag.
             tag_id=context.tags[0].id,
             user_id=request.user.id,
-            type=suggestion_type,
         )
         Session.add(suggestion)
 
     print(request.matchdict)
-    return HTTPFound(request.current_route_path(query={"saved": suggestion_type.value}))
+    return HTTPFound(request.route_path("directory_tag_suggest", **request.matchdict))
 
 
 @view_config(route_name="directory_tag_make_synonym", request_method="POST", permission="directory.manage_tags")

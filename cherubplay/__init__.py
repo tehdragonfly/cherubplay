@@ -241,6 +241,7 @@ def main(global_config, **settings):
 
     config.add_ext_route("directory_tag_approve",       "/directory/{type}:{name}/approve/",       factory=TagPair.from_request)
     config.add_ext_route("directory_tag_suggest",       "/directory/{type}:{name}/suggest/",       factory=TagPair.from_request)
+    config.add_ext_route("directory_tag_suggest_bump_maturity", "/directory/{type}:{name}/suggest/bump_maturity/", factory=TagPair.from_request)
     config.add_ext_route("directory_tag_make_synonym",  "/directory/{type}:{name}/make_synonym/",  factory=TagPair.from_request)
     config.add_ext_route("directory_tag_add_parent",    "/directory/{type}:{name}/add_parent/",    factory=TagPair.from_request)
     config.add_ext_route("directory_tag_bump_maturity", "/directory/{type}:{name}/bump_maturity/", factory=TagPair.from_request)
