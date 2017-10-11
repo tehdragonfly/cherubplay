@@ -425,15 +425,19 @@ def directory_tag_suggest_get(context, request):
     if context.tags[0].type in (TagType.maturity, TagType.type):
         raise HTTPNotFound
     return {
+        "make_synonym": Session.query(TagMakeSynonymSuggestion).filter(and_(
+            TagMakeSynonymSuggestion.tag_id  == context.tags[0].id,
+            TagMakeSynonymSuggestion.user_id == request.user.id,
+        )).first(),
         "set_bump_maturity": Session.query(TagBumpMaturitySuggestion).filter(and_(
             TagBumpMaturitySuggestion.tag_id  == context.tags[0].id,
             TagBumpMaturitySuggestion.user_id == request.user.id,
-        )).first()
+        )).first(),
     }
 
 
 @view_config(route_name="directory_tag_suggest_make_synonym", request_method="POST", permission="directory.read")
-def directory_tag_suggest_post(context, request):
+def directory_tag_suggest_make_synonym_post(context, request):
     try:
         new_type = TagType(request.POST["tag_type"]).pair[0]
     except ValueError:
@@ -449,9 +453,9 @@ def directory_tag_suggest_post(context, request):
         raise HTTPBadRequest
 
     suggestion = Session.query(TagMakeSynonymSuggestion).filter(and_(
-        TagBumpMaturitySuggestion.tag_id     == context.tags[0].id,
-        TagBumpMaturitySuggestion.user_id    == request.user.id,
-        TagBumpMaturitySuggestion.target_id  == tag.id,
+        TagMakeSynonymSuggestion.tag_id     == context.tags[0].id,
+        TagMakeSynonymSuggestion.user_id    == request.user.id,
+        TagMakeSynonymSuggestion.target_id  == tag.id,
     )).first()
 
     if suggestion and suggestion.target_id != tag.id:
@@ -469,7 +473,7 @@ def directory_tag_suggest_post(context, request):
 
 
 @view_config(route_name="directory_tag_suggest_bump_maturity", request_method="POST", permission="directory.read")
-def directory_tag_suggest_post(context, request):
+def directory_tag_suggest_bump_maturity_post(context, request):
     suggestion = Session.query(TagBumpMaturitySuggestion).filter(and_(
         TagBumpMaturitySuggestion.tag_id  == context.tags[0].id,
         TagBumpMaturitySuggestion.user_id == request.user.id,
