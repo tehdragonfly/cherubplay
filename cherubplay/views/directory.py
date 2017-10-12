@@ -428,7 +428,7 @@ def directory_tag_suggest_get(context, request):
         "make_synonym": Session.query(TagMakeSynonymSuggestion).filter(and_(
             TagMakeSynonymSuggestion.tag_id  == context.tags[0].id,
             TagMakeSynonymSuggestion.user_id == request.user.id,
-        )).first(),
+        )).options(joinedload(TagMakeSynonymSuggestion.target)).first(),
         "set_bump_maturity": Session.query(TagBumpMaturitySuggestion).filter(and_(
             TagBumpMaturitySuggestion.tag_id  == context.tags[0].id,
             TagBumpMaturitySuggestion.user_id == request.user.id,

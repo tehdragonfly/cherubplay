@@ -6,7 +6,7 @@
   <form class="tile2 tag_form" action="${request.route_path("directory_tag_suggest_make_synonym", **request.matchdict)}" method="post">
     <h3>Make this a synonym</h3>
     % if make_synonym:
-      <p>You suggested making this tag a synonym of ${make_synonym.target.type.ui_value}:${make_synonym.target.name}.</p>
+      <p>You suggested making this tag a synonym of <a href="${request.route_path("directory_tag", tag_string=make_synonym.target.tag_string)}">${make_synonym.target.type.ui_value}:${make_synonym.target.name}</a>.</p>
     % else:
       <select name="tag_type">
         % for tag_type in Tag.type.type.python_type:
