@@ -23,6 +23,18 @@
       </div>
     % endif
   </form>
+  <section class="tile2">
+    <h3>Add a parent tag</h3>
+      % if parent_tags:
+        <p>This tag has the following parents:</p>
+        <ul>
+          % for parent in parent_tags:
+            <li><a href="${request.route_path("directory_tag", tag_string=parent.parent.tag_string)}">${parent.parent.type.ui_value}:${parent.parent.name}</a></li>
+          % endfor
+        </ul>
+      % endif
+    <p></p>
+  </section>
   <form class="tile2" action="${request.route_path("directory_tag_suggest_bump_maturity", **request.matchdict)}" method="post">
     <h3>Restrict to NSFW extreme</h3>
     % if request.context.tags[0].bump_maturity:
