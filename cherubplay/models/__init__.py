@@ -521,6 +521,15 @@ class TagMakeSynonymSuggestion(Base):
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
 
 
+class TagAddParentSuggestion(Base):
+    __tablename__ = "tag_add_parent_suggestions"
+    id = Column(Integer, primary_key=True)
+    tag_id  = Column(Integer, ForeignKey("tags.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    target_id = Column(Integer, ForeignKey("tags.id"))
+    created = Column(DateTime, nullable=False, default=datetime.datetime.now)
+
+
 class TagBumpMaturitySuggestion(Base):
     __tablename__ = "tag_bump_maturity_suggestions"
     tag_id = Column(Integer, ForeignKey("tags.id"),  primary_key=True)
@@ -570,6 +579,10 @@ TagParent.parent = relationship(Tag, foreign_keys=TagParent.parent_id, backref="
 TagMakeSynonymSuggestion.tag     = relationship(Tag, foreign_keys=TagMakeSynonymSuggestion.tag_id)
 TagMakeSynonymSuggestion.user    = relationship(User)
 TagMakeSynonymSuggestion.target  = relationship(Tag, foreign_keys=TagMakeSynonymSuggestion.target_id)
+
+TagAddParentSuggestion.tag     = relationship(Tag, foreign_keys=TagAddParentSuggestion.tag_id)
+TagAddParentSuggestion.user    = relationship(User)
+TagAddParentSuggestion.target  = relationship(Tag, foreign_keys=TagAddParentSuggestion.target_id)
 
 TagBumpMaturitySuggestion.tag  = relationship(Tag)
 TagBumpMaturitySuggestion.user = relationship(User)
