@@ -33,7 +33,14 @@
           % endfor
         </ul>
       % endif
-    <p></p>
+      % if add_parent:
+        <p>You've suggested the following new parents:</p>
+        <ul>
+          % for suggestion in add_parent:
+            <li><a href="${request.route_path("directory_tag", tag_string=suggestion.target.tag_string)}">${suggestion.target.type.ui_value}:${suggestion.target.name}</a></li>
+          % endfor
+        </ul>
+      % endif
   </section>
   <form class="tile2" action="${request.route_path("directory_tag_suggest_bump_maturity", **request.matchdict)}" method="post">
     <h3>Restrict to NSFW extreme</h3>

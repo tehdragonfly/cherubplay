@@ -434,6 +434,10 @@ def directory_tag_suggest_get(context, request):
             .filter(TagParent.child_id == context.tags[0].id)
             .options(joinedload(TagParent.parent)).all()
         ),
+        "add_parent": Session.query(TagAddParentSuggestion).filter(and_(
+            TagAddParentSuggestion.tag_id  == context.tags[0].id,
+            TagAddParentSuggestion.user_id == request.user.id,
+        )).options(joinedload(TagMakeSynonymSuggestion.target)).all(),
         "set_bump_maturity": Session.query(TagBumpMaturitySuggestion).filter(and_(
             TagBumpMaturitySuggestion.tag_id  == context.tags[0].id,
             TagBumpMaturitySuggestion.user_id == request.user.id,
