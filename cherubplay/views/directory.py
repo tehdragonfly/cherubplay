@@ -12,8 +12,8 @@ from uuid import uuid4
 from cherubplay.lib import colour_validator, preset_colours
 from cherubplay.models import (
     Session, BlacklistedTag, Chat, ChatUser, CreateNotAllowed, Message, Request,
-    RequestSlot, RequestTag, Tag, TagParent, TagBumpMaturitySuggestion,
-    TagMakeSynonymSuggestion, User,
+    RequestSlot, RequestTag, Tag, TagParent, TagAddParentSuggestion,
+    TagBumpMaturitySuggestion, TagMakeSynonymSuggestion, User,
 )
 from cherubplay.models.enums import ChatMode, ChatUserStatus, TagType
 from cherubplay.resources import CircularReferenceException
@@ -437,7 +437,7 @@ def directory_tag_suggest_get(context, request):
         "add_parent": Session.query(TagAddParentSuggestion).filter(and_(
             TagAddParentSuggestion.tag_id  == context.tags[0].id,
             TagAddParentSuggestion.user_id == request.user.id,
-        )).options(joinedload(TagMakeSynonymSuggestion.target)).all(),
+        )).options(joinedload(TagAddParentSuggestion.target)).all(),
         "set_bump_maturity": Session.query(TagBumpMaturitySuggestion).filter(and_(
             TagBumpMaturitySuggestion.tag_id  == context.tags[0].id,
             TagBumpMaturitySuggestion.user_id == request.user.id,

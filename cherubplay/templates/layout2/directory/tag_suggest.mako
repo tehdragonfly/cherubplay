@@ -23,7 +23,7 @@
       </div>
     % endif
   </form>
-  <section class="tile2">
+  <form class="tile2" action="${request.route_path("directory_tag_suggest_add_parent", **request.matchdict)}" method="post">
     <h3>Add a parent tag</h3>
     % if parent_tags:
       <p>This tag has the following parents:</p>
@@ -54,7 +54,7 @@
     <div class="actions">
       <div class="right"><button type="submit">Add parent</button></div>
     </div>
-  </section>
+  </form>
   <form class="tile2" action="${request.route_path("directory_tag_suggest_bump_maturity", **request.matchdict)}" method="post">
     <h3>Restrict to NSFW extreme</h3>
     % if request.context.tags[0].bump_maturity:
