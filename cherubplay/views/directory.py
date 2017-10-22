@@ -447,6 +447,9 @@ def directory_tag_suggest_get(context, request):
 
 @view_config(route_name="directory_tag_suggest_make_synonym", request_method="POST", permission="directory.read")
 def directory_tag_suggest_make_synonym_post(context, request):
+    if context.tags[0].synonym_id:
+        return HTTPFound(request.route_path("directory_tag_suggest", **request.matchdict))
+
     try:
         new_type = TagType(request.POST["tag_type"]).pair[0]
     except ValueError:
@@ -497,6 +500,12 @@ def directory_tag_suggest_add_parent_post(context, request):
     except CreateNotAllowed:
         raise HTTPBadRequest
 
+    if Session.query(TagParent).filter(and_(
+        TagParent.child_id  == context.tags[0].id,
+        TagParent.parent_id == tag.id,
+    )).first():
+        return HTTPFound(request.route_path("directory_tag_suggest", **request.matchdict))
+
     suggestion = Session.query(TagAddParentSuggestion).filter(and_(
         TagAddParentSuggestion.tag_id     == context.tags[0].id,
         TagAddParentSuggestion.user_id    == request.user.id,
@@ -519,6 +528,9 @@ def directory_tag_suggest_add_parent_post(context, request):
 
 @view_config(route_name="directory_tag_suggest_bump_maturity", request_method="POST", permission="directory.read")
 def directory_tag_suggest_bump_maturity_post(context, request):
+    if context.tags[0].bump_maturity:
+        return HTTPFound(request.route_path("directory_tag_suggest", **request.matchdict))
+
     suggestion = Session.query(TagBumpMaturitySuggestion).filter(and_(
         TagBumpMaturitySuggestion.tag_id  == context.tags[0].id,
         TagBumpMaturitySuggestion.user_id == request.user.id,
