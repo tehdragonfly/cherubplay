@@ -51,6 +51,7 @@ class Resource(object):
         (Allow, "admin",       "admin"),
         (Allow, Authenticated, "directory.read"),
         (Allow, "active",      "directory.new_request"),
+        (Allow, "active",      "directory.suggest"),
         (Allow, "admin",       "directory.manage_tags"),
     )
 

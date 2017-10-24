@@ -420,7 +420,7 @@ def directory_tag_approve(context, request):
     return HTTPFound(request.route_path("directory_tag", tag_string=request.matchdict["type"] + ":" + request.matchdict["name"]))
 
 
-@view_config(route_name="directory_tag_suggest", request_method="GET", permission="directory.read", renderer="layout2/directory/tag_suggest.mako")
+@view_config(route_name="directory_tag_suggest", request_method="GET", permission="directory.suggest", renderer="layout2/directory/tag_suggest.mako")
 def directory_tag_suggest_get(context, request):
     if context.tags[0].type in (TagType.maturity, TagType.type):
         raise HTTPNotFound
@@ -445,7 +445,7 @@ def directory_tag_suggest_get(context, request):
     }
 
 
-@view_config(route_name="directory_tag_suggest_make_synonym", request_method="POST", permission="directory.read")
+@view_config(route_name="directory_tag_suggest_make_synonym", request_method="POST", permission="directory.suggest")
 def directory_tag_suggest_make_synonym_post(context, request):
     if context.tags[0].synonym_id:
         return HTTPFound(request.route_path("directory_tag_suggest", **request.matchdict))
@@ -484,7 +484,7 @@ def directory_tag_suggest_make_synonym_post(context, request):
     return HTTPFound(request.route_path("directory_tag_suggest", **request.matchdict))
 
 
-@view_config(route_name="directory_tag_suggest_add_parent", request_method="POST", permission="directory.read")
+@view_config(route_name="directory_tag_suggest_add_parent", request_method="POST", permission="directory.suggest")
 def directory_tag_suggest_add_parent_post(context, request):
     try:
         new_type = TagType(request.POST["tag_type"]).pair[0]
@@ -526,7 +526,7 @@ def directory_tag_suggest_add_parent_post(context, request):
     return HTTPFound(request.route_path("directory_tag_suggest", **request.matchdict))
 
 
-@view_config(route_name="directory_tag_suggest_bump_maturity", request_method="POST", permission="directory.read")
+@view_config(route_name="directory_tag_suggest_bump_maturity", request_method="POST", permission="directory.suggest")
 def directory_tag_suggest_bump_maturity_post(context, request):
     if context.tags[0].bump_maturity:
         return HTTPFound(request.route_path("directory_tag_suggest", **request.matchdict))
