@@ -191,11 +191,16 @@ def _trigger_update_missing_request_tag_ids(status):
 class TagPair(object):
     __parent__ = Resource
 
-    def __init__(self, tag_type: TagType, tag_name: str, **kwargs):
+    def __init__(self, first_tag: Tag, **kwargs):
         self.tags = [
-            Tag.get_or_create(pair_tag_type, tag_name, **kwargs)
-            for pair_tag_type in tag_type.pair
+            first_tag if first_tag.type == pair_tag_type
+            else Tag.get_or_create(pair_tag_type, first_tag.name, **kwargs)
+            for pair_tag_type in first_tag.type.pair
         ]
+
+    @classmethod
+    def from_tag_name(cls, tag_type: TagType, tag_name: str, **kwargs):
+        return cls(Tag.get_or_create(tag_type, tag_name, **kwargs))
 
     @classmethod
     def from_request(cls, request):
@@ -204,7 +209,7 @@ class TagPair(object):
         except ValueError:
             raise HTTPNotFound
         tag_name = Tag.name_from_url(request.matchdict["name"])
-        return cls(request_tag_type, tag_name)
+        return cls.from_tag_name(request_tag_type, tag_name)
 
     def set_bump_maturity(self, value: bool):
         for tag in self.tags:
