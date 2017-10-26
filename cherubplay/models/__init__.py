@@ -521,6 +521,9 @@ class TagMakeSynonymSuggestion(Base):
     target_id = Column(Integer, ForeignKey("tags.id"))
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
 
+    def __repr__(self):
+        return "<TagMakeSynonymSuggestion: Tag #%s, Target %s>" % (self.tag_id, self.target_id)
+
 
 class TagAddParentSuggestion(Base):
     __tablename__ = "tag_add_parent_suggestions"
@@ -530,12 +533,18 @@ class TagAddParentSuggestion(Base):
     target_id = Column(Integer, ForeignKey("tags.id"))
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
 
+    def __repr__(self):
+        return "<TagAddParentSuggestion #%s: Tag #%s, Target %s>" % (self.id, self.tag_id, self.target_id)
+
 
 class TagBumpMaturitySuggestion(Base):
     __tablename__ = "tag_bump_maturity_suggestions"
     tag_id = Column(Integer, ForeignKey("tags.id"),  primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
+
+    def __repr__(self):
+        return "<TagBumpMaturitySuggestion: Tag #%s>" % self.tag_id
 
 
 PushSubscription.user = relationship(User, backref="push_subscriptions")
