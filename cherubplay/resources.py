@@ -12,7 +12,8 @@ from sqlalchemy.sql.expression import cast
 
 from cherubplay.models import (
     Session, BlacklistedTag, Chat, ChatUser, Message, Prompt, PromptReport,
-    Request, RequestTag, Resource, Tag, TagParent, User,
+    Request, RequestTag, Resource, Tag, TagParent, TagAddParentSuggestion,
+    TagBumpMaturitySuggestion, TagMakeSynonymSuggestion, Tag, User,
 )
 from cherubplay.models.enums import ChatUserStatus, TagType
 from cherubplay.tasks import update_missing_request_tag_ids
@@ -355,6 +356,14 @@ class TagPair(object):
             """ % child_tag.id)
 
         transaction.get().addAfterCommitHook(_trigger_update_missing_request_tag_ids)
+
+    def apply_suggestion(self, suggestion):
+        if type(suggestion) == TagMakeSynonymSuggestion:
+            return self.make_synonym(suggestion.target.type, suggestion.target.name)
+        if type(suggestion) == TagAddParentSuggestion:
+            return self.add_parent(suggestion.target.type, suggestion.target.name)
+        if type(suggestion) == TagBumpMaturitySuggestion:
+            return self.set_bump_maturity(True)
 
 
 def request_factory(request):
