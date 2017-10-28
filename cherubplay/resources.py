@@ -252,6 +252,9 @@ class TagPair(object):
             new_types = new_types * 2
 
         for old_tag, new_type in zip(self.tags, new_types):
+            # A tag can't be made a synonym if it's already a synonym.
+            if old_tag.synonym_id:
+                raise ValueError("tag %s is already a synonym" % old_tag)
             # A tag can't be a synonym if it has synonyms.
             if Session.query(func.count("*")).select_from(Tag).filter(Tag.synonym_id == old_tag.id).scalar():
                 raise ValueError("tag %s has synonyms" % old_tag)
