@@ -74,6 +74,7 @@ class User(Base):
     seen_blacklist_warning = Column(Boolean, nullable=False, default=False)
     last_read_news = Column(DateTime)
     away_message = Column(Unicode(255))
+    flags = Column(ARRAY(Unicode(500)), nullable=False, default=list)
 
     def __repr__(self):
         return "<User #%s: %s>" % (self.id, self.username)
