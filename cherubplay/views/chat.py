@@ -153,7 +153,7 @@ def chat_notification(request):
         "url":    chat.url,
         "title":  own_chat_user.title or chat.url,
         "colour": message.colour,
-        "handle": message.chat_user.handle,
+        "handle": message.symbol_character or message.chat_user.handle,
         "text":   message.text if len(message.text) < 100 else message.text[:97] + "...",
     }
 
