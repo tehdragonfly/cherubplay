@@ -158,7 +158,7 @@
           <ul><li><button type="submit">Add to blacklist</button></li></ul>
         </form>
       % endif
-      % if len(request.context.tags) == 1:
+      % if "tag_suggestions" in request.user.flags and len(request.context.tags) == 1:
         <h3>Suggestions</h3>
         <ul>
           <li><a href="${request.route_path("directory_tag_suggest", type=request.context.tags[0].type.value, name=request.context.tags[0].url_name)}">Suggest changes to this tag</a></li>
