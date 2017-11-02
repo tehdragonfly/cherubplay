@@ -374,15 +374,13 @@ def request_factory(request):
         raise HTTPNotFound
 
     try:
-        return Session.query(Request).filter(and_(
-            Request.id == int(request.matchdict["id"]),
-            or_(
+        query = Session.query(Request).filter(Request.id == int(request.matchdict["id"]))
+        if request.user.status != "admin":
+            query = query.filter(or_(
                 request.user.tag_status_filter,
                 Request.user_id == request.user.id,
-            ),
-        )).options(
-            joinedload(Request.tags)
-        ).one()
+            ))
+        return query.options(joinedload(Request.tags)).one()
     except (ValueError, NoResultFound):
         raise HTTPNotFound
 
