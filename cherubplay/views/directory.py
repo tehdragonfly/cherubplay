@@ -969,12 +969,31 @@ def directory_request_answer_post(context, request):
 
 
 @view_config(route_name="directory_request_unanswer", request_method="POST", permission="request.answer")
-def directory_request_unanswer_get(context, request):
+def directory_request_unanswer_post(context, request):
     if request.user.id == context.user_id:
         raise HTTPNotFound
 
     for slot in context.slots:
         if request.user.id == slot.user_id:
+            slot.user_id = None
+            slot.user_name = None
+            return HTTPFound(
+                request.headers.get("Referer")
+                or request.route_path("directory_request", id=context.id)
+            )
+
+    raise HTTPNotFound
+
+
+@view_config(route_name="directory_request_kick", request_method="POST", permission="request.edit")
+def directory_request_kick_post(context, request):
+    try:
+        slot_order = int(request.POST.get("order"))
+    except ValueError:
+        raise HTTPBadRequest
+
+    for slot in context.slots:
+        if slot.user_id != request.user.id and slot.order == slot_order:
             slot.user_id = None
             slot.user_name = None
             return HTTPFound(

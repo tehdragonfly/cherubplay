@@ -261,6 +261,7 @@ def main(global_config, **settings):
     config.add_ext_route("directory_request",      "/directory/{id:\d+}/",          factory=request_factory)
     config.add_route("directory_request_answer",   "/directory/{id:\d+}/answer/",   factory=request_factory)
     config.add_route("directory_request_unanswer", "/directory/{id:\d+}/unanswer/", factory=request_factory)
+    config.add_route("directory_request_kick",     "/directory/{id:\d+}/kick/",     factory=request_factory)
     config.add_route("directory_request_edit",     "/directory/{id:\d+}/edit/",     factory=request_factory)
     config.add_route("directory_request_delete",   "/directory/{id:\d+}/delete/",   factory=request_factory)
     config.add_route("directory_request_remove",   "/directory/{id:\d+}/remove/",   factory=request_factory)
