@@ -988,7 +988,7 @@ def directory_request_unanswer_post(context, request):
 @view_config(route_name="directory_request_kick", request_method="POST", permission="request.edit")
 def directory_request_kick_post(context, request):
     try:
-        slot_order = int(request.POST.get("order"))
+        slot_order = int(request.POST.get("slot"))
     except ValueError:
         raise HTTPBadRequest
 

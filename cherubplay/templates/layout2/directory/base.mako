@@ -106,11 +106,19 @@ ${tag.name}\
               % endif
             </label>
 
-            % if slot.user_id == request.user.id and request.user.id != rq.user_id:
+            % if request.user.id != rq.user_id and slot.user_id == request.user.id:
               <form class="slot_unanswer" action="${request.route_path("directory_request_unanswer", id=rq.id)}" method="post">
                 <p class="slot_description ${"taken" if slot.taken else ""}">
                   ${slot.description}
                   <button type="submit">Unanswer</button>
+                </p>
+              </form>
+            % elif request.user.id == rq.user_id and slot.taken and slot.user_id != request.user.id:
+              <form class="slot_unanswer" action="${request.route_path("directory_request_kick", id=rq.id)}" method="post">
+                <input type="hidden" name="slot" value="${slot.order}">
+                <p class="slot_description taken">
+                  ${slot.description}
+                  <button type="submit">Kick</button>
                 </p>
               </form>
             % else:
