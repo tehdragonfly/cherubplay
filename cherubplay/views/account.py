@@ -40,7 +40,9 @@ def send_email(request, action, user, email_address):
 @view_config(route_name="account", request_method="GET", permission="view")
 def account(request):
     template = "layout2/account.mako" if request.user.layout_version == 2 else "account.mako"
-    return render_to_response(template, {}, request)
+    return render_to_response(template, {
+        "timezones": timezones_list,
+    }, request)
 
 
 @view_config(route_name="account_email_address", renderer="layout2/account.mako", request_method="POST", permission="view")
@@ -136,6 +138,7 @@ timezones = {
     "Pacific/Marquesas", "Pacific/Norfolk", "Pacific/Noumea",
     "Pacific/Pago_Pago", "Pacific/Pitcairn", "Pacific/Tongatapu", "UTC",
 }
+timezones_list = sorted(list(timezones))
 
 
 @view_config(route_name="account_timezone", request_method="POST", permission="view")

@@ -62,6 +62,18 @@
         <div class="right"><button type="submit">Save</button></div>
       </div>
     </form>
+    <form class="tile2" action="${request.route_path("account_timezone")}" method="post">
+      <h3>Time zone</h3>
+      <p class="middle_actions"><select name="timezone">
+        % for timezone in timezones:
+          <option value="${timezone}"\
+% if timezone == request.user.timezone:
+ selected="selected"\
+% endif
+>${timezone}</option>
+        % endfor
+      </select><button type="submit">Save</button></p>
+    </form>
   </div>
 </main>
 <%block name="scripts"><script>cherubplay.account("${request.registry.settings["push.public_key"]}");</script></%block>
