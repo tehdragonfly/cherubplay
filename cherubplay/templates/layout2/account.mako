@@ -70,7 +70,7 @@
 % if timezone == request.user.timezone:
  selected="selected"\
 % endif
->${timezone}</option>
+>${timezone.replace("_", " ")}</option>
         % endfor
       </select><button type="submit">Save</button></p>
     </form>

@@ -42,4 +42,16 @@
     <p><label><input type="checkbox" id="sound_notifications"> Enable sound notifications</label></p>
     <p><label><input type="checkbox" id="enter_to_send"> Press enter to send</label></p>
   </section>
+  <form class="tile" action="${request.route_path("account_timezone")}" method="post">
+    <h3>Time zone</h3>
+    <p class="middle_actions"><select name="timezone">
+      % for timezone in timezones:
+        <option value="${timezone}"\
+% if timezone == request.user.timezone:
+ selected="selected"\
+% endif
+>${timezone.replace("_", " ")}</option>
+      % endfor
+    </select><button type="submit">Save</button></p>
+  </form>
 <%block name="scripts"><script>cherubplay.account();</script></%block>
