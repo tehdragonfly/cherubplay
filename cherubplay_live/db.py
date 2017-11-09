@@ -1,6 +1,7 @@
 import sys
 
 from configparser import ConfigParser
+from contextlib import contextmanager
 from redis import Redis
 
 from sqlalchemy import create_engine, and_
@@ -22,9 +23,22 @@ engine = create_engine(
 sm = sessionmaker(
     autocommit=False,
     autoflush=False,
-    bind=engine
+    bind=engine,
+    expire_on_commit=False,
 )
 Session = sm()
+
+@contextmanager
+def db_session():
+    db = sm()
+    try:
+        yield db
+        db.commit()
+    except:
+        db.rollback()
+        raise
+    finally:
+        db.close()
 
 login_client = Redis(unix_socket_path=config.get("app:main", "cherubplay.socket_login"))
 publish_client = Redis(unix_socket_path=config.get("app:main", "cherubplay.socket_pubsub"))
@@ -43,15 +57,15 @@ def get_user(cookies):
     except (ValueError, NoResultFound):
         return None
 
-def get_chat(chat_url):
+def get_chat(db, chat_url):
     try:
-        return Session.query(Chat).filter(Chat.url==chat_url).one()
+        return db.query(Chat).filter(Chat.url==chat_url).one()
     except NoResultFound:
         return None
 
-def get_chat_user(chat_id, user_id):
+def get_chat_user(db, chat_id, user_id):
     try:
-        return Session.query(ChatUser).filter(and_(
+        return db.query(ChatUser).filter(and_(
             ChatUser.chat_id == chat_id,
             ChatUser.user_id == user_id,
             ChatUser.status == ChatUserStatus.active,

@@ -18,7 +18,7 @@ from tornadoredis import Client
 from cherubplay.lib import colour_validator, OnlineUserStore
 from cherubplay.models import Chat, ChatUser, Message
 
-from cherubplay_live.db import config, get_chat, get_chat_user, get_user, publish_client, sm
+from cherubplay_live.db import config, db_session, get_chat, get_chat_user, get_user, publish_client
 
 
 sockets = set()
@@ -39,70 +39,70 @@ class ChatHandler(WebSocketHandler):
         if self.user is None:
             self.close()
             return
-        self.chat = get_chat(chat_url)
-        if self.chat is None:
-            self.close()
-            return
-        self.chat_user = get_chat_user(self.chat.id, self.user.id)
-        if self.chat_user is None:
-            self.close()
-            return
-        self.socket_id = str(uuid4())
 
-        # Fire online message, but only if this is the only tab we have open.
-        online_handles = online_user_store.online_handles(self.chat)
-        if self.chat_user.handle not in online_handles:
-            publish_client.publish("chat:" + str(self.chat.id), json.dumps({
-                "action": "online",
-                "handle": self.chat_user.handle,
-            }))
-
-        # See if anyone else is online.
-        online_handles_except_self = online_handles - {self.chat_user.handle}
-        if len(online_handles_except_self) == 1:
-            self.write_message({"action": "online", "handle": next(iter(online_handles_except_self))})
-        elif len(online_handles_except_self) >= 1:
-            self.write_message({
-                "action": "online_list",
-                "handles": sorted(list(online_handles)),
-            })
-
-        online_user_store.connect(self.chat, self.chat_user, self.socket_id)
-
-        self.redis_channels = (
-            "chat:%s" % self.chat.id,
-            "user:%s" % self.user.id,
-            "chat:%s:user:%s" % (self.chat.id, self.user.id),
-        )
-
-        self.redis_listen()
-        self.ignore_next_message = False
-        # Send the backlog if necessary.
-        if "after" in self.request.query_arguments:
-            print("after")
-            try:
-                after = int(self.request.query_arguments["after"][0])
-            except ValueError:
+        with db_session() as db:
+            self.chat = get_chat(db, chat_url)
+            if self.chat is None:
+                self.close()
                 return
-            Session = sm()
-            for message in (
-                Session.query(Message)
-                .options(joinedload(Message.chat_user))
-                .filter(and_(Message.chat_id == self.chat.id, Message.id > after))
-            ):
-                print(message)
+            self.chat_user = get_chat_user(db, self.chat.id, self.user.id)
+            if self.chat_user is None:
+                self.close()
+                return
+            self.socket_id = str(uuid4())
+
+            # Fire online message, but only if this is the only tab we have open.
+            online_handles = online_user_store.online_handles(self.chat)
+            if self.chat_user.handle not in online_handles:
+                publish_client.publish("chat:" + str(self.chat.id), json.dumps({
+                    "action": "online",
+                    "handle": self.chat_user.handle,
+                }))
+
+            # See if anyone else is online.
+            online_handles_except_self = online_handles - {self.chat_user.handle}
+            if len(online_handles_except_self) == 1:
+                self.write_message({"action": "online", "handle": next(iter(online_handles_except_self))})
+            elif len(online_handles_except_self) >= 1:
                 self.write_message({
-                    "action": "message",
-                    "message": {
-                        "id":     message.id,
-                        "type":   message.type,
-                        "colour": message.colour,
-                        "symbol": message.symbol_character,
-                        "name":   message.chat_user.name if message.chat_user else None,
-                        "text":   message.text,
-                    }
+                    "action": "online_list",
+                    "handles": sorted(list(online_handles)),
                 })
-            Session.commit()
+
+            online_user_store.connect(self.chat, self.chat_user, self.socket_id)
+
+            self.redis_channels = (
+                "chat:%s" % self.chat.id,
+                "user:%s" % self.user.id,
+                "chat:%s:user:%s" % (self.chat.id, self.user.id),
+            )
+
+            self.redis_listen()
+            self.ignore_next_message = False
+            # Send the backlog if necessary.
+            if "after" in self.request.query_arguments:
+                print("after")
+                try:
+                    after = int(self.request.query_arguments["after"][0])
+                except ValueError:
+                    return
+                for message in (
+                    db.query(Message)
+                    .options(joinedload(Message.chat_user))
+                    .filter(and_(Message.chat_id == self.chat.id, Message.id > after))
+                ):
+                    print(message)
+                    self.write_message({
+                        "action": "message",
+                        "message": {
+                            "id":     message.id,
+                            "type":   message.type,
+                            "colour": message.colour,
+                            "symbol": message.symbol_character,
+                            "name":   message.chat_user.name if message.chat_user else None,
+                            "text":   message.text,
+                        }
+                    })
 
     def on_message(self, message_string):
         message = json.loads(message_string)
