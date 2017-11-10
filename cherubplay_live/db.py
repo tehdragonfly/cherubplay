@@ -26,7 +26,6 @@ sm = sessionmaker(
     bind=engine,
     expire_on_commit=False,
 )
-Session = sm()
 
 @contextmanager
 def db_session():
@@ -43,14 +42,14 @@ def db_session():
 login_client = Redis(unix_socket_path=config.get("app:main", "cherubplay.socket_login"))
 publish_client = Redis(unix_socket_path=config.get("app:main", "cherubplay.socket_pubsub"))
 
-def get_user(cookies):
+def get_user(db, cookies):
     if "cherubplay" not in cookies:
         return None
     user_id = login_client.get("session:" + cookies["cherubplay"].value)
     if user_id is None:
         return None
     try:
-        return Session.query(User).filter(and_(
+        return db.query(User).filter(and_(
             User.id == int(user_id),
             User.status != "banned",
         )).one()

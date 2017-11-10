@@ -35,12 +35,12 @@ class ChatHandler(WebSocketHandler):
     def open(self, chat_url):
         sockets.add(self)
         print(chat_url)
-        self.user = get_user(self.cookies)
-        if self.user is None:
-            self.close()
-            return
-
         with db_session() as db:
+            self.user = get_user(db, self.cookies)
+            if self.user is None:
+                self.close()
+                return
+
             self.chat = get_chat(db, chat_url)
             if self.chat is None:
                 self.close()

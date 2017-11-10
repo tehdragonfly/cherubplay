@@ -18,7 +18,7 @@ from tornado.websocket import WebSocketHandler
 from cherubplay.lib import colour_validator, prompt_categories, prompt_starters, prompt_levels
 from cherubplay.models import Chat, ChatUser, Message, PromptReport
 
-from cherubplay_live.db import config, get_user, login_client, sm
+from cherubplay_live.db import config, db_session, get_user, login_client
 
 prompters = {}
 searchers = {}
@@ -69,10 +69,11 @@ class SearchHandler(WebSocketHandler):
         return True
 
     def open(self):
-        self.user = get_user(self.cookies)
-        if self.user is None:
-            self.close()
-            return
+        with db_session() as db:
+            self.user = get_user(db, self.cookies)
+            if self.user is None:
+                self.close()
+                return
         self.socket_id = str(uuid4())
         print("NEW SOCKET: ", self.socket_id)
         self.state = "idle"
@@ -212,23 +213,20 @@ class SearchHandler(WebSocketHandler):
                 or message["level"] not in prompt_levels
             ):
                 return
-            # Make a new session for thread safety.
-            Session = sm()
-            Session.add(PromptReport(
-                reporting_user_id=self.user.id,
-                reported_user_id=prompter.user.id,
-                colour=prompter.colour,
-                prompt=prompter.prompt,
-                category=prompter.category,
-                starter=prompter.starter,
-                level=prompter.level,
-                reason=message["reason"],
-                reason_category=message["category"] if message["reason"] == "wrong_category" else None,
-                reason_starter=message["starter"] if message["reason"] == "wrong_category" else None,
-                reason_level=message["level"] if message["reason"] == "wrong_category" else None,
-            ))
-            Session.commit()
-            del Session
+            with db_session() as db:
+                db.add(PromptReport(
+                    reporting_user_id=self.user.id,
+                    reported_user_id=prompter.user.id,
+                    colour=prompter.colour,
+                    prompt=prompter.prompt,
+                    category=prompter.category,
+                    starter=prompter.starter,
+                    level=prompter.level,
+                    reason=message["reason"],
+                    reason_category=message["category"] if message["reason"] == "wrong_category" else None,
+                    reason_starter=message["starter"] if message["reason"] == "wrong_category" else None,
+                    reason_level=message["level"] if message["reason"] == "wrong_category" else None,
+                ))
         elif message["action"] == "answer":
             if self.socket_id not in searchers or message["id"] not in prompters:
                 self.write_message(json.dumps({
@@ -246,37 +244,34 @@ class SearchHandler(WebSocketHandler):
                     "error": "Sorry, you've answered too many prompts recently. Please try again later.",
                 }))
                 return
-            # Make a new session for thread safety.
-            Session = sm()
-            new_chat_url = str(uuid4())
-            new_chat = Chat(url=new_chat_url)
-            Session.add(new_chat)
-            Session.flush()
-            Session.add(ChatUser(
-                chat_id=new_chat.id,
-                user_id=prompter.user.id,
-                last_colour=prompter.colour,
-                symbol=0,
-            ))
-            # Only create one ChatUser if prompter and searcher are the same person.
-            if self.user.id != prompter.user.id:
-                Session.add(ChatUser(
+            with db_session() as db:
+                new_chat_url = str(uuid4())
+                new_chat = Chat(url=new_chat_url)
+                db.add(new_chat)
+                db.flush()
+                db.add(ChatUser(
                     chat_id=new_chat.id,
-                    user_id=self.user.id,
-                    symbol=1,
+                    user_id=prompter.user.id,
+                    last_colour=prompter.colour,
+                    symbol=0,
                 ))
-            Session.add(Message(
-                chat_id=new_chat.id,
-                user_id=prompter.user.id,
-                colour=prompter.colour,
-                symbol=0,
-                text=prompter.prompt,
-            ))
-            Session.commit()
-            response = json.dumps({"action": "chat", "url": new_chat_url})
-            prompter.write_message(response)
-            self.write_message(response)
-            del Session
+                # Only create one ChatUser if prompter and searcher are the same person.
+                if self.user.id != prompter.user.id:
+                    db.add(ChatUser(
+                        chat_id=new_chat.id,
+                        user_id=self.user.id,
+                        symbol=1,
+                    ))
+                db.add(Message(
+                    chat_id=new_chat.id,
+                    user_id=prompter.user.id,
+                    colour=prompter.colour,
+                    symbol=0,
+                    text=prompter.prompt,
+                ))
+                response = json.dumps({"action": "chat", "url": new_chat_url})
+                prompter.write_message(response)
+                self.write_message(response)
 
     def on_close(self):
         self.reset_state()
