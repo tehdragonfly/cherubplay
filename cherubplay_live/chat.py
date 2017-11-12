@@ -45,10 +45,12 @@ class ChatHandler(WebSocketHandler):
             if self.chat is None:
                 self.close()
                 return
+
             self.chat_user = get_chat_user(db, self.chat.id, self.user.id)
             if self.chat_user is None:
                 self.close()
                 return
+
             self.socket_id = str(uuid4())
 
             # Fire online message, but only if this is the only tab we have open.

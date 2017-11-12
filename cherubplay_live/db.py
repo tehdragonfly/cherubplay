@@ -58,7 +58,7 @@ def get_user(db, cookies):
 
 def get_chat(db, chat_url):
     try:
-        return db.query(Chat).filter(Chat.url==chat_url).one()
+        return db.query(Chat).filter(Chat.url == chat_url).one()
     except NoResultFound:
         return None
 

@@ -160,6 +160,14 @@ def _trigger_update_request_tag_ids(request_id: int):
     return hook
 
 
+sort_fields = {
+    "posted": Request.posted.desc(),
+    "edited": Request.edited.desc(),
+}
+def sort_field(name):
+    return sort_fields[name] if name in sort_fields else sort_fields["posted"]
+
+
 @view_config(route_name="directory_ext", request_method="GET", permission="directory.read", extension="json", renderer="json")
 @view_config(route_name="directory",     request_method="GET", permission="directory.read", renderer="layout2/directory/index.mako")
 def directory(request):
@@ -183,7 +191,7 @@ def directory(request):
         requests = requests.filter(Request.posted < before_date)
     requests = (
         requests.options(joinedload(Request.tags), subqueryload(Request.slots))
-        .order_by(Request.posted.desc())
+        .order_by(sort_field(request.GET.get("sort")))
         .limit(26).all()
     )
 
