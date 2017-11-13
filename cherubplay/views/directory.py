@@ -191,7 +191,7 @@ def directory(request):
         requests = requests.filter(Request.posted < before_date)
     requests = (
         requests.options(joinedload(Request.tags), subqueryload(Request.slots))
-        .order_by(sort_field(request.GET.get("sort")))
+        .order_by(sort_field(request.GET.get("sort", request.user.default_request_order)))
         .limit(26).all()
     )
 
