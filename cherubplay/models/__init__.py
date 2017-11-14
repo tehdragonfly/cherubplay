@@ -75,7 +75,10 @@ class User(Base):
     last_read_news = Column(DateTime)
     away_message = Column(Unicode(255))
     flags = Column(ARRAY(Unicode(500)), nullable=False, default=list)
-    default_request_order = Column(SQLAlchemyEnum(u"posted", u"edited", name="user_default_request_order"), nullable=False, default=u"posted")
+    default_request_order = Column(SQLAlchemyEnum(
+        u"posted", u"edited", u"posted_oldest", u"edited_oldest",
+        name="user_default_request_order",
+    ), nullable=False, default=u"posted")
 
     def __repr__(self):
         return "<User #%s: %s>" % (self.id, self.username)

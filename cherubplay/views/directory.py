@@ -161,8 +161,10 @@ def _trigger_update_request_tag_ids(request_id: int):
 
 
 sort_fields = {
-    "posted": Request.posted.desc(),
-    "edited": Request.edited.desc(),
+    "posted":        Request.posted.desc(),
+    "edited":        Request.edited.desc(),
+    "posted_oldest": Request.posted.asc(),
+    "edited_oldest": Request.edited.asc(),
 }
 def sort_field(name):
     return sort_fields[name] if name in sort_fields else sort_fields["posted"]
