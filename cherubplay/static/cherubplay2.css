@@ -240,9 +240,8 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 
 #new_request_form .tile2 { position: static; /* prevent tiles from appearing in front of the autocomplete list */ }
 #new_request_form .tile2:first-child { margin-top: 0; }
-#new_request_form .types { white-space: unset; }
-#new_request_form .types span { display: block; font-size: 10pt; color: #333; }
-#new_request_form .types label { display: inline-block; margin-right: 10px; font-size: 12pt; color: #000; }
+#new_request_form .tag_checkboxes { margin: 0 0 5px; white-space: unset; }
+#new_request_form .tag_checkboxes label { display: inline-block; margin-right: 10px; font-size: 12pt; color: #000; }
 
 .tag_list { padding: 0; list-style-type: none; }
 .tag_list li { overflow: hidden; }

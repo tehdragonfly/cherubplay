@@ -26,8 +26,8 @@ New request
         <input type="text" class="full" name="warning" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("warning", "")}">
       </div>
       <p class="help">Content warnings must include anything that belongs under NSFW extreme.</p>
-      <p class="types">
-        <span>Type:</span>
+      <label>Type:</label>
+      <p class="tag_checkboxes">
         % for tag_type in Tag.type_names:
         <label><input type="checkbox" name="type_${tag_type}"${" checked" if "type_" + tag_type in form_data else ""}> ${tag_type}</label>
         % endfor
@@ -46,9 +46,15 @@ New request
         <input type="text" class="full" name="character" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("character", "")}">
       </div>
       <label>Gender(s):</label>
+      <p class="tag_checkboxes">
+        <label><input type="checkbox" name="gender_cis_female"> Cis female</label>
+        <label><input type="checkbox" name="gender_cis_male"> Cis male</label>
+        <label><input type="checkbox" name="gender_trans_female"> Trans female</label>
+        <label><input type="checkbox" name="gender_trans_male"> Trans male</label>
+      </p>
       <div class="tag_input">
         <ul class="request_tags"></ul>
-        <input type="text" class="full" name="gender" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("gender", "")}">
+        <input type="text" class="full" name="gender" maxlength="100" placeholder="Enter other tags, separated by commas..." value="${form_data.get("gender", "")}">
       </div>
     </section>
     <section class="tile2">
@@ -64,9 +70,15 @@ New request
         <input type="text" class="full" name="character_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("character_wanted", "")}">
       </div>
       <label>Gender(s):</label>
+      <p class="tag_checkboxes">
+        <label><input type="checkbox" name="gender_wanted_cis_female"> Cis female</label>
+        <label><input type="checkbox" name="gender_wanted_cis_male"> Cis male</label>
+        <label><input type="checkbox" name="gender_wanted_trans_female"> Trans female</label>
+        <label><input type="checkbox" name="gender_wanted_trans_male"> Trans male</label>
+      </p>
       <div class="tag_input">
         <ul class="request_tags"></ul>
-        <input type="text" class="full" name="gender_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("gender_wanted", "")}">
+        <input type="text" class="full" name="gender_wanted" maxlength="100" placeholder="Enter other tags, separated by commas..." value="${form_data.get("gender_wanted", "")}">
       </div>
     </section>
     <section class="tile2">
