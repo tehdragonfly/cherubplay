@@ -31,7 +31,7 @@ ${away_chat_user.user.away_message}</p></li>
           </select></div>
           <label class="right" title="Talk out of character; use ((double brackets)) to automatically OOC."><input id="message_ooc" type="checkbox" name="message_ooc"> OOC</label>
         </div>
-        % if own_chat_user.symbol:
+        % if own_chat_user.symbol is not None:
           <span class="symbol" style="color: #${own_chat_user.last_colour};">${own_chat_user.symbol_character}</span>
         % endif
         <p><textarea id="message_text" name="message_text" placeholder="Write a message..." style="color: #${own_chat_user.last_colour}">${own_chat_user.draft}</textarea></p>
