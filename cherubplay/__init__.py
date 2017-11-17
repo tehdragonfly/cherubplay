@@ -16,7 +16,7 @@ from sqlalchemy import and_, engine_from_config, func
 from sqlalchemy.orm.exc import NoResultFound
 
 from cherubplay.models import Session, Base, Chat, ChatUser, Resource, User
-from cherubplay.models.enums import ChatUserStatus
+from cherubplay.models.enums import ChatUserStatus, TagType
 from cherubplay.resources import (
     ChatContext, prompt_factory, report_factory, TagList, TagPair,
     request_factory, user_factory,
@@ -149,6 +149,13 @@ def main(global_config, **settings):
             curve=SECP256R1(),
             backend=default_backend(),
         )
+
+    for tag_type in TagType:
+        settings["checkbox_tags." + tag_type.value] = [
+            name.strip()
+            for name in settings.get("checkbox_tags." + tag_type.value, "").split("\n")
+            if name.strip()
+        ]
 
     config = Configurator(
         authentication_policy=CherubplayAuthenticationPolicy(),
