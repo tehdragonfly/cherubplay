@@ -24,22 +24,23 @@ class ChatContext(object):
 
     @reify
     def __acl__(self):
-        if self.chat_user:
-            return [
-                # Everyone so banned users can see their own stuff.
-                (Allow, Everyone,        "chat.read"),
-                (Allow, Everyone,        "chat.read_ooc"),
-                (Allow, "admin",         "chat.full_user_list"),
-                (Allow, "active",        "chat.send"),
-                (Allow, Everyone,        "chat.info"),
-                (Allow, "active",        "chat.change_name"),
-                (Allow, self.chat.op_id, "chat.remove_user"),
-            ]
-        return [
+        acl = [
             (Allow, Everyone, "chat.read"),
             (Allow, "admin",  "chat.read_ooc"),
             (Allow, "admin",  "chat.full_user_list"),
         ]
+        if self.chat_user:
+            acl += [
+                (Allow, self.chat_user.user_id, "chat.read_ooc"),
+                (Allow, self.chat_user.user_id, "chat.info"),
+            ]
+        if self.chat_user and self.chat.status == "ongoing":
+            acl += [
+                (Allow, "active",        "chat.send"),
+                (Allow, "active",        "chat.change_name"),
+                (Allow, self.chat.op_id, "chat.remove_user"),
+            ]
+        return acl
 
     def __init__(self, request):
         self.request = request

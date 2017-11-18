@@ -325,7 +325,7 @@ def chat(context, request):
     }, request=request)
 
 
-@view_config(route_name="chat_draft", request_method="POST", permission="chat.info")
+@view_config(route_name="chat_draft", request_method="POST", permission="chat.send")
 def chat_draft(context, request):
     context.chat_user.draft = request.POST["message_text"].strip()
     return HTTPNoContent()
