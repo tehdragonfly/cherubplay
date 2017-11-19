@@ -1,5 +1,6 @@
 <%inherit file="base.mako" />\
 <% from cherubplay.models import Tag %>
+<% from cherubplay.models.enums import TagType %>
 <%block name="heading">\
 % if request.matched_route.name == "directory_request_edit":
 Edit request #${request.context.id}
@@ -21,6 +22,13 @@ New request
       <p class="error">Please choose a maturity for your prompt.</p>
       % endif
       <label>Content warnings:</label>
+      % if request.registry.settings["checkbox_tags.warning"]:
+        <p class="tag_checkboxes">
+          % for checkbox_tag in request.registry.settings["checkbox_tags.warning"]:
+            <label><input type="checkbox" name="gender_${checkbox_tag}"> ${checkbox_tag}</label>
+          % endfor
+        </p>
+      % endif
       <div class="tag_input">
         <ul class="request_tags"></ul>
         <input type="text" class="full" name="warning" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("warning", "")}">
@@ -46,12 +54,13 @@ New request
         <input type="text" class="full" name="character" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("character", "")}">
       </div>
       <label>Gender(s):</label>
-      <p class="tag_checkboxes">
-        <label><input type="checkbox" name="gender_cis_female"> Cis female</label>
-        <label><input type="checkbox" name="gender_cis_male"> Cis male</label>
-        <label><input type="checkbox" name="gender_trans_female"> Trans female</label>
-        <label><input type="checkbox" name="gender_trans_male"> Trans male</label>
-      </p>
+      % if request.registry.settings["checkbox_tags.gender"]:
+        <p class="tag_checkboxes">
+          % for checkbox_tag in request.registry.settings["checkbox_tags.gender"]:
+            <label><input type="checkbox" name="gender_${checkbox_tag}"> ${checkbox_tag}</label>
+          % endfor
+        </p>
+      % endif
       <div class="tag_input">
         <ul class="request_tags"></ul>
         <input type="text" class="full" name="gender" maxlength="100" placeholder="Enter other tags, separated by commas..." value="${form_data.get("gender", "")}">
@@ -70,12 +79,13 @@ New request
         <input type="text" class="full" name="character_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("character_wanted", "")}">
       </div>
       <label>Gender(s):</label>
-      <p class="tag_checkboxes">
-        <label><input type="checkbox" name="gender_wanted_cis_female"> Cis female</label>
-        <label><input type="checkbox" name="gender_wanted_cis_male"> Cis male</label>
-        <label><input type="checkbox" name="gender_wanted_trans_female"> Trans female</label>
-        <label><input type="checkbox" name="gender_wanted_trans_male"> Trans male</label>
-      </p>
+      % if request.registry.settings["checkbox_tags.gender_wanted"]:
+        <p class="tag_checkboxes">
+          % for checkbox_tag in request.registry.settings["checkbox_tags.gender_wanted"]:
+            <label><input type="checkbox" name="gender_${checkbox_tag}"> ${checkbox_tag}</label>
+          % endfor
+        </p>
+      % endif
       <div class="tag_input">
         <ul class="request_tags"></ul>
         <input type="text" class="full" name="gender_wanted" maxlength="100" placeholder="Enter other tags, separated by commas..." value="${form_data.get("gender_wanted", "")}">
