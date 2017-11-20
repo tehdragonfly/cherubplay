@@ -25,7 +25,7 @@ New request
       % if request.registry.settings["checkbox_tags.warning"]:
         <p class="tag_checkboxes">
           % for checkbox_tag in request.registry.settings["checkbox_tags.warning"]:
-            <label><input type="checkbox" name="gender_${checkbox_tag}"> ${checkbox_tag}</label>
+            <label><input type="checkbox" name="warning_${checkbox_tag}" ${"checked" if form_data.get("warning_" + checkbox_tag, "") else ""}> ${checkbox_tag}</label>
           % endfor
         </p>
       % endif
@@ -57,7 +57,7 @@ New request
       % if request.registry.settings["checkbox_tags.gender"]:
         <p class="tag_checkboxes">
           % for checkbox_tag in request.registry.settings["checkbox_tags.gender"]:
-            <label><input type="checkbox" name="gender_${checkbox_tag}"> ${checkbox_tag}</label>
+            <label><input type="checkbox" name="gender_${checkbox_tag}" ${"checked" if form_data.get("gender_" + checkbox_tag, "") else ""}> ${checkbox_tag}</label>
           % endfor
         </p>
       % endif
@@ -82,7 +82,7 @@ New request
       % if request.registry.settings["checkbox_tags.gender_wanted"]:
         <p class="tag_checkboxes">
           % for checkbox_tag in request.registry.settings["checkbox_tags.gender_wanted"]:
-            <label><input type="checkbox" name="gender_${checkbox_tag}"> ${checkbox_tag}</label>
+            <label><input type="checkbox" name="gender_wanted_${checkbox_tag}" ${"checked" if form_data.get("gender_wanted_" + checkbox_tag, "") else ""}> ${checkbox_tag}</label>
           % endfor
         </p>
       % endif

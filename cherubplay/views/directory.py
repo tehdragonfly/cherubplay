@@ -82,7 +82,7 @@ def _normalise_tag_name(tag_type, name):
     return name[:100]
 
 
-def _request_tags_from_form(form, new_request):
+def _request_tags_from_form(request, form, new_request):
     tag_set = set()
     fandoms = set()
     for tag_type in Tag.type.type.python_type:
@@ -101,6 +101,10 @@ def _request_tags_from_form(form, new_request):
                 if "type_" + name in form:
                     tag_set.add((TagType.type, name))
             continue
+
+        for name in request.registry.settings["checkbox_tags." + tag_type.value]:
+            if tag_type.value + "_" + name in form:
+                tag_set.add((tag_type, name))
 
         for name in form[tag_type.value][:1000].split(","):
             name = _normalise_tag_name(tag_type, name)
@@ -697,7 +701,7 @@ def directory_new_post(request):
 
     _remove_duplicates(new_request)
 
-    new_request.request_tags += _request_tags_from_form(request.POST, new_request)
+    new_request.request_tags += _request_tags_from_form(request, request.POST, new_request)
 
     if slot_name and slot_descriptions:
         Session.add(RequestSlot(
@@ -1027,7 +1031,12 @@ def directory_request_edit_get(context, request):
             for tag in tags:
                 form_data["type_" + tag.name] = "on"
         else:
-            form_data[tag_type.value] = ", ".join(tag.name for tag in tags)
+            for name in request.registry.settings["checkbox_tags." + tag_type.value]:
+                form_data[tag_type.value + "_" + name] = "on"
+            form_data[tag_type.value] = ", ".join(
+                tag.name for tag in tags
+                if tag.name not in request.registry.settings["checkbox_tags." + tag_type.value]
+            )
 
     form_data["colour"]    = "#" + context.colour
     form_data["ooc_notes"] = context.ooc_notes
@@ -1068,7 +1077,7 @@ def directory_request_edit_post(context, request):
 
     Session.query(RequestTag).filter(RequestTag.request_id == context.id).delete()
 
-    new_tags = _request_tags_from_form(request.POST, context)
+    new_tags = _request_tags_from_form(request, request.POST, context)
     context.request_tags += new_tags
     context.tag_ids = None
 
