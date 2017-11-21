@@ -23,7 +23,7 @@ New request
       % endif
       <label>Content warnings:</label>
       % if request.registry.settings["checkbox_tags.warning"]:
-        <p class="tag_checkboxes">
+        <p id="warning_checkboxes" class="tag_checkboxes" style="${"" if form_data.get("maturity") == "NSFW extreme" else "display: none;"}">
           % for checkbox_tag in request.registry.settings["checkbox_tags.warning"]:
             <label><input type="checkbox" name="warning_${checkbox_tag}" ${"checked" if form_data.get("warning_" + checkbox_tag, "") else ""}> ${checkbox_tag}</label>
           % endfor

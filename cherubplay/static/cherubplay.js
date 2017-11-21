@@ -621,6 +621,13 @@ var cherubplay = (function() {
 		"directory_new": function() {
 			var add_tag_functions = [];
 
+			var warning_checkboxes = $("#warning_checkboxes");
+			$("select[name=maturity]").change(function() {
+				console.log(this);
+				console.log(this.value);
+				this.value == "NSFW extreme" ? warning_checkboxes.show() : warning_checkboxes.hide();
+			}).change();
+
 			$("#new_request_form .tag_input").each(function() {
 
 				var tag_list = $(this).find(".request_tags");
