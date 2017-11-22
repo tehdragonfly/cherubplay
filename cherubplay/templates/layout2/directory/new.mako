@@ -44,11 +44,25 @@ New request
     <section class="tile2">
       <h3>Who you're playing</h3>
       <label>Fandom(s):</label>
+      % if request.registry.settings["checkbox_tags.fandom"]:
+        <p class="tag_checkboxes">
+          % for checkbox_tag in request.registry.settings["checkbox_tags.fandom"]:
+            <label><input type="checkbox" name="fandom_${checkbox_tag}" ${"checked" if form_data.get("fandom_" + checkbox_tag, "") else ""}> ${checkbox_tag}</label>
+          % endfor
+        </p>
+      % endif
       <div class="tag_input">
         <ul class="request_tags"></ul>
         <input type="text" class="full" name="fandom" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("fandom", "Homestuck")}">
       </div>
       <label>Character(s):</label>
+      % if request.registry.settings["checkbox_tags.character"]:
+        <p class="tag_checkboxes">
+          % for checkbox_tag in request.registry.settings["checkbox_tags.character"]:
+            <label><input type="checkbox" name="character_${checkbox_tag}" ${"checked" if form_data.get("character_" + checkbox_tag, "") else ""}> ${checkbox_tag}</label>
+          % endfor
+        </p>
+      % endif
       <div class="tag_input">
         <ul class="request_tags"></ul>
         <input type="text" class="full" name="character" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("character", "")}">
@@ -69,11 +83,25 @@ New request
     <section class="tile2">
       <h3>Who you're looking for</h3>
       <label>Fandom(s):</label>
+      % if request.registry.settings["checkbox_tags.fandom_wanted"]:
+        <p class="tag_checkboxes">
+          % for checkbox_tag in request.registry.settings["checkbox_tags.fandom_wanted"]:
+            <label><input type="checkbox" name="fandom_wanted_${checkbox_tag}" ${"checked" if form_data.get("fandom_wanted_" + checkbox_tag, "") else ""}> ${checkbox_tag}</label>
+          % endfor
+        </p>
+      % endif
       <div class="tag_input">
         <ul class="request_tags"></ul>
         <input type="text" class="full" name="fandom_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("fandom_wanted", "Homestuck")}">
       </div>
       <label>Character(s):</label>
+      % if request.registry.settings["checkbox_tags.character_wanted"]:
+        <p class="tag_checkboxes">
+          % for checkbox_tag in request.registry.settings["checkbox_tags.character_wanted"]:
+            <label><input type="checkbox" name="character_wanted_${checkbox_tag}" ${"checked" if form_data.get("character_wanted_" + checkbox_tag, "") else ""}> ${checkbox_tag}</label>
+          % endfor
+        </p>
+      % endif
       <div class="tag_input">
         <ul class="request_tags"></ul>
         <input type="text" class="full" name="character_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("character_wanted", "")}">
@@ -94,6 +122,13 @@ New request
     <section class="tile2">
       <h3>Other tags</h3>
       <p class="help">Other tags can contain anything else you think is relevant - AUs, kinks and the like.</p>
+      % if request.registry.settings["checkbox_tags.misc"]:
+        <p class="tag_checkboxes">
+          % for checkbox_tag in request.registry.settings["checkbox_tags.misc"]:
+            <label><input type="checkbox" name="misc_${checkbox_tag}" ${"checked" if form_data.get("misc_" + checkbox_tag, "") else ""}> ${checkbox_tag}</label>
+          % endfor
+        </p>
+      % endif
       <div class="tag_input">
         <ul class="request_tags"></ul>
         <input type="text" class="full" name="misc" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("misc", "")}">
