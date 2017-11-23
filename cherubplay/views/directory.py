@@ -7,6 +7,7 @@ from pyramid.view import view_config
 from sqlalchemy import and_, func, literal
 from sqlalchemy.orm import joinedload, subqueryload
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.sql.operators import asc_op
 from uuid import uuid4
 
 from cherubplay.lib import colour_validator, preset_colours
@@ -193,11 +194,15 @@ def directory(request):
         Session.query(Request)
         .filter(request.user.tag_filter)
     )
+    order_by = sort_field(request.GET.get("sort", request.user.default_request_order))
     if before_date:
-        requests = requests.filter(Request.posted < before_date)
+        if order_by.modifier == asc_op:
+            requests = requests.filter(Request.posted > before_date)
+        else:
+            requests = requests.filter(Request.posted < before_date)
     requests = (
         requests.options(joinedload(Request.tags), subqueryload(Request.slots))
-        .order_by(sort_field(request.GET.get("sort", request.user.default_request_order)))
+        .order_by(order_by)
         .limit(26).all()
     )
 
