@@ -3,6 +3,7 @@
 import paginate, re
 
 from collections import OrderedDict
+from hashlib import sha256
 
 
 def make_paginator(request, item_count, current_page, items_per_page=25):
@@ -72,6 +73,12 @@ prompt_levels = OrderedDict([
     ("nsfw", "Not safe for work"),
     ("nsfw-extreme", "NSFW extreme"),
 ])
+
+
+deduplicate_regex = re.compile("[\W_]+")
+
+def prompt_hash(text):
+    return sha256(deduplicate_regex.sub("", text).encode()).hexdigest()
 
 
 class OnlineUserStore(object):

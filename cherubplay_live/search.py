@@ -3,7 +3,6 @@ import re
 import time
 
 from datetime import datetime, timedelta
-from hashlib import sha256
 from urllib.parse import urlparse
 from uuid import uuid4
 
@@ -15,7 +14,7 @@ from tornado.netutil import bind_unix_socket
 from tornado.web import Application, HTTPError
 from tornado.websocket import WebSocketHandler
 
-from cherubplay.lib import colour_validator, prompt_categories, prompt_starters, prompt_levels
+from cherubplay.lib import colour_validator, prompt_hash, prompt_categories, prompt_starters, prompt_levels
 from cherubplay.models import Chat, ChatUser, Message, PromptReport
 
 from cherubplay_live.db import config, db_session, get_user, login_client
@@ -23,12 +22,7 @@ from cherubplay_live.db import config, db_session, get_user, login_client
 prompters = {}
 searchers = {}
 
-deduplicate_regex = re.compile("[\W_]+")
 url_regex = re.compile("https?:\/\/\S+")
-
-
-def prompt_hash(text):
-    return sha256(deduplicate_regex.sub("", text).encode()).hexdigest()
 
 
 class AnswerDenied(Exception):

@@ -10,7 +10,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.operators import asc_op
 from uuid import uuid4
 
-from cherubplay.lib import colour_validator, preset_colours
+from cherubplay.lib import colour_validator, preset_colours, prompt_hash
 from cherubplay.models import (
     Session, BlacklistedTag, Chat, ChatUser, CreateNotAllowed, Message, Request,
     RequestSlot, RequestTag, Tag, TagParent, TagAddParentSuggestion,
@@ -662,13 +662,17 @@ def directory_random(request):
 
 
 def _remove_duplicates(new_request):
-    Session.query(Request).filter(and_(
-        Request.id      != new_request.id,
-        Request.user_id == new_request.user_id,
-        Request.status  == "posted",
-        func.lower(Request.ooc_notes) == new_request.ooc_notes.lower(),
-        func.lower(Request.starter)   == new_request.starter.lower(),
-    )).update({
+    new_hash = prompt_hash(new_request.ooc_notes + new_request.starter)
+    duplicate_ids = {
+        old_request.id
+        for old_request in Session.query(Request).filter(and_(
+            Request.id      != new_request.id,
+            Request.user_id == new_request.user_id,
+            Request.status  == "posted",
+        ))
+        if new_hash == prompt_hash(old_request.ooc_notes + old_request.starter)
+    }
+    Session.query(Request).filter(Request.id.in_(duplicate_ids)).update({
         "status": "draft",
         "duplicate_of_id": new_request.id,
     }, synchronize_session=False)
