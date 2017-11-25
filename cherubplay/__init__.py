@@ -165,6 +165,9 @@ def main(global_config, **settings):
     )
     config.configure_celery(global_config['__file__'])
 
+    config.include("pyramid_services")
+    config.include("cherubplay.models")
+
     # Replace the JSON renderer so we can serialise sets.
     config.add_renderer("json", JSONRenderer)
 
