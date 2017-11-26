@@ -167,6 +167,7 @@ def main(global_config, **settings):
 
     config.include("pyramid_services")
     config.include("cherubplay.models")
+    config.include("cherubplay.services.request")
 
     # Replace the JSON renderer so we can serialise sets.
     config.add_renderer("json", JSONRenderer)
