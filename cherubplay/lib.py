@@ -78,7 +78,7 @@ prompt_levels = OrderedDict([
 deduplicate_regex = re.compile("[\W_]+")
 
 def prompt_hash(text):
-    return sha256(deduplicate_regex.sub("", text).encode()).hexdigest()
+    return sha256(deduplicate_regex.sub("", text.lower()).encode()).hexdigest()
 
 
 class OnlineUserStore(object):

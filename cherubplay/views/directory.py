@@ -1108,7 +1108,8 @@ def directory_request_edit_post(context, request):
     else:
         Session.query(RequestSlot).filter(RequestSlot.request_id == context.id).delete()
 
-    _remove_duplicates(context)
+    if context.status == "posted":
+        _remove_duplicates(context)
 
     transaction.get().addAfterCommitHook(_trigger_update_request_tag_ids(context.id))
 
