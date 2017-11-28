@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgres import ARRAY
 from sqlalchemy.orm import joinedload, subqueryload
 from sqlalchemy.sql.expression import cast
 from sqlalchemy.sql.operators import asc_op, desc_op
-from typing import Dict, List, Union
+from typing import List, Set, Union
 from zope.interface import Interface, implementer
 
 from cherubplay.models import Session, Request, Tag, User
@@ -16,7 +16,7 @@ class RequestList(Sequence):
     def __init__(
         self,
         requests: List[Request],
-        answered: Dict[int, bool],
+        answered: Set[int],
         next_page_start: datetime.datetime=None,
     ):
         self._requests = requests
@@ -58,10 +58,11 @@ class IRequestService(Interface):
 class RequestService(object):
     def __init__(self, request):
         self._db    = request.find_service(name="db")
-        self._redis = request.login_store # TODO login or pubsub?
+        self._redis = request.login_store
 
     def search(
         self,
+        for_user: User=None,
         with_tags: List[Tag]=None,
         by_user: User=None,
         posted_only: bool=True,
@@ -118,7 +119,13 @@ class RequestService(object):
 
         requests = query.all()
 
-        answered = {} # TODO
+        if for_user:
+            pipe = self._redis.pipeline()
+            for rq in requests:
+                pipe.get("answered:%s:%s" % (for_user.id, rq.id))
+            answered = set(int(_) for _ in pipe.execute() if _ is not None)
+        else:
+            answered = set()
 
         if len(requests) == page_size + 1:
             next_page_start = requests[-1]
