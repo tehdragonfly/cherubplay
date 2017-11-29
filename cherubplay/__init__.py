@@ -90,22 +90,19 @@ def request_user(request):
     if "cherubplay.read_only" in request.registry.settings:
         return None
     try:
-        user_id = request.login_store.get("session:"+request.cookies["cherubplay"])
+        user_id = request.login_store.get("session:" + request.cookies["cherubplay"])
     except ConnectionError:
         return None
     if user_id is not None:
         try:
-            user = Session.query(User).filter(User.id==int(user_id)).one()
+            db = request.find_service(name="db")
+            user = db.query(User).filter(User.id==int(user_id)).one()
             user.last_online = datetime.datetime.now()
             user.last_ip = request.environ["REMOTE_ADDR"]
             if user.status == "banned" and user.unban_date is not None:
                 if user.unban_delta.total_seconds() < 0:
                     user.status = "active"
                     user.unban_date = None
-            # The ACL stuff means the user object belongs to a different
-            # transaction to the rest of the request, so we have to manually
-            # commit it here (and set the Session to not expire on commit).
-            transaction.commit()
             return user
         except (ValueError, NoResultFound):
             return None
@@ -115,7 +112,8 @@ def request_user(request):
 def request_unread_chats(request):
     if request.user is None:
         return 0
-    return Session.query(func.count('*')).select_from(ChatUser).join(Chat).filter(and_(
+    db = request.find_service(name="db")
+    return db.query(func.count('*')).select_from(ChatUser).join(Chat).filter(and_(
         ChatUser.user_id == request.user.id,
         ChatUser.status == ChatUserStatus.active,
         Chat.updated > ChatUser.visited,
