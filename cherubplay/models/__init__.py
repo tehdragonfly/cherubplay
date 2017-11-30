@@ -619,41 +619,11 @@ Index("tag_type_name_unique", Tag.type, func.lower(Tag.name), unique=True)
 configure_mappers()
 
 
-def get_engine(settings, prefix="sqlalchemy."):
-    return engine_from_config(settings, prefix)
-
-
-def get_session_factory(engine):
-    factory = sessionmaker()
-    factory.configure(bind=engine)
-    return factory
-
-
-def get_tm_session(session_factory, transaction_manager):
-    """
-    Get a ``sqlalchemy.orm.Session`` instance backed by a transaction.
-
-    This function will hook the session to the transaction manager which
-    will take care of committing any changes.
-
-    - When using pyramid_tm it will automatically be committed or aborted
-      depending on whether an exception is raised.
-
-    - When using scripts you should wrap the session in a manager yourself.
-      For example::
-
-          import transaction
-
-          engine = get_engine(settings)
-          session_factory = get_session_factory(engine)
-          with transaction.manager:
-              dbsession = get_tm_session(session_factory, transaction.manager)
-
-    """
-    dbsession = session_factory()
-    zope.sqlalchemy.register(
-        dbsession, transaction_manager=transaction_manager)
-    return dbsession
+def get_sessionmaker(settings, prefix="sqlalchemy."):
+    engine = engine_from_config(settings, prefix)
+    sm = sessionmaker()
+    sm.configure(bind=engine)
+    return sm
 
 
 def includeme(config):
@@ -668,7 +638,13 @@ def includeme(config):
     # use pyramid_tm to hook the transaction lifecycle to the request
     config.include("pyramid_tm")
 
-    session_factory = get_session_factory(get_engine(settings))
+    sm = get_sessionmaker(settings)
 
-    config.register_service_factory(lambda context, request: session_factory(), name="db")
+    def db_factory(context, request):
+        db = sm()
+        # register the session with pyramid_tm for managing transactions
+        zope.sqlalchemy.register(db, transaction_manager=request.tm)
+        return db
+
+    config.register_service_factory(db_factory, name="db")
 
