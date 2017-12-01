@@ -12,7 +12,6 @@ from uuid import uuid4
 
 from cherubplay.lib import email_validator
 from cherubplay.models import (
-    Session,
     PushSubscription,
     User,
 )
@@ -82,7 +81,8 @@ def account_verify_email(request):
         raise HTTPNotFound
 
     try:
-        user = Session.query(User).filter(User.id == user_id).one()
+        db = request.find_service(name="db")
+        user = db.query(User).filter(User.id == user_id).one()
     except NoResultFound:
         raise HTTPNotFound
 
@@ -93,7 +93,7 @@ def account_verify_email(request):
 
     if not request.user or request.user.id != user.id:
         new_session_id = str(uuid4())
-        request.login_store.set("session:"+new_session_id, user.id)
+        request.login_store.set("session:" + new_session_id, user.id)
         response.set_cookie("cherubplay", new_session_id, 31536000)
 
     return response
@@ -104,14 +104,12 @@ def account_password(request):
 
     if hashpw(request.POST["old_password"].encode(), request.user.password.encode()).decode() != request.user.password:
         return { "password_error": "That isn't your old password." }
-    if request.POST["password"]=="":
+    if request.POST["password"] == "":
         return { "password_error": "Please don't use a blank password." }
-    if request.POST["password"]!=request.POST["password_again"]:
+    if request.POST["password"] != request.POST["password_again"]:
         return { "password_error": "The two passwords didn't match." }
 
-    Session.query(User).filter(User.id==request.user.id).update({
-        "password": hashpw(request.POST["password"].encode(), gensalt()).decode(),
-    })
+    request.user.password = hashpw(request.POST["password"].encode(), gensalt()).decode()
 
     return HTTPFound(request.route_path("account", _query={ "saved": "password" }))
 
@@ -144,18 +142,14 @@ timezones_list = sorted(list(timezones))
 @view_config(route_name="account_timezone", request_method="POST", permission="view")
 def account_timezone(request):
     if request.POST["timezone"] in timezones:
-        Session.query(User).filter(User.id==request.user.id).update({
-            "timezone": request.POST["timezone"],
-        })
+        request.user.timezone = request.POST["timezone"]
     return HTTPNoContent()
 
 
 @view_config(route_name="account_layout_version", request_method="POST", permission="view")
 def account_layout_version(request):
     if request.POST["layout_version"] in ("1", "2"):
-        Session.query(User).filter(User.id==request.user.id).update({
-            "layout_version": int(request.POST["layout_version"]),
-        })
+        request.user.layout_version = int(request.POST["layout_version"])
     return HTTPFound(request.environ["HTTP_REFERER"])
 
 
@@ -172,7 +166,8 @@ def forgot_password_post(request):
 
     try:
         username = request.POST["username"].strip()[:User.username.type.length]
-        user = Session.query(User).filter(User.username == username.lower()).one()
+        db = request.user.find_srevice(name="db")
+        user = db.query(User).filter(User.username == username.lower()).one()
     except NoResultFound:
         return {"error": "no_user", "username": username}
 
@@ -206,7 +201,8 @@ def _validate_reset_token(request):
         raise HTTPNotFound
 
     try:
-        return Session.query(User).filter(User.id == user_id).one()
+        db = request.user.find_service(name="db")
+        return db.query(User).filter(User.id == user_id).one()
     except NoResultFound:
         raise HTTPNotFound
 
