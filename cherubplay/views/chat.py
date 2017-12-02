@@ -12,7 +12,7 @@ from pyramid.renderers import render_to_response
 from pyramid.view import view_config
 from redis.exceptions import ConnectionError
 from sqlalchemy import and_, func, Unicode
-from sqlalchemy.dialects.postgres import ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast

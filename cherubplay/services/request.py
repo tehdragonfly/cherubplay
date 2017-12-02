@@ -2,7 +2,7 @@ import datetime
 
 from collections.abc import Sequence
 from sqlalchemy import Integer
-from sqlalchemy.dialects.postgres import ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import joinedload, subqueryload
 from sqlalchemy.sql.expression import cast
 from sqlalchemy.sql.operators import asc_op, desc_op

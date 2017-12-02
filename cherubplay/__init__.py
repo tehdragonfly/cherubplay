@@ -96,7 +96,7 @@ def request_user(request):
     if user_id is not None:
         try:
             db = request.find_service(name="db")
-            user = db.query(User).filter(User.id==int(user_id)).one()
+            user = db.query(User).filter(User.id == int(user_id)).one()
             user.last_online = datetime.datetime.now()
             user.last_ip = request.environ["REMOTE_ADDR"]
             if user.status == "banned" and user.unban_date is not None:

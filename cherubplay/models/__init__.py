@@ -621,7 +621,7 @@ configure_mappers()
 
 def get_sessionmaker(settings, prefix="sqlalchemy."):
     engine = engine_from_config(settings, prefix)
-    sm = sessionmaker()
+    sm = sessionmaker(extension=ZopeTransactionExtension())
     sm.configure(bind=engine)
     return sm
 
@@ -630,7 +630,7 @@ def includeme(config):
     """
     Initialize the model for a Pyramid app.
 
-    Activate this setup using ``config.include("mxauth.models")``.
+    Activate this setup using ``config.include("cherubplay.models")``.
 
     """
     settings = config.get_settings()
