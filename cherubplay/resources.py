@@ -106,7 +106,8 @@ def prompt_factory(request):
         raise HTTPNotFound
 
     try:
-        return Session.query(Prompt).filter(and_(
+        db = request.find_service(name="db")
+        return db.query(Prompt).filter(and_(
             Prompt.user_id == request.user.id,
             Prompt.id == int(request.matchdict["id"]),
         )).one()

@@ -4,8 +4,8 @@ from pyramid.view import view_config
 from sqlalchemy import and_, func
 from sqlalchemy.orm.exc import NoResultFound
 
-from ..lib import colour_validator, preset_colours, prompt_categories, prompt_starters, prompt_levels
-from ..models import Session, Prompt
+from cherubplay.lib import colour_validator, preset_colours, prompt_categories, prompt_starters, prompt_levels
+from cherubplay.models import Prompt
 
 
 @view_config(route_name="prompt_list", request_method="GET", permission="view", renderer="layout2/prompt_list.mako")
@@ -14,12 +14,13 @@ def prompt_list(request):
 
     current_page = int(request.GET.get("page", 1))
 
+    db = request.find_service(name="db")
     prompts = (
-        Session.query(Prompt).filter(Prompt.user_id == request.user.id)
+        db.query(Prompt).filter(Prompt.user_id == request.user.id)
         .order_by(Prompt.id.desc()).limit(25).offset((current_page-1)*25).all()
     )
     prompt_count = (
-        Session.query(func.count('*')).select_from(Prompt)
+        db.query(func.count('*')).select_from(Prompt)
         .filter(Prompt.user_id==request.user.id).scalar()
     )
 
@@ -86,8 +87,9 @@ def new_prompt_post(request):
         starter=request.POST["prompt_starter"],
         level=request.POST["prompt_level"],
     )
-    Session.add(new_prompt)
-    Session.flush()
+    db = request.find_service(name="db")
+    db.add(new_prompt)
+    db.flush()
 
     return HTTPFound(request.route_path("prompt_list"))
 
@@ -161,6 +163,7 @@ def delete_prompt_get(context, request):
 
 @view_config(route_name="delete_prompt", request_method="POST", permission="prompt.delete")
 def delete_prompt_post(context, request):
-    Session.delete(context)
+    db = request.find_service(name="db")
+    db.delete(context)
     return HTTPFound(request.route_path("prompt_list"))
 
