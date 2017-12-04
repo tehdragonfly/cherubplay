@@ -117,7 +117,8 @@ def prompt_factory(request):
 
 def report_factory(request):
     try:
-        return Session.query(PromptReport).filter(
+        db = request.find_service(name="db")
+        return db.query(PromptReport).filter(
             PromptReport.id == int(request.matchdict["id"])
         ).one()
     except (ValueError, NoResultFound):
@@ -389,7 +390,8 @@ def request_factory(request):
 
 def user_factory(request):
     try:
-        return Session.query(User).filter(User.username == request.matchdict["username"]).one()
+        db = request.find_service(name="db")
+        return db.query(User).filter(User.username == request.matchdict["username"]).one()
     except (ValueError, NoResultFound):
         raise HTTPNotFound
 

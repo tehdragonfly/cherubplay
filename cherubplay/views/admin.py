@@ -12,7 +12,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from cherubplay.lib import prompt_categories, prompt_starters, prompt_levels
-from cherubplay.models import Session, Chat, ChatUser, PromptReport, Request, User
+from cherubplay.models import Chat, ChatUser, PromptReport, Request, User
 
 
 status_filters = {
@@ -28,16 +28,17 @@ status_filters = {
 def report_list(request):
     current_status = status_filters[request.matched_route.name]
     current_page = int(request.GET.get("page", 1))
-    reports = Session.query(PromptReport).order_by(
+    db = request.find_service(name="db")
+    reports = db.query(PromptReport).order_by(
         PromptReport.created.desc(),
     ).filter(PromptReport.status == current_status).options(
         joinedload(PromptReport.reporting_user),
         joinedload(PromptReport.reported_user),
     ).limit(25).offset((current_page-1)*25).all()
     # 404 on empty pages.
-    if current_page!=1 and len(reports)==0:
+    if current_page != 1 and len(reports) == 0:
         raise HTTPNotFound
-    report_count = Session.query(func.count('*')).select_from(PromptReport).filter(PromptReport.status == current_status).scalar()
+    report_count = db.query(func.count('*')).select_from(PromptReport).filter(PromptReport.status == current_status).scalar()
     return {
         "PromptReport": PromptReport,
         "reports": reports,
@@ -50,18 +51,19 @@ def report_list(request):
 
 
 def _report_form(context, request, **kwargs):
+    db = request.find_service(name="db")
     return dict(
         PromptReport=PromptReport,
         prompt_categories=prompt_categories,
         prompt_starters=prompt_starters,
         prompt_levels=prompt_levels,
         duplicates=(
-            Session.query(PromptReport)
+            db.query(PromptReport)
             .filter(PromptReport.duplicate_of_id == context.id)
             .order_by(PromptReport.id.desc()).all()
         ),
         chats=(
-            Session.query(Chat, ChatUser)
+            db.query(Chat, ChatUser)
             .outerjoin(ChatUser, and_(
                 ChatUser.chat_id == Chat.id,
                 ChatUser.user_id == request.user.id,
@@ -92,7 +94,8 @@ def report_post(context, request):
         if "status_" + value in request.POST:
             if value == "duplicate":
                 try:
-                    duplicate_of = Session.query(PromptReport).filter(PromptReport.id == int(request.POST["duplicate_of_id"])).one()
+                    db = request.find_service(name="db")
+                    duplicate_of = db.query(PromptReport).filter(PromptReport.id == int(request.POST["duplicate_of_id"])).one()
                     if duplicate_of.id == context.id:
                         raise ValueError("a report can't be a duplicate of itself")
                 except (KeyError, ValueError, NoResultFound):
@@ -118,7 +121,8 @@ def user(context, request):
 def user_status(context, request):
     if context.status != "banned" and request.POST["status"] == "banned":
         context.unban_date = None
-        Session.query(Request).filter(and_(
+        db = request.find_service(name="db")
+        db.query(Request).filter(and_(
             Request.user_id == context.id,
             Request.status == "posted",
         )).update({"status": "draft"})
@@ -131,21 +135,22 @@ def user_chat(context, request):
     if context.status == "banned" or context.id == request.user.id:
         raise HTTPNotFound
     new_chat = Chat(url=str(uuid.uuid4()))
-    Session.add(new_chat)
-    Session.flush()
+    db = request.find_service(name="db")
+    db.add(new_chat)
+    db.flush()
     if "report_id" in request.POST:
         try:
-            report = Session.query(PromptReport).filter(PromptReport.id == int(request.POST["report_id"])).one()
+            report = db.query(PromptReport).filter(PromptReport.id == int(request.POST["report_id"])).one()
             report.chat_ids = report.chat_ids + [new_chat.id]
         except (ValueError, NoResultFound):
             pass
-    Session.add(ChatUser(
+    db.add(ChatUser(
         chat_id=new_chat.id,
         user_id=request.user.id,
         symbol=0,
         title="Chat with %s" % context.username,
     ))
-    Session.add(ChatUser(
+    db.add(ChatUser(
         chat_id=new_chat.id,
         user_id=context.id,
         symbol=1,
@@ -162,7 +167,8 @@ def user_ban(context, request):
     except (KeyError, ValueError):
         days = 1
     context.unban_date = datetime.now() + timedelta(days)
-    Session.query(Request).filter(and_(
+    db = request.find_service(name="db")
+    db.query(Request).filter(and_(
         Request.user_id == context.id,
         Request.status == "posted",
     )).update({"status": "draft"})
