@@ -1,4 +1,3 @@
-import transaction
 import uuid
 
 from bcrypt import gensalt, hashpw
@@ -10,15 +9,15 @@ from redis.exceptions import ConnectionError
 from sqlalchemy.orm.exc import NoResultFound
 
 from cherubplay.lib import username_validator, reserved_usernames, preset_colours, prompt_categories, prompt_starters, prompt_levels
-from cherubplay.models import Session, Prompt, User
+from cherubplay.models import Prompt, User
 
 
 @view_config(route_name="home", effective_principals=Authenticated)
 def home(request):
     template = "layout2/home.mako" if request.user.layout_version == 2 else "home.mako"
     return render_to_response(template, {
-        "saved_prompts":     (
-            Session.query(Prompt)
+        "saved_prompts": (
+            request.find_service(name="db").query(Prompt)
             .filter(Prompt.user_id == request.user.id)
             .order_by(Prompt.title).all()
         ),
@@ -63,9 +62,10 @@ def sign_up(request):
     if username_validator.match(username) is None:
         return {"sign_up_error": "Usernames can only contain letters, numbers, hyphens and underscores."}
 
+    db = request.find_service(name="db")
     if (
         username in reserved_usernames
-        or Session.query(User.id).filter(User.username==username).count() == 1
+        or db.query(User.id).filter(User.username == username).count() == 1
     ):
         return {"sign_up_error": "The username \"%s\" has already been taken." % username}
 
@@ -75,16 +75,16 @@ def sign_up(request):
         password=hashpw(request.POST["password"].encode(), gensalt()).decode(),
         last_ip=request.environ["REMOTE_ADDR"],
     )
-    Session.add(new_user)
-    Session.flush()
+    db.add(new_user)
+    db.flush()
 
     # Generate session ID and add it to the login store.
     new_session_id = str(uuid.uuid4())
     request.login_store.set("session:" + new_session_id, new_user.id)
 
     # Remember their IP address for 12 hours.
-    ip_check = request.login_store.set(ip_check_key, "1")
-    ip_check = request.login_store.expire(ip_check_key, 43200)
+    request.login_store.set(ip_check_key, "1")
+    request.login_store.expire(ip_check_key, 43200)
 
     # Set cookie for session ID.
     response = HTTPFound(request.route_path("home"))
@@ -100,8 +100,9 @@ def log_in(request):
     if "cherubplay.read_only" in request.registry.settings:
         raise HTTPForbidden
 
+    db = request.find_service(name="db")
     try:
-        user = Session.query(User).filter(User.username == request.POST["username"].lower()).one()
+        user = db.query(User).filter(User.username == request.POST["username"].lower()).one()
     except NoResultFound:
         return {"log_in_error": "Username and/or password not recognised."}
 
@@ -129,4 +130,3 @@ def log_out(request):
     response = HTTPFound(request.route_path("home"))
     response.delete_cookie("cherubplay")
     return response
-

@@ -1,8 +1,7 @@
 from datetime import datetime
-from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
+from pyramid.httpexceptions import HTTPFound
 from pyramid.view import view_config
-from sqlalchemy import and_, func
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import func
 
 from cherubplay.lib import colour_validator, preset_colours, prompt_categories, prompt_starters, prompt_levels
 from cherubplay.models import Prompt
@@ -21,7 +20,7 @@ def prompt_list(request):
     )
     prompt_count = (
         db.query(func.count('*')).select_from(Prompt)
-        .filter(Prompt.user_id==request.user.id).scalar()
+        .filter(Prompt.user_id == request.user.id).scalar()
     )
 
     if request.matched_route.name == "prompt_list_ext":
@@ -166,4 +165,3 @@ def delete_prompt_post(context, request):
     db = request.find_service(name="db")
     db.delete(context)
     return HTTPFound(request.route_path("prompt_list"))
-

@@ -6,7 +6,6 @@ from pyramid.renderers import render, render_to_response
 from pyramid.view import view_config
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message as EmailMessage
-from sqlalchemy import and_
 from sqlalchemy.orm.exc import NoResultFound
 from uuid import uuid4
 
@@ -48,19 +47,18 @@ def account(request):
 def account_email_address(request):
     email_address = request.POST.get("email_address", "").strip()[:100]
     if not email_validator.match(email_address):
-        return { "email_address_error": "Please enter a valid e-mail address." }
+        return {"email_address_error": "Please enter a valid e-mail address."}
 
     if email_address == request.user.email:
         return HTTPFound(request.route_path("account"))
 
     if request.login_store.get("verify_email_limit:%s" % request.user.id):
-        return { "email_address_error": "Sorry, you can only change your e-mail address once per day. Please wait until tomorrow." }
+        return {"email_address_error": "Sorry, you can only change your e-mail address once per day. Please wait until tomorrow."}
 
     send_email(request, "verify_email", request.user, email_address)
     request.login_store.setex("verify_email_limit:%s" % request.user.id, 86400, 1)
 
-    return HTTPFound(request.route_path("account", _query={ "saved": "verify_email" }))
-
+    return HTTPFound(request.route_path("account", _query={"saved": "verify_email"}))
 
 
 @view_config(route_name="account_verify_email", request_method="GET")
@@ -89,7 +87,7 @@ def account_verify_email(request):
     user.email = email_address
     user.email_verified = True
 
-    response = HTTPFound(request.route_path("account", _query={ "saved": "email_address" }))
+    response = HTTPFound(request.route_path("account", _query={"saved": "email_address"}))
 
     if not request.user or request.user.id != user.id:
         new_session_id = str(uuid4())
@@ -103,15 +101,15 @@ def account_verify_email(request):
 def account_password(request):
 
     if hashpw(request.POST["old_password"].encode(), request.user.password.encode()).decode() != request.user.password:
-        return { "password_error": "That isn't your old password." }
+        return {"password_error": "That isn't your old password."}
     if request.POST["password"] == "":
-        return { "password_error": "Please don't use a blank password." }
+        return {"password_error": "Please don't use a blank password."}
     if request.POST["password"] != request.POST["password_again"]:
-        return { "password_error": "The two passwords didn't match." }
+        return {"password_error": "The two passwords didn't match."}
 
     request.user.password = hashpw(request.POST["password"].encode(), gensalt()).decode()
 
-    return HTTPFound(request.route_path("account", _query={ "saved": "password" }))
+    return HTTPFound(request.route_path("account", _query={"saved": "password"}))
 
 
 timezones = {
@@ -162,17 +160,17 @@ def forgot_password_get(request):
 def forgot_password_post(request):
 
     if request.login_store.get("reset_password_limit:%s" % request.environ["REMOTE_ADDR"]):
-        return { "error": "limit" }
+        return {"error": "limit"}
 
+    username = request.POST["username"].strip()[:User.username.type.length]
     try:
-        username = request.POST["username"].strip()[:User.username.type.length]
         db = request.user.find_srevice(name="db")
         user = db.query(User).filter(User.username == username.lower()).one()
     except NoResultFound:
         return {"error": "no_user", "username": username}
 
     if request.login_store.get("reset_password_limit:%s" % user.id):
-        return { "error": "limit" }
+        return {"error": "limit"}
 
     if not user.email or not user.email_verified:
         return {"error": "no_email"}
@@ -255,14 +253,15 @@ def validate_push_subscription_payload(request):
 def account_push_subscribe(request):
     subscription = validate_push_subscription_payload(request)
 
-    for existing_subscription in Session.query(PushSubscription).filter(
+    db = request.find_service(name="db")
+    for existing_subscription in db.query(PushSubscription).filter(
         PushSubscription.user_id == request.user.id,
     ):
         if existing_subscription.data["endpoint"] == subscription["endpoint"]:
             existing_subscription.data = subscription
             return HTTPNoContent()
 
-    Session.add(PushSubscription(user_id=request.user.id, data=subscription))
+    db.add(PushSubscription(user_id=request.user.id, data=subscription))
 
     return HTTPNoContent()
 
@@ -271,18 +270,20 @@ def account_push_subscribe(request):
 def account_push_unsubscribe(request):
     subscription = validate_push_subscription_payload(request)
 
-    for existing_subscription in Session.query(PushSubscription).filter(
+    db = request.find_service(name="db")
+    for existing_subscription in db.query(PushSubscription).filter(
         PushSubscription.user_id == request.user.id,
     ):
         if existing_subscription.data["endpoint"] == subscription["endpoint"]:
-            Session.delete(existing_subscription)
+            db.delete(existing_subscription)
 
     return HTTPNoContent()
 
 
 @view_config(route_name="account_away_message", request_method="POST", permission="view")
 def account_away_message(request):
-    Session.query(User).filter(User.id == request.user.id).update({
+    db = request.find_service(name="db")
+    db.query(User).filter(User.id == request.user.id).update({
         "away_message": request.POST.get("away_message", "").strip()[:255] or None,
     })
     return HTTPFound(request.route_path("account"))
@@ -290,8 +291,8 @@ def account_away_message(request):
 
 @view_config(route_name="account_read_news", request_method="POST", permission="view")
 def account_read_news(request):
-    Session.query(User).filter(User.id == request.user.id).update({
+    db = request.find_service(name="db")
+    db.query(User).filter(User.id == request.user.id).update({
         "last_read_news": datetime.datetime.now(),
     })
     return HTTPNoContent()
-

@@ -1,6 +1,5 @@
 import binascii
 import datetime
-import transaction
 
 from base64 import urlsafe_b64decode
 from cryptography.hazmat.backends import default_backend
@@ -9,7 +8,7 @@ from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPFound
 from pyramid.renderers import JSON
-from pyramid.security import Allow, Authenticated, Everyone
+from pyramid.security import Authenticated, Everyone
 from redis import ConnectionPool, StrictRedis, UnixDomainSocketConnection
 from redis.exceptions import ConnectionError
 from sqlalchemy import and_, engine_from_config, func
@@ -64,12 +63,12 @@ class CherubplayAuthenticationPolicy(object):
 
     def effective_principals(self, request):
         if request.user is None:
-            return (Everyone,)
+            return Everyone,
         elif request.user.status == "banned":
-            return (Everyone, Authenticated, "banned")
+            return Everyone, Authenticated, "banned"
         elif request.user.status == "admin":
-            return (Everyone, Authenticated, request.user.id, "active", "admin")
-        return (Everyone, Authenticated, request.user.id, "active")
+            return Everyone, Authenticated, request.user.id, "active", "admin"
+        return Everyone, Authenticated, request.user.id, "active"
 
     def remember(self, request, principal, **kw):
         raise NotImplementedError
@@ -302,4 +301,3 @@ def main(global_config, **settings):
 
     config.scan()
     return config.make_wsgi_app()
-

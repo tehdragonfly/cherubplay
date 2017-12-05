@@ -1,5 +1,4 @@
 import time
-import transaction
 import uuid
 
 from bcrypt import gensalt, hashpw
@@ -12,7 +11,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from cherubplay.lib import prompt_categories, prompt_starters, prompt_levels
-from cherubplay.models import Chat, ChatUser, PromptReport, Request, User
+from cherubplay.models import Chat, ChatUser, PromptReport, Request
 
 
 status_filters = {
@@ -198,4 +197,3 @@ def admin_news_post(request):
         request.login_store.delete("news", "news_last_updated")
 
     return HTTPFound(request.route_path("admin_news"))
-

@@ -394,4 +394,3 @@ def user_factory(request):
         return db.query(User).filter(User.username == request.matchdict["username"]).one()
     except (ValueError, NoResultFound):
         raise HTTPNotFound
-
