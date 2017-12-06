@@ -3,7 +3,6 @@ import json
 
 from pyramid.httpexceptions import (
     HTTPBadRequest,
-    HTTPForbidden,
     HTTPFound,
     HTTPNoContent,
     HTTPNotFound,
@@ -18,10 +17,9 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 
 from cherubplay.lib import colour_validator, preset_colours, OnlineUserStore
-from cherubplay.models import Session, Chat, ChatUser, Message
+from cherubplay.models import Chat, ChatUser, Message
 from cherubplay.models.enums import ChatMode, ChatUserStatus, MessageType
 from cherubplay.services import MessageService
-from cherubplay.tasks import trigger_push_notification
 
 
 @view_config(route_name="chat_list",                request_method="GET", permission="view")
@@ -54,9 +52,10 @@ def chat_list(request):
     else:
         current_label = None
 
-    chats = Session.query(ChatUser, Chat, Message).join(Chat).outerjoin(
+    db = request.find_service(name="db")
+    chats = db.query(ChatUser, Chat, Message).join(Chat).outerjoin(
         Message,
-        Message.id == Session.query(
+        Message.id == db.query(
             func.min(Message.id),
         ).filter(
             Message.chat_id == Chat.id,
@@ -66,7 +65,7 @@ def chat_list(request):
         ChatUser.status == ChatUserStatus.active,
     )
 
-    chat_count = Session.query(func.count('*')).select_from(ChatUser).filter(
+    chat_count = db.query(func.count('*')).select_from(ChatUser).filter(
         ChatUser.user_id == request.user.id,
         ChatUser.status == ChatUserStatus.active,
     )
@@ -108,7 +107,7 @@ def chat_list(request):
         }
 
     labels = (
-        Session.query(func.unnest(ChatUser.labels), func.count("*"))
+        db.query(func.unnest(ChatUser.labels), func.count("*"))
         .filter(and_(
             ChatUser.user_id == request.user.id,
             ChatUser.status  == ChatUserStatus.active,
@@ -130,7 +129,8 @@ def chat_list(request):
 
 @view_config(route_name="chat_notification", request_method="GET", permission="chat", renderer="json")
 def chat_notification(request):
-    result = Session.query(ChatUser, Chat).join(Chat).filter(and_(
+    db = request.find_service(name="db")
+    result = db.query(ChatUser, Chat).join(Chat).filter(and_(
         ChatUser.user_id == request.user.id,
         ChatUser.status == ChatUserStatus.active,
         Chat.updated > ChatUser.visited,
@@ -141,7 +141,7 @@ def chat_notification(request):
     own_chat_user, chat = result
 
     message = (
-        Session.query(Message)
+        db.query(Message)
         .filter(Message.chat_id == chat.id)
         .options(joinedload(Message.chat_user))
         .order_by(Message.id.desc()).first()
@@ -162,6 +162,7 @@ def chat_notification(request):
 @view_config(route_name="chat",     request_method="GET", permission="chat.read")
 @view_config(route_name="chat_ext", request_method="GET", permission="chat.read", extension="json", renderer="json")
 def chat(context, request):
+    db = request.find_service(name="db")
     # If we can continue the chat and there isn't a page number, show the
     # full chat window.
     if "page" not in request.GET and context.is_continuable:
@@ -172,27 +173,27 @@ def chat(context, request):
         from_homepage = request.environ.get("HTTP_REFERER") == request.route_url("home")
 
         message_count = (
-            Session.query(func.count('*')).select_from(Message)
+            db.query(func.count('*')).select_from(Message)
             .filter(Message.chat_id == context.chat.id).scalar()
         )
 
         if message_count < 30:
             prompt = None
             messages = (
-                Session.query(Message)
+                db.query(Message)
                 .filter(Message.chat_id == context.chat.id)
                 .order_by(Message.id.asc()).all()
             )
         else:
             prompt = (
-                Session.query(Message)
+                db.query(Message)
                 .filter(Message.chat_id == context.chat.id)
                 .order_by(Message.id.asc())
                 .options(joinedload(Message.user))
                 .first()
             )
             messages = (
-                Session.query(Message)
+                db.query(Message)
                 .filter(Message.chat_id == context.chat.id)
                 .order_by(Message.id.desc())
                 .options(joinedload(Message.user))
@@ -226,7 +227,7 @@ def chat(context, request):
                 for _ in messages
                 if _.user is not None
             }
-            for chat_user in Session.query(ChatUser).filter(
+            for chat_user in db.query(ChatUser).filter(
                 ChatUser.chat_id == context.chat.id
             ).options(joinedload(ChatUser.user)):
                 symbol_users[chat_user.symbol_character] = chat_user.user
@@ -261,11 +262,11 @@ def chat(context, request):
         current_page = 1
 
     messages = (
-        Session.query(Message)
+        db.query(Message)
         .filter(Message.chat_id == context.chat.id)
     )
     message_count = (
-        Session.query(func.count('*')).select_from(Message)
+        db.query(func.count('*')).select_from(Message)
         .filter(Message.chat_id == context.chat.id)
     )
 
@@ -304,7 +305,7 @@ def chat(context, request):
             for _ in messages
             if _.user is not None
         }
-        for chat_user in Session.query(ChatUser).filter(
+        for chat_user in db.query(ChatUser).filter(
             ChatUser.chat_id == context.chat.id
         ).options(joinedload(ChatUser.user)):
             symbol_users[chat_user.symbol_character] = chat_user.user
@@ -360,8 +361,11 @@ def _validate_message_form(request, editing=False):
 
 @view_config(route_name="chat_send", request_method="POST", permission="chat.send")
 def chat_send(context, request):
+    # TODO Only trigger notifications if the user has seen the most recent message.
+    # This stops us from sending multiple notifications about the same chat.
+    db = request.find_service(name="db")
     most_recent_message = (
-        Session.query(Message)
+        db.query(Message)
         .filter(Message.chat_id == context.chat.id)
         .order_by(Message.id.desc()).first()
     )
@@ -378,8 +382,9 @@ def chat_send(context, request):
 
 @view_config(route_name="chat_edit", request_method="POST", permission="chat.send")
 def chat_edit(context, request):
+    db = request.find_service(name="db")
     try:
-        message = Session.query(Message).filter(and_(
+        message = db.query(Message).filter(and_(
             Message.id == request.matchdict["message_id"],
             Message.chat_id == context.chat.id,
             Message.user_id == request.user.id,
@@ -432,8 +437,9 @@ def _post_end_message(request, chat, own_chat_user, action="ended"):
         posted=update_date,
         edited=update_date,
     )
-    Session.add(message)
-    Session.flush()
+    db = request.find_service(name="db")
+    db.add(message)
+    db.flush()
 
     if action == "ended":
         chat.status       = "ended"
@@ -445,7 +451,7 @@ def _post_end_message(request, chat, own_chat_user, action="ended"):
     try:
         # See if anyone else is online and update their ChatUser too.
         online_handles = OnlineUserStore(request.pubsub).online_handles(chat)
-        for other_chat_user in Session.query(ChatUser).filter(and_(
+        for other_chat_user in db.query(ChatUser).filter(and_(
             ChatUser.chat_id == chat.id,
             ChatUser.status == ChatUserStatus.active,
         )):
@@ -475,11 +481,12 @@ def chat_end_get(context, request):
     if context.chat.status == "ended" or len(context.active_chat_users) > 2:
         raise HTTPNotFound
 
-    prompt = Session.query(Message).filter(
+    db = request.find_service(name="db")
+    prompt = db.query(Message).filter(
         Message.chat_id == context.chat.id,
     ).order_by(Message.id).first()
 
-    last_message = Session.query(Message).filter(
+    last_message = db.query(Message).filter(
         Message.chat_id == context.chat.id,
     ).order_by(Message.id.desc()).first()
 
@@ -514,11 +521,12 @@ def chat_delete_get(context, request):
     if context.chat.status == "ongoing" and len(context.active_chat_users) > 2:
         raise HTTPNotFound
 
-    prompt = Session.query(Message).filter(
+    db = request.find_service(name="db")
+    prompt = db.query(Message).filter(
         Message.chat_id == context.chat.id,
     ).order_by(Message.id).first()
 
-    last_message = Session.query(Message).filter(and_(
+    last_message = db.query(Message).filter(and_(
         Message.chat_id == context.chat.id,
         Message.type != MessageType.system,
     )).order_by(Message.id.desc()).first()
@@ -544,7 +552,8 @@ def chat_delete_post(context, request):
     if context.chat.mode == ChatMode.group:
         context.chat_user.status = ChatUserStatus.deleted
     else:
-        Session.delete(context.chat_user)
+        db = request.find_service(name="db")
+        db.delete(context.chat_user)
 
     if request.is_xhr:
         return HTTPNoContent()
@@ -556,11 +565,12 @@ def chat_leave_get(context, request):
     if context.chat.status == "ended" or len(context.active_chat_users) <= 2:
         raise HTTPNotFound
 
-    prompt = Session.query(Message).filter(
+    db = request.find_service(name="db")
+    prompt = db.query(Message).filter(
         Message.chat_id == context.chat.id,
     ).order_by(Message.id).first()
 
-    last_message = Session.query(Message).filter(and_(
+    last_message = db.query(Message).filter(and_(
         Message.chat_id == context.chat.id,
         Message.type != MessageType.system,
     )).order_by(Message.id.desc()).first()
@@ -585,7 +595,8 @@ def chat_leave_post(context, request):
     if context.chat.mode == ChatMode.group:
         context.chat_user.status = ChatUserStatus.deleted
     else:
-        Session.delete(context.chat_user)
+        db = request.find_service(name="db")
+        db.delete(context.chat_user)
 
     return HTTPFound(request.route_path("chat_list"))
 
@@ -649,8 +660,9 @@ def chat_change_name(context, request):
         posted=update_date,
         edited=update_date,
     )
-    Session.add(message)
-    Session.flush()
+    db = request.find_service(name="db")
+    db.add(message)
+    db.flush()
 
     context.chat.updated      = update_date
     context.chat_user.visited = update_date
@@ -661,7 +673,7 @@ def chat_change_name(context, request):
         # See if anyone else is online and update their ChatUser too.
         # TODO make a MessageService or something for this
         online_handles = online_user_store.online_handles(context.chat)
-        for other_chat_user in Session.query(ChatUser).filter(and_(
+        for other_chat_user in db.query(ChatUser).filter(and_(
             ChatUser.chat_id == context.chat.id,
             ChatUser.status == ChatUserStatus.active,
         )):
@@ -726,8 +738,9 @@ def chat_remove_user(context, request):
         posted=update_date,
         edited=update_date,
     )
-    Session.add(message)
-    Session.flush()
+    db = request.find_service(name="db")
+    db.add(message)
+    db.flush()
 
     chat.updated              = update_date
     context.chat_user.visited = update_date
@@ -736,7 +749,7 @@ def chat_remove_user(context, request):
         # See if anyone else is online and update their ChatUser too.
         # TODO make a MessageService or something for this
         online_handles = OnlineUserStore(request.pubsub).online_handles(context.chat)
-        for other_chat_user in Session.query(ChatUser).filter(and_(
+        for other_chat_user in db.query(ChatUser).filter(and_(
             ChatUser.chat_id == context.chat.id,
             ChatUser.status == ChatUserStatus.active,
         )):
