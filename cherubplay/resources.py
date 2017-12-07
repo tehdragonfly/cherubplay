@@ -11,8 +11,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 
 from cherubplay.models import (
-    Session, BlacklistedTag, Chat, ChatUser, Message, Prompt, PromptReport,
-    Request, RequestTag, Resource, Tag, TagParent, TagAddParentSuggestion,
+    Session, BlacklistedTag, Chat, ChatUser, Prompt, PromptReport,
+    Request, RequestTag, Resource, TagParent, TagAddParentSuggestion,
     TagBumpMaturitySuggestion, TagMakeSynonymSuggestion, Tag, User,
 )
 from cherubplay.models.enums import ChatUserStatus, TagType
@@ -44,9 +44,10 @@ class ChatContext(object):
 
     def __init__(self, request):
         self.request = request
+        db = request.find_service(name="db")
         try:
             if request.user:
-                self.chat, self.chat_user = Session.query(Chat, ChatUser).filter(
+                self.chat, self.chat_user = db.query(Chat, ChatUser).filter(
                     Chat.url == request.matchdict["url"],
                 ).outerjoin(ChatUser, and_(
                     ChatUser.chat_id == Chat.id,
@@ -54,7 +55,7 @@ class ChatContext(object):
                     ChatUser.status == ChatUserStatus.active,
                 )).one()
             else:
-                self.chat = Session.query(Chat).filter(Chat.url == request.matchdict["url"]).one()
+                self.chat = db.query(Chat).filter(Chat.url == request.matchdict["url"]).one()
                 self.chat_user = None
         except NoResultFound:
             raise HTTPNotFound
@@ -72,9 +73,13 @@ class ChatContext(object):
     def chat_users(self):
         return OrderedDict([
             (chat_user.user_id, chat_user)
-            for chat_user in Session.query(ChatUser).join(User).filter(and_(
-                ChatUser.chat_id == self.chat.id,
-            )).options(contains_eager(ChatUser.user)).order_by(ChatUser.name).all()
+            for chat_user in (
+                self.request.find_service(name="db")
+                .query(ChatUser).join(User)
+                .filter(ChatUser.chat_id == self.chat.id)
+                .options(contains_eager(ChatUser.user))
+                .order_by(ChatUser.name).all()
+            )
         ])
 
     @reify

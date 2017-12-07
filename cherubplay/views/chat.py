@@ -16,6 +16,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 
+from cherubplay import ChatContext
 from cherubplay.lib import colour_validator, preset_colours, OnlineUserStore
 from cherubplay.models import Chat, ChatUser, Message
 from cherubplay.models.enums import ChatMode, ChatUserStatus, MessageType
@@ -161,7 +162,7 @@ def chat_notification(request):
 
 @view_config(route_name="chat",     request_method="GET", permission="chat.read")
 @view_config(route_name="chat_ext", request_method="GET", permission="chat.read", extension="json", renderer="json")
-def chat(context, request):
+def chat(context: ChatContext, request):
     db = request.find_service(name="db")
     # If we can continue the chat and there isn't a page number, show the
     # full chat window.
@@ -328,7 +329,7 @@ def chat(context, request):
 
 
 @view_config(route_name="chat_draft", request_method="POST", permission="chat.send")
-def chat_draft(context, request):
+def chat_draft(context: ChatContext, request):
     context.chat_user.draft = request.POST["message_text"].strip()
     return HTTPNoContent()
 
@@ -360,7 +361,7 @@ def _validate_message_form(request, editing=False):
 
 
 @view_config(route_name="chat_send", request_method="POST", permission="chat.send")
-def chat_send(context, request):
+def chat_send(context: ChatContext, request):
     # TODO Only trigger notifications if the user has seen the most recent message.
     # This stops us from sending multiple notifications about the same chat.
     db = request.find_service(name="db")
@@ -381,7 +382,7 @@ def chat_send(context, request):
 
 
 @view_config(route_name="chat_edit", request_method="POST", permission="chat.send")
-def chat_edit(context, request):
+def chat_edit(context: ChatContext, request):
     db = request.find_service(name="db")
     try:
         message = db.query(Message).filter(and_(
@@ -477,7 +478,7 @@ def _post_end_message(request, chat, own_chat_user, action="ended"):
 
 
 @view_config(route_name="chat_end", request_method="GET", permission="chat.info")
-def chat_end_get(context, request):
+def chat_end_get(context: ChatContext, request):
     if context.chat.status == "ended" or len(context.active_chat_users) > 2:
         raise HTTPNotFound
 
@@ -501,7 +502,7 @@ def chat_end_get(context, request):
 
 
 @view_config(route_name="chat_end", request_method="POST", permission="chat.info")
-def chat_end_post(context, request):
+def chat_end_post(context: ChatContext, request):
     if context.chat.status == "ended" or len(context.active_chat_users) > 2:
         raise HTTPNotFound
 
@@ -517,7 +518,7 @@ def chat_end_post(context, request):
 
 
 @view_config(route_name="chat_delete", request_method="GET", permission="chat.info")
-def chat_delete_get(context, request):
+def chat_delete_get(context: ChatContext, request):
     if context.chat.status == "ongoing" and len(context.active_chat_users) > 2:
         raise HTTPNotFound
 
@@ -542,7 +543,7 @@ def chat_delete_get(context, request):
 
 
 @view_config(route_name="chat_delete", request_method="POST", permission="chat.info")
-def chat_delete_post(context, request):
+def chat_delete_post(context: ChatContext, request):
     if context.chat.status == "ongoing" and len(context.active_chat_users) > 2:
         raise HTTPNotFound
 
@@ -561,7 +562,7 @@ def chat_delete_post(context, request):
 
 
 @view_config(route_name="chat_leave", request_method="GET", permission="chat.info")
-def chat_leave_get(context, request):
+def chat_leave_get(context: ChatContext, request):
     if context.chat.status == "ended" or len(context.active_chat_users) <= 2:
         raise HTTPNotFound
 
@@ -585,7 +586,7 @@ def chat_leave_get(context, request):
 
 
 @view_config(route_name="chat_leave", request_method="POST", permission="chat.info")
-def chat_leave_post(context, request):
+def chat_leave_post(context: ChatContext, request):
     if context.chat.status == "ongoing" and len(context.active_chat_users) <= 2:
         raise HTTPNotFound
 
@@ -602,7 +603,7 @@ def chat_leave_post(context, request):
 
 
 @view_config(route_name="chat_info", request_method="GET", permission="chat.info")
-def chat_info_get(context, request):
+def chat_info_get(context: ChatContext, request):
     template = "layout2/chat_info.mako" if request.user.layout_version == 2 else "chat_info.mako"
     return render_to_response(template, {
         "page":          "info",
@@ -612,7 +613,7 @@ def chat_info_get(context, request):
 
 
 @view_config(route_name="chat_info", request_method="POST", permission="chat.info")
-def chat_info_post(context, request):
+def chat_info_post(context: ChatContext, request):
     context.chat_user.title = request.POST["title"][:100]
     context.chat_user.notes = request.POST["notes"]
 
@@ -630,7 +631,7 @@ def chat_info_post(context, request):
 
 
 @view_config(route_name="chat_change_name", request_method="POST", permission="chat.change_name")
-def chat_change_name(context, request):
+def chat_change_name(context: ChatContext, request):
     if not request.POST.get("name", "").strip():
         raise HTTPBadRequest
 
@@ -706,7 +707,7 @@ def chat_change_name(context, request):
 
 
 @view_config(route_name="chat_remove_user", request_method="POST", permission="chat.remove_user")
-def chat_remove_user(context, request):
+def chat_remove_user(context: ChatContext, request):
     if not request.POST.get("name", "").strip():
         raise HTTPBadRequest
 
