@@ -11,7 +11,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 
 from cherubplay.models import (
-    Session, BlacklistedTag, Chat, ChatUser, Prompt, PromptReport,
+    BlacklistedTag, Chat, ChatUser, Prompt, PromptReport,
     Request, RequestTag, Resource, TagParent, TagAddParentSuggestion,
     TagBumpMaturitySuggestion, TagMakeSynonymSuggestion, Tag, User,
 )
@@ -155,9 +155,10 @@ class TagList(object):
                 func.lower(Tag.name) == Tag.name_from_url(name.strip().lower()),
             ))
 
+        db = request.find_service(name="db")
         self.tags = [
             tag.synonym_of or tag for tag in
-            Session.query(Tag).filter(or_(*tag_filters))
+            db.query(Tag).filter(or_(*tag_filters))
             .options(joinedload(Tag.synonym_of))
             .order_by(Tag.type, Tag.name)
         ]
@@ -172,7 +173,7 @@ class TagList(object):
 
         self.blacklisted_tags = [
             _.tag for _ in
-            Session.query(BlacklistedTag)
+            db.query(BlacklistedTag)
             .filter(and_(
                 BlacklistedTag.user_id == request.user.id,
                 BlacklistedTag.tag_id.in_(tag.id for tag in self.tags),
@@ -200,7 +201,8 @@ def _trigger_update_missing_request_tag_ids(status):
 class TagPair(object):
     __parent__ = Resource
 
-    def __init__(self, first_tag: Tag, **kwargs):
+    def __init__(self, db, first_tag: Tag, **kwargs):
+        self._db = db
         self.tags = [
             first_tag if first_tag.type == pair_tag_type
             else Tag.get_or_create(pair_tag_type, first_tag.name, **kwargs)
@@ -208,8 +210,8 @@ class TagPair(object):
         ]
 
     @classmethod
-    def from_tag_name(cls, tag_type: TagType, tag_name: str, **kwargs):
-        return cls(Tag.get_or_create(tag_type, tag_name, **kwargs))
+    def from_tag_name(cls, db, tag_type: TagType, tag_name: str, **kwargs):
+        return cls(db, Tag.get_or_create(tag_type, tag_name, **kwargs))
 
     @classmethod
     def from_request(cls, request):
@@ -218,32 +220,32 @@ class TagPair(object):
         except ValueError:
             raise HTTPNotFound
         tag_name = Tag.name_from_url(request.matchdict["name"])
-        return cls.from_tag_name(request_tag_type, tag_name)
+        return cls.from_tag_name(request.find_service(name="db"), request_tag_type, tag_name)
 
     def set_bump_maturity(self, value: bool):
         for tag in self.tags:
             tag.bump_maturity = value
 
             if value:
-                Session.query(RequestTag).filter(and_(
+                self._db.query(RequestTag).filter(and_(
                     RequestTag.request_id.in_(
-                        Session.query(RequestTag.request_id)
+                        self._db.query(RequestTag.request_id)
                         .filter(RequestTag.tag_id == tag.id)
                     ),
                     RequestTag.tag_id.in_(
-                        Session.query(Tag.id).filter(and_(
+                        self._db.query(Tag.id).filter(and_(
                             Tag.type == TagType.maturity,
                             Tag.name.in_(("Safe for work", "Not safe for work")),
                         ))
                     ),
-                )).update({"tag_id": Session.query(Tag.id).filter(and_(
+                )).update({"tag_id": self._db.query(Tag.id).filter(and_(
                     Tag.type == TagType.maturity,
                     Tag.name == "NSFW extreme",
                 )).as_scalar()}, synchronize_session=False)
 
-                Session.query(Request).filter(and_(
+                self._db.query(Request).filter(and_(
                     Request.id.in_(
-                        Session.query(RequestTag.request_id)
+                        self._db.query(RequestTag.request_id)
                         .filter(RequestTag.tag_id == tag.id)
                     ),
                 )).update({"tag_ids": None}, synchronize_session=False)
@@ -264,7 +266,10 @@ class TagPair(object):
             if old_tag.synonym_id:
                 raise ValueError("tag %s is already a synonym" % old_tag)
             # A tag can't be a synonym if it has synonyms.
-            if Session.query(func.count("*")).select_from(Tag).filter(Tag.synonym_id == old_tag.id).scalar():
+            if (
+                self._db.query(func.count("*")).select_from(Tag)
+                .filter(Tag.synonym_id == old_tag.id).scalar()
+            ):
                 raise ValueError("tag %s has synonyms" % old_tag)
 
             new_tag = Tag.get_or_create(new_type, new_name)
@@ -277,46 +282,51 @@ class TagPair(object):
 
             # Bump maturity if necessary.
             if new_tag.bump_maturity and not old_tag.bump_maturity:
-                Session.query(RequestTag).filter(and_(
+                self._db.query(RequestTag).filter(and_(
                     RequestTag.request_id.in_(
-                        Session.query(RequestTag.request_id)
+                        self._db.query(RequestTag.request_id)
                         .filter(RequestTag.tag_id == old_tag.id)
                     ),
                     RequestTag.tag_id.in_(
-                        Session.query(Tag.id).filter(and_(
+                        self._db.query(Tag.id).filter(and_(
                             Tag.type == TagType.maturity,
                             Tag.name.in_(("Safe for work", "Not safe for work")),
                         ))
                     ),
-                )).update({"tag_id": Session.query(Tag.id).filter(and_(
+                )).update({"tag_id": self._db.query(Tag.id).filter(and_(
                     Tag.type == TagType.maturity,
                     Tag.name == "NSFW extreme",
                 )).as_scalar()}, synchronize_session=False)
 
             # Delete the old tag from reqests which already have the new tag.
-            Session.query(RequestTag).filter(and_(
+            self._db.query(RequestTag).filter(and_(
                 RequestTag.tag_id == old_tag.id,
-                RequestTag.request_id.in_(Session.query(RequestTag.request_id).filter(RequestTag.tag_id == new_tag.id)),
+                RequestTag.request_id.in_(
+                    self._db.query(RequestTag.request_id)
+                    .filter(RequestTag.tag_id == new_tag.id)
+                ),
             )).delete(synchronize_session=False)
             # And update the rest.
-            Session.query(RequestTag).filter(RequestTag.tag_id == old_tag.id).update({"tag_id": new_tag.id})
+            self._db.query(RequestTag).filter(RequestTag.tag_id == old_tag.id).update({"tag_id": new_tag.id})
 
             # Null the tag_ids arrays.
-            Session.query(Request).filter(
+            self._db.query(Request).filter(
                 Request.tag_ids.contains(cast([old_tag.id, new_tag.id], ARRAY(Integer)))
             ).update({"tag_ids": None}, synchronize_session=False)
-            Session.query(Request).filter(
+            self._db.query(Request).filter(
                 Request.tag_ids.contains(cast([old_tag.id], ARRAY(Integer)))
             ).update({"tag_ids": None}, synchronize_session=False)
 
             # Delete the old tag from blacklists which already have the new tag.
-            Session.query(BlacklistedTag).filter(and_(
+            self._db.query(BlacklistedTag).filter(and_(
                 BlacklistedTag.tag_id == old_tag.id,
                 BlacklistedTag.user_id.in_(
-                    Session.query(BlacklistedTag.user_id).filter(BlacklistedTag.tag_id == new_tag.id)),
+                    self._db.query(BlacklistedTag.user_id)
+                    .filter(BlacklistedTag.tag_id == new_tag.id)
+                ),
             )).delete(synchronize_session=False)
             # And update the rest.
-            Session.query(BlacklistedTag).filter(BlacklistedTag.tag_id == old_tag.id).update({"tag_id": new_tag.id})
+            self._db.query(BlacklistedTag).filter(BlacklistedTag.tag_id == old_tag.id).update({"tag_id": new_tag.id})
 
         transaction.get().addAfterCommitHook(_trigger_update_missing_request_tag_ids)
 
@@ -332,7 +342,7 @@ class TagPair(object):
         for child_tag, parent_type in zip(self.tags, parent_types):
             parent_tag = Tag.get_or_create(parent_type, parent_name)
 
-            if Session.query(func.count("*")).select_from(TagParent).filter(and_(
+            if self._db.query(func.count("*")).select_from(TagParent).filter(and_(
                             TagParent.parent_id == parent_tag.id,
                             TagParent.child_id == child_tag.id,
             )).scalar():
@@ -340,7 +350,7 @@ class TagPair(object):
                 return
 
             # Check for circular references.
-            ancestors = Session.execute("""
+            ancestors = self._db.execute("""
                 with recursive tag_ids(id) as (
                     select %s
                     union all
@@ -351,10 +361,10 @@ class TagPair(object):
             if child_tag.id in (_[0] for _ in ancestors):
                 raise CircularReferenceException
 
-            Session.add(TagParent(parent_id=parent_tag.id, child_id=child_tag.id))
+            self._db.add(TagParent(parent_id=parent_tag.id, child_id=child_tag.id))
 
             # Null the tag_ids of requests in this tag and all its children.
-            Session.execute("""
+            self._db.execute("""
                 with recursive tag_ids(id) as (
                     select %s
                     union all
@@ -382,7 +392,8 @@ def request_factory(request):
         raise HTTPNotFound
 
     try:
-        query = Session.query(Request).filter(Request.id == int(request.matchdict["id"]))
+        db = request.find_service(name="db")
+        query = db.query(Request).filter(Request.id == int(request.matchdict["id"]))
         if request.user.status != "admin":
             query = query.filter(or_(
                 request.user.tag_status_filter,
