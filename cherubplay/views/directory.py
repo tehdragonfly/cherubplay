@@ -12,7 +12,7 @@ from uuid import uuid4
 
 from cherubplay.lib import colour_validator, preset_colours, prompt_hash
 from cherubplay.models import (
-    Session, BlacklistedTag, Chat, ChatUser, CreateNotAllowed, Message, Request,
+    BlacklistedTag, Chat, ChatUser, CreateNotAllowed, Message, Request,
     RequestSlot, RequestTag, Tag, TagParent, TagAddParentSuggestion,
     TagBumpMaturitySuggestion, TagMakeSynonymSuggestion, User,
 )
@@ -191,7 +191,7 @@ def directory(request):
         return render_to_response("layout2/directory/blacklist_warning.mako", {}, request)
 
     requests = (
-        Session.query(Request)
+        request.find_service(name="db").query(Request)
         .filter(request.user.tag_filter)
     )
     order_by = sort_field(request.GET.get("sort", request.user.default_request_order))
@@ -225,7 +225,10 @@ def directory_search(context, request):
     if not tag_name:
         return HTTPFound(request.route_path("directory"))
 
-    tags = Session.query(Tag).filter(func.lower(Tag.name) == tag_name)
+    tags = (
+        request.find_service(name="db")
+        .query(Tag).filter(func.lower(Tag.name) == tag_name)
+    )
     if request.matched_route.name == "directory_tag_search":
         tags = tags.filter(~Tag.id.in_(_.id for _ in context.tags))
     tags = tags.order_by(Tag.type).all()
@@ -252,7 +255,7 @@ def directory_search_autocomplete(context, request):
     added_tags = set()
     response   = []
 
-    tag_query = Session.query(Tag).filter(
+    tag_query = request.find_service(name="db").query(Tag).filter(
         func.lower(Tag.name)
         .like(request.GET["name"].lower().replace("_", "\\_").replace("%", "\\%") + "%")
     )
@@ -284,8 +287,9 @@ def directory_tag_list(request):
     except ValueError:
         raise HTTPNotFound
 
-    tag_query = Session.query(Tag)
-    tag_count_query = Session.query(func.count("*")).select_from(Tag)
+    db = request.find_service(name="db")
+    tag_query = db.query(Tag)
+    tag_count_query = db.query(func.count("*")).select_from(Tag)
     if request.matched_route.name == "directory_tag_list_unapproved":
         tag_query = tag_query.filter(and_(Tag.synonym_id is None, Tag.approved is False))
         tag_count_query = tag_count_query.filter(and_(Tag.synonym_id is None, Tag.approved is False))
@@ -304,7 +308,7 @@ def directory_tag_list(request):
 def directory_tag_table(request):
     rows = []
     last_tag_name = None
-    for tag in Session.query(Tag).order_by(Tag.name, Tag.type).all():
+    for tag in request.find_service(name="db").query(Tag).order_by(Tag.name, Tag.type).all():
         if tag.name.lower() != last_tag_name:
             last_tag_name = tag.name.lower()
             rows.append({})
@@ -315,9 +319,10 @@ def directory_tag_table(request):
 @view_config(route_name="directory_user_ext", request_method="GET", permission="admin", extension="json", renderer="json")
 @view_config(route_name="directory_user",     request_method="GET", permission="admin", renderer="layout2/directory/index.mako")
 def directory_user(request):
+    db = request.find_service(name="db")
 
     try:
-        user = Session.query(User).filter(func.lower(User.username) == request.matchdict["username"].lower()).one()
+        user = db.query(User).filter(func.lower(User.username) == request.matchdict["username"].lower()).one()
     except NoResultFound:
         raise HTTPNotFound
 
@@ -332,7 +337,7 @@ def directory_user(request):
     else:
         before_date = None
 
-    requests = Session.query(Request).filter(Request.user_id == user.id)
+    requests = db.query(Request).filter(Request.user_id == user.id)
     if before_date:
         requests = requests.filter(Request.posted < before_date)
     requests = (
@@ -375,8 +380,9 @@ def directory_tag(context, request):
         resp["more"] = False
         return resp
 
+    db = request.find_service(name="db")
     requests = (
-        Session.query(Request)
+        db.query(Request)
         .filter(and_(request.user.tag_filter, Request.tag_ids.contains(context.tag_array)))
     )
     if before_date:
@@ -395,7 +401,7 @@ def directory_tag(context, request):
         tag = context.tags[0]
 
         all_tag_types = (
-            Session.query(Tag)
+            db.query(Tag)
             .filter(func.lower(Tag.name) == tag.name.lower())
             .options(joinedload(Tag.synonym_of))
             .order_by(Tag.type).all()
@@ -407,18 +413,18 @@ def directory_tag(context, request):
                 if not tag.approved:
                     resp["can_be_approved"] = True
                 resp["synonyms"] = (
-                    Session.query(Tag)
+                    db.query(Tag)
                     .filter(Tag.synonym_id == tag.id)
                     .order_by(Tag.type, Tag.name).all()
                 )
             resp["parents"] = (
-                Session.query(Tag)
+                db.query(Tag)
                 .join(TagParent, Tag.id == TagParent.parent_id)
                 .filter(TagParent.child_id == tag.id)
                 .order_by(Tag.type, Tag.name).all()
             )
             resp["children"] = (
-                Session.query(Tag)
+                db.query(Tag)
                 .join(TagParent, Tag.id == TagParent.child_id)
                 .filter(TagParent.parent_id == tag.id)
                 .order_by(Tag.type, Tag.name).all()
@@ -443,21 +449,22 @@ def directory_tag_approve(context, request):
 def directory_tag_suggest_get(context, request):
     if context.tags[0].type in (TagType.maturity, TagType.type):
         raise HTTPNotFound
+    db = request.find_service(name="db")
     return {
-        "make_synonym": Session.query(TagMakeSynonymSuggestion).filter(and_(
+        "make_synonym": db.query(TagMakeSynonymSuggestion).filter(and_(
             TagMakeSynonymSuggestion.tag_id  == context.tags[0].id,
             TagMakeSynonymSuggestion.user_id == request.user.id,
         )).options(joinedload(TagMakeSynonymSuggestion.target)).first(),
         "parent_tags": (
-            Session.query(TagParent)
+            db.query(TagParent)
             .filter(TagParent.child_id == context.tags[0].id)
             .options(joinedload(TagParent.parent)).all()
         ),
-        "add_parent": Session.query(TagAddParentSuggestion).filter(and_(
+        "add_parent": db.query(TagAddParentSuggestion).filter(and_(
             TagAddParentSuggestion.tag_id  == context.tags[0].id,
             TagAddParentSuggestion.user_id == request.user.id,
         )).options(joinedload(TagAddParentSuggestion.target)).all(),
-        "set_bump_maturity": Session.query(TagBumpMaturitySuggestion).filter(and_(
+        "set_bump_maturity": db.query(TagBumpMaturitySuggestion).filter(and_(
             TagBumpMaturitySuggestion.tag_id  == context.tags[0].id,
             TagBumpMaturitySuggestion.user_id == request.user.id,
         )).first(),
@@ -483,7 +490,8 @@ def directory_tag_suggest_make_synonym_post(context, request):
     except CreateNotAllowed:
         raise HTTPBadRequest
 
-    suggestion = Session.query(TagMakeSynonymSuggestion).filter(and_(
+    db = request.find_service(name="db")
+    suggestion = db.query(TagMakeSynonymSuggestion).filter(and_(
         TagMakeSynonymSuggestion.tag_id     == context.tags[0].id,
         TagMakeSynonymSuggestion.user_id    == request.user.id,
         TagMakeSynonymSuggestion.target_id  == tag.id,
@@ -493,7 +501,7 @@ def directory_tag_suggest_make_synonym_post(context, request):
         suggestion.target_id = tag.id
         suggestion.created   = datetime.datetime.now()
     elif not suggestion:
-        Session.add(TagMakeSynonymSuggestion(
+        db.add(TagMakeSynonymSuggestion(
             # Don't mirror these, just use the playing tag.
             tag_id=context.tags[0].id,
             user_id=request.user.id,
@@ -519,13 +527,14 @@ def directory_tag_suggest_add_parent_post(context, request):
     except CreateNotAllowed:
         raise HTTPBadRequest
 
-    if Session.query(TagParent).filter(and_(
+    db = request.find_service(name="db")
+    if db.query(TagParent).filter(and_(
         TagParent.child_id  == context.tags[0].id,
         TagParent.parent_id == tag.id,
     )).first():
         return HTTPFound(request.route_path("directory_tag_suggest", **request.matchdict))
 
-    suggestion = Session.query(TagAddParentSuggestion).filter(and_(
+    suggestion = db.query(TagAddParentSuggestion).filter(and_(
         TagAddParentSuggestion.tag_id     == context.tags[0].id,
         TagAddParentSuggestion.user_id    == request.user.id,
         TagAddParentSuggestion.target_id  == tag.id,
@@ -535,7 +544,7 @@ def directory_tag_suggest_add_parent_post(context, request):
         suggestion.target_id = tag.id
         suggestion.created   = datetime.datetime.now()
     elif not suggestion:
-        Session.add(TagAddParentSuggestion(
+        db.add(TagAddParentSuggestion(
             # Don't mirror these, just use the playing tag.
             tag_id=context.tags[0].id,
             user_id=request.user.id,
@@ -550,7 +559,8 @@ def directory_tag_suggest_bump_maturity_post(context, request):
     if context.tags[0].bump_maturity:
         return HTTPFound(request.route_path("directory_tag_suggest", **request.matchdict))
 
-    suggestion = Session.query(TagBumpMaturitySuggestion).filter(and_(
+    db = request.find_service(name="db")
+    suggestion = db.query(TagBumpMaturitySuggestion).filter(and_(
         TagBumpMaturitySuggestion.tag_id  == context.tags[0].id,
         TagBumpMaturitySuggestion.user_id == request.user.id,
     )).first()
@@ -561,7 +571,7 @@ def directory_tag_suggest_bump_maturity_post(context, request):
             tag_id=context.tags[0].id,
             user_id=request.user.id,
         )
-        Session.add(suggestion)
+        db.add(suggestion)
 
     print(request.matchdict)
     return HTTPFound(request.route_path("directory_tag_suggest", **request.matchdict))
@@ -628,7 +638,7 @@ def directory_yours(request):
         before_date = None
 
     requests = (
-        Session.query(Request)
+        request.find_service(name="db").query(Request)
         .filter(Request.user_id == request.user.id)
     )
     if before_date:
@@ -649,7 +659,7 @@ def directory_yours(request):
 @view_config(route_name="directory_random", request_method="GET", permission="directory.read", renderer="layout2/directory/lucky_dip_failed.mako")
 def directory_random(request):
     request_query = (
-        Session.query(Request.id)
+        request.find_service(name="db").query(Request.id)
         .filter(and_(
             Request.user_id != request.user.id,
             request.user.tag_filter,
@@ -661,18 +671,19 @@ def directory_random(request):
     return {}
 
 
-def _remove_duplicates(new_request):
+def _remove_duplicates(pyramid_request, new_request):
+    db = pyramid_request.find_service(name="db")
     new_hash = prompt_hash(new_request.ooc_notes + new_request.starter)
     duplicate_ids = {
         old_request.id
-        for old_request in Session.query(Request).filter(and_(
+        for old_request in db.query(Request).filter(and_(
             Request.id      != new_request.id,
             Request.user_id == new_request.user_id,
             Request.status  == "posted",
         ))
         if new_hash == prompt_hash(old_request.ooc_notes + old_request.starter)
     }
-    Session.query(Request).filter(Request.id.in_(duplicate_ids)).update({
+    db.query(Request).filter(Request.id.in_(duplicate_ids)).update({
         "status": "draft",
         "duplicate_of_id": new_request.id,
     }, synchronize_session=False)
@@ -705,15 +716,16 @@ def directory_new_post(request):
         ooc_notes=ooc_notes,
         starter=starter,
     )
-    Session.add(new_request)
-    Session.flush()
+    db = request.find_service(name="db")
+    db.add(new_request)
+    db.flush()
 
-    _remove_duplicates(new_request)
+    _remove_duplicates(request, new_request)
 
     new_request.request_tags += _request_tags_from_form(request, request.POST, new_request)
 
     if slot_name and slot_descriptions:
-        Session.add(RequestSlot(
+        db.add(RequestSlot(
             request=new_request,
             order=1,
             description=slot_name,
@@ -721,7 +733,7 @@ def directory_new_post(request):
             user_name=slot_name,
         ))
         for order, description in enumerate(slot_descriptions, 2):
-            Session.add(RequestSlot(request=new_request, order=order, description=description))
+            db.add(RequestSlot(request=new_request, order=order, description=description))
 
     transaction.get().addAfterCommitHook(_trigger_update_request_tag_ids(new_request.id))
 
@@ -742,7 +754,7 @@ def directory_new_autocomplete(request):
     if len(request.GET["name"]) < 3:
         return []
 
-    tags = Session.query(Tag).filter(and_(
+    tags = request.find_service(name="db").query(Tag).filter(and_(
         Tag.type == tag_type,
         func.lower(Tag.name).like(request.GET["name"].lower().replace("_", "\\_").replace("%", "\\%") + "%")
     )).options(joinedload(Tag.synonym_of)).order_by(Tag.name)
@@ -757,15 +769,16 @@ def directory_new_autocomplete(request):
 
 
 def _blacklisted_tags(request, **kwargs):
+    db = request.find_service(name="db")
     tags = (
-        Session.query(Tag).join(BlacklistedTag)
+        db.query(Tag).join(BlacklistedTag)
         .filter(BlacklistedTag.user_id == request.user.id)
         .order_by(Tag.type, Tag.name).all()
     )
     return {
         "tags": tags,
-        "maturity_tags": [tag for tag in Session.query(Tag).filter(Tag.type == TagType.maturity).all() if tag not in tags],
-        "type_tags":     [tag for tag in Session.query(Tag).filter(Tag.type == TagType.type).all()     if tag not in tags],
+        "maturity_tags": [tag for tag in db.query(Tag).filter(Tag.type == TagType.maturity).all() if tag not in tags],
+        "type_tags":     [tag for tag in db.query(Tag).filter(Tag.type == TagType.type).all()     if tag not in tags],
         **kwargs
     }
 
@@ -785,13 +798,14 @@ def directory_blacklist_setup(request):
     if request.user.seen_blacklist_warning:
         return HTTPFound(request.headers.get("Referer") or request.route_path("directory"))
 
+    db = request.find_service(name="db")
     if request.POST["blacklist"] == "default":
-        Session.execute(BlacklistedTag.__table__.insert().from_select(
+        db.execute(BlacklistedTag.__table__.insert().from_select(
             ["user_id", "tag_id"],
-            Session.query(literal(request.user.id), Tag.id).filter(Tag.blacklist_default is True)
+            db.query(literal(request.user.id), Tag.id).filter(Tag.blacklist_default is True)
         ))
 
-    Session.query(User).filter(User.id == request.user.id).update({"seen_blacklist_warning": True})
+    db.query(User).filter(User.id == request.user.id).update({"seen_blacklist_warning": True})
 
     return HTTPFound(request.headers.get("Referer") or request.route_path("directory"))
 
@@ -811,6 +825,8 @@ def directory_blacklist_add(request):
     else:
         names = request.POST["name"][:100]
 
+    db = request.find_service(name="db")
+
     for name in names.split(","):
         name = _normalise_tag_name(tag_type, name)
         if not name:
@@ -822,11 +838,11 @@ def directory_blacklist_add(request):
             return _blacklisted_tags(request, error="invalid", error_tag_type=tag_type, error_name=name)
         tag_id = (tag.synonym_id or tag.id)
 
-        if Session.query(func.count("*")).select_from(BlacklistedTag).filter(and_(
+        if db.query(func.count("*")).select_from(BlacklistedTag).filter(and_(
             BlacklistedTag.user_id == request.user.id,
             BlacklistedTag.tag_id == tag_id,
         )).scalar() == 0:
-            Session.add(BlacklistedTag(user_id=request.user.id, tag_id=tag_id))
+            db.add(BlacklistedTag(user_id=request.user.id, tag_id=tag_id))
 
     return HTTPFound(request.route_path("directory_blacklist"))
 
@@ -834,7 +850,7 @@ def directory_blacklist_add(request):
 @view_config(route_name="directory_blacklist_remove", request_method="POST", permission="directory.read")
 def directory_blacklist_remove(request):
     try:
-        Session.query(BlacklistedTag).filter(and_(
+        request.find_service(name="db").query(BlacklistedTag).filter(and_(
             BlacklistedTag.user_id == request.user.id,
             BlacklistedTag.tag_id == request.POST["tag_id"],
         )).delete()
@@ -847,15 +863,16 @@ def directory_blacklist_remove(request):
 @view_config(route_name="directory_request_ext", request_method="GET", permission="request.read", extension="json", renderer="json")
 def directory_request(context, request):
 
-    chats = Session.query(ChatUser, Chat).join(Chat).filter(
+    db = request.find_service(name="db")
+    chats = db.query(ChatUser, Chat).join(Chat).filter(
         ChatUser.user_id == request.user.id,
         ChatUser.status == ChatUserStatus.active,
         Chat.request_id == context.id,
     ).order_by(Chat.updated.desc()).all()
 
-    blacklisted_tags = Session.query(Tag).filter(Tag.id.in_(
-        Session.query(RequestTag.tag_id).filter(RequestTag.request_id == context.id)
-        .intersect(Session.query(BlacklistedTag.tag_id).filter(BlacklistedTag.user_id == request.user.id))
+    blacklisted_tags = db.query(Tag).filter(Tag.id.in_(
+        db.query(RequestTag.tag_id).filter(RequestTag.request_id == context.id)
+        .intersect(db.query(BlacklistedTag.tag_id).filter(BlacklistedTag.user_id == request.user.id))
     )).order_by(Tag.type, Tag.name).all()
 
     if request.matched_route.name == "directory_request_ext":
@@ -950,8 +967,9 @@ def directory_request_answer_post(context, request):
         new_chat.mode  = ChatMode.group
         new_chat.op_id = context.user_id
 
-    Session.add(new_chat)
-    Session.flush()
+    db = request.find_service(name="db")
+    db.add(new_chat)
+    db.flush()
 
     if context.slots:
         used_names = set()
@@ -977,16 +995,16 @@ def directory_request_answer_post(context, request):
                 slot.user_id   = None
                 slot.user_name = None
 
-            Session.add(new_chat_user)
+            db.add(new_chat_user)
     else:
         request.login_store.setex("answered:%s:%s" % (request.user.id, context.id), 86400, context.id)
-        Session.add(ChatUser(chat_id=new_chat.id, user_id=context.user_id, symbol=0, last_colour=context.colour))
-        Session.add(ChatUser(chat_id=new_chat.id, user_id=request.user.id, symbol=1))
+        db.add(ChatUser(chat_id=new_chat.id, user_id=context.user_id, symbol=0, last_colour=context.colour))
+        db.add(ChatUser(chat_id=new_chat.id, user_id=request.user.id, symbol=1))
 
     if context.ooc_notes:
-        Session.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=None if context.slots else 0, text=context.ooc_notes))
+        db.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=None if context.slots else 0, text=context.ooc_notes))
     if context.starter:
-        Session.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=None if context.slots else 0, colour=context.colour, text=context.starter))
+        db.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=None if context.slots else 0, colour=context.colour, text=context.starter))
 
     return HTTPFound(request.route_path("chat", url=new_chat.url))
 
@@ -1084,7 +1102,8 @@ def directory_request_edit_post(context, request):
     context.starter         = starter
     context.duplicate_of_id = None
 
-    Session.query(RequestTag).filter(RequestTag.request_id == context.id).delete()
+    db = request.find_service(name="db")
+    db.query(RequestTag).filter(RequestTag.request_id == context.id).delete()
 
     new_tags = _request_tags_from_form(request, request.POST, context)
     context.request_tags += new_tags
@@ -1102,14 +1121,14 @@ def directory_request_edit_post(context, request):
                 if order == 1:
                     new_slot.user_id   = context.user_id
                     new_slot.user_name = new_description
-                Session.add(new_slot)
+                db.add(new_slot)
             elif existing_slot:
-                Session.delete(existing_slot)
+                db.delete(existing_slot)
     else:
-        Session.query(RequestSlot).filter(RequestSlot.request_id == context.id).delete()
+        db.query(RequestSlot).filter(RequestSlot.request_id == context.id).delete()
 
     if context.status == "posted":
-        _remove_duplicates(context)
+        _remove_duplicates(request, context)
 
     transaction.get().addAfterCommitHook(_trigger_update_request_tag_ids(context.id))
 
@@ -1123,11 +1142,12 @@ def directory_request_delete_get(context, request):
 
 @view_config(route_name="directory_request_delete", request_method="POST", permission="request.delete")
 def directory_request_delete_post(context, request):
-    Session.query(Chat).filter(Chat.request_id == context.id).update({"request_id": None})
-    Session.query(Request).filter(Request.duplicate_of_id == context.id).update({"duplicate_of_id": None})
-    Session.query(RequestTag).filter(RequestTag.request_id == context.id).delete()
-    Session.query(RequestSlot).filter(RequestSlot.request_id == context.id).delete()
-    Session.query(Request).filter(Request.id == context.id).delete()
+    db = request.find_service(name="db")
+    db.query(Chat).filter(Chat.request_id == context.id).update({"request_id": None})
+    db.query(Request).filter(Request.duplicate_of_id == context.id).update({"duplicate_of_id": None})
+    db.query(RequestTag).filter(RequestTag.request_id == context.id).delete()
+    db.query(RequestSlot).filter(RequestSlot.request_id == context.id).delete()
+    db.query(Request).filter(Request.id == context.id).delete()
     return HTTPFound(request.route_path("directory_yours"))
 
 
