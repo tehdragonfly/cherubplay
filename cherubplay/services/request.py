@@ -9,7 +9,7 @@ from sqlalchemy.sql.operators import asc_op, desc_op
 from typing import List, Set, Union
 from zope.interface import Interface, implementer
 
-from cherubplay.models import Session, Request, Tag, User
+from cherubplay.models import Request, Tag, User
 
 
 class RequestList(Sequence):

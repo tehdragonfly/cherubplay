@@ -373,7 +373,7 @@ def chat_send(context: ChatContext, request):
 
     colour, trimmed_message_text, message_type = _validate_message_form(request)
 
-    message_service = MessageService(request.pubsub, context.chat)
+    message_service = MessageService(request, context.chat)
     message_service.send_message(context.chat_user, message_type, colour, trimmed_message_text)
 
     if request.is_xhr:

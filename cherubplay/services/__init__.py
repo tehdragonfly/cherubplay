@@ -3,14 +3,15 @@ import datetime, json
 from sqlalchemy import and_
 
 from cherubplay.lib import OnlineUserStore
-from cherubplay.models import ChatUser, ChatUserStatus, Message, Session
+from cherubplay.models import ChatUser, ChatUserStatus, Message
 from cherubplay.models.enums import MessageType
 from cherubplay.tasks import trigger_push_notification
 
 
 class MessageService(object):
-    def __init__(self, pubsub, chat):
-        self.pubsub = pubsub
+    def __init__(self, request, chat):
+        self.db     = request.find_service(name="db")
+        self.pubsub = request.pubsub
         self.chat   = chat
 
     def _send_message(self, chat_user: ChatUser, type: MessageType, colour: str, text: str):
@@ -26,8 +27,8 @@ class MessageService(object):
             posted=posted_date,
             edited=posted_date,
         )
-        Session.add(new_message)
-        Session.flush()
+        self.db.add(new_message)
+        self.db.flush()
 
         self.chat.updated      = posted_date
         self.chat.last_user_id = chat_user.user_id
@@ -35,7 +36,7 @@ class MessageService(object):
         try:
             # See if anyone else is online and update their ChatUser too.
             online_handles = OnlineUserStore(self.pubsub).online_handles(self.chat)
-            for other_chat_user in Session.query(ChatUser).filter(and_(
+            for other_chat_user in self.db.query(ChatUser).filter(and_(
                 ChatUser.chat_id == self.chat.id,
                 ChatUser.status == ChatUserStatus.active,
             )):
