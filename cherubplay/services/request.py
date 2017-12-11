@@ -73,7 +73,8 @@ class RequestService(object):
 
         query = self._db.query(Request)
 
-        # TODO blacklisting
+        if for_user:
+            query = query.filter(for_user.tag_filter)
 
         # Filter by tags
         if with_tags:
