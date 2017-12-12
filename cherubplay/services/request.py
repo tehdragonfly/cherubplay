@@ -1,7 +1,7 @@
 import datetime
 
 from collections.abc import Sequence
-from sqlalchemy import Integer
+from sqlalchemy import func, Integer
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import joinedload, subqueryload
 from sqlalchemy.sql.expression import cast
@@ -86,7 +86,6 @@ class RequestService(object):
             query = query.filter(Request.user_id == by_user.id)
 
         # Posted only
-        # TODO do something about the Request.posted filter if drafts are shown
         if posted_only:
             query = query.filter(Request.status == "posted")
 
@@ -95,6 +94,9 @@ class RequestService(object):
             sort_field, sort_operator = sort_choices[sort]
         except KeyError:
             raise ValueError("Not a valid sort order.")
+        # Request.posted may be null on drafts.
+        if not posted_only and sort_field == Request.posted:
+            sort_field = func.coalesce(Request.posted, Request.created)
         query = query.order_by(sort_field.operate(sort_operator))
 
         # Page start
