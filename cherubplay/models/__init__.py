@@ -32,6 +32,7 @@ from sqlalchemy.orm import (
     relationship,
     scoped_session,
     sessionmaker,
+    object_session,
 )
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_enum34 import EnumType
@@ -95,18 +96,22 @@ class User(Base):
 
     @reify
     def tag_filter(self):
+        return (
+            and_(self.tag_status_filter, self.blacklist_filter)
+            if self.blacklist_filter
+            else self.tag_status_filter
+        )
 
-        has_blacklist = Session.query(BlacklistedTag).filter(BlacklistedTag.user_id == self.id).first() is not None
-        if has_blacklist:
-            return and_(
-                self.tag_status_filter,
-                ~Request.tag_ids.overlap(
-                    Session.query(func.array_agg(BlacklistedTag.tag_id))
-                    .filter(BlacklistedTag.user_id == self.id)
-                ),
-            )
+    @reify
+    def blacklist_filter(self):
+        db = object_session(self)
+        if db.query(BlacklistedTag).filter(BlacklistedTag.user_id == self.id).first() is None:
+            return None
+        return ~Request.tag_ids.overlap(
+            db.query(func.array_agg(BlacklistedTag.tag_id))
+            .filter(BlacklistedTag.user_id == self.id)
+        )
 
-        return self.tag_status_filter
 
     @property
     def unban_delta(self):
