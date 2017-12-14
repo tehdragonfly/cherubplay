@@ -338,15 +338,18 @@ class Prompt(Base):
 
 class Request(Base):
     __parent__ = Resource
+
     def __acl__(self):
+        read_permission = Authenticated if self.status == "posted" else "admin"
         return (
-            (Allow, Authenticated, "request.read"),
-            (Deny,  self.user_id,  "request.answer"),
-            (Allow, "active",      "request.answer"),
-            (Deny,  "banned",      "request.edit"),
-            (Allow, self.user_id,  "request.edit"),
-            (Allow, self.user_id,  "request.delete"),
-            (Allow, "admin",       "request.remove"),
+            (Allow, read_permission, "request.read"),
+            (Allow, self.user_id,    "request.read"),
+            (Deny,  self.user_id,    "request.answer"),
+            (Allow, "active",        "request.answer"),
+            (Deny,  "banned",        "request.edit"),
+            (Allow, self.user_id,    "request.edit"),
+            (Allow, self.user_id,    "request.delete"),
+            (Allow, "admin",         "request.remove"),
         )
 
     __tablename__ = "requests"

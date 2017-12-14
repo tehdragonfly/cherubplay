@@ -73,6 +73,7 @@ class RequestService(object):
 
         query = self._db.query(Request)
 
+        # Blacklist filter
         if for_user and for_user.blacklist_filter:
             query = query.filter(for_user.blacklist_filter)
 
