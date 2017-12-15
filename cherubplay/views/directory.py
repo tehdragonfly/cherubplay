@@ -18,6 +18,7 @@ from cherubplay.models import (
 )
 from cherubplay.models.enums import ChatMode, ChatUserStatus, TagType
 from cherubplay.resources import CircularReferenceException
+from cherubplay.services.request import IRequestService
 from cherubplay.tasks import update_request_tag_ids
 
 
@@ -190,29 +191,19 @@ def directory(request):
     if not request.user.seen_blacklist_warning:
         return render_to_response("layout2/directory/blacklist_warning.mako", {}, request)
 
-    requests = (
-        request.find_service(name="db").query(Request)
-        .filter(request.user.tag_filter)
-    )
-    order_by = sort_field(request.GET.get("sort", request.user.default_request_order))
+    request_service = request.find_service(IRequestService)
+    kwargs = {"for_user": request.user}
+    if request.GET.get("sort"):
+        kwargs["sort"] = request.GET["sort"]
     if before_date:
-        if order_by.modifier == asc_op:
-            requests = requests.filter(Request.posted > before_date)
-        else:
-            requests = requests.filter(Request.posted < before_date)
-    requests = (
-        requests.options(joinedload(Request.tags), subqueryload(Request.slots))
-        .order_by(order_by)
-        .limit(26).all()
-    )
+        kwargs["start"] = before_date
+    requests = request_service.search(**kwargs)
 
     # 404 on empty pages, unless it's the first page.
-    if not requests and "before" in request.GET:
+    if len(requests) == 0 and "before" in request.GET:
         raise HTTPNotFound
 
-    answered = _find_answered(request, requests)
-
-    return {"requests": requests[:25], "answered": answered, "more": len(requests) == 26}
+    return {"requests": requests}
 
 
 @view_config(route_name="directory_search",     request_method="GET", permission="directory.read", renderer="layout2/directory/tag_search.mako")

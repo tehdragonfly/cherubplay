@@ -9,7 +9,7 @@ ${tag.name}\
 % endif
 </li>\
 </%def>
-<%def name="render_request(rq, expanded=False)">\
+<%def name="render_request(rq, answered=False, expanded=False)">\
         % if rq.status != "posted":
         <div class="status">${rq.status.capitalize()}</div>
         % endif
@@ -124,7 +124,7 @@ ${tag.name}\
             % else:
               <p class="slot_description ${"taken" if slot.taken else ""}">
                 ${slot.description}
-                % if not has_any_slot and not slot.taken and not (answered and rq.id in answered):
+                % if not has_any_slot and not slot.taken and not answered:
                   <a href="${request.route_path("directory_request_answer", id=rq.id, _query={"slot": slot.order})}">Answer</a>
                 % endif
               </p>
@@ -152,7 +152,7 @@ ${tag.name}\
               <a href="${request.route_path("directory_request_delete", id=rq.id)}">Delete</a>
             % else:
               <a href="https://www.tumblr.com/submit_form/cherubplay.tumblr.com/link?post[one]=Report&amp;post[two]=${request.route_url("directory_request", id=rq.id)}" target="_blank">Report</a>
-              % if answered and rq.id in answered:
+              % if answered:
                 · Answered
               % elif not rq.slots:
                 · <form action="${request.route_path("directory_request_answer", id=rq.id)}" method="post"><button type="submit">Answer</button></form>
