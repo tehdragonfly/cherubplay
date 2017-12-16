@@ -132,7 +132,10 @@ class RequestService(object):
             answered = set()
 
         if len(requests) == page_size + 1:
-            next_page_start = requests[-1]
+            if not posted_only and sort_field == Request.posted:
+                next_page_start = requests[-1].posted or requests[-1].created
+            else:
+                next_page_start = getattr(requests[-1], sort_field.name)
             requests.pop()
         else:
             next_page_start = None
