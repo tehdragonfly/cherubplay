@@ -166,44 +166,76 @@ def _trigger_update_request_tag_ids(request_id: int):
     return hook
 
 
-sort_fields = {
-    "posted":        Request.posted.desc(),
-    "edited":        Request.edited.desc(),
-    "posted_oldest": Request.posted.asc(),
-    "edited_oldest": Request.edited.asc(),
-}
-def sort_field(name):
-    return sort_fields[name] if name in sort_fields else sort_fields["posted"]
+class RequestListView(object):
+    def __init__(self, context, request):
+        self.context = context
+        self.request = request
+
+    def search_args(self):
+        raise NotImplementedError
+
+    def render_args(self):
+        raise NotImplementedError
+
+    def __call__(self):
+        if not self.request.user.seen_blacklist_warning:
+            return render_to_response("layout2/directory/blacklist_warning.mako", {}, self.request)
+
+        if self.request.GET.get("before"):
+            try:
+                before_date = datetime.datetime.strptime(
+                    self.request.GET["before"],
+                    "%Y-%m-%dT%H:%M:%S.%f",
+                )
+            except ValueError:
+                raise HTTPNotFound
+        else:
+            before_date = None
+
+        request_service = self.request.find_service(IRequestService)
+        kwargs = {}
+        if self.request.GET.get("sort"):
+            kwargs["sort"] = self.request.GET["sort"]
+        if before_date:
+            kwargs["start"] = before_date
+        kwargs.update(self.search_args())
+        requests = request_service.search(**kwargs)
+
+        # 404 on empty pages, unless it's the first page.
+        if len(requests) == 0 and "before" in self.request.GET:
+            raise HTTPNotFound
+
+        response = {"requests": requests}
+        response.update(self.render_args())
+        return response
 
 
 @view_config(route_name="directory_ext", request_method="GET", permission="directory.read", extension="json", renderer="json")
 @view_config(route_name="directory",     request_method="GET", permission="directory.read", renderer="layout2/directory/index.mako")
-def directory(request):
+class DirectoryIndex(RequestListView):
+    def search_args(self):
+        return {"for_user": self.request.user}
 
-    if request.GET.get("before"):
+    def render_args(self):
+        return {}
+
+
+@view_config(route_name="directory_user_ext", request_method="GET", permission="admin", extension="json", renderer="json")
+@view_config(route_name="directory_user",     request_method="GET", permission="admin", renderer="layout2/directory/index.mako")
+class DirectoryUser(RequestListView):
+    def __init__(self, context, request):
+        super().__init__(context, request)
+        db = self.request.find_service(name="db")
         try:
-            before_date = datetime.datetime.strptime(request.GET["before"], "%Y-%m-%dT%H:%M:%S.%f")
-        except ValueError:
+            self.user = db.query(User).filter(func.lower(User.username) == request.matchdict["username"].lower()).one()
+        except NoResultFound:
             raise HTTPNotFound
-    else:
-        before_date = None
 
-    if not request.user.seen_blacklist_warning:
-        return render_to_response("layout2/directory/blacklist_warning.mako", {}, request)
+    def search_args(self):
+        return {"by_user": self.user}
 
-    request_service = request.find_service(IRequestService)
-    kwargs = {"for_user": request.user}
-    if request.GET.get("sort"):
-        kwargs["sort"] = request.GET["sort"]
-    if before_date:
-        kwargs["start"] = before_date
-    requests = request_service.search(**kwargs)
-
-    # 404 on empty pages, unless it's the first page.
-    if len(requests) == 0 and "before" in request.GET:
-        raise HTTPNotFound
-
-    return {"requests": requests}
+    def render_args(self):
+        return {}
 
 
 @view_config(route_name="directory_search",     request_method="GET", permission="directory.read", renderer="layout2/directory/tag_search.mako")
@@ -305,45 +337,6 @@ def directory_tag_table(request):
             rows.append({})
         rows[-1][tag.type] = tag
     return {"rows": rows}
-
-
-@view_config(route_name="directory_user_ext", request_method="GET", permission="admin", extension="json", renderer="json")
-@view_config(route_name="directory_user",     request_method="GET", permission="admin", renderer="layout2/directory/index.mako")
-def directory_user(request):
-    db = request.find_service(name="db")
-
-    try:
-        user = db.query(User).filter(func.lower(User.username) == request.matchdict["username"].lower()).one()
-    except NoResultFound:
-        raise HTTPNotFound
-
-    if user.username != request.matchdict["username"]:
-        raise HTTPFound(request.current_route_path(username=user.username))
-
-    if request.GET.get("before"):
-        try:
-            before_date = datetime.datetime.strptime(request.GET["before"], "%Y-%m-%dT%H:%M:%S.%f")
-        except ValueError:
-            raise HTTPNotFound
-    else:
-        before_date = None
-
-    requests = db.query(Request).filter(Request.user_id == user.id)
-    if before_date:
-        requests = requests.filter(Request.posted < before_date)
-    requests = (
-        requests.options(joinedload(Request.tags), subqueryload(Request.slots))
-        .order_by(Request.posted.desc())
-        .limit(26).all()
-    )
-
-    # 404 on empty pages, unless it's the first page.
-    if not requests and "before" in request.GET:
-        raise HTTPNotFound
-
-    answered = _find_answered(request, requests)
-
-    return {"requests": requests[:25], "answered": answered, "more": len(requests) == 26}
 
 
 @view_config(route_name="directory_tag",     request_method="GET", permission="directory.read", renderer="layout2/directory/tag.mako")
