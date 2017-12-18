@@ -341,80 +341,61 @@ def directory_tag_table(request):
 
 @view_config(route_name="directory_tag",     request_method="GET", permission="directory.read", renderer="layout2/directory/tag.mako")
 @view_config(route_name="directory_tag_ext", request_method="GET", permission="directory.read", extension="json", renderer="json")
-def directory_tag(context, request):
+class DirectoryTag(RequestListView):
+    def search_args(self):
+        return {
+            "for_user": self.request.user,
+            "with_tags": self.context.tags,
+        }
 
-    if request.GET.get("before"):
-        try:
-            before_date = datetime.datetime.strptime(request.GET["before"], "%Y-%m-%dT%H:%M:%S.%f")
-        except ValueError:
-            raise HTTPNotFound
-    else:
-        before_date = None
+    def render_args(self):
+        return {
+            "tags": self.context.tags,
+            "blacklisted_tags": self.context.blacklisted_tags,
+        }
 
-    if not request.user.seen_blacklist_warning:
-        return render_to_response("layout2/directory/blacklist_warning.mako", {}, request)
+    def __call__(self):
+        if self.context.blacklisted_tags:
+            response = self.render_args()
+            response["requests"] = []
+        else:
+            response = super().__call__()
 
-    resp = {
-        "tags": context.tags,
-        "blacklisted_tags": context.blacklisted_tags,
-    }
+        if len(self.context.tags) == 1:
+            tag = self.context.tags[0]
 
-    if context.blacklisted_tags:
-        resp["requests"] = []
-        resp["more"] = False
-        return resp
+            db = self.request.find_service(name="db")
+            all_tag_types = (
+                db.query(Tag)
+                .filter(func.lower(Tag.name) == tag.name.lower())
+                .options(joinedload(Tag.synonym_of))
+                .order_by(Tag.type).all()
+            )
+            response["tag_types"] = [_ for _ in all_tag_types if _.synonym_of not in all_tag_types]
 
-    db = request.find_service(name="db")
-    requests = (
-        db.query(Request)
-        .filter(and_(request.user.tag_filter, Request.tag_ids.contains(context.tag_array)))
-    )
-    if before_date:
-        requests = requests.filter(Request.posted < before_date)
-    requests = (
-        requests.options(joinedload(Request.tags), subqueryload(Request.slots))
-        .order_by(Request.posted.desc())
-        .limit(26).all()
-    )
-
-    resp["requests"] = requests[:25]
-    resp["answered"] = _find_answered(request, requests)
-    resp["more"]     = len(requests) == 26
-
-    if len(context.tags) == 1:
-        tag = context.tags[0]
-
-        all_tag_types = (
-            db.query(Tag)
-            .filter(func.lower(Tag.name) == tag.name.lower())
-            .options(joinedload(Tag.synonym_of))
-            .order_by(Tag.type).all()
-        )
-        resp["tag_types"] = [_ for _ in all_tag_types if _.synonym_of not in all_tag_types]
-
-        if "before" not in request.GET:
-            if request.has_permission("directory.manage_tags"):
-                if not tag.approved:
-                    resp["can_be_approved"] = True
-                resp["synonyms"] = (
+            if "before" not in self.request.GET:
+                if self.request.has_permission("directory.manage_tags"):
+                    if not tag.approved:
+                        response["can_be_approved"] = True
+                    response["synonyms"] = (
+                        db.query(Tag)
+                        .filter(Tag.synonym_id == tag.id)
+                        .order_by(Tag.type, Tag.name).all()
+                    )
+                response["parents"] = (
                     db.query(Tag)
-                    .filter(Tag.synonym_id == tag.id)
+                    .join(TagParent, Tag.id == TagParent.parent_id)
+                    .filter(TagParent.child_id == tag.id)
                     .order_by(Tag.type, Tag.name).all()
                 )
-            resp["parents"] = (
-                db.query(Tag)
-                .join(TagParent, Tag.id == TagParent.parent_id)
-                .filter(TagParent.child_id == tag.id)
-                .order_by(Tag.type, Tag.name).all()
-            )
-            resp["children"] = (
-                db.query(Tag)
-                .join(TagParent, Tag.id == TagParent.child_id)
-                .filter(TagParent.parent_id == tag.id)
-                .order_by(Tag.type, Tag.name).all()
-            )
+                response["children"] = (
+                    db.query(Tag)
+                    .join(TagParent, Tag.id == TagParent.child_id)
+                    .filter(TagParent.parent_id == tag.id)
+                    .order_by(Tag.type, Tag.name).all()
+                )
 
-    return resp
+        return response
 
 
 @view_config(route_name="directory_tag_approve", request_method="POST", permission="directory.manage_tags")
