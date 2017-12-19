@@ -592,33 +592,12 @@ def directory_tag_bump_maturity(context, request):
 
 @view_config(route_name="directory_yours",     request_method="GET", permission="directory.read", renderer="layout2/directory/index.mako")
 @view_config(route_name="directory_yours_ext", request_method="GET", permission="directory.read", extension="json", renderer="json")
-def directory_yours(request):
+class DirectoryUser(RequestListView):
+    def search_args(self):
+        return {"by_user": self.request.user}
 
-    if request.GET.get("before"):
-        try:
-            before_date = datetime.datetime.strptime(request.GET["before"], "%Y-%m-%dT%H:%M:%S.%f")
-        except ValueError:
-            raise HTTPNotFound
-    else:
-        before_date = None
-
-    requests = (
-        request.find_service(name="db").query(Request)
-        .filter(Request.user_id == request.user.id)
-    )
-    if before_date:
-        requests = requests.filter(Request.posted < before_date)
-    requests = (
-        requests.options(joinedload(Request.tags), subqueryload(Request.slots))
-        .order_by(func.coalesce(Request.posted, Request.created).desc())
-        .limit(26).all()
-    )
-
-    # 404 on empty pages, unless it's the first page.
-    if not requests and "before" in request.GET:
-        raise HTTPNotFound
-
-    return {"requests": requests[:25], "more": len(requests) == 26}
+    def render_args(self):
+        return {}
 
 
 @view_config(route_name="directory_random", request_method="GET", permission="directory.read", renderer="layout2/directory/lucky_dip_failed.mako")
