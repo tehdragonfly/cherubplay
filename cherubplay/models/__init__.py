@@ -89,20 +89,6 @@ class User(Base):
         return "<User #%s: %s>" % (self.id, self.username)
 
     @reify
-    def tag_status_filter(self):
-        if self.status == "admin":
-            return Request.status.in_(("posted", "removed"))
-        return Request.status == "posted"
-
-    @reify
-    def tag_filter(self):
-        return (
-            and_(self.tag_status_filter, self.blacklist_filter)
-            if self.blacklist_filter
-            else self.tag_status_filter
-        )
-
-    @reify
     def blacklist_filter(self):
         db = object_session(self)
         if db.query(BlacklistedTag).filter(BlacklistedTag.user_id == self.id).first() is None:
@@ -111,7 +97,6 @@ class User(Base):
             db.query(func.array_agg(BlacklistedTag.tag_id))
             .filter(BlacklistedTag.user_id == self.id)
         )
-
 
     @property
     def unban_delta(self):

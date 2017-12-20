@@ -44,6 +44,7 @@ class IRequestService(Interface):
 
     def search(
         self,
+        for_user: User=None,
         with_tags: List[Tag]=None,
         by_user: User=None,
         posted_only: bool=True,
@@ -51,6 +52,9 @@ class IRequestService(Interface):
         start: Union[str, datetime.datetime]=None,
         page_size=25,
     ) -> RequestList:
+        pass
+
+    def random(self, for_user: User=None) -> int:
         pass
 
 
@@ -141,6 +145,18 @@ class RequestService(object):
             next_page_start = None
 
         return RequestList(requests, answered, next_page_start)
+
+    def random(self, for_user: User=None) -> int:
+        query = self._db.query(Request.id).filter(Request.status == "posted")
+
+        if for_user:
+            query = query.filter(Request.user_id != for_user.id)
+            if for_user.blacklist_filter is not None:
+                query = query.filter(for_user.blacklist_filter)
+
+        row = query.order_by(func.random()).first()
+        return row[0] if row else None
+
 
 def includeme(config):
     config.register_service_factory(lambda context, request: RequestService(request), iface=IRequestService)

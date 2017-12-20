@@ -602,16 +602,9 @@ class DirectoryUser(RequestListView):
 
 @view_config(route_name="directory_random", request_method="GET", permission="directory.read", renderer="layout2/directory/lucky_dip_failed.mako")
 def directory_random(request):
-    request_query = (
-        request.find_service(name="db").query(Request.id)
-        .filter(and_(
-            Request.user_id != request.user.id,
-            request.user.tag_filter,
-        ))
-        .order_by(func.random()).first()
-    )
-    if request_query:
-        return HTTPFound(request.route_path("directory_request", id=request_query[0]))
+    request_id = request.find_service(IRequestService).random(for_user=request.user)
+    if request_id:
+        return HTTPFound(request.route_path("directory_request", id=request_id))
     return {}
 
 
