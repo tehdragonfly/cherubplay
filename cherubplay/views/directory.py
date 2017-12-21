@@ -5,9 +5,8 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
 from pyramid.renderers import render_to_response
 from pyramid.view import view_config
 from sqlalchemy import and_, func, literal
-from sqlalchemy.orm import joinedload, subqueryload
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.sql.operators import asc_op
 from uuid import uuid4
 
 from cherubplay.lib import colour_validator, preset_colours, prompt_hash
