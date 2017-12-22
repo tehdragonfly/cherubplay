@@ -11,13 +11,14 @@ from uuid import uuid4
 
 from cherubplay.lib import colour_validator, preset_colours, prompt_hash
 from cherubplay.models import (
-    BlacklistedTag, Chat, ChatUser, CreateNotAllowed, Message, Request,
+    BlacklistedTag, Chat, ChatUser, Message, Request,
     RequestSlot, RequestTag, Tag, TagParent, TagAddParentSuggestion,
     TagBumpMaturitySuggestion, TagMakeSynonymSuggestion, User,
 )
 from cherubplay.models.enums import ChatMode, ChatUserStatus, TagType
 from cherubplay.resources import CircularReferenceException
 from cherubplay.services.request import IRequestService
+from cherubplay.services.tag import CreateNotAllowed, ITagService
 from cherubplay.tasks import update_request_tag_ids
 
 
@@ -134,8 +135,9 @@ def _request_tags_from_form(request, form, new_request):
 
     tag_list = []
     used_ids = set()
+    tag_service = request.find_service(ITagService)
     for tag_type, name in tag_set:
-        tag = Tag.get_or_create(tag_type, name)
+        tag = tag_service.get_or_create(tag_type, name)
 
         if tag.bump_maturity or (tag.synonym_id and tag.synonym_of.bump_maturity):
             bump_maturity = True
@@ -150,9 +152,9 @@ def _request_tags_from_form(request, form, new_request):
         tag_list.append(RequestTag(tag_id=tag_id))
 
     if bump_maturity:
-        tag_list.append(RequestTag(tag_id=Tag.get_or_create(TagType.maturity, "NSFW extreme").id))
+        tag_list.append(RequestTag(tag_id=tag_service.get_or_create(TagType.maturity, "NSFW extreme").id))
     else:
-        tag_list.append(RequestTag(tag_id=Tag.get_or_create(TagType.maturity, maturity).id))
+        tag_list.append(RequestTag(tag_id=tag_service.get_or_create(TagType.maturity, maturity).id))
 
     return tag_list
 
@@ -450,7 +452,8 @@ def directory_tag_suggest_make_synonym_post(context, request):
         raise HTTPBadRequest
 
     try:
-        tag = Tag.get_or_create(new_type, new_name, allow_maturity_and_type_creation=False)
+        tag_service = request.find_service(ITagService)
+        tag = tag_service.get_or_create(new_type, new_name, allow_maturity_and_type_creation=False)
     except CreateNotAllowed:
         raise HTTPBadRequest
 
@@ -487,7 +490,8 @@ def directory_tag_suggest_add_parent_post(context, request):
         raise HTTPBadRequest
 
     try:
-        tag = Tag.get_or_create(new_type, new_name, allow_maturity_and_type_creation=False)
+        tag_service = request.find_service(ITagService)
+        tag = tag_service.get_or_create(new_type, new_name, allow_maturity_and_type_creation=False)
     except CreateNotAllowed:
         raise HTTPBadRequest
 
@@ -769,7 +773,8 @@ def directory_blacklist_add(request):
             continue
 
         try:
-            tag = Tag.get_or_create(tag_type, name, allow_maturity_and_type_creation=False)
+            tag_service = request.find_service(ITagService)
+            tag = tag_service.get_or_create(tag_type, name, allow_maturity_and_type_creation=False)
         except CreateNotAllowed:
             return _blacklisted_tags(request, error="invalid", error_tag_type=tag_type, error_name=name)
         tag_id = (tag.synonym_id or tag.id)

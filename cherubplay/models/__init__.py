@@ -439,9 +439,6 @@ class BlacklistedTag(Base):
         return tag_dict
 
 
-class CreateNotAllowed(Exception): pass
-
-
 class Tag(Base):
     __tablename__ = "tags"
     id = Column(Integer, primary_key=True)
@@ -457,32 +454,6 @@ class Tag(Base):
 
     def __repr__(self):
         return "<Tag #%s: %s:%s>" % (self.id, self.type.value, self.name)
-
-    @classmethod
-    def get_or_create(cls, tag_type, name, allow_maturity_and_type_creation=True, create_opposite_tag=True):
-        name = re.sub("\s+", " ", name)
-        try:
-            tag = (
-                Session.query(cls)
-                .filter(and_(
-                    cls.type == tag_type,
-                    func.lower(cls.name) == name.lower()
-                ))
-                .options(joinedload(Tag.synonym_of))
-                .one()
-            )
-        except NoResultFound:
-            if not allow_maturity_and_type_creation and tag_type in (TagType.maturity, TagType.type):
-                raise CreateNotAllowed
-            tag = cls(type=tag_type, name=name)
-            Session.add(tag)
-            Session.flush()
-            if create_opposite_tag:
-                if tag_type in TagType.playing_types:
-                    cls.get_or_create(tag_type.wanted, name, create_opposite_tag=False)
-                elif tag_type in TagType.wanted_types:
-                    cls.get_or_create(tag_type.playing, name, create_opposite_tag=False)
-        return tag
 
     @classmethod
     def name_from_url(cls, url):
