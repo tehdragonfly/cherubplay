@@ -16,6 +16,7 @@ from cherubplay.models import (
     TagBumpMaturitySuggestion, TagMakeSynonymSuggestion, Tag, User,
 )
 from cherubplay.models.enums import ChatUserStatus, TagType
+from cherubplay.services.tag import ITagService
 from cherubplay.tasks import update_missing_request_tag_ids
 
 
@@ -201,17 +202,18 @@ def _trigger_update_missing_request_tag_ids(status):
 class TagPair(object):
     __parent__ = Resource
 
-    def __init__(self, db, first_tag: Tag, **kwargs):
+    def __init__(self, db, tag_service, first_tag: Tag, **kwargs):
         self._db = db
+        self._tag_service = tag_service
         self.tags = [
             first_tag if first_tag.type == pair_tag_type
-            else Tag.get_or_create(pair_tag_type, first_tag.name, **kwargs)
+            else tag_service.get_or_create(pair_tag_type, first_tag.name, **kwargs)
             for pair_tag_type in first_tag.type.pair
         ]
 
     @classmethod
-    def from_tag_name(cls, db, tag_type: TagType, tag_name: str, **kwargs):
-        return cls(db, Tag.get_or_create(tag_type, tag_name, **kwargs))
+    def from_tag_name(cls, db, tag_service, tag_type: TagType, tag_name: str, **kwargs):
+        return cls(db, tag_service, tag_service.get_or_create(tag_type, tag_name, **kwargs))
 
     @classmethod
     def from_request(cls, request):
@@ -220,7 +222,11 @@ class TagPair(object):
         except ValueError:
             raise HTTPNotFound
         tag_name = Tag.name_from_url(request.matchdict["name"])
-        return cls.from_tag_name(request.find_service(name="db"), request_tag_type, tag_name)
+        return cls.from_tag_name(
+            request.find_service(name="db"),
+            request.find_service(ITagService),
+            request_tag_type, tag_name,
+        )
 
     def set_bump_maturity(self, value: bool):
         for tag in self.tags:
@@ -272,7 +278,7 @@ class TagPair(object):
             ):
                 raise ValueError("tag %s has synonyms" % old_tag)
 
-            new_tag = Tag.get_or_create(new_type, new_name)
+            new_tag = self._tag_service.get_or_create(new_type, new_name)
 
             if old_tag.id == new_tag.id:
                 raise ValueError("can't synonym tag %s to itself" % old_tag)
@@ -340,7 +346,7 @@ class TagPair(object):
             parent_types = parent_types * 2
 
         for child_tag, parent_type in zip(self.tags, parent_types):
-            parent_tag = Tag.get_or_create(parent_type, parent_name)
+            parent_tag = self._tag_service.get_or_create(parent_type, parent_name)
 
             if self._db.query(func.count("*")).select_from(TagParent).filter(and_(
                             TagParent.parent_id == parent_tag.id,
