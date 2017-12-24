@@ -541,7 +541,6 @@ def directory_tag_suggest_bump_maturity_post(context, request):
         )
         db.add(suggestion)
 
-    print(request.matchdict)
     return HTTPFound(request.route_path("directory_tag_suggest", **request.matchdict))
 
 
@@ -611,24 +610,6 @@ def directory_random(request):
     return {}
 
 
-def _remove_duplicates(pyramid_request, new_request):
-    db = pyramid_request.find_service(name="db")
-    new_hash = prompt_hash(new_request.ooc_notes + new_request.starter)
-    duplicate_ids = {
-        old_request.id
-        for old_request in db.query(Request).filter(and_(
-            Request.id      != new_request.id,
-            Request.user_id == new_request.user_id,
-            Request.status  == "posted",
-        ))
-        if new_hash == prompt_hash(old_request.ooc_notes + old_request.starter)
-    }
-    db.query(Request).filter(Request.id.in_(duplicate_ids)).update({
-        "status": "draft",
-        "duplicate_of_id": new_request.id,
-    }, synchronize_session=False)
-
-
 @view_config(route_name="directory_new", request_method="GET", permission="directory.new_request", renderer="layout2/directory/new.mako")
 def directory_new_get(request):
     return {"form_data": {}, "preset_colours": preset_colours}
@@ -660,7 +641,7 @@ def directory_new_post(request):
     db.add(new_request)
     db.flush()
 
-    _remove_duplicates(request, new_request)
+    request.find_service(ITagService).remove_duplicates(request, new_request)
 
     new_request.request_tags += _request_tags_from_form(request, request.POST, new_request)
 
@@ -1069,7 +1050,7 @@ def directory_request_edit_post(context, request):
         db.query(RequestSlot).filter(RequestSlot.request_id == context.id).delete()
 
     if context.status == "posted":
-        _remove_duplicates(request, context)
+        request.find_service(ITagService).remove_duplicates(request, context)
 
     transaction.get().addAfterCommitHook(_trigger_update_request_tag_ids(context.id))
 

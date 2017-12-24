@@ -1,7 +1,7 @@
 import datetime
 
 from collections.abc import Sequence
-from sqlalchemy import func, Integer
+from sqlalchemy import and_, func, Integer
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import joinedload, subqueryload
 from sqlalchemy.sql.expression import cast
@@ -9,6 +9,7 @@ from sqlalchemy.sql.operators import asc_op, desc_op
 from typing import List, Set, Union
 from zope.interface import Interface, implementer
 
+from cherubplay.lib import prompt_hash
 from cherubplay.models import Request, Tag, User
 
 
@@ -55,6 +56,9 @@ class IRequestService(Interface):
         pass
 
     def random(self, for_user: User=None) -> int:
+        pass
+
+    def remove_duplicates(self, new_request: Request):
         pass
 
 
@@ -156,6 +160,22 @@ class RequestService(object):
 
         row = query.order_by(func.random()).first()
         return row[0] if row else None
+
+    def remove_duplicates(self, new_request: Request):
+        new_hash = prompt_hash(new_request.ooc_notes + new_request.starter)
+        duplicate_ids = {
+            old_request.id
+            for old_request in self._db.query(Request).filter(and_(
+                Request.id != new_request.id,
+                Request.user_id == new_request.user_id,
+                Request.status == "posted",
+            ))
+            if new_hash == prompt_hash(old_request.ooc_notes + old_request.starter)
+        }
+        self._db.query(Request).filter(Request.id.in_(duplicate_ids)).update({
+            "status": "draft",
+            "duplicate_of_id": new_request.id,
+        }, synchronize_session=False)
 
 
 def includeme(config):
