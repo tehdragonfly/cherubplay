@@ -2,31 +2,27 @@ import jwt, requests, time
 
 from celery import group
 from contextlib import contextmanager
-from datetime import datetime, timedelta
 from logging import getLogger
 from pyramid_celery import celery_app as app
-from sqlalchemy import and_, engine_from_config, func
+from sqlalchemy import and_, func
 from sqlalchemy.dialects.postgresql import INTERVAL
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy.sql.expression import cast
 from urllib.parse import urlparse
 
-from cherubplay.models import PushSubscription, Request, RequestTag, User
+from cherubplay.models import get_sessionmaker, PushSubscription, Request, User
 
 
 log = getLogger(__name__)
 
 
-engine = None
 sm = None
 
 
 @contextmanager
 def db_session():
-    global engine, sm
-    if not engine:
-        engine = engine_from_config(app.conf["PYRAMID_REGISTRY"].settings, "sqlalchemy.")
-        sm = sessionmaker(bind=engine, autoflush=False)
+    global sm
+    if not sm:
+        sm = get_sessionmaker(app.conf["PYRAMID_REGISTRY"].settings)
     db = sm()
     try:
         yield db
