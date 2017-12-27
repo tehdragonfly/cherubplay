@@ -82,7 +82,7 @@ class RequestService(object):
         query = self._db.query(Request)
 
         # Blacklist filter
-        if for_user and for_user.blacklist_filter:
+        if for_user and for_user.blacklist_filter is not None:
             query = query.filter(for_user.blacklist_filter)
 
         # Filter by tags

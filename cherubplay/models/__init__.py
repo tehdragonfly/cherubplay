@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import datetime, re
+import datetime
 import zope.sqlalchemy
 
 from pyramid.decorator import reify
@@ -28,13 +28,10 @@ from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (
     configure_mappers,
-    joinedload,
     relationship,
-    scoped_session,
     sessionmaker,
     object_session,
 )
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy_enum34 import EnumType
 from zope.sqlalchemy import ZopeTransactionExtension
 
@@ -42,10 +39,6 @@ from cherubplay.lib import symbols
 from cherubplay.models.enums import ChatMode, ChatUserStatus, MessageType, TagType
 
 
-Session = scoped_session(sessionmaker(
-    extension=ZopeTransactionExtension(),
-    expire_on_commit=False,
-))
 Base = declarative_base()
 
 

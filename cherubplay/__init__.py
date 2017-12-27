@@ -14,7 +14,7 @@ from redis.exceptions import ConnectionError
 from sqlalchemy import and_, engine_from_config, func
 from sqlalchemy.orm.exc import NoResultFound
 
-from cherubplay.models import Session, Base, Chat, ChatUser, Resource, User
+from cherubplay.models import Base, Chat, ChatUser, Resource, User
 from cherubplay.models.enums import ChatUserStatus, TagType
 from cherubplay.resources import (
     ChatContext, prompt_factory, report_factory, TagList, TagPair,
@@ -132,10 +132,6 @@ def request_show_news(request):
 
 
 def main(global_config, **settings):
-
-    engine = engine_from_config(settings, "sqlalchemy.")
-    Session.configure(bind=engine)
-    Base.metadata.bind = engine
 
     if "push.private_key" in settings:
         settings["push.private_key"] = derive_private_key(
