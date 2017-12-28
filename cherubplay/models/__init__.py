@@ -576,9 +576,9 @@ Index("tag_type_name_unique", Tag.type, func.lower(Tag.name), unique=True)
 configure_mappers()
 
 
-def get_sessionmaker(settings, prefix="sqlalchemy."):
+def get_sessionmaker(settings, prefix="sqlalchemy.", for_worker=False):
     engine = engine_from_config(settings, prefix)
-    sm = sessionmaker(extension=ZopeTransactionExtension())
+    sm = sessionmaker(extension=None if for_worker else ZopeTransactionExtension())
     sm.configure(bind=engine)
     return sm
 

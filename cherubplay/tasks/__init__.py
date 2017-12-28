@@ -22,7 +22,7 @@ sm = None
 def db_session():
     global sm
     if not sm:
-        sm = get_sessionmaker(app.conf["PYRAMID_REGISTRY"].settings)
+        sm = get_sessionmaker(app.conf["PYRAMID_REGISTRY"].settings, for_worker=True)
     db = sm()
     try:
         yield db
