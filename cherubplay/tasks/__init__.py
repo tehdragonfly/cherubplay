@@ -99,9 +99,9 @@ def check_tag_consistency():
 @app.task
 def remove_unused_tags():
     """
-    Unused tags are not approved, not a synonym, have no RequestTags, no
-    BlacklistedTags and no TagParents. With playing/wanted pairs both tags in
-    the pair must have none of the above.
+    Unused tags are not approved, not a synonym, don't have a synonym, have no
+    RequestTags, no BlacklistedTags, no TagParents and no sugggestions. With
+    playing/wanted pairs both tags in the pair must have none of the above.
     """
     remove_unused_warning_and_misc_tags.delay()
     remove_unused_tag_pairs.delay("fandom")
@@ -119,9 +119,15 @@ def remove_unused_warning_and_misc_tags():
                 and approved=false and synonym_id is null
                 except (
                     select tag_id from request_tags
+                    union select synonym_id from tags where synonym_id is not null
                     union select tag_id from blacklisted_tags
                     union select parent_id from tag_parents
                     union select child_id from tag_parents
+                    union select tag_id from tag_make_synonym_suggestions
+                    union select target_id from tag_make_synonym_suggestions
+                    union select tag_id from tag_add_parent_suggestions
+                    union select target_id from tag_add_parent_suggestions
+                    union select tag_id from tag_bump_maturity_suggestions
                 )
             );
         """)
@@ -140,9 +146,15 @@ def remove_unused_tag_pairs(tag_type):
                     and approved=false and synonym_id is null
                     except (
                         select tag_id from request_tags
+                        union select synonym_id from tags where synonym_id is not null
                         union select tag_id from blacklisted_tags
                         union select parent_id from tag_parents
                         union select child_id from tag_parents
+                        union select tag_id from tag_make_synonym_suggestions
+                        union select target_id from tag_make_synonym_suggestions
+                        union select tag_id from tag_add_parent_suggestions
+                        union select target_id from tag_add_parent_suggestions
+                        union select tag_id from tag_bump_maturity_suggestions
                     )
                 )
                 intersect
@@ -152,9 +164,15 @@ def remove_unused_tag_pairs(tag_type):
                     and approved=false and synonym_id is null
                     except (
                         select tag_id from request_tags
+                        union select synonym_id from tags where synonym_id is not null
                         union select tag_id from blacklisted_tags
                         union select parent_id from tag_parents
                         union select child_id from tag_parents
+                        union select tag_id from tag_make_synonym_suggestions
+                        union select target_id from tag_make_synonym_suggestions
+                        union select tag_id from tag_add_parent_suggestions
+                        union select target_id from tag_add_parent_suggestions
+                        union select tag_id from tag_bump_maturity_suggestions
                     )
                 )
             );
