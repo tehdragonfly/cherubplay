@@ -41,13 +41,15 @@ def db_session():
 @app.task
 def reap_requests():
     with db_session() as db:
+        user_query = db.query(User.id).filter(User.last_online < func.now() - cast("7 days", INTERVAL))
         db.query(Request).filter(and_(
             Request.status == "posted",
-            Request.user_id.in_(
-                db.query(User.id)
-                .filter(User.last_online < func.now() - cast("7 days", INTERVAL))
-            ),
+            Request.user_id.in_(user_query),
         )).update({"status": "draft"}, synchronize_session=False)
+        db.query(RequestSlot).filter(and_(
+            RequestSlot.order != 1,
+            RequestSlot.user_id.in_(user_query),
+        )).update({"user_id": None, "user_name": None}, synchronize_session=False)
 
 
 @app.task
