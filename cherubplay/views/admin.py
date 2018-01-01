@@ -11,7 +11,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from cherubplay.lib import prompt_categories, prompt_starters, prompt_levels
-from cherubplay.models import Chat, ChatUser, PromptReport, Request
+from cherubplay.models import Chat, ChatUser, PromptReport, Request, RequestSlot
 
 
 status_filters = {
@@ -125,6 +125,10 @@ def user_status(context, request):
             Request.user_id == context.id,
             Request.status == "posted",
         )).update({"status": "draft"})
+        db.query(RequestSlot).filter(and_(
+            RequestSlot.user_id == context.id,
+            RequestSlot.order != 1,
+        )).update({"user_id": None, "user_name": None}, synchronize_session=False)
     context.status = request.POST["status"]
     return HTTPFound(request.route_path("admin_user", username=context.username, _query={"saved": "status"}))
 
@@ -171,6 +175,10 @@ def user_ban(context, request):
         Request.user_id == context.id,
         Request.status == "posted",
     )).update({"status": "draft"})
+    db.query(RequestSlot).filter(and_(
+        RequestSlot.user_id == context.id,
+        RequestSlot.order != 1,
+    )).update({"user_id": None, "user_name": None}, synchronize_session=False)
     return HTTPFound(request.route_path("admin_user", username=context.username, _query={"saved": "status"}))
 
 
