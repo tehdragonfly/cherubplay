@@ -20,7 +20,7 @@ from cherubplay import ChatContext
 from cherubplay.lib import colour_validator, preset_colours, OnlineUserStore
 from cherubplay.models import Chat, ChatUser, Message
 from cherubplay.models.enums import ChatMode, ChatUserStatus, MessageType
-from cherubplay.services import MessageService
+from cherubplay.services.message import IMessageService
 
 
 @view_config(route_name="chat_list",                request_method="GET", permission="view")
@@ -362,18 +362,8 @@ def _validate_message_form(request, editing=False):
 
 @view_config(route_name="chat_send", request_method="POST", permission="chat.send")
 def chat_send(context: ChatContext, request):
-    # TODO Only trigger notifications if the user has seen the most recent message.
-    # This stops us from sending multiple notifications about the same chat.
-    db = request.find_service(name="db")
-    most_recent_message = (
-        db.query(Message)
-        .filter(Message.chat_id == context.chat.id)
-        .order_by(Message.id.desc()).first()
-    )
-
     colour, trimmed_message_text, message_type = _validate_message_form(request)
-
-    message_service = MessageService(request, context.chat)
+    message_service = request.find_service(IMessageService)
     message_service.send_message(context.chat_user, message_type, colour, trimmed_message_text)
 
     if request.is_xhr:

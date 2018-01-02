@@ -210,7 +210,7 @@ def post_push_notification(subscription_id, endpoint):
         with db_session() as db:
             db.query(PushSubscription).filter(PushSubscription.id == subscription_id).delete()
     elif response.status_code not in (200, 201):
-        log.warn("Push endpoint for subscription %s returned status %s:" % (subscription_id, response.status_code))
+        log.warning("Push endpoint for subscription %s returned status %s:" % (subscription_id, response.status_code))
         log.debug(response.request.headers)
         log.debug(response.headers)
         log.debug(response.text)
