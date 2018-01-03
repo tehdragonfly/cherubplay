@@ -39,8 +39,8 @@ class MessageService(object):
         # This stops us from sending multiple notifications about the same chat.
         most_recent_message = (
             self._db.query(Message)
-                .filter(Message.chat_id == chat.id)
-                .order_by(Message.id.desc()).first()
+            .filter(Message.chat_id == chat.id)
+            .order_by(Message.id.desc()).first()
         )
 
         posted_date = datetime.datetime.now()
@@ -68,8 +68,8 @@ class MessageService(object):
             # See if anyone else is online and update their ChatUser too.
             online_handles = OnlineUserStore(self._pubsub).online_handles(chat)
             for other_chat_user in self._db.query(ChatUser).filter(and_(
-                            ChatUser.chat_id == chat.id,
-                            ChatUser.status == ChatUserStatus.active,
+                ChatUser.chat_id == chat.id,
+                ChatUser.status == ChatUserStatus.active,
             )):
                 if other_chat_user.handle in online_handles:
                     other_chat_user.visited = posted_date
@@ -89,16 +89,19 @@ class MessageService(object):
         except ConnectionError:
             pass
 
+        self._publish_message(new_message, chat_user)
+
+    def _publish_message(self, message: Message, chat_user: ChatUser, action="message"):
         try:
-            self._pubsub.publish("chat:%s" % chat.id, json.dumps({
-                "action": "message",
+            self._pubsub.publish("chat:%s" % message.chat_id, json.dumps({
+                "action": action,
                 "message": {
-                    "id": new_message.id,
-                    "type": type.value,
-                    "colour": colour,
+                    "id": message.id,
+                    "type": message.type.value,
+                    "colour": message.colour,
                     "symbol": chat_user.symbol_character,
                     "name": chat_user.name,
-                    "text": text,
+                    "text": message.text,
                 },
             }))
         except ConnectionError:
