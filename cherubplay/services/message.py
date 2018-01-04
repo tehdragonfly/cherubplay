@@ -13,10 +13,10 @@ class IMessageService(Interface):
     def __init__(self, request): # Pyramid request, not Request
         pass
 
-    def send_message(self, chat_user: ChatUser, type: MessageType, colour: str, text: str):
+    def send_message(self, chat_user: ChatUser, type: MessageType, colour: str, text: str, action: str="message"):
         pass
 
-    def send_end_message(self, chat_user: ChatUser):
+    def send_end_message(self, chat_user: ChatUser, deleted: bool=False):
         pass
 
     def send_leave_message(self, chat_user: ChatUser):
@@ -32,7 +32,7 @@ class MessageService(object):
         self._db     = request.find_service(name="db")
         self._pubsub = request.pubsub
 
-    def send_message(self, chat_user: ChatUser, type: MessageType, colour: str, text: str):
+    def send_message(self, chat_user: ChatUser, type: MessageType, colour: str, text: str, action: str="message"):
         chat = chat_user.chat
 
         # Only trigger notifications if the user has seen the most recent message.
@@ -44,6 +44,13 @@ class MessageService(object):
         )
 
         posted_date = datetime.datetime.now()
+
+        if type == MessageType.system:
+            notification_text = text % chat_user.handle
+            if chat_user.name:
+                text = notification_text
+        else:
+            notification_text = text
 
         new_message = Message(
             chat_id=chat.id,
@@ -83,13 +90,13 @@ class MessageService(object):
                         "colour": colour,
                         "symbol": chat_user.symbol_character,
                         "name": chat_user.name,
-                        "text": text if len(text) < 100 else text[:97] + "...",
+                        "text": notification_text if len(notification_text) < 100 else notification_text[:97] + "...",
                     }))
                     trigger_push_notification.delay(other_chat_user.user_id)
         except ConnectionError:
             pass
 
-        self._publish_message(new_message, chat_user)
+        self._publish_message(new_message, chat_user, action)
 
     def _publish_message(self, message: Message, chat_user: ChatUser, action="message"):
         try:
@@ -107,8 +114,10 @@ class MessageService(object):
         except ConnectionError:
             pass
 
-    def send_end_message(self, chat_user: ChatUser):
-        raise NotImplementedError
+    def send_end_message(self, chat_user: ChatUser, deleted: bool=False):
+        text = "%%s %s the chat." % ("deleted" if deleted else "ended")
+        self.send_message(chat_user, MessageType.system, "000000", text, "end")
+        chat_user.visited = datetime.datetime.now()
 
     def send_leave_message(self, chat_user: ChatUser):
         raise NotImplementedError
