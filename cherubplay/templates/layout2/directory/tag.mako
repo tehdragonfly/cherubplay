@@ -44,6 +44,17 @@
               </select><input type="text" name="name" maxlength="100" required><button type="submit">Add</button>
             </p>
           </form>
+          <hr>
+          % if current_tag.bump_maturity:
+            <form action="${request.route_path("directory_tag_bump_maturity", type=current_tag.type.value, name=current_tag.url_name)}" method="post">
+              <p><button type="submit">Disable maturity bumping</button></p>
+            </form>
+          % else:
+            <form action="${request.route_path("directory_tag_bump_maturity", type=current_tag.type.value, name=current_tag.url_name)}" method="post">
+              <input type="hidden" name="bump_maturity" value="on">
+              <p><button type="submit">Enable maturity bumping</button></p>
+            </form>
+          % endif
         </section>
       % endif
       % if synonyms or parents or children:
