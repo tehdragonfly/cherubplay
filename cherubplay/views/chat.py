@@ -411,62 +411,6 @@ def chat_edit(context: ChatContext, request):
     return HTTPFound(request.environ["HTTP_REFERER"])
 
 
-def _post_end_message(request, chat, own_chat_user, action="ended"):
-    update_date = datetime.datetime.now()
-
-    text = "%%s %s the chat." % action
-    notification_text = text % own_chat_user.handle
-    if own_chat_user.name:
-        text = notification_text
-
-    message = Message(
-        chat_id=chat.id,
-        type=MessageType.system,
-        colour="000000",
-        symbol=own_chat_user.symbol,
-        text=text,
-        posted=update_date,
-        edited=update_date,
-    )
-    db = request.find_service(name="db")
-    db.add(message)
-    db.flush()
-
-    if action == "ended":
-        chat.status       = "ended"
-        chat.last_user_id = None
-
-    chat.updated          = update_date
-    own_chat_user.visited = update_date
-
-    try:
-        # See if anyone else is online and update their ChatUser too.
-        online_handles = OnlineUserStore(request.pubsub).online_handles(chat)
-        for other_chat_user in db.query(ChatUser).filter(and_(
-            ChatUser.chat_id == chat.id,
-            ChatUser.status == ChatUserStatus.active,
-        )):
-            if other_chat_user.handle in online_handles:
-                other_chat_user.visited = update_date
-    except ConnectionError:
-        pass
-
-    try:
-        request.pubsub.publish("chat:"+str(chat.id), json.dumps({
-            "action": "end" if action == "ended" else "message",
-            "message": {
-                "id":     message.id,
-                "type":   "system",
-                "colour": "000000",
-                "symbol": own_chat_user.symbol_character,
-                "name":   own_chat_user.name,
-                "text":   notification_text,
-            },
-        }))
-    except ConnectionError:
-        pass
-
-
 @view_config(route_name="chat_end", request_method="GET", permission="chat.info")
 def chat_end_get(context: ChatContext, request):
     if context.chat.status == "ended" or len(context.active_chat_users) > 2:
@@ -496,7 +440,9 @@ def chat_end_post(context: ChatContext, request):
     if context.chat.status == "ended" or len(context.active_chat_users) > 2:
         raise HTTPNotFound
 
-    _post_end_message(request, context.chat, context.chat_user)
+    context.chat.status = "ended"
+    context.chat.last_user_id = None
+    request.find_service(IMessageService).send_end_message(context.chat_user)
 
     if request.is_xhr:
         return HTTPNoContent()
@@ -538,7 +484,9 @@ def chat_delete_post(context: ChatContext, request):
         raise HTTPNotFound
 
     if context.chat.status == "ongoing":
-        _post_end_message(request, context.chat, context.chat_user)
+        context.chat.status = "ended"
+        context.chat.last_user_id = None
+        request.find_service(IMessageService).send_end_message(context.chat_user, deleted=True)
 
     if context.chat.mode == ChatMode.group:
         context.chat_user.status = ChatUserStatus.deleted
@@ -581,7 +529,7 @@ def chat_leave_post(context: ChatContext, request):
         raise HTTPNotFound
 
     if context.chat.status == "ongoing":
-        _post_end_message(request, context.chat, context.chat_user, "left")
+        request.find_service(IMessageService).send_leave_message(context.chat_user)
 
     if context.chat.mode == ChatMode.group:
         context.chat_user.status = ChatUserStatus.deleted

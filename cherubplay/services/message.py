@@ -66,7 +66,8 @@ class MessageService(object):
         self._db.flush()
 
         chat.updated = posted_date
-        chat.last_user_id = chat_user.user_id
+        if type != MessageType.system:
+            chat.last_user_id = chat_user.user_id
 
         chat_user.last_colour = colour
         chat_user.draft = ""
@@ -120,7 +121,8 @@ class MessageService(object):
         chat_user.visited = datetime.datetime.now()
 
     def send_leave_message(self, chat_user: ChatUser):
-        raise NotImplementedError
+        self.send_message(chat_user, MessageType.system, "000000", "%%s left the chat.", "message")
+        chat_user.visited = datetime.datetime.now()
 
     def send_kick_message(self, chat_user: ChatUser):
         raise NotImplementedError
