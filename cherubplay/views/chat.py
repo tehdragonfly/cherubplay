@@ -649,9 +649,9 @@ def chat_remove_user(context: ChatContext, request):
     if not request.POST.get("name", "").strip():
         raise HTTPBadRequest
 
-    for chat_user in context.chat_users.values():
-        if chat_user.name == request.POST["name"]:
-            if chat_user == context.chat_user:
+    for kicked_chat_user in context.chat_users.values():
+        if kicked_chat_user.name == request.POST["name"]:
+            if kicked_chat_user == context.chat_user:
                 raise HTTPBadRequest
             break
     else:
@@ -659,62 +659,13 @@ def chat_remove_user(context: ChatContext, request):
 
     end_chat = len(context.active_chat_users) <= 2
 
-    chat_user.status = ChatUserStatus.deleted
+    kicked_chat_user.status = ChatUserStatus.deleted
 
     # Don't leave the OP on their own.
     if end_chat:
         return chat_end_post(context, request)
 
-    update_date = datetime.datetime.now()
-    text        = "%s has been removed from the chat." % chat_user.name
-
-    message = Message(
-        chat_id=context.chat.id,
-        type=MessageType.system,
-        colour="000000",
-        symbol=chat_user.symbol,
-        text=text,
-        posted=update_date,
-        edited=update_date,
-    )
-    db = request.find_service(name="db")
-    db.add(message)
-    db.flush()
-
-    chat.updated              = update_date
-    context.chat_user.visited = update_date
-
-    try:
-        # See if anyone else is online and update their ChatUser too.
-        # TODO make a MessageService or something for this
-        online_handles = OnlineUserStore(request.pubsub).online_handles(context.chat)
-        for other_chat_user in db.query(ChatUser).filter(and_(
-            ChatUser.chat_id == context.chat.id,
-            ChatUser.status == ChatUserStatus.active,
-        )):
-            if other_chat_user.handle in online_handles:
-                other_chat_user.visited = update_date
-    except ConnectionError:
-        pass
-
-    try:
-        request.pubsub.publish("chat:" + str(context.chat.id), json.dumps({
-            "action": "message",
-            "message": {
-                "id":     message.id,
-                "type":   "system",
-                "colour": "000000",
-                "symbol": chat_user.symbol_character,
-                "name":   chat_user.name,
-                "text":   text,
-            },
-        }))
-        request.pubsub.publish(
-            "chat:%s:user:%s" % (chat_user.chat_id, chat_user.user_id),
-            "kicked",
-        )
-    except ConnectionError:
-        pass
+    request.find_service(IMessageService).send_kick_message(context.chat_user, kicked_chat_user)
 
     return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"]))
 

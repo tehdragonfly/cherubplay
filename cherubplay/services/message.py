@@ -22,7 +22,7 @@ class IMessageService(Interface):
     def send_leave_message(self, chat_user: ChatUser):
         pass
 
-    def send_kick_message(self, chat_user: ChatUser):
+    def send_kick_message(self, kicking_chat_user: ChatUser, kicked_chat_user: ChatUser):
         pass
 
 
@@ -124,8 +124,14 @@ class MessageService(object):
         self.send_message(chat_user, MessageType.system, "000000", "%%s left the chat.", "message")
         chat_user.visited = datetime.datetime.now()
 
-    def send_kick_message(self, chat_user: ChatUser):
-        raise NotImplementedError
+    def send_kick_message(self, kicking_chat_user: ChatUser, kicked_chat_user: ChatUser):
+        text = "%s has been removed from the chat." % kicked_chat_user.name
+        self.send_message(kicked_chat_user, MessageType.system, "000000", text, "message")
+        self._pubsub.publish(
+            "chat:%s:user:%s" % (kicked_chat_user.chat_id, kicked_chat_user.user_id),
+            "kicked",
+        )
+        kicking_chat_user.visited = datetime.datetime.now()
 
 
 def includeme(config):
