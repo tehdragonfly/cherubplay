@@ -587,59 +587,8 @@ def chat_change_name(context: ChatContext, request):
     old_name = context.chat_user.name
     context.chat_user.name = chosen_name
 
-    update_date = datetime.datetime.now()
-    text        = "%s is now %s." % (old_name, context.chat_user.name)
-
-    message = Message(
-        chat_id=context.chat.id,
-        type=MessageType.system,
-        colour="000000",
-        symbol=context.chat_user.symbol,
-        text=text,
-        posted=update_date,
-        edited=update_date,
-    )
-    db = request.find_service(name="db")
-    db.add(message)
-    db.flush()
-
-    context.chat.updated      = update_date
-    context.chat_user.visited = update_date
-
-    try:
-        online_user_store = OnlineUserStore(request.pubsub)
-        online_user_store.rename(context.chat, old_name, chosen_name)
-        # See if anyone else is online and update their ChatUser too.
-        # TODO make a MessageService or something for this
-        online_handles = online_user_store.online_handles(context.chat)
-        for other_chat_user in db.query(ChatUser).filter(and_(
-            ChatUser.chat_id == context.chat.id,
-            ChatUser.status == ChatUserStatus.active,
-        )):
-            if other_chat_user.handle in online_handles:
-                other_chat_user.visited = update_date
-    except ConnectionError:
-        pass
-
-    try:
-        request.pubsub.publish("chat:" + str(context.chat.id), json.dumps({
-            "action": "message",
-            "message": {
-                "id":     message.id,
-                "type":   "system",
-                "colour": "000000",
-                "symbol": context.chat_user.symbol_character,
-                "name":   context.chat_user.name,
-                "text":   text,
-            },
-        }))
-        request.pubsub.publish("chat:" + str(context.chat.id), json.dumps({
-            "action":   "name_change",
-            "old_name": old_name,
-            "new_name": context.chat_user.name,
-        }))
-    except ConnectionError:
-        pass
+    message_service = request.find_service(IMessageService)
+    message_service.send_change_name_message(context.chat_user, old_name)
 
     return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"], _query={"saved": "name"}))
 

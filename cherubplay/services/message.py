@@ -133,6 +133,17 @@ class MessageService(object):
         )
         kicking_chat_user.visited = datetime.datetime.now()
 
+    def send_change_name_message(self, chat_user: ChatUser, old_name: str):
+        text = "%s is now %s." % (old_name, chat_user.name)
+        self.send_message(chat_user, MessageType.system, "000000", text, "end")
+        try:
+            self._pubsub.publish("chat:" + str(chat_user.chat.id), json.dumps({
+                "action":   "name_change",
+                "old_name": old_name,
+                "new_name": chat_user.name,
+            }))
+        except ConnectionError:
+            pass
 
 def includeme(config):
     config.register_service_factory(lambda context, request: MessageService(request), iface=IMessageService)
