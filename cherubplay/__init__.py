@@ -230,6 +230,7 @@ def main(global_config, **settings):
     config.add_ext_route("directory", "/directory/")
 
     config.add_ext_route("directory_yours", "/directory/yours/")
+    config.add_ext_route("directory_yours_tag", "/directory/yours/{tag_string:[^:]+:[^/,]+(,[^:]+:[^/,]+){0,4}}/", factory=TagList)
 
     config.add_route("directory_search", "/directory/search/")
     config.add_route("directory_search_autocomplete", "/directory/search/autocomplete/")
