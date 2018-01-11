@@ -356,7 +356,7 @@ class DirectoryTag(RequestListView):
         }
 
     def __call__(self):
-        if self.context.blacklisted_tags:
+        if self.context.blacklisted_tags and "for_user" in self.search_args():
             response = self.render_args()
             response["requests"] = []
         else:

@@ -1,10 +1,15 @@
 <%inherit file="base.mako" />\
 <% from cherubplay.models import Tag %>
 <%block name="heading">
-  % if len(request.context.tags) == 1:
-    Requests tagged "${request.context.tags[0].type.ui_value}:${request.context.tags[0].name}"
+  % if request.matched_route.name == "directory_yours_tag":
+    Your requests
   % else:
-    Requests with ${len(request.context.tags)} tags
+    Requests
+  % endif
+  % if len(request.context.tags) == 1:
+    tagged "${request.context.tags[0].type.ui_value}:${request.context.tags[0].name}"
+  % else:
+    with ${len(request.context.tags)} tags
   % endif
 </%block>
     % if "error" in request.GET and request.GET["error"] == "circular_reference":
@@ -111,7 +116,7 @@
         </ul>
       </section>
     % endif
-    % if blacklisted_tags:
+    % if not requests and blacklisted_tags:
       % if len(request.context.tags) == 1:
         <p>This tag can't be shown because it's on your <a href="${request.route_path("directory_blacklist")}">blacklist</a>.</p>
       % else:
