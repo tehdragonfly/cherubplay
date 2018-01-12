@@ -384,27 +384,12 @@ def chat_edit(context: ChatContext, request):
         raise HTTPNotFound
 
     colour, trimmed_message_text, message_type = _validate_message_form(request, editing=True)
-
     message.type   = message_type
     message.colour = colour
     message.text   = trimmed_message_text
     message.edited = datetime.datetime.now()
 
-    try:
-        request.pubsub.publish("chat:%s" % context.chat.id, json.dumps({
-            "action": "edit",
-            "message": {
-                "id":          message.id,
-                "type":        message.type.value,
-                "colour":      message.colour,
-                "symbol":      message.symbol_character,
-                "name":        message.chat_user.name,
-                "text":        message.text,
-                "show_edited": message.show_edited,
-            },
-        }))
-    except ConnectionError:
-        pass
+    request.find_service(IMessageService).publish_edit(message)
 
     if request.is_xhr:
         return HTTPNoContent()

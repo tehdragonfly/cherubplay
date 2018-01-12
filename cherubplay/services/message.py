@@ -5,12 +5,26 @@ from typing import Dict, Union
 from zope.interface import Interface, implementer
 
 from cherubplay.lib import OnlineUserStore
-from cherubplay.models import ChatUser, ChatUserStatus, Message
+from cherubplay.models import Chat, ChatUser, ChatUserStatus, Message, User
 from cherubplay.models.enums import MessageType
 from cherubplay.tasks import trigger_push_notification
 
 
 log = logging.getLogger(__name__)
+
+
+def pubsub_channel(destination: Union[Chat, ChatUser, User]):
+    if type(destination) == Chat:
+        # Chat channel: used for sending ordinary messages.
+        return "chat:%s" % destination.id
+    elif type(destination) == ChatUser:
+        # ChatUser channel: used for single-user messages like kicking.
+        return "chat:%s:user:%s" % (destination.chat_id, destination.user_id)
+    elif type(destination) == User:
+        # User channel: used for cross-chat notifications.
+        return "user:%s" % destination.id
+    else:
+        raise ValueError("object must be Chat, ChatUser or User")
 
 
 class IMessageService(Interface):
@@ -29,6 +43,12 @@ class IMessageService(Interface):
     def send_kick_message(self, kicking_chat_user: ChatUser, kicked_chat_user: ChatUser):
         pass
 
+    def send_change_name_message(self, chat_user: ChatUser, old_name: str):
+        pass
+
+    def publish_edit(self, message: Message):
+        pass
+
 
 @implementer(IMessageService)
 class MessageService(object):
@@ -36,11 +56,11 @@ class MessageService(object):
         self._db     = request.find_service(name="db")
         self._pubsub = request.pubsub
 
-    def _publish(self, key: str, message: Union[str, Dict]):
+    def _publish(self, destination: Union[Chat, ChatUser, User], message: Union[str, Dict]):
         if isinstance(message, dict):
             message = json.dumps(message)
         try:
-            self._pubsub.publish(key, message)
+            self._pubsub.publish(pubsub_channel(destination), message)
         except ConnectionError:
             log.error("Failed to send pubsub message.")
 
@@ -95,7 +115,7 @@ class MessageService(object):
             # Only trigger notifications if the user has seen the most recent message.
             # This stops us from getting multiple notifications about the same chat.
             elif not most_recent_message or other_chat_user.visited > most_recent_message.posted:
-                self._publish("user:" + str(other_chat_user.user_id), {
+                self._publish(other_chat_user, {
                     "action": "notification",
                     "url": chat.url,
                     "title": other_chat_user.title or chat.url,
@@ -106,7 +126,7 @@ class MessageService(object):
                 })
                 trigger_push_notification.delay(other_chat_user.user_id)
 
-        self._publish("chat:%s" % new_message.chat_id, {
+        self._publish(chat, {
             "action": action,
             "message": {
                 "id": new_message.id,
@@ -130,19 +150,30 @@ class MessageService(object):
     def send_kick_message(self, kicking_chat_user: ChatUser, kicked_chat_user: ChatUser):
         text = "%s has been removed from the chat." % kicked_chat_user.name
         self.send_message(kicked_chat_user, MessageType.system, "000000", text, "message")
-        self._publish(
-            "chat:%s:user:%s" % (kicked_chat_user.chat_id, kicked_chat_user.user_id),
-            "kicked",
-        )
+        self._publish(kicked_chat_user, "kicked")
         kicking_chat_user.visited = datetime.datetime.now()
 
     def send_change_name_message(self, chat_user: ChatUser, old_name: str):
         text = "%s is now %s." % (old_name, chat_user.name)
         self.send_message(chat_user, MessageType.system, "000000", text, "end")
-        self._publish("chat:" + str(chat_user.chat.id), {
+        self._publish(chat_user.chat, {
             "action":   "name_change",
             "old_name": old_name,
             "new_name": chat_user.name,
+        })
+
+    def publish_edit(self, message: Message):
+        self._publish(message.chat, {
+            "action": "edit",
+            "message": {
+                "id": message.id,
+                "type": message.type.value,
+                "colour": message.colour,
+                "symbol": message.symbol_character,
+                "name": message.chat_user.name,
+                "text": message.text,
+                "show_edited": message.show_edited,
+            },
         })
 
 
