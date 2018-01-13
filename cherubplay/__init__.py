@@ -164,6 +164,12 @@ def main(global_config, **settings):
     config.include("cherubplay.services.request")
     config.include("cherubplay.services.tag")
 
+    pubsub_pool = ConnectionPool(
+        connection_class=UnixDomainSocketConnection,
+        path=settings["cherubplay.socket_pubsub"],
+    )
+    config.register_service(StrictRedis(connection_pool=pubsub_pool), name="redis_pubsub")
+
     # Replace the JSON renderer so we can serialise sets.
     config.add_renderer("json", JSONRenderer)
 
@@ -172,19 +178,11 @@ def main(global_config, **settings):
         path=settings["cherubplay.socket_login"],
     )
 
-    pubsub_pool = ConnectionPool(
-        connection_class=UnixDomainSocketConnection,
-        path=settings["cherubplay.socket_pubsub"],
-    )
-
     # These are defined here because we need the settings to create the connection pools.
     def request_login_store(request):
         return StrictRedis(connection_pool=login_pool)
-    def request_pubsub(request):
-        return StrictRedis(connection_pool=pubsub_pool)
 
     config.add_request_method(request_login_store,  "login_store",  reify=True)
-    config.add_request_method(request_pubsub,       "pubsub",       reify=True)
     config.add_request_method(request_user,         "user",         reify=True)
     config.add_request_method(request_unread_chats, "unread_chats", reify=True)
     config.add_request_method(request_show_news,    "show_news",    reify=True)

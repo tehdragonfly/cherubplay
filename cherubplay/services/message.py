@@ -54,7 +54,7 @@ class IMessageService(Interface):
 class MessageService(object):
     def __init__(self, request):
         self._db     = request.find_service(name="db")
-        self._pubsub = request.pubsub
+        self._pubsub = request.find_service(name="redis_pubsub")
 
     def _publish(self, destination: Union[Chat, ChatUser, User], message: Union[str, Dict]):
         if isinstance(message, dict):
