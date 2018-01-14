@@ -27,6 +27,7 @@ sm = sessionmaker(
     expire_on_commit=False,
 )
 
+
 @contextmanager
 def db_session():
     db = sm()
@@ -39,8 +40,10 @@ def db_session():
     finally:
         db.close()
 
+
 login_client = Redis(unix_socket_path=config.get("app:main", "cherubplay.socket_login"))
 publish_client = Redis(unix_socket_path=config.get("app:main", "cherubplay.socket_pubsub"))
+
 
 def get_user(db, cookies):
     if "cherubplay" not in cookies:

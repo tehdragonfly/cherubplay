@@ -15,8 +15,9 @@ from tornado.websocket import WebSocketHandler
 
 from tornadoredis import Client
 
-from cherubplay.lib import colour_validator, OnlineUserStore
-from cherubplay.models import Chat, ChatUser, Message
+from cherubplay.lib import OnlineUserStore
+from cherubplay.models import Message
+from cherubplay.services.message import pubsub_channel
 
 from cherubplay_live.db import config, db_session, get_chat, get_chat_user, get_user, publish_client
 
@@ -56,7 +57,7 @@ class ChatHandler(WebSocketHandler):
             # Fire online message, but only if this is the only tab we have open.
             online_handles = online_user_store.online_handles(self.chat)
             if self.chat_user.handle not in online_handles:
-                publish_client.publish("chat:" + str(self.chat.id), json.dumps({
+                publish_client.publish(pubsub_channel(self.chat), json.dumps({
                     "action": "online",
                     "handle": self.chat_user.handle,
                 }))
@@ -74,9 +75,9 @@ class ChatHandler(WebSocketHandler):
             online_user_store.connect(self.chat, self.chat_user, self.socket_id)
 
             self.redis_channels = (
-                "chat:%s" % self.chat.id,
-                "user:%s" % self.user.id,
-                "chat:%s:user:%s" % (self.chat.id, self.user.id),
+                pubsub_channel(self.chat),
+                pubsub_channel(self.user),
+                pubsub_channel(self.chat_user),
             )
 
             self.redis_listen()
@@ -109,7 +110,7 @@ class ChatHandler(WebSocketHandler):
     def on_message(self, message_string):
         message = json.loads(message_string)
         if message["action"] in ("typing", "stopped_typing"):
-            publish_client.publish("chat:" + str(self.chat.id), json.dumps({
+            publish_client.publish(pubsub_channel(self.chat), json.dumps({
                 "action": message["action"],
                 "handle": self.chat_user.handle,
             }))
@@ -123,7 +124,7 @@ class ChatHandler(WebSocketHandler):
         online_user_store.disconnect(self.chat, self.socket_id)
         # Fire offline message, but only if we don't have any other tabs open.
         if self.chat_user.handle not in online_user_store.online_handles(self.chat):
-            publish_client.publish("chat:" + str(self.chat.id), json.dumps({
+            publish_client.publish(pubsub_channel(self.chat), json.dumps({
                 "action": "offline",
                 "handle": self.chat_user.handle,
             }))
