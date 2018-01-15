@@ -6,12 +6,10 @@ from datetime import datetime, timedelta
 from urllib.parse import urlparse
 from uuid import uuid4
 
-from sqlalchemy.orm.exc import NoResultFound
-from tornado.gen import engine, Task
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.netutil import bind_unix_socket
-from tornado.web import Application, HTTPError
+from tornado.web import Application
 from tornado.websocket import WebSocketHandler
 
 from cherubplay.lib import colour_validator, prompt_hash, prompt_categories, prompt_starters, prompt_levels
@@ -69,7 +67,6 @@ class SearchHandler(WebSocketHandler):
                 self.close()
                 return
         self.socket_id = str(uuid4())
-        print("NEW SOCKET: ", self.socket_id)
         self.state = "idle"
         self.write_message(json.dumps({ "username": self.user.username}))
 
@@ -80,10 +77,8 @@ class SearchHandler(WebSocketHandler):
                 "action": "remove_prompt",
                 "id": self.socket_id,
             }), self.category, self.starter, self.level)
-            print("PROMPTERS:", prompters)
         if self.socket_id in searchers:
             searchers.pop(self.socket_id)
-            print("SEARCHERS:", searchers)
 
     def on_message(self, message_string):
         try:
@@ -97,7 +92,6 @@ class SearchHandler(WebSocketHandler):
             self.starters   = {_ for _ in message["starters"].split(",")   if _ in prompt_starters  }
             self.levels     = {_ for _ in message["levels"].split(",")     if _ in prompt_levels    }
             searchers[self.socket_id] = self
-            print("SEARCHERS:", searchers)
             self.write_message(json.dumps({
                 "action": "prompts",
                 "prompts": [
@@ -155,7 +149,6 @@ class SearchHandler(WebSocketHandler):
                     }))
             self.state = "prompting"
             prompters[self.socket_id] = self
-            print("PROMPTERS:", prompters)
             self.colour   = message["colour"]
             self.prompt   = message["prompt"]
             self.hash     = message_hash

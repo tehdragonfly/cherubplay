@@ -35,7 +35,6 @@ class ChatHandler(WebSocketHandler):
 
     def open(self, chat_url):
         sockets.add(self)
-        print(chat_url)
         with db_session() as db:
             self.user = get_user(db, self.cookies)
             if self.user is None:
@@ -84,7 +83,6 @@ class ChatHandler(WebSocketHandler):
             self.ignore_next_message = False
             # Send the backlog if necessary.
             if "after" in self.request.query_arguments:
-                print("after")
                 try:
                     after = int(self.request.query_arguments["after"][0])
                 except ValueError:
@@ -94,7 +92,6 @@ class ChatHandler(WebSocketHandler):
                     .options(joinedload(Message.chat_user))
                     .filter(and_(Message.chat_id == self.chat.id, Message.id > after))
                 ):
-                    print(message)
                     self.write_message({
                         "action": "message",
                         "message": {
@@ -116,7 +113,6 @@ class ChatHandler(WebSocketHandler):
             }))
             # Ignore our own typing messages.
             self.ignore_next_message = True
-        print(message)
 
     def on_close(self):
         # Unsubscribe here and let the exit callback handle disconnecting.
@@ -143,7 +139,6 @@ class ChatHandler(WebSocketHandler):
                 self.close()
             elif not self.ignore_next_message:
                 self.write_message(message.body)
-                print("redis message:", message.body)
             else:
                 self.ignore_next_message = False
 
