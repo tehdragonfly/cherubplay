@@ -443,7 +443,7 @@ class Tag(Base):
     bump_maturity     = Column(Boolean, nullable=False, default=False)
 
     maturity_names = [u"Safe for work", u"Not safe for work", u"NSFW extreme"]
-    type_names = [u"Fluff", u"Plot-driven", u"Sexual", u"Shippy", u"Violent"]
+    type_names = [u"Fluff", u"Plot-driven", u"Sexual", u"Shippy", u"Violent", u"Missed connection"]
 
     def __repr__(self):
         return "<Tag #%s: %s:%s>" % (self.id, self.type.value, self.name)
