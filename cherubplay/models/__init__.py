@@ -127,6 +127,7 @@ class Chat(Base):
     def __json__(self, request=None):
         return {
             "url": self.url,
+            "mode": self.mode,
             "status": self.status,
             "created": self.created.isoformat(),
             "updated": self.updated.isoformat(),
@@ -156,7 +157,7 @@ class Message(Base):
     def __json__(self, request=None):
         return {
             "id": self.id,
-            "type": self.type.value,
+            "type": self.type,
             "colour": self.colour,
             "symbol": self.symbol,
             "symbol_character": self.symbol_character,
@@ -462,7 +463,7 @@ class Tag(Base):
 
     def __json__(self, request=None):
         tag_dict = {
-            "type": self.type.value,
+            "type": self.type,
             "name": self.name,
             "url_name": self.url_name,
         }

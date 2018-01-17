@@ -1,23 +1,28 @@
 from enum import Enum
 
 
-class ChatMode(Enum):
+class JSONMixin(object):
+    def __json__(self, request=None):
+        return self.value
+
+
+class ChatMode(JSONMixin, Enum):
     one_on_one = "one_on_one"
     group      = "group"
 
 
-class ChatUserStatus(Enum):
+class ChatUserStatus(JSONMixin, Enum):
     active  = "active"
     deleted = "deleted"
 
 
-class MessageType(Enum):
+class MessageType(JSONMixin, Enum):
     ic     = "ic"
     ooc    = "ooc"
     system = "system"
 
 
-class TagType(Enum):
+class TagType(JSONMixin, Enum):
     maturity         = "maturity"
     warning          = "warning"
     type             = "type"
@@ -52,9 +57,6 @@ class TagType(Enum):
     @property
     def ui_value(self):
         return self.value.replace("_", " ")
-
-    def __json__(self):
-        return self.value
 
 TagType.playing_types = {TagType.fandom,        TagType.character,        TagType.gender}
 TagType.wanted_types =  {TagType.fandom_wanted, TagType.character_wanted, TagType.gender_wanted}
