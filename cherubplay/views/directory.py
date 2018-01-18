@@ -9,7 +9,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from uuid import uuid4
 
-from cherubplay.lib import colour_validator, preset_colours, prompt_hash
+from cherubplay.lib import colour_validator, preset_colours
 from cherubplay.models import (
     BlacklistedTag, Chat, ChatUser, Message, Request,
     RequestSlot, RequestTag, Tag, TagParent, TagAddParentSuggestion,
@@ -20,13 +20,6 @@ from cherubplay.resources import CircularReferenceException
 from cherubplay.services.request import IRequestService
 from cherubplay.services.tag import CreateNotAllowed, ITagService
 from cherubplay.tasks import update_request_tag_ids
-
-
-def _find_answered(request, requests):
-    pipe = request.login_store.pipeline()
-    for rq in requests:
-        pipe.get("answered:%s:%s" % (request.user.id, rq.id))
-    return set(int(_) for _ in pipe.execute() if _ is not None)
 
 
 class ValidationError(Exception):

@@ -384,6 +384,21 @@ class Request(Base):
         return rd
 
 
+class SlotList(list):
+    def by_order(self, order: int):
+        for slot in self:
+            if slot.order == order:
+                return slot
+
+    def by_user(self, user: User):
+        return self.by_user_id(user.id)
+
+    def by_user_id(self, user_id: int):
+        for slot in self:
+            if slot.user_id == user_id:
+                return slot
+
+
 class RequestSlot(Base):
     __tablename__ = "request_slots"
     request_id = Column(Integer, ForeignKey("requests.id"), primary_key=True)
@@ -538,7 +553,7 @@ PromptReport.reported_user = relationship(User, backref="reports_recieved", prim
 Request.user = relationship(User, backref="requests")
 Request.tags = relationship(Tag, secondary=RequestTag.__table__, order_by=(Tag.type, Tag.name), backref="requests")
 Request.duplicate_of = relationship(Request, remote_side=Request.id)
-Request.slots = relationship(RequestSlot, backref="request", order_by=RequestSlot.order)
+Request.slots = relationship(RequestSlot, backref="request", order_by=RequestSlot.order, collection_class=SlotList)
 
 RequestSlot.user = relationship(User)
 

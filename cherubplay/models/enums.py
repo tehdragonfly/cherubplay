@@ -51,8 +51,8 @@ class TagType(JSONMixin, Enum):
     @property
     def pair(self):
         if self in TagType.playing_types or self in TagType.wanted_types:
-            return (self.playing, self.wanted)
-        return (self,)
+            return self.playing, self.wanted
+        return self,
 
     @property
     def ui_value(self):
