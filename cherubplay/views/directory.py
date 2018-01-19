@@ -819,11 +819,8 @@ def _get_current_slot(context, request):
     except (TypeError, ValueError):
         raise HTTPNotFound
 
-    for slot in context.slots:
-        if slot.order == order:
-            current_slot = slot
-            break
-    else:
+    slot = context.slots.by_order(order)
+    if not slot:
         raise HTTPNotFound
 
     if slot.taken:
@@ -832,7 +829,7 @@ def _get_current_slot(context, request):
     if context.user_has_any_slot(request.user):
         raise ValidationError("already_answered")
 
-    return current_slot
+    return slot
 
 
 @view_config(route_name="directory_request_answer", request_method="GET", permission="request.answer")
@@ -939,35 +936,36 @@ def directory_request_unanswer_post(context, request):
     if request.user.id == context.user_id:
         raise HTTPNotFound
 
-    for slot in context.slots:
-        if request.user.id == slot.user_id:
-            slot.user_id = None
-            slot.user_name = None
-            return HTTPFound(
-                request.headers.get("Referer")
-                or request.route_path("directory_request", id=context.id)
-            )
+    slot = context.slots.by_user(request.user)
+    if not slot:
+        raise HTTPNotFound
 
-    raise HTTPNotFound
+    slot.user_id = None
+    slot.user_name = None
+    return HTTPFound(
+        request.headers.get("Referer")
+        or request.route_path("directory_request", id=context.id)
+    )
+
 
 
 @view_config(route_name="directory_request_kick", request_method="POST", permission="request.edit")
 def directory_request_kick_post(context, request):
     try:
-        slot_order = int(request.POST.get("slot"))
-    except ValueError:
-        raise HTTPBadRequest
+        order = int(request.GET.get("slot"))
+    except (TypeError, ValueError):
+        raise HTTPNotFound
 
-    for slot in context.slots:
-        if slot.user_id != request.user.id and slot.order == slot_order:
-            slot.user_id = None
-            slot.user_name = None
-            return HTTPFound(
-                request.headers.get("Referer")
-                or request.route_path("directory_request", id=context.id)
-            )
+    slot = context.slots.by_order(order)
+    if slot is None or slot.user_id == request.user.id:
+        raise HTTPNotFound
 
-    raise HTTPNotFound
+    slot.user_id = None
+    slot.user_name = None
+    return HTTPFound(
+        request.headers.get("Referer")
+        or request.route_path("directory_request", id=context.id)
+    )
 
 
 @view_config(route_name="directory_request_edit", request_method="GET", permission="request.edit", renderer="layout2/directory/new.mako")
