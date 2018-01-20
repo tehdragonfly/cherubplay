@@ -7,10 +7,12 @@ from sqlalchemy.orm import joinedload, subqueryload
 from sqlalchemy.sql.expression import cast
 from sqlalchemy.sql.operators import asc_op, desc_op
 from typing import List, Set, Union
+from uuid import uuid4
 from zope.interface import Interface, implementer
 
 from cherubplay.lib import prompt_hash
-from cherubplay.models import Request, Tag, User
+from cherubplay.models import Request, Tag, User, Chat, ChatUser, Message
+from cherubplay.models.enums import ChatMode
 
 
 class RequestList(Sequence):
@@ -59,6 +61,9 @@ class IRequestService(Interface):
         pass
 
     def remove_duplicates(self, new_request: Request):
+        pass
+
+    def answer(self, request: Request, as_user: User = None) -> Chat:
         pass
 
 
@@ -176,6 +181,70 @@ class RequestService(object):
             "status": "draft",
             "duplicate_of_id": new_request.id,
         }, synchronize_session=False)
+
+    def answer(self, request: Request, as_user: User=None) -> Chat:
+        if request.slots and as_user is None:
+            raise ValueError("as_user must be provided if there are no slots")
+
+        new_chat = Chat(url=str(uuid4()), request_id=request.id)
+
+        if request.slots:
+            new_chat.mode = ChatMode.group
+            new_chat.op_id = request.user_id
+
+        self._db.add(new_chat)
+        self._db.flush()
+
+        if request.slots:
+            if not request.all_slots_taken:
+                raise ValueError("can't answer until all slots are taken")
+
+            used_names = set()
+            for slot in request.slots:
+
+                if slot.user_id != request.user_id:
+                    self._redis.setex("answered:%s:%s" % (slot.user_id, request.id), 86400, request.id)
+
+                if slot.user_name in used_names:
+                    for n in range(2, 6):
+                        attempt = slot.user_name + (" (%s)" % n)
+                        if attempt not in used_names:
+                            slot.user_name = attempt
+                            break
+
+                used_names.add(slot.user_name)
+
+                new_chat_user = ChatUser(chat_id=new_chat.id, user_id=slot.user_id, name=slot.user_name)
+
+                if slot.user_id == request.user_id:
+                    new_chat_user.last_colour = request.colour
+                else:
+                    slot.user_id = None
+                    slot.user_name = None
+
+                self._db.add(new_chat_user)
+        else:
+            self._redis.setex("answered:%s:%s" % (as_user.id, request.id), 86400, request.id)
+            self._db.add(ChatUser(chat_id=new_chat.id, user_id=request.user_id, symbol=0, last_colour=request.colour))
+            self._db.add(ChatUser(chat_id=new_chat.id, user_id=as_user.id, symbol=1))
+
+        if request.ooc_notes:
+            self._db.add(Message(
+                chat_id=new_chat.id,
+                user_id=request.user_id,
+                symbol=None if request.slots else 0,
+                text=request.ooc_notes,
+            ))
+        if request.starter:
+            self._db.add(Message(
+                chat_id=new_chat.id,
+                user_id=request.user_id,
+                symbol=None if request.slots else 0,
+                colour=request.colour,
+                text=request.starter,
+            ))
+
+        return new_chat
 
 
 def includeme(config):

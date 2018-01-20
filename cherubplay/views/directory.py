@@ -644,7 +644,7 @@ def directory_new_post(request):
     db.add(new_request)
     db.flush()
 
-    request.find_service(ITagService).remove_duplicates(request, new_request)
+    request.find_service(IRequestService).remove_duplicates(new_request)
 
     new_request.request_tags += _request_tags_from_form(request, request.POST, new_request)
 
@@ -883,50 +883,7 @@ def directory_request_answer_post(context, request):
     request.login_store.ltrim(key, -12, -1)
     request.login_store.expire(key, 3600)
 
-    new_chat = Chat(url=str(uuid4()), request_id=context.id)
-
-    if context.slots:
-        new_chat.mode  = ChatMode.group
-        new_chat.op_id = context.user_id
-
-    db = request.find_service(name="db")
-    db.add(new_chat)
-    db.flush()
-
-    if context.slots:
-        used_names = set()
-        for slot in context.slots:
-
-            if slot.user_id != context.user_id:
-                request.login_store.setex("answered:%s:%s" % (slot.user_id, context.id), 86400, context.id)
-
-            if slot.user_name in used_names:
-                for n in range(2, 6):
-                    attempt = slot.user_name + (" (%s)" % n)
-                    if attempt not in used_names:
-                        slot.user_name = attempt
-                        break
-
-            used_names.add(slot.user_name)
-
-            new_chat_user = ChatUser(chat_id=new_chat.id, user_id=slot.user_id, name=slot.user_name)
-
-            if slot.user_id == context.user_id:
-                new_chat_user.last_colour = context.colour
-            else:
-                slot.user_id   = None
-                slot.user_name = None
-
-            db.add(new_chat_user)
-    else:
-        request.login_store.setex("answered:%s:%s" % (request.user.id, context.id), 86400, context.id)
-        db.add(ChatUser(chat_id=new_chat.id, user_id=context.user_id, symbol=0, last_colour=context.colour))
-        db.add(ChatUser(chat_id=new_chat.id, user_id=request.user.id, symbol=1))
-
-    if context.ooc_notes:
-        db.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=None if context.slots else 0, text=context.ooc_notes))
-    if context.starter:
-        db.add(Message(chat_id=new_chat.id, user_id=context.user_id, symbol=None if context.slots else 0, colour=context.colour, text=context.starter))
+    new_chat = request.find_service(IRequestService).answer(context, request.user)
 
     return HTTPFound(request.route_path("chat", url=new_chat.url))
 
@@ -1051,7 +1008,7 @@ def directory_request_edit_post(context, request):
         db.query(RequestSlot).filter(RequestSlot.request_id == context.id).delete()
 
     if context.status == "posted":
-        request.find_service(ITagService).remove_duplicates(request, context)
+        request.find_service(IRequestService).remove_duplicates(context)
 
     transaction.get().addAfterCommitHook(_trigger_update_request_tag_ids(context.id))
 
