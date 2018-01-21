@@ -9,7 +9,7 @@ from sqlalchemy.dialects.postgresql import INTERVAL
 from sqlalchemy.sql.expression import cast
 from urllib.parse import urlparse
 
-from cherubplay.models import get_sessionmaker, PushSubscription, Request, User
+from cherubplay.models import get_sessionmaker, PushSubscription, Request, RequestSlot, User
 
 
 log = getLogger(__name__)
