@@ -196,7 +196,7 @@ class RequestService(object):
         self._db.flush()
 
         if request.slots:
-            if not request.all_slots_taken:
+            if not request.slots.all_taken:
                 raise ValueError("can't answer until all slots are taken")
 
             used_names = set()

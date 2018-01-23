@@ -358,15 +358,6 @@ class Request(Base):
             tags[tag.type].append(tag)
         return tags
 
-    def user_has_any_slot(self, user):
-        if user.id == self.user_id:
-            return True
-        return any(user.id == slot.user_id for slot in self.slots)
-
-    @property
-    def all_slots_taken(self):
-        return all(slot.taken for slot in self.slots)
-
     def __json__(self, request=None):
         rd = {
             "id": self.id,
@@ -397,6 +388,10 @@ class SlotList(list):
         for slot in self:
             if slot.user_id == user_id:
                 return slot
+
+    @property
+    def all_taken(self):
+        return all(slot.taken for slot in self)
 
 
 class RequestSlot(Base):

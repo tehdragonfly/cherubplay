@@ -826,7 +826,7 @@ def _get_current_slot(context, request):
     if slot.taken:
         raise ValidationError("slot_taken")
 
-    if context.user_has_any_slot(request.user):
+    if context.slots.by_user(request.user) is not None:
         raise ValidationError("already_answered")
 
     return slot
@@ -876,7 +876,7 @@ def directory_request_answer_post(context, request):
         current_slot.user_id   = request.user.id
         current_slot.user_name = slot_name
 
-        if not context.all_slots_taken:
+        if not context.slots.all_taken:
             return HTTPFound(request.route_path("directory_request", id=context.id, _query={"answer_status": "waiting"}))
 
     request.login_store.rpush(key, current_time)

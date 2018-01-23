@@ -95,7 +95,7 @@ ${tag.name}\
         % if request.matched_route.name != "directory_request_delete":
         <hr>
         % if rq.slots:
-          <% has_any_slot = rq.user_has_any_slot(request.user) %>
+          <% has_any_slot = rq.slots.by_user(request.user) is not None %>
           % for slot in rq.slots:
             <label class="slot${slot.order}">
               Slot ${slot.order}
