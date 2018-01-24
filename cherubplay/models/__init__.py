@@ -353,7 +353,7 @@ class Request(Base):
         return "<Request #%s>" % self.id
 
     def tags_by_type(self):
-        tags = { _: [] for _ in Tag.type.type.python_type }
+        tags = {_: [] for _ in Tag.type.type.python_type}
         for tag in self.tags:
             tags[tag.type].append(tag)
         return tags
