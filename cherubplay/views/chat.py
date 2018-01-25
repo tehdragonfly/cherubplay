@@ -403,22 +403,27 @@ class ChatEndViewBase(object):
 
     @property
     def action_name(self):
+        """Name of the action to pass to the template."""
         raise NotImplementedError
 
-    def check_allowed(self):
+    @property
+    def allowed_property(self):
+        """ChatContext property which tells us whether this action is allowed."""
         raise NotImplementedError
 
     def __call__(self):
-        self.check_allowed()
+        if not getattr(self.context, self.allowed_property):
+            raise HTTPNotFound
 
         db = self.request.find_service(name="db")
         prompt = db.query(Message).filter(
             Message.chat_id == self.context.chat.id,
         ).order_by(Message.id).first()
 
-        last_message = db.query(Message).filter(
+        last_message = db.query(Message).filter(and_(
             Message.chat_id == self.context.chat.id,
-        ).order_by(Message.id.desc()).first()
+            Message.type != MessageType.system,
+        )).order_by(Message.id.desc()).first()
 
         template = "layout2/chat_end.mako" if self.request.user.layout_version == 2 else "chat_end.mako"
         return render_to_response(template, {
@@ -433,15 +438,12 @@ class ChatEndViewBase(object):
 @view_config(route_name="chat_end", request_method="GET", permission="chat.info")
 class ChatEndView(ChatEndViewBase):
     action_name = "end"
-
-    def check_allowed(self):
-        if self.context.chat.status == "ended" or len(self.context.active_chat_users) > 2:
-            raise HTTPNotFound
+    allowed_property = "is_endable"
 
 
 @view_config(route_name="chat_end", request_method="POST", permission="chat.info")
 def chat_end_post(context: ChatContext, request):
-    if context.chat.status == "ended" or len(context.active_chat_users) > 2:
+    if not context.is_endable:
         raise HTTPNotFound
 
     context.chat.status = "ended"
@@ -460,15 +462,12 @@ def chat_end_post(context: ChatContext, request):
 @view_config(route_name="chat_delete", request_method="GET", permission="chat.info")
 class ChatDeleteView(ChatEndViewBase):
     action_name = "delete"
-
-    def check_allowed(self):
-        if self.context.chat.status == "ongoing" and len(self.context.active_chat_users) > 2:
-            raise HTTPNotFound
+    allowed_property = "is_deletable"
 
 
 @view_config(route_name="chat_delete", request_method="POST", permission="chat.info")
 def chat_delete_post(context: ChatContext, request):
-    if context.chat.status == "ongoing" and len(context.active_chat_users) > 2:
+    if not context.is_deletable:
         raise HTTPNotFound
 
     if context.chat.status == "ongoing":
@@ -490,15 +489,12 @@ def chat_delete_post(context: ChatContext, request):
 @view_config(route_name="chat_leave", request_method="GET", permission="chat.info")
 class ChatLeaveView(ChatEndViewBase):
     action_name = "leave"
-
-    def check_allowed(self):
-        if self.context.chat.status == "ended" or len(self.context.active_chat_users) <= 2:
-            raise HTTPNotFound
+    allowed_property = "is_leavable"
 
 
 @view_config(route_name="chat_leave", request_method="POST", permission="chat.info")
 def chat_leave_post(context: ChatContext, request):
-    if context.chat.status == "ongoing" and len(context.active_chat_users) <= 2:
+    if not context.is_leavable:
         raise HTTPNotFound
 
     if context.chat.status == "ongoing":

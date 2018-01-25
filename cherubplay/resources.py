@@ -106,6 +106,18 @@ class ChatContext(object):
             and _.user.away_message
         ]
 
+    @property
+    def is_endable(self):
+        return self.chat.status == "ongoing" and len(self.active_chat_users) <= 2
+
+    @property
+    def is_deletable(self):
+        return self.chat.status == "ended" or self.is_endable
+
+    @property
+    def is_leavable(self):
+        return self.chat.status == "ongoing" and len(self.active_chat_users) > 2
+
 
 def prompt_factory(request):
     if not request.user:

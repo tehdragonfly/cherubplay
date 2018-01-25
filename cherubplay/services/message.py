@@ -77,7 +77,7 @@ class MessageService(object):
 
         posted_date = datetime.datetime.now()
 
-        if type == MessageType.system:
+        if type == MessageType.system and "%s" in text:
             notification_text = text % chat_user.handle
             if chat_user.name:
                 text = notification_text
