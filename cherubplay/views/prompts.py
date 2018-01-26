@@ -36,19 +36,19 @@ def prompt_list(request):
     }
 
 
-def _new_prompt_form(**kwargs):
+def _prompt_form(**kwargs):
     return dict(
         preset_colours=preset_colours,
         prompt_categories=prompt_categories,
         prompt_starters=prompt_starters,
         prompt_levels=prompt_levels,
-        **kwargs
+        **kwargs,
     )
 
 
 @view_config(route_name="new_prompt", request_method="GET", permission="view", renderer="layout2/new_prompt.mako")
 def new_prompt_get(request):
-    return _new_prompt_form()
+    return _prompt_form()
 
 
 @view_config(route_name="new_prompt", request_method="POST", permission="view", renderer="layout2/new_prompt.mako")
@@ -56,26 +56,26 @@ def new_prompt_post(request):
 
     trimmed_prompt_title = request.POST.get("prompt_title", "").strip()
     if trimmed_prompt_title == "":
-        return _new_prompt_form(error="blank_title")
+        return _prompt_form(error="blank_title")
 
     colour = request.POST.get("prompt_colour", "")
     if colour.startswith("#"):
         colour = colour[1:]
     if colour_validator.match(colour) is None:
-        return _new_prompt_form(error="invalid_colour")
+        return _prompt_form(error="invalid_colour")
 
     trimmed_prompt_text = request.POST.get("prompt_text", "").strip()
     if trimmed_prompt_text == "":
-        return _new_prompt_form(error="blank_text")
+        return _prompt_form(error="blank_text")
 
     if request.POST.get("prompt_category") not in prompt_categories:
-        return _new_prompt_form(error="blank_category")
+        return _prompt_form(error="blank_category")
 
     if request.POST.get("prompt_starter") not in prompt_starters:
-        return _new_prompt_form(error="blank_starter")
+        return _prompt_form(error="blank_starter")
 
     if request.POST.get("prompt_level") not in prompt_levels:
-        return _new_prompt_form(error="blank_level")
+        return _prompt_form(error="blank_level")
 
     new_prompt = Prompt(
         user_id=request.user.id,
@@ -103,19 +103,9 @@ def prompt_ext(context, request):
     return context
 
 
-def _edit_prompt_form(**kwargs):
-    return dict(
-        preset_colours=preset_colours,
-        prompt_categories=prompt_categories,
-        prompt_starters=prompt_starters,
-        prompt_levels=prompt_levels,
-        **kwargs
-    )
-
-
 @view_config(route_name="edit_prompt", request_method="GET", permission="prompt.edit", renderer="layout2/edit_prompt.mako")
 def edit_prompt_get(context, request):
-    return _edit_prompt_form()
+    return _prompt_form()
 
 
 @view_config(route_name="edit_prompt", request_method="POST", permission="prompt.edit", renderer="layout2/edit_prompt.mako")
@@ -123,26 +113,26 @@ def edit_prompt_post(context, request):
 
     trimmed_prompt_title = request.POST.get("prompt_title", "").strip()
     if trimmed_prompt_title == "":
-        return _edit_prompt_form(error="blank_title")
+        return _prompt_form(error="blank_title")
 
     colour = request.POST.get("prompt_colour", "")
     if colour.startswith("#"):
         colour = colour[1:]
     if colour_validator.match(colour) is None:
-        return _edit_prompt_form(error="invalid_colour")
+        return _prompt_form(error="invalid_colour")
 
     trimmed_prompt_text = request.POST.get("prompt_text", "").strip()
     if trimmed_prompt_text == "":
-        return _edit_prompt_form(error="blank_text")
+        return _prompt_form(error="blank_text")
 
     if request.POST.get("prompt_category") not in prompt_categories:
-        return _edit_prompt_form(error="blank_category")
+        return _prompt_form(error="blank_category")
 
     if request.POST.get("prompt_starter") not in prompt_starters:
-        return _edit_prompt_form(error="blank_starter")
+        return _prompt_form(error="blank_starter")
 
     if request.POST.get("prompt_level") not in prompt_levels:
-        return _edit_prompt_form(error="blank_level")
+        return _prompt_form(error="blank_level")
 
     context.title = trimmed_prompt_title
     context.colour = colour
@@ -157,7 +147,7 @@ def edit_prompt_post(context, request):
 
 @view_config(route_name="delete_prompt", request_method="GET", permission="prompt.delete", renderer="layout2/delete_prompt.mako")
 def delete_prompt_get(context, request):
-    return _edit_prompt_form()
+    return _prompt_form()
 
 
 @view_config(route_name="delete_prompt", request_method="POST", permission="prompt.delete")
