@@ -9,7 +9,6 @@ from pyramid.httpexceptions import (
 )
 from pyramid.renderers import render_to_response
 from pyramid.view import view_config
-from redis.exceptions import ConnectionError
 from sqlalchemy import and_, func, Unicode
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import joinedload
@@ -17,7 +16,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 
 from cherubplay import ChatContext
-from cherubplay.lib import colour_validator, preset_colours, OnlineUserStore
+from cherubplay.lib import colour_validator, preset_colours
 from cherubplay.models import Chat, ChatUser, Message
 from cherubplay.models.enums import ChatMode, ChatUserStatus, MessageType
 from cherubplay.services.message import IMessageService

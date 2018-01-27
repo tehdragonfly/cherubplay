@@ -4,9 +4,9 @@ from sqlalchemy import and_
 from typing import Dict, Union
 from zope.interface import Interface, implementer
 
-from cherubplay.lib import OnlineUserStore
 from cherubplay.models import Chat, ChatUser, ChatUserStatus, Message, User
 from cherubplay.models.enums import MessageType
+from cherubplay.services.redis import IOnlineUserStore
 from cherubplay.tasks import trigger_push_notification
 
 
@@ -55,6 +55,7 @@ class MessageService(object):
     def __init__(self, request):
         self._db     = request.find_service(name="db")
         self._pubsub = request.find_service(name="redis_pubsub")
+        self._online_user_store = request.find_service(IOnlineUserStore)
 
     def _publish(self, destination: Union[Chat, ChatUser, User], message: Union[str, Dict]):
         if isinstance(message, dict):
@@ -105,7 +106,7 @@ class MessageService(object):
         chat_user.draft = ""
 
         # See if anyone else is online and update their ChatUser too.
-        online_handles = OnlineUserStore(self._pubsub).online_handles(chat)
+        online_handles = self._online_user_store.online_handles(chat)
         for other_chat_user in self._db.query(ChatUser).filter(and_(
             ChatUser.chat_id == chat.id,
             ChatUser.status == ChatUserStatus.active,

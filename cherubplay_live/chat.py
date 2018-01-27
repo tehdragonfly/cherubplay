@@ -15,9 +15,9 @@ from tornado.websocket import WebSocketHandler
 
 from tornadoredis import Client
 
-from cherubplay.lib import OnlineUserStore
 from cherubplay.models import Message
 from cherubplay.services.message import pubsub_channel
+from cherubplay.services.redis import OnlineUserStore
 
 from cherubplay_live.db import config, db_session, get_chat, get_chat_user, get_user, publish_client
 
@@ -71,7 +71,7 @@ class ChatHandler(WebSocketHandler):
                     "handles": sorted(list(online_handles)),
                 })
 
-            online_user_store.connect(self.chat, self.chat_user, self.socket_id)
+            online_user_store.connect(self.chat_user, self.socket_id)
 
             self.redis_channels = (
                 pubsub_channel(self.chat),

@@ -11,7 +11,7 @@ from pyramid.renderers import JSON
 from pyramid.security import Authenticated, Everyone
 from redis import ConnectionPool, StrictRedis, UnixDomainSocketConnection
 from redis.exceptions import ConnectionError
-from sqlalchemy import and_, engine_from_config, func
+from sqlalchemy import and_, func
 from sqlalchemy.orm.exc import NoResultFound
 
 from cherubplay.models import Base, Chat, ChatUser, Resource, User
@@ -20,7 +20,7 @@ from cherubplay.resources import (
     ChatContext, prompt_factory, report_factory, TagList, TagPair,
     request_factory, user_factory,
 )
-
+from cherubplay.services.redis import IOnlineUserStore, OnlineUserStore
 
 JSONRenderer = JSON()
 JSONRenderer.add_adapter(set, lambda obj, request: list(obj))
@@ -168,7 +168,9 @@ def main(global_config, **settings):
         connection_class=UnixDomainSocketConnection,
         path=settings["cherubplay.socket_pubsub"],
     )
-    config.register_service(StrictRedis(connection_pool=pubsub_pool), name="redis_pubsub")
+    redis_pubsub = StrictRedis(connection_pool=pubsub_pool)
+    config.register_service(redis_pubsub, name="redis_pubsub")
+    config.register_service(OnlineUserStore(redis_pubsub), iface=IOnlineUserStore)
 
     # Replace the JSON renderer so we can serialise sets.
     config.add_renderer("json", JSONRenderer)
