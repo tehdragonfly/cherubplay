@@ -9,7 +9,6 @@ from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPFound
 from pyramid.renderers import JSON
 from pyramid.security import Authenticated, Everyone
-from redis import ConnectionPool, StrictRedis, UnixDomainSocketConnection
 from redis.exceptions import ConnectionError
 from sqlalchemy import and_, func
 from sqlalchemy.orm.exc import NoResultFound
@@ -160,29 +159,17 @@ def main(global_config, **settings):
 
     config.include("pyramid_services")
     config.include("cherubplay.models")
+    config.include("cherubplay.services.redis")
     config.include("cherubplay.services.message")
     config.include("cherubplay.services.request")
     config.include("cherubplay.services.tag")
 
-    pubsub_pool = ConnectionPool(
-        connection_class=UnixDomainSocketConnection,
-        path=settings["cherubplay.socket_pubsub"],
-    )
-    redis_pubsub = StrictRedis(connection_pool=pubsub_pool)
-    config.register_service(redis_pubsub, name="redis_pubsub")
-    config.register_service(OnlineUserStore(redis_pubsub), iface=IOnlineUserStore)
-
     # Replace the JSON renderer so we can serialise sets.
     config.add_renderer("json", JSONRenderer)
 
-    login_pool = ConnectionPool(
-        connection_class=UnixDomainSocketConnection,
-        path=settings["cherubplay.socket_login"],
-    )
-
     # These are defined here because we need the settings to create the connection pools.
     def request_login_store(request):
-        return StrictRedis(connection_pool=login_pool)
+        return request.find_service(name="redis_login")
 
     config.add_request_method(request_login_store,  "login_store",  reify=True)
     config.add_request_method(request_user,         "user",         reify=True)

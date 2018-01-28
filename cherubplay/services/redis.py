@@ -1,4 +1,4 @@
-from redis import StrictRedis
+from redis import ConnectionPool, StrictRedis, UnixDomainSocketConnection
 from typing import Set
 from zope.interface import Interface, implementer
 
@@ -45,3 +45,19 @@ class OnlineUserStore(object):
 
     def online_handles(self, chat: Chat) -> Set:
         return set(_.decode("utf-8") for _ in self.redis.hvals(online_key(chat)))
+
+
+def includeme(config):
+    redis_login = StrictRedis(connection_pool=ConnectionPool(
+        connection_class=UnixDomainSocketConnection,
+        path=config.registry.settings["cherubplay.socket_login"],
+    ))
+    config.register_service(redis_login, name="redis_login")
+
+    redis_pubsub = StrictRedis(connection_pool=ConnectionPool(
+        connection_class=UnixDomainSocketConnection,
+        path=config.registry.settings["cherubplay.socket_pubsub"],
+    ))
+    config.register_service(redis_pubsub, name="redis_pubsub")
+
+    config.register_service(OnlineUserStore(redis_pubsub), iface=IOnlineUserStore)
