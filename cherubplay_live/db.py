@@ -59,11 +59,13 @@ def get_user(db, cookies):
     except (ValueError, NoResultFound):
         return None
 
+
 def get_chat(db, chat_url):
     try:
         return db.query(Chat).filter(Chat.url == chat_url).one()
     except NoResultFound:
         return None
+
 
 def get_chat_user(db, chat_id, user_id):
     try:

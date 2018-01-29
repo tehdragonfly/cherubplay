@@ -396,6 +396,11 @@ class SlotList(list):
 
 class RequestSlot(Base):
     __tablename__ = "request_slots"
+    __table_args__ = (
+        UniqueConstraint("request_id", "user_id", name="request_slots_request_id_user_id_idx"),
+        CheckConstraint("user_id IS NOT NULL OR \"order\" <> 1", name="request_slots_slot_1_taken"),
+        CheckConstraint("(user_id IS NOT NULL) = (user_name IS NOT NULL)", name="request_slots_user_id_match"),
+    )
     request_id = Column(Integer, ForeignKey("requests.id"), primary_key=True)
     order = Column(Integer, primary_key=True)
     description = Column(Unicode(100), nullable=False)
