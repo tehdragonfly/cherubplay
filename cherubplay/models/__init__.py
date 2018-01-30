@@ -534,6 +534,12 @@ class TagBumpMaturitySuggestion(Base):
         return "<TagBumpMaturitySuggestion: Tag #%s>" % self.tag_id
 
 
+class UserConnection(Base):
+    __tablename__ = "user_connections"
+    from_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    to_id   = Column(Integer, ForeignKey("users.id"), primary_key=True)
+
+
 PushSubscription.user = relationship(User, backref="push_subscriptions")
 
 Chat.last_user = relationship(User, foreign_keys=Chat.last_user_id)
@@ -583,6 +589,9 @@ TagAddParentSuggestion.target  = relationship(Tag, foreign_keys=TagAddParentSugg
 
 TagBumpMaturitySuggestion.tag  = relationship(Tag)
 TagBumpMaturitySuggestion.user = relationship(User)
+
+UserConnection.from_ = relationship(User, foreign_keys=UserConnection.from_id)
+UserConnection.to    = relationship(User, foreign_keys=UserConnection.to_id)
 
 
 # XXX indexes on requests table
