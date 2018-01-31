@@ -32,6 +32,9 @@ class RequestList(Sequence):
     def __getitem__(self, key):
         return self._requests[key]
 
+    def __json__(self, request=None):
+        return list(self)
+
 
 sort_choices = {
     "posted":        (Request.posted, desc_op),

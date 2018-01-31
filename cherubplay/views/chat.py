@@ -1,5 +1,4 @@
 import datetime
-import json
 
 from pyramid.httpexceptions import (
     HTTPBadRequest,
