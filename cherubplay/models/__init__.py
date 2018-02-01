@@ -369,6 +369,7 @@ class Request(Base):
             "starter": self.starter,
             # Gotta have string keys.
             "tags": {k.value: v for k, v in self.tags_by_type().items()},
+            "slots": self.slots,
         }
         if request is not None:
             rd["yours"] = request.user.id == self.user_id
@@ -392,6 +393,9 @@ class SlotList(list):
     @property
     def all_taken(self):
         return all(slot.taken for slot in self)
+
+    def __json__(self, request=None):
+        return list(self)
 
 
 class RequestSlot(Base):
