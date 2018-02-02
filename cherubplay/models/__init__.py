@@ -419,11 +419,15 @@ class RequestSlot(Base):
         return self.user_id is not None
 
     def __json__(self, request=None):
-        return {
+        data = {
             "order": self.order,
             "description": self.description,
+            "user_name": self.user_name,
             "taken": self.taken,
         }
+        if request and request.user:
+            data["taken_by_you"] = self.user_id == request.user.id
+        return data
 
 
 class RequestTag(Base):
