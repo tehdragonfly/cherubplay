@@ -161,6 +161,7 @@ class Message(Base):
             "colour": self.colour,
             "symbol": self.symbol,
             "symbol_character": self.symbol_character,
+            "handle": self.handle,
             "text": self.text,
             "posted": self.posted.isoformat(),
             "edited": self.edited.isoformat(),
