@@ -1,9 +1,9 @@
 import binascii
-import datetime
 
 from base64 import urlsafe_b64decode
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.ec import SECP256R1, derive_private_key
+from datetime import datetime
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPFound
@@ -21,8 +21,10 @@ from cherubplay.resources import (
 )
 from cherubplay.services.redis import IOnlineUserStore, OnlineUserStore
 
+
 JSONRenderer = JSON()
-JSONRenderer.add_adapter(set, lambda obj, request: list(obj))
+JSONRenderer.add_adapter(datetime, lambda obj, request: obj.isoformat())
+JSONRenderer.add_adapter(set,      lambda obj, request: list(obj))
 
 
 class ExtensionPredicate(object):
@@ -95,7 +97,7 @@ def request_user(request):
         try:
             db = request.find_service(name="db")
             user = db.query(User).filter(User.id == int(user_id)).one()
-            user.last_online = datetime.datetime.now()
+            user.last_online = datetime.now()
             user.last_ip = request.environ["REMOTE_ADDR"]
             if user.status == "banned" and user.unban_date is not None:
                 if user.unban_delta.total_seconds() < 0:
@@ -123,7 +125,7 @@ def request_show_news(request):
         return False
 
     try:
-        last_updated = datetime.datetime.fromtimestamp(float(request.login_store.get("news_last_updated")))
+        last_updated = datetime.fromtimestamp(float(request.login_store.get("news_last_updated")))
     except (TypeError, ValueError):
         return False
 
@@ -164,7 +166,6 @@ def main(global_config, **settings):
     config.include("cherubplay.services.request")
     config.include("cherubplay.services.tag")
 
-    # Replace the JSON renderer so we can serialise sets.
     config.add_renderer("json", JSONRenderer)
 
     # These are defined here because we need the settings to create the connection pools.

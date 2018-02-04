@@ -129,8 +129,8 @@ class Chat(Base):
             "url": self.url,
             "mode": self.mode,
             "status": self.status,
-            "created": self.created.isoformat(),
-            "updated": self.updated.isoformat(),
+            "created": self.created,
+            "updated": self.updated,
         }
 
 
@@ -163,8 +163,8 @@ class Message(Base):
             "symbol_character": self.symbol_character,
             "handle": self.handle,
             "text": self.text,
-            "posted": self.posted.isoformat(),
-            "edited": self.edited.isoformat(),
+            "posted": self.posted,
+            "edited": self.edited,
             "show_edited": self.show_edited,
         }
 
@@ -212,7 +212,7 @@ class ChatUser(Base):
             "symbol": self.symbol,
             "symbol_character": self.symbol_character,
             "name": self.name,
-            "visited": self.visited.isoformat(),
+            "visited": self.visited,
             "title": self.title,
             "notes": self.notes,
             "labels": self.labels,
@@ -265,7 +265,7 @@ class PromptReport(Base, Resource):
         return {
             "id": self.id,
             "status": self.status,
-            "created": self.created.isoformat(),
+            "created": self.created,
             "colour": self.colour,
             "prompt": self.prompt,
             "category": self.category,
@@ -306,8 +306,8 @@ class Prompt(Base):
         return {
             "id": self.id,
             "title": self.title,
-            "created": self.created.isoformat(),
-            "updated": self.updated.isoformat(),
+            "created": self.created,
+            "updated": self.updated,
             "colour": self.colour,
             "text": self.text,
             "category": self.category,
@@ -363,8 +363,8 @@ class Request(Base):
         rd = {
             "id": self.id,
             "status": self.status,
-            "posted": (self.posted or self.created).isoformat(),
-            "edited": self.edited.isoformat(),
+            "posted": self.posted or self.created,
+            "edited": self.edited,
             "colour": self.colour,
             "ooc_notes": self.ooc_notes,
             "starter": self.starter,
