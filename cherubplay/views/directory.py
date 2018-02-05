@@ -1021,12 +1021,7 @@ def directory_request_delete_get(context, request):
 
 @view_config(route_name="directory_request_delete", request_method="POST", permission="request.delete")
 def directory_request_delete_post(context, request):
-    db = request.find_service(name="db")
-    db.query(Chat).filter(Chat.request_id == context.id).update({"request_id": None})
-    db.query(Request).filter(Request.duplicate_of_id == context.id).update({"duplicate_of_id": None})
-    db.query(RequestTag).filter(RequestTag.request_id == context.id).delete()
-    db.query(RequestSlot).filter(RequestSlot.request_id == context.id).delete()
-    db.query(Request).filter(Request.id == context.id).delete()
+    request.find_service(IRequestService).delete(context)
     return HTTPFound(request.route_path("directory_yours"))
 
 

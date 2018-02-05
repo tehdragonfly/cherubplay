@@ -19,7 +19,6 @@ from cherubplay.resources import (
     ChatContext, prompt_factory, report_factory, TagList, TagPair,
     request_factory, user_factory,
 )
-from cherubplay.services.redis import IOnlineUserStore, OnlineUserStore
 
 
 JSONRenderer = JSON()

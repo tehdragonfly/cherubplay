@@ -11,7 +11,7 @@ from uuid import uuid4
 from zope.interface import Interface, implementer
 
 from cherubplay.lib import prompt_hash
-from cherubplay.models import Request, Tag, User, Chat, ChatUser, Message
+from cherubplay.models import Request, Tag, User, Chat, ChatUser, Message, RequestTag, RequestSlot
 from cherubplay.models.enums import ChatMode
 
 
@@ -67,6 +67,9 @@ class IRequestService(Interface):
         pass
 
     def answer(self, request: Request, as_user: User = None) -> Chat:
+        pass
+
+    def delete(self, request: Request):
         pass
 
 
@@ -248,6 +251,13 @@ class RequestService(object):
             ))
 
         return new_chat
+
+    def delete(self, request: Request):
+        self._db.query(Chat).filter(Chat.request_id == request.id).update({"request_id": None})
+        self._db.query(Request).filter(Request.duplicate_of_id == request.id).update({"duplicate_of_id": None})
+        self._db.query(RequestTag).filter(RequestTag.request_id == request.id).delete()
+        self._db.query(RequestSlot).filter(RequestSlot.request_id == request.id).delete()
+        self._db.query(Request).filter(Request.id == request.id).delete()
 
 
 def includeme(config):
