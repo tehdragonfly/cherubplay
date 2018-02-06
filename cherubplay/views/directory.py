@@ -217,16 +217,8 @@ class DirectoryIndex(RequestListView):
 @view_config(route_name="directory_user_ext", request_method="GET", permission="admin", extension="json", renderer="json")
 @view_config(route_name="directory_user",     request_method="GET", permission="admin", renderer="layout2/directory/index.mako")
 class DirectoryUser(RequestListView):
-    def __init__(self, context, request):
-        super().__init__(context, request)
-        db = self.request.find_service(name="db")
-        try:
-            self.user = db.query(User).filter(func.lower(User.username) == request.matchdict["username"].lower()).one()
-        except NoResultFound:
-            raise HTTPNotFound
-
     def search_args(self):
-        return {"by_user": self.user}
+        return {"by_user": self.context}
 
     def render_args(self):
         return {}
