@@ -80,3 +80,9 @@ deduplicate_regex = re.compile("[\W_]+")
 
 def prompt_hash(text):
     return sha256(deduplicate_regex.sub("", text.lower()).encode()).hexdigest()
+
+
+def trim_with_ellipsis(text: str, length: int) -> str:
+    if len(text) <= length:
+        return text
+    return text[:length - 3] + "..."

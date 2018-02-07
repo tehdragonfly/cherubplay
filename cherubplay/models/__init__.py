@@ -35,7 +35,7 @@ from sqlalchemy.orm import (
 from sqlalchemy_enum34 import EnumType
 from zope.sqlalchemy import ZopeTransactionExtension
 
-from cherubplay.lib import symbols
+from cherubplay.lib import symbols, trim_with_ellipsis
 from cherubplay.models.enums import ChatMode, ChatUserStatus, MessageType, TagType
 
 
@@ -148,11 +148,7 @@ class Message(Base):
     edited = Column(DateTime, nullable=False, default=datetime.datetime.now)
 
     def __repr__(self):
-        if len(self.text) < 40:
-            preview = self.text
-        else:
-            preview = self.text[:37] + "..."
-        return "<Message #%s: \"%s\">" % (self.id, preview)
+        return "<Message #%s: \"%s\">" % (self.id, trim_with_ellipsis(self.text, 37))
 
     def __json__(self, request=None):
         return {

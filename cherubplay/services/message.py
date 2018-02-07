@@ -4,6 +4,7 @@ from sqlalchemy import and_
 from typing import Dict, Union
 from zope.interface import Interface, implementer
 
+from cherubplay.lib import trim_with_ellipsis
 from cherubplay.models import Chat, ChatUser, ChatUserStatus, Message, User
 from cherubplay.models.enums import MessageType
 from cherubplay.services.redis import IOnlineUserStore
@@ -123,7 +124,7 @@ class MessageService(object):
                     "colour": colour,
                     "symbol": chat_user.symbol_character,
                     "name": chat_user.name,
-                    "text": notification_text if len(notification_text) < 100 else notification_text[:97] + "...",
+                    "text": trim_with_ellipsis(notification_text, 100),
                 })
                 trigger_push_notification.delay(other_chat_user.user_id)
 

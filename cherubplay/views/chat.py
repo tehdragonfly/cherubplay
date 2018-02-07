@@ -15,7 +15,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 
 from cherubplay import ChatContext
-from cherubplay.lib import colour_validator, preset_colours
+from cherubplay.lib import colour_validator, preset_colours, trim_with_ellipsis
 from cherubplay.models import Chat, ChatUser, Message
 from cherubplay.models.enums import ChatMode, ChatUserStatus, MessageType
 from cherubplay.services.message import IMessageService
@@ -154,7 +154,7 @@ def chat_notification(request):
         "title":  own_chat_user.title or chat.url,
         "colour": message.colour,
         "handle": message.symbol_character or message.chat_user.handle,
-        "text":   message.text if len(message.text) < 100 else message.text[:97] + "...",
+        "text":   trim_with_ellipsis(message.text, 100),
     }
 
 
