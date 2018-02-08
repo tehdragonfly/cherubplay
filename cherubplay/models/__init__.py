@@ -539,6 +539,22 @@ class UserConnection(Base):
     from_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     to_id   = Column(Integer, ForeignKey("users.id"), primary_key=True)
 
+    def __json__(self, request=None):
+        return self.to.username
+
+
+class VirtualUserConnection(Base):
+    """
+    Placeholder for connections where the username of a non-existent user was
+    entered.
+    """
+    __tablename__ = "virtual_user_connections"
+    from_id     = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    to_username = Column(Unicode(100), primary_key=True)
+
+    def __json__(self, request=None):
+        return self.to_username
+
 
 PushSubscription.user = relationship(User, backref="push_subscriptions")
 
@@ -592,6 +608,8 @@ TagBumpMaturitySuggestion.user = relationship(User)
 
 UserConnection.from_ = relationship(User, foreign_keys=UserConnection.from_id)
 UserConnection.to    = relationship(User, foreign_keys=UserConnection.to_id)
+
+VirtualUserConnection.from_ = relationship(User)
 
 
 # XXX indexes on requests table
