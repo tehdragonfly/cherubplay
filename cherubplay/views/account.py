@@ -6,14 +6,12 @@ from pyramid.renderers import render, render_to_response
 from pyramid.view import view_config
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message as EmailMessage
+from sqlalchemy.orm import contains_eager
 from sqlalchemy.orm.exc import NoResultFound
 from uuid import uuid4
 
 from cherubplay.lib import email_validator
-from cherubplay.models import (
-    PushSubscription,
-    User,
-)
+from cherubplay.models import PushSubscription, User, UserConnection
 
 
 def send_email(request, action, user, email_address):
@@ -37,13 +35,13 @@ def send_email(request, action, user, email_address):
 
 @view_config(route_name="account", request_method="GET", permission="view")
 def account(request):
-    template = "layout2/account.mako" if request.user.layout_version == 2 else "account.mako"
+    template = "layout2/account/index.mako" if request.user.layout_version == 2 else "account.mako"
     return render_to_response(template, {
         "timezones": timezones_list,
     }, request)
 
 
-@view_config(route_name="account_email_address", renderer="layout2/account.mako", request_method="POST", permission="view")
+@view_config(route_name="account_email_address", renderer="layout2/account/index.mako", request_method="POST", permission="view")
 def account_email_address(request):
     email_address = request.POST.get("email_address", "").strip()[:100]
     if not email_validator.match(email_address):
@@ -296,3 +294,16 @@ def account_read_news(request):
         "last_read_news": datetime.datetime.now(),
     })
     return HTTPNoContent()
+
+
+@view_config(route_name="account_connections", request_method="GET", permission="view", renderer="layout2/account/connections.mako")
+def account_connections(request):
+    return {
+        "connections": (
+            request.find_service(name="db").query(UserConnection)
+            .filter(UserConnection.from_id == request.user.id)
+            .join(User, UserConnection.to_id == User.id)
+            .options(contains_eager(UserConnection.to))
+            .order_by(User.username).all()
+        ),
+    }

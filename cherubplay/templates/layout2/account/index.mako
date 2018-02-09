@@ -1,11 +1,5 @@
 <%inherit file="base.mako" />\
-<%block name="title">Account settings - </%block>
-<%block name="body_class">layout2</%block>
-<h2>${request.user.username}</h2>
-<main class="flex">
-  <div class="side_column"></div>
-  <div class="side_column"></div>
-  <div id="content">
+<%block name="heading">Account settings</%block>
 % if request.GET.get("saved") == "verify_email":
     <p id="confirmation">We've sent you an e-mail. Please click the link in the e-mail to verify your address.</p>
 % elif request.GET.get("saved") == "email_address":
@@ -75,5 +69,4 @@
       </select><button type="submit">Save</button></p>
     </form>
   </div>
-</main>
 <%block name="scripts"><script>cherubplay.account("${request.registry.settings["push.public_key"]}");</script></%block>
