@@ -296,7 +296,8 @@ def account_read_news(request):
     return HTTPNoContent()
 
 
-@view_config(route_name="account_connections", request_method="GET", permission="view", renderer="layout2/account/connections.mako")
+@view_config(route_name="account_connections",     request_method="GET", permission="view", renderer="layout2/account/connections.mako")
+@view_config(route_name="account_connections_ext", request_method="GET", permission="view", extension="json", renderer="json")
 def account_connections(request):
     return {
         "connections": (

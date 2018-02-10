@@ -273,7 +273,7 @@ def main(global_config, **settings):
     config.add_route("account_push_unsubscribe", "/account/push/unsubscribe/")
     config.add_route("account_away_message",     "/account/away_message/")
     config.add_route("account_read_news",        "/account/read_news/")
-    config.add_route("account_connections",      "/account/connections/")
+    config.add_ext_route("account_connections",  "/account/connections/")
 
     config.add_route("admin_report_list",         "/admin/reports/")
     config.add_route("admin_report_list_closed",  "/admin/reports/closed/")
