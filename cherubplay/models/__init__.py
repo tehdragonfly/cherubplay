@@ -31,6 +31,7 @@ from sqlalchemy.orm import (
     relationship,
     sessionmaker,
     object_session,
+    foreign,
 )
 from sqlalchemy_enum34 import EnumType
 from zope.sqlalchemy import ZopeTransactionExtension
@@ -534,26 +535,50 @@ class TagBumpMaturitySuggestion(Base):
         return "<TagBumpMaturitySuggestion: Tag #%s>" % self.tag_id
 
 
-class UserConnection(Base):
+class UserConnectionMixin(object):
+    @property
+    def to_username(self): raise NotImplementedError
+
+    @property
+    def is_mutual(self): raise NotImplementedError
+
+    def __json__(self, request=None):
+        return {
+            "to": self.to_username,
+            "is_mutual": self.is_mutual,
+        }
+
+
+class UserConnection(UserConnectionMixin, Base):
     __tablename__ = "user_connections"
     from_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     to_id   = Column(Integer, ForeignKey("users.id"), primary_key=True)
 
-    def __json__(self, request=None):
+    @property
+    def to_username(self):
         return self.to.username
 
+    @property
+    def is_mutual(self):
+        return self.reverse is not None
 
-class VirtualUserConnection(Base):
+    def __repr__(self):
+        return "<UserConnection: #%s to #%s>" % (self.from_id, self.to_id)
+
+
+class VirtualUserConnection(UserConnectionMixin, Base):
     """
     Placeholder for connections where the username of a non-existent user was
     entered.
     """
     __tablename__ = "virtual_user_connections"
     from_id     = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    to_id       = None
     to_username = Column(Unicode(100), primary_key=True)
+    is_mutual   = False
 
-    def __json__(self, request=None):
-        return self.to_username
+    def __repr__(self):
+        return "<VirtualUserConnection: #%s to %s>" % (self.from_id, self.to_username)
 
 
 PushSubscription.user = relationship(User, backref="push_subscriptions")
@@ -608,6 +633,14 @@ TagBumpMaturitySuggestion.user = relationship(User)
 
 UserConnection.from_ = relationship(User, foreign_keys=UserConnection.from_id)
 UserConnection.to    = relationship(User, foreign_keys=UserConnection.to_id)
+UserConnection.reverse = relationship(
+    UserConnection,
+    primaryjoin=and_(
+        UserConnection.from_id == foreign(UserConnection.to_id),
+        UserConnection.to_id == foreign(UserConnection.from_id),
+    ),
+    uselist=False,
+)
 
 VirtualUserConnection.from_ = relationship(User)
 
