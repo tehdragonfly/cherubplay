@@ -16,6 +16,15 @@ class ITagService(Interface):
     def __init__(self, request):
         pass
 
+    def get_or_create(
+        self,
+        tag_type: TagType,
+        name: str,
+        allow_maturity_and_type_creation: bool=True,
+        create_opposite_tag: bool=True,
+    ) -> Tag:
+        pass
+
 
 @implementer(ITagService)
 class TagService(object):
@@ -28,7 +37,7 @@ class TagService(object):
         name: str,
         allow_maturity_and_type_creation: bool=True,
         create_opposite_tag: bool=True,
-    ):
+    ) -> Tag:
         name = re.sub("\s+", " ", name)
         try:
             tag = (

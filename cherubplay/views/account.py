@@ -6,12 +6,12 @@ from pyramid.renderers import render, render_to_response
 from pyramid.view import view_config
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message as EmailMessage
-from sqlalchemy.orm import contains_eager
 from sqlalchemy.orm.exc import NoResultFound
 from uuid import uuid4
 
 from cherubplay.lib import email_validator
-from cherubplay.models import PushSubscription, User, UserConnection
+from cherubplay.models import PushSubscription, User
+from cherubplay.services.user_connection import IUserConnectionService
 
 
 def send_email(request, action, user, email_address):
@@ -299,12 +299,4 @@ def account_read_news(request):
 @view_config(route_name="account_connections",     request_method="GET", permission="view", renderer="layout2/account/connections.mako")
 @view_config(route_name="account_connections_ext", request_method="GET", permission="view", extension="json", renderer="json")
 def account_connections(request):
-    return {
-        "connections": (
-            request.find_service(name="db").query(UserConnection)
-            .filter(UserConnection.from_id == request.user.id)
-            .join(User, UserConnection.to_id == User.id)
-            .options(contains_eager(UserConnection.to))
-            .order_by(User.username).all()
-        ),
-    }
+    return {"connections": request.find_service(IUserConnectionService).search(request.user)}

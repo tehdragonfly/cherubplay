@@ -535,7 +535,20 @@ class TagBumpMaturitySuggestion(Base):
         return "<TagBumpMaturitySuggestion: Tag #%s>" % self.tag_id
 
 
-class UserConnectionMixin(object):
+class BaseUserConnection(object):
+    def __acl__(self):
+        if self.is_mutual:
+            return (
+                (Allow, self.from_id, "user_connection.chat"),
+                (Allow, self.from_id, "user_connection.delete"),
+            )
+        return (
+            (Allow, self.from_id, "user_connection.delete"),
+        )
+
+    @property
+    def from_id(self): raise NotImplementedError
+
     @property
     def to_username(self): raise NotImplementedError
 
@@ -549,7 +562,7 @@ class UserConnectionMixin(object):
         }
 
 
-class UserConnection(UserConnectionMixin, Base):
+class UserConnection(BaseUserConnection, Base):
     __tablename__ = "user_connections"
     from_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     to_id   = Column(Integer, ForeignKey("users.id"), primary_key=True)
@@ -566,7 +579,7 @@ class UserConnection(UserConnectionMixin, Base):
         return "<UserConnection: #%s to #%s>" % (self.from_id, self.to_id)
 
 
-class VirtualUserConnection(UserConnectionMixin, Base):
+class VirtualUserConnection(BaseUserConnection, Base):
     """
     Placeholder for connections where the username of a non-existent user was
     entered.

@@ -17,6 +17,7 @@ from cherubplay.models import (
 )
 from cherubplay.models.enums import ChatUserStatus, TagType
 from cherubplay.services.tag import ITagService
+from cherubplay.services.user_connection import IUserConnectionService
 from cherubplay.tasks import update_missing_request_tag_ids
 
 
@@ -420,6 +421,16 @@ def request_factory(request):
         return query.options(joinedload(Request.tags)).one()
     except (ValueError, NoResultFound):
         raise HTTPNotFound
+
+
+def connection_factory(request):
+    if not request.user:
+        raise HTTPNotFound
+
+    connection = request.find_service(IUserConnectionService).get(request.user, request.matchdict["username"])
+    if not connection:
+        raise HTTPNotFound
+    return connection
 
 
 def user_factory(request):

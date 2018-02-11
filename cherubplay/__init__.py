@@ -17,7 +17,7 @@ from cherubplay.models import Base, Chat, ChatUser, Resource, User
 from cherubplay.models.enums import ChatUserStatus, TagType
 from cherubplay.resources import (
     ChatContext, prompt_factory, report_factory, TagList, TagPair,
-    request_factory, user_factory,
+    connection_factory, request_factory, user_factory,
 )
 
 
@@ -164,6 +164,7 @@ def main(global_config, **settings):
     config.include("cherubplay.services.message")
     config.include("cherubplay.services.request")
     config.include("cherubplay.services.tag")
+    config.include("cherubplay.services.user_connection")
 
     config.add_renderer("json", JSONRenderer)
 
@@ -261,19 +262,22 @@ def main(global_config, **settings):
     config.add_route("directory_request_remove",   "/directory/{id:\d+}/remove/",   factory=request_factory)
     config.add_route("directory_request_unremove", "/directory/{id:\d+}/unremove/", factory=request_factory)
 
-    config.add_route("account",                  "/account/")
-    config.add_route("account_email_address",    "/account/email_address/")
-    config.add_route("account_verify_email",     "/account/verify_email/")
-    config.add_route("account_password",         "/account/password/")
-    config.add_route("account_timezone",         "/account/timezone/")
-    config.add_route("account_layout_version",   "/account/layout_version/")
-    config.add_route("account_forgot_password",  "/account/forgot_password/")
-    config.add_route("account_reset_password",   "/account/reset_password/")
-    config.add_route("account_push_subscribe",   "/account/push/subscribe/")
-    config.add_route("account_push_unsubscribe", "/account/push/unsubscribe/")
-    config.add_route("account_away_message",     "/account/away_message/")
-    config.add_route("account_read_news",        "/account/read_news/")
-    config.add_ext_route("account_connections",  "/account/connections/")
+    config.add_route("account",                    "/account/")
+    config.add_route("account_email_address",      "/account/email_address/")
+    config.add_route("account_verify_email",       "/account/verify_email/")
+    config.add_route("account_password",           "/account/password/")
+    config.add_route("account_timezone",           "/account/timezone/")
+    config.add_route("account_layout_version",     "/account/layout_version/")
+    config.add_route("account_forgot_password",    "/account/forgot_password/")
+    config.add_route("account_reset_password",     "/account/reset_password/")
+    config.add_route("account_push_subscribe",     "/account/push/subscribe/")
+    config.add_route("account_push_unsubscribe",   "/account/push/unsubscribe/")
+    config.add_route("account_away_message",       "/account/away_message/")
+    config.add_route("account_read_news",          "/account/read_news/")
+    config.add_ext_route("account_connections",    "/account/connections/")
+    config.add_route("account_connections_new",    "/account/new_connection/")
+    config.add_route("account_connections_chat",   "/account/connections/{username}/chat/",   factory=connection_factory)
+    config.add_route("account_connections_delete", "/account/connections/{username}/delete/", factory=connection_factory)
 
     config.add_route("admin_report_list",         "/admin/reports/")
     config.add_route("admin_report_list_closed",  "/admin/reports/closed/")
