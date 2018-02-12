@@ -300,3 +300,9 @@ def account_read_news(request):
 @view_config(route_name="account_connections_ext", request_method="GET", permission="view", extension="json", renderer="json")
 def account_connections(request):
     return {"connections": request.find_service(IUserConnectionService).search(request.user)}
+
+
+@view_config(route_name="account_connection_delete", request_method="POST", permission="user_connection.delete")
+def account_connection_delete(context, request):
+    request.find_service(name="db").delete(context)
+    return HTTPFound(request.route_path("account_connections"))
