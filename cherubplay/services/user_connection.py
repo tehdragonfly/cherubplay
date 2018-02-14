@@ -73,7 +73,7 @@ class UserConnectionService(object):
 
     def create(self, from_: User, to_username: str) -> Optional[BaseUserConnection]:
         if username_validator.match(to_username) is None:
-            return None
+            raise ValueError("not a valid username")
 
         to = self._db.query(User).filter(User.username == to_username).scalar()
 

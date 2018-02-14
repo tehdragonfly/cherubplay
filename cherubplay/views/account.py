@@ -302,6 +302,19 @@ def account_connections(request):
     return {"connections": request.find_service(IUserConnectionService).search(request.user)}
 
 
+@view_config(route_name="account_connections_new", request_method="POST", permission="chat", renderer="layout2/account/connections.mako")
+def account_connections_new(request):
+    ucs = request.find_service(IUserConnectionService)
+    try:
+        ucs.create(request.user, request.POST.get("to", "").lower())
+    except ValueError:
+        return {
+            "connections": ucs.search(request.user),
+            "error": "to_invalid",
+        }
+    return HTTPFound(request.route_path("account_connections"))
+
+
 @view_config(route_name="account_connection_delete", request_method="POST", permission="user_connection.delete")
 def account_connection_delete(context, request):
     request.find_service(name="db").delete(context)
