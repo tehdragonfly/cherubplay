@@ -6,13 +6,13 @@
           <form id="account_connections_new" action="${request.route_path("account_connections_new")}" method="post">
             <input type="text" name="to" placeholder="Username..." maxlength="100">
             <button type="submit">Add</button>
-            % if error == "to_invalid":
-              <p class="error">Sorry, that's not a valid username.</p>
-            % endif
           </form>
+          % if error == "to_invalid":
+            <span class="error">Sorry, that's not a valid username.</span>
+          % endif
         </li>
         % for connection in connections:
-          <li>${connection.to.username}</li>
+          <li>${connection.to_username}</li>
         % endfor
       </ul>
     </section>

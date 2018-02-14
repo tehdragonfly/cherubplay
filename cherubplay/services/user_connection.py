@@ -28,17 +28,21 @@ class UserConnectionService(object):
         self._db = request.find_service(name="db")
 
     def search(self, from_: User) -> List[BaseUserConnection]:
-        # TODO VirtualUserConnection
-        return (
+
+        user_connections = (
             self._db.query(UserConnection)
             .filter(UserConnection.from_id == from_.id)
             .join(User, UserConnection.to_id == User.id)
             .options(
                 contains_eager(UserConnection.to),
                 joinedload(UserConnection.reverse),
-            )
-            .order_by(User.username).all()
+            ).all()
+        ) + (
+            self._db.query(VirtualUserConnection)
+            .filter(VirtualUserConnection.from_id == from_.id).all()
         )
+        user_connections.sort(key=lambda _: _.to_username)
+        return user_connections
 
     def get(self, from_: User, to_username: str) -> Optional[BaseUserConnection]:
         if username_validator.match(to_username) is None:
