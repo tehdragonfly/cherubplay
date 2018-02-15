@@ -12,7 +12,16 @@
           % endif
         </li>
         % for connection in connections:
-          <li>${connection.to_username}</li>
+          <li>
+            <div class="actions">
+              <div class="left">${connection.to_username}</div>
+              <div class="right">
+                <form action="${request.route_path("account_connection_delete", username=connection.to_username)}" method="post">
+                  <button type="submit">Delete</button>
+                </form>
+              </div>
+            </div>
+          </li>
         % endfor
       </ul>
     </section>
