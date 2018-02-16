@@ -10,7 +10,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from uuid import uuid4
 
 from cherubplay.lib import email_validator
-from cherubplay.models import PushSubscription, User
+from cherubplay.models import Chat, ChatUser, PushSubscription, User, UserConnection
 from cherubplay.services.user_connection import IUserConnectionService
 
 
@@ -313,6 +313,17 @@ def account_connections_new(request):
             "error": "to_invalid",
         }
     return HTTPFound(request.route_path("account_connections"))
+
+
+@view_config(route_name="account_connection_chat", request_method="POST", permission="user_connection.chat")
+def account_connection_chat(context: UserConnection, request):
+    db = request.find_service(name="db")
+    new_chat = Chat(url=str(uuid4()))
+    db.add(new_chat)
+    db.flush()
+    db.add(ChatUser(chat_id=new_chat.id, user_id=request.user.id, symbol=0))
+    db.add(ChatUser(chat_id=new_chat.id, user_id=context.to_id,   symbol=1))
+    return HTTPFound(request.route_path("chat", url=new_chat.url))
 
 
 @view_config(route_name="account_connection_delete", request_method="POST", permission="user_connection.delete")

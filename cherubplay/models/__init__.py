@@ -653,6 +653,7 @@ UserConnection.reverse = relationship(
         UserConnection.to_id == foreign(UserConnection.from_id),
     ),
     uselist=False,
+    viewonly=True,
 )
 
 VirtualUserConnection.from_ = relationship(User)

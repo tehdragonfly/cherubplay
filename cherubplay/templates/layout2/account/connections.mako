@@ -19,6 +19,14 @@
                 <form action="${request.route_path("account_connection_delete", username=connection.to_username)}" method="post">
                   <button type="submit">Delete</button>
                 </form>
+                ·
+                % if connection.is_mutual:
+                  <form action="${request.route_path("account_connection_chat", username=connection.to_username)}" method="post">
+                    <button type="submit">Chat</button>
+                  </form>
+                % else:
+                  <button disabled title="You can't chat with this person until they accept the connection.">Chat</button>
+                % endif
               </div>
             </div>
           </li>
