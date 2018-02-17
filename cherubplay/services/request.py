@@ -12,7 +12,7 @@ from zope.interface import Interface, implementer
 
 from cherubplay.lib import prompt_hash
 from cherubplay.models import Request, Tag, User, Chat, ChatUser, Message, RequestTag, RequestSlot
-from cherubplay.models.enums import ChatMode
+from cherubplay.models.enums import ChatMode, ChatSource
 
 
 class RequestList(Sequence):
@@ -193,7 +193,7 @@ class RequestService(object):
         if request.slots and as_user is None:
             raise ValueError("as_user must be provided if there are no slots")
 
-        new_chat = Chat(url=str(uuid4()), request_id=request.id)
+        new_chat = Chat(url=str(uuid4()), request_id=request.id, source=ChatSource.directory)
 
         if request.slots:
             new_chat.mode = ChatMode.group

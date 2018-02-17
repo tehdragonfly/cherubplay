@@ -14,6 +14,7 @@ from tornado.websocket import WebSocketHandler
 
 from cherubplay.lib import colour_validator, prompt_hash, prompt_categories, prompt_starters, prompt_levels
 from cherubplay.models import Chat, ChatUser, Message, PromptReport
+from cherubplay.models.enums import ChatSource
 
 from cherubplay_live.db import config, db_session, get_user, login_client
 
@@ -233,7 +234,7 @@ class SearchHandler(WebSocketHandler):
                 return
             with db_session() as db:
                 new_chat_url = str(uuid4())
-                new_chat = Chat(url=new_chat_url)
+                new_chat = Chat(url=new_chat_url, source=ChatSource.front_page)
                 db.add(new_chat)
                 db.flush()
                 db.add(ChatUser(

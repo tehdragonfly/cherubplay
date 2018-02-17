@@ -37,8 +37,7 @@ from sqlalchemy_enum34 import EnumType
 from zope.sqlalchemy import ZopeTransactionExtension
 
 from cherubplay.lib import symbols, trim_with_ellipsis
-from cherubplay.models.enums import ChatMode, ChatUserStatus, MessageType, TagType
-
+from cherubplay.models.enums import ChatMode, ChatSource, ChatUserStatus, MessageType, TagType
 
 Base = declarative_base()
 
@@ -121,6 +120,7 @@ class Chat(Base):
     last_user_id = Column(Integer, ForeignKey("users.id"))
     request_id   = Column(Integer, ForeignKey("requests.id"))
     op_id        = Column(Integer, ForeignKey("users.id"))
+    source       = Column(EnumType(ChatSource, name="chat_source"))
 
     def __repr__(self):
         return "<Chat #%s: %s>" % (self.id, self.url)

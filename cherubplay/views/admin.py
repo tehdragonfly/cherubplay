@@ -12,6 +12,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from cherubplay.lib import prompt_categories, prompt_starters, prompt_levels
 from cherubplay.models import Chat, ChatUser, PromptReport, Request, RequestSlot
+from cherubplay.models.enums import ChatSource
 
 
 status_filters = {
@@ -137,7 +138,7 @@ def user_status(context, request):
 def user_chat(context, request):
     if context.status == "banned" or context.id == request.user.id:
         raise HTTPNotFound
-    new_chat = Chat(url=str(uuid.uuid4()))
+    new_chat = Chat(url=str(uuid.uuid4()), source=ChatSource.admin)
     db = request.find_service(name="db")
     db.add(new_chat)
     db.flush()

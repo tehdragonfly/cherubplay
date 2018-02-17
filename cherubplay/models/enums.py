@@ -11,6 +11,13 @@ class ChatMode(JSONMixin, Enum):
     group      = "group"
 
 
+class ChatSource(JSONMixin, Enum):
+    front_page      = "front_page"
+    directory       = "directory"
+    user_connection = "user_connection"
+    admin           = "admin"
+
+
 class ChatUserStatus(JSONMixin, Enum):
     active  = "active"
     deleted = "deleted"
