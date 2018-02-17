@@ -9,6 +9,8 @@
           </form>
           % if error == "to_invalid":
             <span class="error">Sorry, that's not a valid username.</span>
+          % elif error == "to_self":
+            <span class="error">Sorry, you can't add yourself.</span>
           % endif
         </li>
         % for connection in connections:

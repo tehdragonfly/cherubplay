@@ -76,6 +76,8 @@ class UserConnectionService(object):
         )
 
     def create(self, from_: User, to_username: str) -> Optional[BaseUserConnection]:
+        if to_username == from_.username:
+            raise ValueError("can't connect to self")
         if username_validator.match(to_username) is None:
             raise ValueError("not a valid username")
 

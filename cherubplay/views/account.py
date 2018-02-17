@@ -306,13 +306,13 @@ def account_connections(request):
 @view_config(route_name="account_connections_new", request_method="POST", permission="chat", renderer="layout2/account/connections.mako")
 def account_connections_new(request):
     ucs = request.find_service(IUserConnectionService)
+    to_username = request.POST.get("to", "").lower()
+    if to_username == request.user.username:
+        return {"connections": ucs.search(request.user), "error": "to_self"}
     try:
-        ucs.create(request.user, request.POST.get("to", "").lower())
+        ucs.create(request.user, to_username)
     except ValueError:
-        return {
-            "connections": ucs.search(request.user),
-            "error": "to_invalid",
-        }
+        return {"connections": ucs.search(request.user), "error": "to_invalid"}
     return HTTPFound(request.route_path("account_connections"))
 
 
