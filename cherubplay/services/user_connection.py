@@ -1,11 +1,18 @@
 from typing import List, Optional
 
-from sqlalchemy import and_
+from sqlalchemy import and_, text
 from sqlalchemy.orm import contains_eager, joinedload
 from zope.interface import Interface, implementer
 
 from cherubplay.lib import username_validator
 from cherubplay.models import BaseUserConnection, User, UserConnection, VirtualUserConnection
+
+
+CONVERT_QUERY = text("""
+    INSERT INTO user_connections (from_id, to_id)
+    SELECT from_id, :to_id FROM virtual_user_connections
+    WHERE to_username = :to_username
+""")
 
 
 class IUserConnectionService(Interface):
@@ -19,6 +26,9 @@ class IUserConnectionService(Interface):
         pass
 
     def create(self, from_: User, to_username: str) -> Optional[BaseUserConnection]:
+        pass
+
+    def convert_virtual_connections(self, to: User):
         pass
 
 
@@ -101,6 +111,10 @@ class UserConnectionService(object):
         self._db.add(new_connection)
         self._db.flush()
         return new_connection
+
+    def convert_virtual_connections(self, to: User):
+        self._db.execute(CONVERT_QUERY, {"to_id": to.id, "to_username": to.username})
+        self._db.query(VirtualUserConnection).filter(VirtualUserConnection.to_username == to.username).delete()
 
 
 def includeme(config):
