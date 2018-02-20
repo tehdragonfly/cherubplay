@@ -322,8 +322,8 @@ def account_connection_chat(context: UserConnection, request):
     new_chat = Chat(url=str(uuid4()), source=ChatSource.user_connection)
     db.add(new_chat)
     db.flush()
-    db.add(ChatUser(chat_id=new_chat.id, user_id=request.user.id, symbol=0))
-    db.add(ChatUser(chat_id=new_chat.id, user_id=context.to_id,   symbol=1))
+    db.add(ChatUser(chat_id=new_chat.id, user_id=request.user.id, symbol=0, title="Chat with %s" % context.to_username))
+    db.add(ChatUser(chat_id=new_chat.id, user_id=context.to_id,   symbol=1, title="Chat with %s" % request.user.username))
     return HTTPFound(request.route_path("chat", url=new_chat.url))
 
 
