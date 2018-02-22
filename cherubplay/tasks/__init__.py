@@ -10,7 +10,7 @@ from sqlalchemy.sql.expression import cast
 from urllib.parse import urlparse
 
 from cherubplay.models import get_sessionmaker, PushSubscription, Request, RequestSlot, User
-
+from cherubplay.services.user_connection import UserConnectionService
 
 log = getLogger(__name__)
 
@@ -215,3 +215,9 @@ def post_push_notification(subscription_id, endpoint):
         log.debug(response.headers)
         log.debug(response.text)
 
+
+@app.task
+def convert_virtual_connections(user_id: int):
+    with db_session() as db:
+        user = db.query(User.id == user_id).one()
+        UserConnectionService(db).convert_virtual_connections(user)

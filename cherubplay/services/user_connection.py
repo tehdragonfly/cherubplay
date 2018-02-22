@@ -16,7 +16,7 @@ CONVERT_QUERY = text("""
 
 
 class IUserConnectionService(Interface):
-    def __init__(self, request):
+    def __init__(self, db):
         pass
 
     def search(self, from_: User) -> List[BaseUserConnection]:
@@ -34,8 +34,8 @@ class IUserConnectionService(Interface):
 
 @implementer(IUserConnectionService)
 class UserConnectionService(object):
-    def __init__(self, request):
-        self._db = request.find_service(name="db")
+    def __init__(self, db):
+        self._db = db
 
     def search(self, from_: User) -> List[BaseUserConnection]:
 
@@ -118,4 +118,7 @@ class UserConnectionService(object):
 
 
 def includeme(config):
-    config.register_service_factory(lambda context, request: UserConnectionService(request), iface=IUserConnectionService)
+    config.register_service_factory(
+        lambda context, request: UserConnectionService(request.find_service(name="db")),
+        iface=IUserConnectionService,
+    )
