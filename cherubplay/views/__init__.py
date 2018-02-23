@@ -10,7 +10,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from cherubplay.lib import username_validator, reserved_usernames, preset_colours, prompt_categories, prompt_starters, prompt_levels
 from cherubplay.models import Prompt, User
-from cherubplay.services.user_connection import IUserConnectionService
+from cherubplay.tasks import convert_virtual_connections
 
 
 @view_config(route_name="home", effective_principals=Authenticated)
@@ -79,7 +79,7 @@ def sign_up(request):
     db.add(new_user)
     db.flush()
 
-    request.find_service(IUserConnectionService).convert_virtual_connections(new_user)
+    convert_virtual_connections.delay(new_user.id)
 
     # Generate session ID and add it to the login store.
     new_session_id = str(uuid.uuid4())
