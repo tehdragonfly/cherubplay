@@ -9,7 +9,7 @@ from sqlalchemy.dialects.postgresql import INTERVAL
 from sqlalchemy.sql.expression import cast
 from urllib.parse import urlparse
 
-from cherubplay.models import get_sessionmaker, PushSubscription, Request, RequestSlot, User
+from cherubplay.models import get_sessionmaker, PushSubscription, Request, RequestSlot, User, VirtualUserConnection
 from cherubplay.services.user_connection import UserConnectionService
 
 log = getLogger(__name__)
@@ -217,7 +217,18 @@ def post_push_notification(subscription_id, endpoint):
 
 
 @app.task
+def check_virtual_connection_consistency():
+    with db_session() as db:
+        group(convert_virtual_connections.s(_) for _, in (
+            db.query(User.id).filter(
+                func.lower(User.username)
+                .in_(db.query(func.lower(VirtualUserConnection.to_username).distinct()))
+            )
+        )).delay()
+
+
+@app.task
 def convert_virtual_connections(user_id: int):
     with db_session() as db:
-        user = db.query(User.id == user_id).one()
+        user = db.query(User).filter(User.id == user_id).one()
         UserConnectionService(db).convert_virtual_connections(user)
