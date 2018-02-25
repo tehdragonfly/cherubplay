@@ -12,6 +12,10 @@ CONVERT_QUERY = text("""
     INSERT INTO user_connections (from_id, to_id)
     SELECT from_id, :to_id FROM virtual_user_connections
     WHERE to_username = :to_username
+    AND from_id NOT IN (
+        SELECT from_id FROM user_connections
+        WHERE to_id = :to_id
+    )
 """)
 
 
