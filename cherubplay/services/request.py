@@ -69,6 +69,9 @@ class IRequestService(Interface):
     def answer(self, request: Request, as_user: User = None) -> Chat:
         pass
 
+    def requests_with_full_slots(self) -> List[int]:
+        pass
+
     def delete(self, request: Request):
         pass
 
@@ -252,6 +255,16 @@ class RequestService(object):
             ))
 
         return new_chat
+
+    def requests_with_full_slots(self) -> List[int]:
+        return [
+            request_id for request_id, num_slots, num_taken in self._db.query(
+                RequestSlot.request_id,
+                func.count(RequestSlot.order),
+                func.count(RequestSlot.user_id),
+            ).group_by(RequestSlot.request_id)
+            if num_slots == num_taken
+        ]
 
     def delete(self, request: Request):
         self._db.query(Chat).filter(Chat.request_id == request.id).update({"request_id": None})
