@@ -45,7 +45,7 @@ sort_choices = {
 
 
 class IRequestService(Interface):
-    def __init__(self, request): # Pyramid request, not Request
+    def __init__(self, db, redis):
         pass
 
     def search(
@@ -78,9 +78,9 @@ class IRequestService(Interface):
 
 @implementer(IRequestService)
 class RequestService(object):
-    def __init__(self, request):
-        self._db    = request.find_service(name="db")
-        self._redis = request.login_store
+    def __init__(self, db, redis):
+        self._db    = db
+        self._redis = redis
 
     def search(
         self,
@@ -193,7 +193,7 @@ class RequestService(object):
         }, synchronize_session=False)
 
     def answer(self, request: Request, as_user: User=None) -> Chat:
-        if request.slots and as_user is None:
+        if not request.slots and as_user is None:
             raise ValueError("as_user must be provided if there are no slots")
 
         new_chat = Chat(url=str(uuid4()), request_id=request.id, source=ChatSource.directory)
@@ -276,4 +276,7 @@ class RequestService(object):
 
 
 def includeme(config):
-    config.register_service_factory(lambda context, request: RequestService(request), iface=IRequestService)
+    config.register_service_factory(lambda context, request: RequestService(
+        request.find_service(name="db"),
+        request.login_store,
+    ), iface=IRequestService)

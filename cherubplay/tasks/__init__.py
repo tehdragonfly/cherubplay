@@ -10,6 +10,8 @@ from sqlalchemy.sql.expression import cast
 from urllib.parse import urlparse
 
 from cherubplay.models import get_sessionmaker, PushSubscription, Request, RequestSlot, User, VirtualUserConnection
+from cherubplay.services.redis import make_redis_login
+from cherubplay.services.request import RequestService
 from cherubplay.services.user_connection import UserConnectionService
 
 log = getLogger(__name__)
@@ -232,3 +234,12 @@ def convert_virtual_connections(user_id: int):
     with db_session() as db:
         user = db.query(User).filter(User.id == user_id).one()
         UserConnectionService(db).convert_virtual_connections(user)
+
+
+@app.task
+def answer_requests_with_full_slots():
+    with db_session() as db:
+        redis = make_redis_login(app.conf["PYRAMID_REGISTRY"].settings)
+        request_service = RequestService(db, redis)
+        for request in request_service.requests_with_full_slots():
+            request_service.answer(request)

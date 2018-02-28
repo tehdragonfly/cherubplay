@@ -47,17 +47,25 @@ class OnlineUserStore(object):
         return set(_.decode("utf-8") for _ in self.redis.hvals(online_key(chat)))
 
 
-def includeme(config):
-    redis_login = StrictRedis(connection_pool=ConnectionPool(
+def make_redis_login(settings):
+    return StrictRedis(connection_pool=ConnectionPool(
         connection_class=UnixDomainSocketConnection,
-        path=config.registry.settings["cherubplay.socket_login"],
+        path=settings["cherubplay.socket_login"],
     ))
+
+
+def make_redis_pubsub(settings):
+    return StrictRedis(connection_pool=ConnectionPool(
+        connection_class=UnixDomainSocketConnection,
+        path=settings["cherubplay.socket_pubsub"],
+    ))
+
+
+def includeme(config):
+    redis_login = make_redis_login(config.registry.settings)
     config.register_service(redis_login, name="redis_login")
 
-    redis_pubsub = StrictRedis(connection_pool=ConnectionPool(
-        connection_class=UnixDomainSocketConnection,
-        path=config.registry.settings["cherubplay.socket_pubsub"],
-    ))
+    redis_pubsub = make_redis_pubsub(config.registry.settings)
     config.register_service(redis_pubsub, name="redis_pubsub")
 
     config.register_service(OnlineUserStore(redis_pubsub), iface=IOnlineUserStore)
