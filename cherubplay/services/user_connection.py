@@ -20,9 +20,6 @@ CONVERT_QUERY = text("""
 
 
 class IUserConnectionService(Interface):
-    def __init__(self, db):
-        pass
-
     def search(self, from_: User) -> List[BaseUserConnection]:
         pass
 
@@ -75,7 +72,7 @@ class UserConnectionService(object):
                 UserConnection.to_id == to.id,
             ))
             .join(User, UserConnection.to_id == User.id)
-                .options(
+            .options(
                 contains_eager(UserConnection.to),
                 joinedload(UserConnection.reverse),
             ).scalar()

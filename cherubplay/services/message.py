@@ -1,5 +1,6 @@
 import datetime, json, logging
 
+from redis import StrictRedis
 from sqlalchemy import and_
 from typing import Dict, Union
 from zope.interface import Interface, implementer
@@ -29,9 +30,6 @@ def pubsub_channel(destination: Union[Chat, ChatUser, User]):
 
 
 class IMessageService(Interface):
-    def __init__(self, request): # Pyramid request, not Request
-        pass
-
     def send_message(self, chat_user: ChatUser, type: MessageType, colour: str, text: str, action: str="message"):
         pass
 
@@ -53,10 +51,10 @@ class IMessageService(Interface):
 
 @implementer(IMessageService)
 class MessageService(object):
-    def __init__(self, request):
-        self._db     = request.find_service(name="db")
-        self._pubsub = request.find_service(name="redis_pubsub")
-        self._online_user_store = request.find_service(IOnlineUserStore)
+    def __init__(self, db, pubsub: StrictRedis, online_user_store: IOnlineUserStore):
+        self._db     = db
+        self._pubsub = pubsub
+        self._online_user_store = online_user_store
 
     def _publish(self, destination: Union[Chat, ChatUser, User], message: Union[str, Dict]):
         if isinstance(message, dict):
@@ -180,4 +178,8 @@ class MessageService(object):
 
 
 def includeme(config):
-    config.register_service_factory(lambda context, request: MessageService(request), iface=IMessageService)
+    config.register_service_factory(lambda context, request: MessageService(
+        request.find_service(name="db"),
+        request.find_service(name="redis_pubsub"),
+        request.find_service(IOnlineUserStore),
+    ), iface=IMessageService)

@@ -1,6 +1,8 @@
 import datetime
 
 from collections.abc import Sequence
+
+from redis import StrictRedis
 from sqlalchemy import and_, func, Integer
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import joinedload, subqueryload
@@ -45,9 +47,6 @@ sort_choices = {
 
 
 class IRequestService(Interface):
-    def __init__(self, db, redis):
-        pass
-
     def search(
         self,
         for_user: User=None,
@@ -78,7 +77,7 @@ class IRequestService(Interface):
 
 @implementer(IRequestService)
 class RequestService(object):
-    def __init__(self, db, redis):
+    def __init__(self, db, redis: StrictRedis): # Login Redis instance
         self._db    = db
         self._redis = redis
 

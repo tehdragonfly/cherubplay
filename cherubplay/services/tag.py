@@ -13,9 +13,6 @@ class CreateNotAllowed(Exception): pass
 
 
 class ITagService(Interface):
-    def __init__(self, request):
-        pass
-
     def get_or_create(
         self,
         tag_type: TagType,
@@ -28,8 +25,8 @@ class ITagService(Interface):
 
 @implementer(ITagService)
 class TagService(object):
-    def __init__(self, request):
-        self._db = request.find_service(name="db")
+    def __init__(self, db):
+        self._db = db
 
     def get_or_create(
         self,
@@ -64,4 +61,6 @@ class TagService(object):
 
 
 def includeme(config):
-    config.register_service_factory(lambda context, request: TagService(request), iface=ITagService)
+    config.register_service_factory(lambda context, request: TagService(
+        request.find_service(name="db"),
+    ), iface=ITagService)

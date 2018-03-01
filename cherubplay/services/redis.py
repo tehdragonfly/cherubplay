@@ -10,9 +10,6 @@ def online_key(chat: Chat) -> str:
 
 
 class IOnlineUserStore(Interface):
-    def __init__(self, redis: StrictRedis): # Pubsub Redis instance
-        pass
-
     def connect(self, chat: Chat, chat_user: ChatUser, socket_id: str):
         pass
 
@@ -28,7 +25,7 @@ class IOnlineUserStore(Interface):
 
 @implementer(IOnlineUserStore)
 class OnlineUserStore(object):
-    def __init__(self, redis: StrictRedis):
+    def __init__(self, redis: StrictRedis): # Pubsub Redis instance
         self.redis = redis
 
     def connect(self, chat_user: ChatUser, socket_id: str):
