@@ -168,11 +168,6 @@ def main(global_config, **settings):
 
     config.add_renderer("json", JSONRenderer)
 
-    # These are defined here because we need the settings to create the connection pools.
-    def request_login_store(request):
-        return request.find_service(name="redis_login")
-
-    config.add_request_method(request_login_store,  "login_store",  reify=True)
     config.add_request_method(request_user,         "user",         reify=True)
     config.add_request_method(request_unread_chats, "unread_chats", reify=True)
     config.add_request_method(request_show_news,    "show_news",    reify=True)

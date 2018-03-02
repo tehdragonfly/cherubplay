@@ -277,5 +277,5 @@ class RequestService(object):
 def includeme(config):
     config.register_service_factory(lambda context, request: RequestService(
         request.find_service(name="db"),
-        request.login_store,
+        request.find_service(name="redis_login"),
     ), iface=IRequestService)
