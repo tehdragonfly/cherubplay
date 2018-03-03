@@ -1,8 +1,51 @@
+from datetime import datetime
 from redis import ConnectionPool, StrictRedis, UnixDomainSocketConnection
-from typing import Set
+from time import mktime
+from typing import Set, Optional
 from zope.interface import Interface, implementer
 
-from cherubplay.models import Chat, ChatUser
+from cherubplay.models import Chat, ChatUser, User
+
+
+class INewsStore(Interface):
+    def get_news(self) -> str:
+        pass
+
+    def set_news(self, news: str):
+        pass
+
+    def should_show_news(self, user: User) -> bool:
+        pass
+
+
+@implementer(INewsStore)
+class NewsStore(object):
+    def __init__(self, redis: StrictRedis): # Login Redis instance
+        self._redis = redis
+
+    def get_news(self) -> Optional[str]:
+        news = self._redis.get("news")
+        if news:
+            return news.decode("utf-8")
+        return None
+
+    def set_news(self, news: str):
+        news = news.strip().encode("utf-8")
+        if news:
+            self._redis.set("news", news)
+            self._redis.set("news_last_updated", mktime(datetime.now().timetuple()))
+        else:
+            self._redis.delete("news", "news_last_updated")
+
+    def should_show_news(self, user: User) -> bool:
+        last_updated = self._redis.get("news_last_updated")
+        if not last_updated:
+            return False
+        try:
+            last_updated = datetime.fromtimestamp(float(last_updated))
+        except (TypeError, ValueError):
+            return False
+        return user.last_read_news is None or user.last_read_news < last_updated
 
 
 def online_key(chat: Chat) -> str:
@@ -70,4 +113,5 @@ def includeme(config):
     redis_pubsub = make_redis_pubsub(config.registry.settings)
     config.register_service(redis_pubsub, name="redis_pubsub")
 
+    config.register_service(NewsStore(redis_login), iface=INewsStore)
     config.register_service(OnlineUserStore(redis_pubsub), iface=IOnlineUserStore)
