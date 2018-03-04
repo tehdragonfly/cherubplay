@@ -7,7 +7,7 @@
   <div class="side_column"></div>
   <div id="content">
     <form class="tile2" action="${request.route_path("admin_news")}" method="post">
-      <textarea class="full" name="news" placeholder="News...">${(request.login_store.get("news") or b"").decode()}</textarea>
+      <textarea class="full" name="news" placeholder="News...">${current_news}</textarea>
       <div class="actions">
         <div class="right"><button type="submit">Save</button></div>
       </div>

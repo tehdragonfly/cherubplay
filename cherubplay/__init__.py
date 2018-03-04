@@ -119,18 +119,6 @@ def request_unread_chats(request):
     )).scalar()
 
 
-def request_show_news(request):
-    if request.user is None:
-        return False
-
-    try:
-        last_updated = datetime.fromtimestamp(float(request.login_store.get("news_last_updated")))
-    except (TypeError, ValueError):
-        return False
-
-    return request.user.last_read_news is None or request.user.last_read_news < last_updated
-
-
 def main(global_config, **settings):
 
     if "push.private_key" in settings:
@@ -170,7 +158,6 @@ def main(global_config, **settings):
 
     config.add_request_method(request_user,         "user",         reify=True)
     config.add_request_method(request_unread_chats, "unread_chats", reify=True)
-    config.add_request_method(request_show_news,    "show_news",    reify=True)
 
     config.add_static_view("static", "static", cache_max_age=3600)
 

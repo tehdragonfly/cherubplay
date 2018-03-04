@@ -1,3 +1,5 @@
+<% from cherubplay.services.redis import INewsStore %>
+<% news_store = request.find_service(INewsStore) %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -30,16 +32,16 @@
       <li><form action="${request.route_path("log_out")}" method="post"><button type="submit" id="nav_log_out">Log out</button></form></li>
     </ul>
   </nav>
-  % if request.show_news:
-    <% news = request.login_store.get("news") %>
+  % if news_store.should_show_news(request.user):
+    <% news = news_store.get_news() %>
     % if news:
       <aside id="news">
-        News: ${news.decode("utf-8")|n}
+        News: ${news|n}
         <a href="#" id="news_hide">Hide</a>
       </aside>
     % endif
   % endif
-% elif not request.matched_route or request.matched_route.name!="home":
+% elif not request.matched_route or request.matched_route.name != "home":
 % if "cherubplay.read_only" not in request.registry.settings:
   <nav id="nav">
     <ul>

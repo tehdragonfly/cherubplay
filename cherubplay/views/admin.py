@@ -13,7 +13,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from cherubplay.lib import prompt_categories, prompt_starters, prompt_levels
 from cherubplay.models import Chat, ChatUser, PromptReport, Request, RequestSlot
 from cherubplay.models.enums import ChatSource
-
+from cherubplay.services.redis import INewsStore
 
 status_filters = {
     "admin_report_list": "open",
@@ -192,17 +192,10 @@ def user_reset_password(context, request):
 
 @view_config(route_name="admin_news", request_method="GET", permission="admin", renderer="layout2/admin/news.mako")
 def admin_news_get(request):
-    return {}
+    return {"current_news": request.find_service(INewsStore).get_news()}
 
 
 @view_config(route_name="admin_news", request_method="POST", permission="admin", renderer="layout2/admin/news.mako")
 def admin_news_post(request):
-    news = request.POST.get("news", "").strip()
-
-    if news:
-        request.login_store.set("news", news)
-        request.login_store.set("news_last_updated", time.mktime(datetime.now().timetuple()))
-    else:
-        request.login_store.delete("news", "news_last_updated")
-
+    request.find_service(INewsStore).set_news(request.POST.get("news", ""))
     return HTTPFound(request.route_path("admin_news"))
