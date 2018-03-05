@@ -612,7 +612,7 @@ def directory_random(request):
 
 @view_config(route_name="directory_new", request_method="GET", permission="directory.new_request", renderer="layout2/directory/new.mako")
 def directory_new_get(request):
-    return {"form_data": {}, "preset_colours": preset_colours}
+    return {"form_data": {"fandom_Homestuck": "on", "fandom_wanted_Homestuck": "on"}, "preset_colours": preset_colours}
 
 
 @view_config(route_name="directory_new", request_method="POST", permission="directory.new_request", renderer="layout2/directory/new.mako")
@@ -934,8 +934,9 @@ def directory_request_edit_get(context, request):
             for tag in tags:
                 form_data["type_" + tag.name] = "on"
         else:
-            for name in request.registry.settings["checkbox_tags." + tag_type.value]:
-                form_data[tag_type.value + "_" + name] = "on"
+            for tag in tags:
+                if tag.name in request.registry.settings["checkbox_tags." + tag_type.value]:
+                    form_data[tag_type.value + "_" + tag.name] = "on"
             form_data[tag_type.value] = ", ".join(
                 tag.name for tag in tags
                 if tag.name not in request.registry.settings["checkbox_tags." + tag_type.value]

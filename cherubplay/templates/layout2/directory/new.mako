@@ -53,7 +53,7 @@ New request
       % endif
       <div class="tag_input">
         <ul class="request_tags"></ul>
-        <input type="text" class="full" name="fandom" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("fandom", "Homestuck")}">
+        <input type="text" class="full" name="fandom" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("fandom", "")}">
       </div>
       <label>Character(s):</label>
       % if request.registry.settings["checkbox_tags.character"]:
@@ -92,7 +92,7 @@ New request
       % endif
       <div class="tag_input">
         <ul class="request_tags"></ul>
-        <input type="text" class="full" name="fandom_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("fandom_wanted", "Homestuck")}">
+        <input type="text" class="full" name="fandom_wanted" maxlength="100" placeholder="Enter tags, separated by commas..." value="${form_data.get("fandom_wanted", "")}">
       </div>
       <label>Character(s):</label>
       % if request.registry.settings["checkbox_tags.character_wanted"]:
