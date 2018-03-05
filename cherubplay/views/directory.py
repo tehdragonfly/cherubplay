@@ -581,10 +581,14 @@ def directory_tag_bump_maturity(context, request):
 @view_config(route_name="directory_yours_ext", request_method="GET", permission="directory.read", extension="json", renderer="json")
 class DirectoryYours(RequestListView):
     def search_args(self):
-        return {"by_user": self.request.user}
+        return {
+            "by_user": self.request.user,
+            "posted_only": False,
+        }
 
     def render_args(self):
         return {}
+
 
 @view_config(route_name="directory_yours_tag", request_method="GET", permission="directory.read", renderer="layout2/directory/tag.mako")
 @view_config(route_name="directory_yours_tag_ext", request_method="GET", permission="directory.read", extension="json", renderer="json")
@@ -594,6 +598,7 @@ class DirectoryYoursTag(DirectoryTag):
             # No super() because we don't want to inherit for_user.
             "by_user": self.request.user,
             "with_tags": self.context.tags,
+            "posted_only": False,
         }
 
 
