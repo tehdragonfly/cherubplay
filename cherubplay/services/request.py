@@ -116,8 +116,9 @@ class RequestService(object):
             raise ValueError("Not a valid sort order.")
         # Request.posted may be null on drafts.
         if not posted_only and sort_field == Request.posted:
-            sort_field = func.coalesce(Request.posted, Request.created)
-        query = query.order_by(sort_field.operate(sort_operator))
+            query = query.order_by(func.coalesce(Request.posted, Request.created).operate(sort_operator))
+        else:
+            query = query.order_by(sort_field.operate(sort_operator))
 
         # Page start
         if start:
