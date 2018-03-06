@@ -146,7 +146,7 @@ class MessageService(object):
         chat_user.visited = datetime.datetime.now()
 
     def send_leave_message(self, chat_user: ChatUser):
-        self.send_message(chat_user, MessageType.system, "000000", "%%s left the chat.", "message")
+        self.send_message(chat_user, MessageType.system, "000000", "%s left the chat.", "message")
         chat_user.visited = datetime.datetime.now()
 
     def send_kick_message(self, kicking_chat_user: ChatUser, kicked_chat_user: ChatUser):

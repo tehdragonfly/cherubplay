@@ -96,7 +96,7 @@ class ChatHandler(WebSocketHandler):
                         "action": "message",
                         "message": {
                             "id":     message.id,
-                            "type":   message.type,
+                            "type":   message.type.value,
                             "colour": message.colour,
                             "symbol": message.symbol_character,
                             "name":   message.chat_user.name if message.chat_user else None,

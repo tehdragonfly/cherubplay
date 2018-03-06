@@ -100,6 +100,8 @@ def _request_tags_from_form(request, form, new_request):
         for name in request.registry.settings["checkbox_tags." + tag_type.value]:
             if tag_type.value + "_" + name in form:
                 tag_set.add((tag_type, name))
+                if tag_type in (TagType.fandom, TagType.fandom_wanted):
+                    fandoms.add(name.lower())
 
         for name in form[tag_type.value][:1000].split(","):
             name = _normalise_tag_name(tag_type, name)
