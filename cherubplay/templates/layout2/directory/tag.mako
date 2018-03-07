@@ -139,8 +139,8 @@
         </li>
         % endfor
       </ul>
-      % if more:
-        <p class="pager tile2"><a href="${request.current_route_path(_query={"before": requests[-1].posted.isoformat()})}">Next page</a></p>
+      % if requests.next_page_start:
+        <p class="pager tile2"><a href="${request.current_route_path(_query={"before": requests.next_page_start.isoformat()})}">Next page</a></p>
       % endif
     % endif
 <%block name="tag_links">
@@ -180,5 +180,4 @@
           <li><a href="${request.route_path("directory_tag_suggest", type=request.context.tags[0].type.value, name=request.context.tags[0].url_name)}">Suggest changes to this tag</a></li>
         </ul>
       % endif
-
 </%block>
