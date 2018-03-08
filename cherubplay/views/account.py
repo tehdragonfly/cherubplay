@@ -164,7 +164,7 @@ def forgot_password_post(request):
 
     username = request.POST["username"].strip()[:User.username.type.length]
     try:
-        db = request.user.find_srevice(name="db")
+        db = request.find_service(name="db")
         user = db.query(User).filter(User.username == username.lower()).one()
     except NoResultFound:
         return {"error": "no_user", "username": username}
@@ -199,7 +199,7 @@ def _validate_reset_token(request):
         raise HTTPNotFound
 
     try:
-        db = request.user.find_service(name="db")
+        db = request.find_service(name="db")
         return db.query(User).filter(User.id == user_id).one()
     except NoResultFound:
         raise HTTPNotFound
