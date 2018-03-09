@@ -162,6 +162,14 @@ def _trigger_update_request_tag_ids(request_id: int):
     return hook
 
 
+class ShowBlacklistWarning(Exception): pass
+
+
+@view_config(context=ShowBlacklistWarning, renderer="layout2/directory/blacklist_warning.mako")
+def blacklist_warning(request):
+    return {}
+
+
 class RequestListView(object):
     def __init__(self, context, request):
         self.context = context
@@ -175,7 +183,7 @@ class RequestListView(object):
 
     def __call__(self):
         if not self.request.user.seen_blacklist_warning:
-            return render_to_response("layout2/directory/blacklist_warning.mako", {}, self.request)
+            raise ShowBlacklistWarning
 
         if self.request.GET.get("before"):
             try:
