@@ -13,7 +13,7 @@
   % else:
   <form action="${request.route_path("account_forgot_password")}" method="post" class="tile2">
     % if error == "no_user":
-    <p>${forgot_password_error}</p>
+    <p>There isn't an account with that username.</p>
     % elif error == "no_email":
     <p>This account doesn't have an e-mail address. Please <a href="https://cherubplay.tumblr.com/ask">send us an ask</a> instead.</p>
     % endif
