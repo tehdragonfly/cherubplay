@@ -18,7 +18,12 @@
         % for connection in connections:
           <li>
             <div class="actions">
-              <div class="left">${connection.to_username}</div>
+              <div class="left">
+                ${connection.to_username}
+                % if not connection.is_mutual:
+                  (pending)
+                % endif
+              </div>
               <div class="right">
                 <form action="${request.route_path("account_connection_delete", username=connection.to_username)}" method="post">
                   <button type="submit">Delete</button>
