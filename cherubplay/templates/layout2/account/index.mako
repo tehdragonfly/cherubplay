@@ -1,4 +1,5 @@
 <%inherit file="base.mako" />\
+<% from cherubplay.lib import timezones_list %>
 <%block name="heading">Account settings</%block>
 % if request.GET.get("saved") == "verify_email":
     <p id="confirmation">We've sent you an e-mail. Please click the link in the e-mail to verify your address.</p>
@@ -59,7 +60,7 @@
     <form class="tile2" action="${request.route_path("account_timezone")}" method="post">
       <h3>Time zone</h3>
       <p class="middle_actions"><select name="timezone">
-        % for timezone in timezones:
+        % for timezone in timezones_list:
           <option value="${timezone}"\
 % if timezone == request.user.timezone:
  selected="selected"\

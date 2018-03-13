@@ -86,3 +86,28 @@ def trim_with_ellipsis(text: str, length: int) -> str:
     if len(text) <= length:
         return text
     return text[:length - 3] + "..."
+
+
+timezones = {
+    "Africa/Johannesburg", "Africa/Lagos", "Africa/Windhoek", "America/Adak",
+    "America/Anchorage", "America/Argentina/Buenos_Aires", "America/Bogota",
+    "America/Caracas", "America/Chicago", "America/Denver", "America/Godthab",
+    "America/Guatemala", "America/Halifax", "America/Los_Angeles",
+    "America/Montevideo", "America/New_York", "America/Noronha",
+    "America/Noronha", "America/Phoenix", "America/Santiago",
+    "America/Santo_Domingo", "America/St_Johns", "Asia/Baghdad", "Asia/Baku",
+    "Asia/Beirut", "Asia/Dhaka", "Asia/Dubai", "Asia/Irkutsk", "Asia/Jakarta",
+    "Asia/Kabul", "Asia/Kamchatka", "Asia/Karachi", "Asia/Kathmandu",
+    "Asia/Kolkata", "Asia/Krasnoyarsk", "Asia/Omsk", "Asia/Rangoon",
+    "Asia/Shanghai", "Asia/Tehran", "Asia/Tokyo", "Asia/Vladivostok",
+    "Asia/Yakutsk", "Asia/Yekaterinburg", "Atlantic/Azores",
+    "Atlantic/Cape_Verde", "Australia/Adelaide", "Australia/Brisbane",
+    "Australia/Darwin", "Australia/Eucla", "Australia/Eucla",
+    "Australia/Lord_Howe", "Australia/Sydney", "Etc/GMT+12", "Europe/Berlin",
+    "Europe/London", "Europe/Moscow", "Pacific/Apia", "Pacific/Apia",
+    "Pacific/Auckland", "Pacific/Chatham", "Pacific/Easter", "Pacific/Gambier",
+    "Pacific/Honolulu", "Pacific/Kiritimati", "Pacific/Majuro",
+    "Pacific/Marquesas", "Pacific/Norfolk", "Pacific/Noumea",
+    "Pacific/Pago_Pago", "Pacific/Pitcairn", "Pacific/Tongatapu", "UTC",
+}
+timezones_list = sorted(list(timezones))

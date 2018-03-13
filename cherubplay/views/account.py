@@ -9,7 +9,7 @@ from pyramid_mailer.message import Message as EmailMessage
 from sqlalchemy.orm.exc import NoResultFound
 from uuid import uuid4
 
-from cherubplay.lib import email_validator
+from cherubplay.lib import email_validator, timezones
 from cherubplay.models import Chat, ChatUser, PushSubscription, User, UserConnection
 from cherubplay.models.enums import ChatSource
 from cherubplay.services.user_connection import IUserConnectionService
@@ -37,9 +37,7 @@ def send_email(request, action, user, email_address):
 @view_config(route_name="account", request_method="GET", permission="view")
 def account(request):
     template = "layout2/account/index.mako" if request.user.layout_version == 2 else "account.mako"
-    return render_to_response(template, {
-        "timezones": timezones_list,
-    }, request)
+    return render_to_response(template, {}, request)
 
 
 @view_config(route_name="account_email_address", renderer="layout2/account/index.mako", request_method="POST", permission="view")
@@ -109,31 +107,6 @@ def account_password(request):
     request.user.password = hashpw(request.POST["password"].encode(), gensalt()).decode()
 
     return HTTPFound(request.route_path("account", _query={"saved": "password"}))
-
-
-timezones = {
-    "Africa/Johannesburg", "Africa/Lagos", "Africa/Windhoek", "America/Adak",
-    "America/Anchorage", "America/Argentina/Buenos_Aires", "America/Bogota",
-    "America/Caracas", "America/Chicago", "America/Denver", "America/Godthab",
-    "America/Guatemala", "America/Halifax", "America/Los_Angeles",
-    "America/Montevideo", "America/New_York", "America/Noronha",
-    "America/Noronha", "America/Phoenix", "America/Santiago",
-    "America/Santo_Domingo", "America/St_Johns", "Asia/Baghdad", "Asia/Baku",
-    "Asia/Beirut", "Asia/Dhaka", "Asia/Dubai", "Asia/Irkutsk", "Asia/Jakarta",
-    "Asia/Kabul", "Asia/Kamchatka", "Asia/Karachi", "Asia/Kathmandu",
-    "Asia/Kolkata", "Asia/Krasnoyarsk", "Asia/Omsk", "Asia/Rangoon",
-    "Asia/Shanghai", "Asia/Tehran", "Asia/Tokyo", "Asia/Vladivostok",
-    "Asia/Yakutsk", "Asia/Yekaterinburg", "Atlantic/Azores",
-    "Atlantic/Cape_Verde", "Australia/Adelaide", "Australia/Brisbane",
-    "Australia/Darwin", "Australia/Eucla", "Australia/Eucla",
-    "Australia/Lord_Howe", "Australia/Sydney", "Etc/GMT+12", "Europe/Berlin",
-    "Europe/London", "Europe/Moscow", "Pacific/Apia", "Pacific/Apia",
-    "Pacific/Auckland", "Pacific/Chatham", "Pacific/Easter", "Pacific/Gambier",
-    "Pacific/Honolulu", "Pacific/Kiritimati", "Pacific/Majuro",
-    "Pacific/Marquesas", "Pacific/Norfolk", "Pacific/Noumea",
-    "Pacific/Pago_Pago", "Pacific/Pitcairn", "Pacific/Tongatapu", "UTC",
-}
-timezones_list = sorted(list(timezones))
 
 
 @view_config(route_name="account_timezone", request_method="POST", permission="view")

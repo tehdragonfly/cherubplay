@@ -1,4 +1,5 @@
 <%inherit file="base.mako" />\
+<% from cherubplay.lib import timezones_list %>
 <%block name="title">Account settings - </%block>
   <h2>${request.user.username}</h2>
   <nav id="subnav">
@@ -45,7 +46,7 @@
   <form class="tile" action="${request.route_path("account_timezone")}" method="post">
     <h3>Time zone</h3>
     <p class="middle_actions"><select name="timezone">
-      % for timezone in timezones:
+      % for timezone in timezones_list:
         <option value="${timezone}"\
 % if timezone == request.user.timezone:
  selected="selected"\
