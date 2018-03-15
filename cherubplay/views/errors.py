@@ -20,7 +20,9 @@ def not_found(request):
 
 
 @view_config(context=Exception)
-def internal_server_error(request):
+def internal_server_error(context, request):
+    if "pyramid_debugtoolbar" in request.registry.settings["pyramid.includes"]:
+        raise context
     resp = render_to_response("errors/internal_server_error.mako", {}, request=request)
     resp.status_int = 500
     return resp
