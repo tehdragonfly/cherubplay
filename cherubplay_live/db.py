@@ -2,7 +2,6 @@ import sys
 
 from configparser import ConfigParser
 from contextlib import contextmanager
-from redis import Redis
 
 from sqlalchemy import create_engine, and_
 from sqlalchemy.orm import sessionmaker
@@ -10,6 +9,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from cherubplay.models import Chat, ChatUser, User
 from cherubplay.models.enums import ChatUserStatus
+from cherubplay.services.redis import make_redis_login, make_redis_pubsub
 
 config_path = sys.argv[1]
 config = ConfigParser()
@@ -41,8 +41,8 @@ def db_session():
         db.close()
 
 
-login_client = Redis(unix_socket_path=config.get("app:main", "cherubplay.socket_login"))
-publish_client = Redis(unix_socket_path=config.get("app:main", "cherubplay.socket_pubsub"))
+login_client   = make_redis_login(config["app:main"])
+publish_client = make_redis_pubsub(config["app:main"])
 
 
 def get_user(db, cookies):
