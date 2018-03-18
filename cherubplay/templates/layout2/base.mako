@@ -58,12 +58,12 @@
 
 ${next.body()}\
 
-<script src="//code.jquery.com/jquery-2.0.3.min.js"></script>
+<script src="https://lurantis.scorpiaproductions.co.uk/js/jquery-2.0.3.min.js"></script>
 <script src="/static/cherubplay.js?32"></script>
 <%block name="scripts"></%block>
 
 % if request.user and request.user.timezone is None:
-<script src="/static/jstz-1.0.4.min.js"></script>
+<script src="https://lurantis.scorpiaproductions.co.uk/js/jstz-1.0.4.min.js"></script>
 <script>
 var timezone = jstz.determine().name();
 if (timezone) {

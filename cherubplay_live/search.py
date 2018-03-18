@@ -264,6 +264,7 @@ class SearchHandler(WebSocketHandler):
     def on_close(self):
         self.reset_state()
 
+
 def main():
     application = Application([(r"/", SearchHandler)])
     server = HTTPServer(application)
