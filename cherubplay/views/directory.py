@@ -915,7 +915,7 @@ def directory_request_unanswer_post(context, request):
 @view_config(route_name="directory_request_kick", request_method="POST", permission="request.edit")
 def directory_request_kick_post(context, request):
     try:
-        order = int(request.GET.get("slot"))
+        order = int(request.POST.get("slot"))
     except (TypeError, ValueError):
         raise HTTPNotFound
 
