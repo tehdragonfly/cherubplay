@@ -477,7 +477,7 @@ def chat_delete_post(context: ChatContext, request):
     if context.chat.status == "ongoing":
         context.chat.status = "ended"
         context.chat.last_user_id = None
-        request.find_service(IMessageService).send_end_message(context.chat_user, deleted=True)
+        request.find_service(IMessageService).send_end_message(context.chat_user)
 
     if context.chat.mode == ChatMode.group:
         context.chat_user.status = ChatUserStatus.deleted

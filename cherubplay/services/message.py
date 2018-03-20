@@ -33,7 +33,7 @@ class IMessageService(Interface):
     def send_message(self, chat_user: ChatUser, type: MessageType, colour: str, text: str, action: str="message"):
         pass
 
-    def send_end_message(self, chat_user: ChatUser, deleted: bool=False):
+    def send_end_message(self, chat_user: ChatUser):
         pass
 
     def send_leave_message(self, chat_user: ChatUser):
@@ -138,9 +138,8 @@ class MessageService(object):
             },
         })
 
-    def send_end_message(self, chat_user: ChatUser, deleted: bool=False):
-        text = "%%s %s the chat." % ("deleted" if deleted else "ended")
-        self.send_message(chat_user, MessageType.system, "000000", text, "end")
+    def send_end_message(self, chat_user: ChatUser):
+        self.send_message(chat_user, MessageType.system, "000000", "%s ended the chat.", "end")
         chat_user.visited = datetime.datetime.now()
 
     def send_leave_message(self, chat_user: ChatUser):
