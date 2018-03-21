@@ -525,6 +525,9 @@ def chat_info_get(context: ChatContext, request):
 
 @view_config(route_name="chat_info", request_method="POST", permission="chat.info")
 def chat_info_post(context: ChatContext, request):
+    if not "title" in request.POST or not "notes" in request.POST or not "labels" in request.POST:
+        raise HTTPBadRequest
+
     context.chat_user.title = request.POST["title"][:100]
     context.chat_user.notes = request.POST["notes"]
 
