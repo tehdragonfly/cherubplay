@@ -135,7 +135,7 @@
       <ul id="chat_list">
         % for rq in requests:
         <li class="tile2 request ${rq.status}">
-          ${parent.render_request(rq)}
+          ${parent.render_request(rq, rq.id in requests.answered)}
         </li>
         % endfor
       </ul>
