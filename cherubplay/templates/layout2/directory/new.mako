@@ -5,7 +5,7 @@
 % if request.matched_route.name == "directory_request_edit":
 Edit request #${request.context.id}
 % else:
-New request
+Write a new request
 % endif
 </%block>
   <form id="new_request_form" action="${request.current_route_path()}" method="post">

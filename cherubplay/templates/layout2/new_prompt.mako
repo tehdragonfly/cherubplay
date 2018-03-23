@@ -1,7 +1,7 @@
 <%inherit file="base.mako" />\
-<%block name="title">New prompt - </%block>
+<%block name="title">Write a new prompt - </%block>
 <%block name="body_class">layout2</%block>
-<h2>New prompt</h2>
+<h2>Write a new prompt</h2>
 <main class="flex">
   <div class="side_column"></div>
   <div class="side_column"></div>
