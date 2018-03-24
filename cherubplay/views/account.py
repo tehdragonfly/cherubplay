@@ -252,7 +252,7 @@ def account_push_unsubscribe(request):
     return HTTPNoContent()
 
 
-@view_config(route_name="account_away_message", request_method="POST", permission="view")
+@view_config(route_name="account_away_message", request_method="POST", permission="chat")
 def account_away_message(request):
     db = request.find_service(name="db")
     db.query(User).filter(User.id == request.user.id).update({
