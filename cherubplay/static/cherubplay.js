@@ -539,6 +539,33 @@ var cherubplay = (function() {
 			});
 		},
 		"directory": function() {
+
+			var dragged;
+			document.addEventListener("dragstart", function(e) {
+				if (e.target.nodeType == Node.ELEMENT_NODE && e.target.dataset.tagType) {
+					dragged = e.target;
+				}
+			}, false);
+			document.addEventListener("dragend", function(e) {
+				dragged = null;
+			}, false);
+			document.addEventListener("dragover", function(e) {
+				if (dragged && document.getElementById("blacklist_link").contains(e.target)) {
+					e.preventDefault();
+				}
+			}, false);
+			document.addEventListener("drop", function(e) {
+				if (dragged && document.getElementById("blacklist_link").contains(e.target)) {
+					e.preventDefault();
+					$.post("/directory/blacklist/add/", {
+						"tag_type": dragged.dataset.tagType,
+						"name": dragged.dataset.tagName,
+					}, function() {
+						location.reload();
+					});
+				}
+			}, false);
+
 			$(".directory_search").each(function(index, input) {
 
 				var search_input = $(input).keydown(function(e) {
@@ -623,8 +650,6 @@ var cherubplay = (function() {
 
 			var warning_checkboxes = $("#warning_checkboxes");
 			$("select[name=maturity]").change(function() {
-				console.log(this);
-				console.log(this.value);
 				this.value == "NSFW extreme" ? warning_checkboxes.show() : warning_checkboxes.hide();
 			}).change();
 

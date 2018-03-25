@@ -5,7 +5,7 @@
 % if request.matched_route.name == "directory_tag" and len(request.context.tags) == 1 and request.context.tags[0] == tag:
 ${tag.name}\
 % else:
-<a href="${request.route_path("directory_tag", tag_string=tag.tag_string)}">${tag.name}</a>\
+<a href="${request.route_path("directory_tag", tag_string=tag.tag_string)}" draggable="true" data-tag-type="${tag.type.value}" data-tag-name="${tag.url_name}">${tag.name}</a>\
 % endif
 </li>\
 </%def>
@@ -175,9 +175,9 @@ ${tag.name}\
           <li><a href="${request.route_path("directory")}">Directory</a></li>
         % endif
         % if request.matched_route.name == "directory_blacklist":
-          <li>Blacklisted tags</li>
+          <li id="blacklist_link">Blacklisted tags</li>
         % else:
-          <li><a href="${request.route_path("directory_blacklist")}">Blacklisted tags</a></li>
+          <li id="blacklist_link"><a href="${request.route_path("directory_blacklist")}">Blacklisted tags</a></li>
         % endif
         % if request.matched_route.name == "directory_yours":
           <li>Your requests</li>
