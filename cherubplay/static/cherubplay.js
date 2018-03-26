@@ -557,11 +557,18 @@ var cherubplay = (function() {
 			document.addEventListener("drop", function(e) {
 				if (dragged && document.getElementById("blacklist_link").contains(e.target)) {
 					e.preventDefault();
+					var dragged_tag_type = dragged.dataset.tagType;
+					var dragged_tag_name = dragged.dataset.tagName;
 					$.post("/directory/blacklist/add/", {
-						"tag_type": dragged.dataset.tagType,
-						"name": dragged.dataset.tagName,
+						"tag_type": dragged_tag_type,
+						"name": dragged_tag_name,
 					}, function() {
-						location.reload();
+						document.getElementById("chat_list").querySelectorAll("[data-tag-type]").forEach(function(tag) {
+							if (tag.dataset.tagType == dragged_tag_type && tag.dataset.tagName == dragged_tag_name) {
+								var request = tag.closest(".request");
+								request.parentNode.removeChild(request);
+							}
+						});
 					});
 				}
 			}, false);
