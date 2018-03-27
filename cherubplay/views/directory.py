@@ -6,16 +6,14 @@ from pyramid.renderers import render_to_response
 from pyramid.view import view_config
 from sqlalchemy import and_, func, literal
 from sqlalchemy.orm import joinedload
-from sqlalchemy.orm.exc import NoResultFound
-from uuid import uuid4
 
 from cherubplay.lib import colour_validator, preset_colours
 from cherubplay.models import (
-    BlacklistedTag, Chat, ChatUser, Message, Request,
-    RequestSlot, RequestTag, Tag, TagParent, TagAddParentSuggestion,
-    TagBumpMaturitySuggestion, TagMakeSynonymSuggestion, User,
+    BlacklistedTag, Chat, ChatUser, Request, RequestSlot, RequestTag, Tag,
+    TagParent, TagAddParentSuggestion, TagBumpMaturitySuggestion,
+    TagMakeSynonymSuggestion, User,
 )
-from cherubplay.models.enums import ChatMode, ChatUserStatus, TagType
+from cherubplay.models.enums import ChatUserStatus, TagType
 from cherubplay.resources import CircularReferenceException
 from cherubplay.services.request import IRequestService
 from cherubplay.services.tag import CreateNotAllowed, ITagService
