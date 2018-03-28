@@ -541,21 +541,27 @@ var cherubplay = (function() {
 		"directory": function() {
 
 			var dragged;
+			var blacklist_label = document.getElementById("blacklist_link");
+			if (blacklist_label) {
+				var blacklist_link = blacklist_label.querySelector("a");
+			}
 			document.addEventListener("dragstart", function(e) {
 				if (e.target.nodeType == Node.ELEMENT_NODE && e.target.dataset.tagType) {
 					dragged = e.target;
+					blacklist_link.innerText = "Add to blacklist";
 				}
 			}, false);
 			document.addEventListener("dragend", function(e) {
 				dragged = null;
+				blacklist_link.innerText = "Blacklisted tags";
 			}, false);
 			document.addEventListener("dragover", function(e) {
-				if (dragged && document.getElementById("blacklist_link").contains(e.target)) {
+				if (dragged && blacklist_label.contains(e.target)) {
 					e.preventDefault();
 				}
 			}, false);
 			document.addEventListener("drop", function(e) {
-				if (dragged && document.getElementById("blacklist_link").contains(e.target)) {
+				if (dragged && blacklist_label.contains(e.target)) {
 					e.preventDefault();
 					var dragged_tag_type = dragged.dataset.tagType;
 					var dragged_tag_name = dragged.dataset.tagName;
