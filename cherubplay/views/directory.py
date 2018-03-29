@@ -1,7 +1,9 @@
 import datetime, time, transaction
 
 from itertools import zip_longest
-from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNotFound
+from pyramid.httpexceptions import (
+    HTTPBadRequest, HTTPFound, HTTPNoContent, HTTPNotFound,
+)
 from pyramid.renderers import render_to_response
 from pyramid.view import view_config
 from sqlalchemy import and_, func, literal
@@ -774,6 +776,8 @@ def directory_blacklist_add(request):
         )).scalar() == 0:
             db.add(BlacklistedTag(user_id=request.user.id, tag_id=tag_id))
 
+    if request.is_xhr:
+        return HTTPNoContent()
     return HTTPFound(request.route_path("directory_blacklist"))
 
 
