@@ -56,7 +56,7 @@ ${next.body()}\
 </main>
 
 <script src="https://lurantis.scorpiaproductions.co.uk/js/jquery-2.0.3.min.js"></script>
-<script src="/static/cherubplay.js?32"></script>
+<script src="/static/cherubplay.js?33"></script>
 <%block name="scripts"></%block>
 
 % if request.user and request.user.timezone is None:
