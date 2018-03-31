@@ -133,3 +133,10 @@ def log_out(request):
     response = HTTPFound(request.route_path("home"))
     response.delete_cookie("cherubplay")
     return response
+
+
+@view_config(route_name="rules", permission="view", renderer="layout2/content.mako")
+def rules(request):
+    with open(request.registry.settings["rules_file"]) as f:
+        content = f.read()
+    return {"content": content}

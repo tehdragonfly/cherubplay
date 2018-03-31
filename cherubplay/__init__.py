@@ -171,6 +171,8 @@ def main(global_config, **settings):
     config.add_route("log_in", "/log-in/")
     config.add_route("log_out", "/log-out/")
 
+    config.add_route("rules", "/rules/")
+
     config.add_ext_route("chat_list", "/chats/")
     config.add_ext_route("chat_list_unanswered", "/chats/unanswered/")
     config.add_ext_route("chat_list_ongoing", "/chats/ongoing/")
