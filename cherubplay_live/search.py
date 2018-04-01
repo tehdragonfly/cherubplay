@@ -58,6 +58,10 @@ def write_message_to_searchers(message, category, starter, level):
 
 class SearchHandler(WebSocketHandler):
 
+    user      = None
+    socket_id = None
+    state     = "idle"
+
     def check_origin(self, origin):
         return True
 
@@ -68,10 +72,11 @@ class SearchHandler(WebSocketHandler):
                 self.close()
                 return
         self.socket_id = str(uuid4())
-        self.state = "idle"
         self.write_message(json.dumps({ "username": self.user.username}))
 
     def reset_state(self):
+        if not self.socket_id:
+            return
         if self.socket_id in prompters:
             prompters.pop(self.socket_id)
             write_message_to_searchers(json.dumps({

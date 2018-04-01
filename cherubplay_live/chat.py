@@ -30,6 +30,14 @@ online_user_store = OnlineUserStore(publish_client)
 
 class ChatHandler(WebSocketHandler):
 
+    user = None
+    chat = None
+    chat_user = None
+    socket_id = None
+    redis_channels = ()
+    ignore_next_message = False
+    redis_client = None
+
     def check_origin(self, origin):
         return True
 
@@ -80,7 +88,6 @@ class ChatHandler(WebSocketHandler):
             )
 
             self.redis_listen()
-            self.ignore_next_message = False
             # Send the backlog if necessary.
             if "after" in self.request.query_arguments:
                 try:
