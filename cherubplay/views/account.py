@@ -179,7 +179,7 @@ def _validate_reset_token(request):
 
 @view_config(route_name="account_reset_password", request_method="GET", renderer="layout2/reset_password.mako")
 def account_reset_password_get(request):
-    user = _validate_reset_token(request)
+    _validate_reset_token(request)
     return {}
 
 

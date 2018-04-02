@@ -1,4 +1,3 @@
-import time
 import uuid
 
 from bcrypt import gensalt, hashpw
