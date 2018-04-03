@@ -139,4 +139,4 @@ def log_out(request):
 def rules(request):
     with open(request.registry.settings["rules_file"]) as f:
         content = f.read()
-    return {"content": content}
+    return {"title": rules, "content": content}
