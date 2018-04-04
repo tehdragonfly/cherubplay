@@ -790,6 +790,8 @@ def directory_blacklist_remove(request):
         )).delete()
     except (KeyError, ValueError):
         raise HTTPBadRequest
+    if request.is_xhr:
+        return HTTPNoContent()
     return HTTPFound(request.route_path("directory_blacklist"))
 
 

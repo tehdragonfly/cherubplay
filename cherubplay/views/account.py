@@ -315,4 +315,6 @@ def account_connection_chat(context: UserConnection, request):
 @view_config(route_name="account_connection_delete", request_method="POST", permission="user_connection.delete")
 def account_connection_delete(context, request):
     request.find_service(name="db").delete(context)
+    if request.is_xhr:
+        return HTTPNoContent()
     return HTTPFound(request.route_path("account_connections"))
