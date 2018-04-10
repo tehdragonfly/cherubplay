@@ -98,7 +98,7 @@ def check_tag_consistency():
     group(update_request_tag_ids.s(_.id) for _ in inconsistent_requests).delay()
 
 
-@app.task
+@app.task(queue="cleanup")
 def remove_unused_tags():
     """
     Unused tags are not approved, not a synonym, don't have a synonym, have no
@@ -111,7 +111,7 @@ def remove_unused_tags():
     remove_unused_tag_pairs.delay("gender")
 
 
-@app.task
+@app.task(queue="cleanup")
 def remove_unused_warning_and_misc_tags():
     with db_session() as db:
         db.execute("""
@@ -135,7 +135,7 @@ def remove_unused_warning_and_misc_tags():
         """)
 
 
-@app.task
+@app.task(queue="cleanup")
 def remove_unused_tag_pairs(tag_type):
     with db_session() as db:
         db.execute("""
