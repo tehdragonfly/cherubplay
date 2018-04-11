@@ -317,22 +317,25 @@ class Request(Base):
     __parent__ = Resource
 
     def __acl__(self):
-        read_permission = Authenticated if self.status == "posted" else "admin"
-        return (
-            (Allow, read_permission, "request.read"),
-            (Allow, self.user_id,    "request.read"),
-            (Deny,  self.user_id,    "request.answer"),
-            (Allow, "active",        "request.answer"),
-            (Deny,  "banned",        "request.edit"),
-            (Allow, self.user_id,    "request.edit"),
-            (Allow, self.user_id,    "request.delete"),
-            (Allow, "admin",         "request.remove"),
-        )
+        acl = [
+            (Allow, self.user_id, "request.read"),
+            (Deny,  self.user_id, "request.answer"),
+            (Deny,  "banned",     "request.edit"),
+            (Allow, self.user_id, "request.edit"),
+            (Allow, self.user_id, "request.delete"),
+            (Allow, "admin",      "request.remove"),
+        ]
+        if self.status in ("posted", "locked"):
+            acl.append((Allow, Authenticated, "request.read"))
+        else:
+            acl.append((Allow, "admin", "request.read"))
+        if self.status == "posted":
+            acl.append((Allow, "active", "request.answer"))
 
     __tablename__ = "requests"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
-    status = Column(SQLAlchemyEnum(u"draft", u"posted", u"removed", name=u"requests_status"), nullable=False, default=u"draft")
+    status = Column(SQLAlchemyEnum(u"draft", u"locked", u"posted", u"removed", name=u"requests_status"), nullable=False, default=u"draft")
     # Created indicates when the request was created, and is never modified.
     created = Column(DateTime(), nullable=False, default=datetime.datetime.now)
     # Posted indicates when the request was first posted.
