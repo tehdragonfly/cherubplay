@@ -331,6 +331,7 @@ class Request(Base):
             acl.append((Allow, "admin", "request.read"))
         if self.status == "posted":
             acl.append((Allow, "active", "request.answer"))
+        return acl
 
     __tablename__ = "requests"
     id = Column(Integer, primary_key=True)
