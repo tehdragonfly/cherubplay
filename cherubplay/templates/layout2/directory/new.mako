@@ -175,9 +175,18 @@ Write a new request
         % endif
       </div>
     </section>
+    <section class="tile2">
+      <h3>Status</h3>
+      <ul>
+        <li><label><input type="radio" name="status" value="posted"  ${"checked=\"checked\"" if form_data.get("status") in ("posted", None) else ""|n}> Posted - this request will be visible to everyone.</label></li>
+        % if request.matched_route.name == "directory_request_edit":
+        <li><label><input type="radio" name="status" value="locked"  ${"checked=\"checked\"" if form_data.get("status") == "locked"         else ""|n}> Locked - this request will be visible to people who have answered it but won't accept futher answers.</label></li>
+        % endif
+        <li><label><input type="radio" name="status" value="draft"   ${"checked=\"checked\"" if form_data.get("status") == "draft"          else ""|n}> Draft - this request will only be visible to you.</label></li>
+      </ul>
+    </section>
     <div class="actions">
-      <div class="right"><input type="submit" name="publish" value="Publish"></div>
-      <div class="left"><input type="submit" name="draft" value="Save draft"></div>
+      <div class="right"><button type="submit">Save</button></div>
     </div>
   </form>
 <%block name="scripts">

@@ -633,7 +633,10 @@ def directory_new_post(request):
     except ValidationError as e:
         return {"form_data": request.POST, "preset_colours": preset_colours, "error": e.message}
 
-    status = "draft" if "draft" in request.POST else "posted"
+    if request.POST.get("status") in ("posted", "locked", "draft"):
+        status = request.POST["status"]
+    else:
+        status = "posted"
 
     new_date = datetime.datetime.now()
 
@@ -982,11 +985,10 @@ def directory_request_edit_post(context, request):
     new_date = datetime.datetime.now()
     context.edited = new_date
 
-    if context.status != "removed":
-        status = "draft" if "draft" in request.POST else "posted"
-        if status == "posted" and context.posted is None:
+    if context.status != "removed" and request.POST.get("status") in ("posted", "locked", "draft"):
+        if request.POST["status"] == "posted" and context.posted is None:
             context.posted = new_date
-        context.status = status
+        context.status = request.POST["status"]
 
     context.colour          = colour
     context.ooc_notes       = ooc_notes
