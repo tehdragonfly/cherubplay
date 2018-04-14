@@ -150,8 +150,11 @@ ${tag.name}\
               % endif
             % endif
             % if rq.user_id == request.user.id:
-              <a href="${request.route_path("directory_request_edit", id=rq.id)}">Edit</a> ·
-              <a href="${request.route_path("directory_request_delete", id=rq.id)}">Delete</a>
+              <a href="${request.route_path("directory_request_edit", id=rq.id)}">Edit</a>
+              · <a href="${request.route_path("directory_request_delete", id=rq.id)}">Delete</a>
+              % if rq.status == "locked":
+                · <span class="status">Locked</span>
+              % endif
             % else:
               <a href="https://www.tumblr.com/submit_form/cherubplay.tumblr.com/link?post[one]=Report&amp;post[two]=${request.route_url("directory_request", id=rq.id)}" target="_blank">Report</a>
               % if rq.status == "locked":
