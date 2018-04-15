@@ -1009,6 +1009,8 @@ def directory_request_edit_post(context, request):
                 existing_slot.description = new_description
                 if order == 1:
                     existing_slot.user_name = new_description
+                elif context.status == "locked":
+                    existing_slot.user_id = None
             elif new_description:
                 new_slot = RequestSlot(request=context, order=order, description=new_description)
                 if order == 1:
