@@ -228,7 +228,10 @@ class DirectoryIndex(RequestListView):
 @view_config(route_name="directory_user",     request_method="GET", permission="admin", renderer="layout2/directory/index.mako")
 class DirectoryUser(RequestListView):
     def search_args(self):
-        return {"by_user": self.context}
+        return {
+            "by_user": self.context,
+            "posted_only": False,
+        }
 
     def render_args(self):
         return {}
