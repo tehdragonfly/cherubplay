@@ -33,7 +33,10 @@ from cherubplay.services.message import IMessageService
 @view_config(route_name="chat_list_label_ext",      request_method="GET", permission="view", extension="json", renderer="json")
 def chat_list(request):
 
-    current_page = int(request.GET.get("page", 1))
+    try:
+        current_page = int(request.GET.get("page", 1))
+    except ValueError:
+        raise HTTPNotFound
 
     if request.matched_route.name.startswith("chat_list_unanswered"):
         current_status = "unanswered"
@@ -87,7 +90,11 @@ def chat_list(request):
         chats = chats.filter(ChatUser.labels.contains(label_array))
         chat_count = chat_count.filter(ChatUser.labels.contains(label_array))
 
-    chats = chats.options(joinedload(Chat.request)).order_by(Chat.updated.desc()).limit(25).offset((current_page-1)*25).all()
+    chats = (
+        chats.options(joinedload(Chat.request))
+        .order_by(Chat.updated.desc())
+        .limit(25).offset((current_page-1)*25).all()
+    )
 
     # 404 on empty pages, unless it's the first page.
     if current_page != 1 and len(chats) == 0:
@@ -257,8 +264,10 @@ def chat(context: ChatContext, request):
 
     try:
         current_page = int(request.GET["page"])
-    except (KeyError, ValueError):
+    except KeyError:
         current_page = 1
+    except ValueError:
+        raise HTTPNotFound
 
     messages = (
         db.query(Message)
