@@ -1,5 +1,5 @@
 from datetime import datetime
-from pyramid.httpexceptions import HTTPFound
+from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy import func
 
@@ -11,7 +11,10 @@ from cherubplay.models import Prompt
 @view_config(route_name="prompt_list_ext", request_method="GET", permission="view", extension="json", renderer="json")
 def prompt_list(request):
 
-    current_page = int(request.GET.get("page", 1))
+    try:
+        current_page = int(request.GET.get("page", 1))
+    except ValueError:
+        raise HTTPNotFound
 
     db = request.find_service(name="db")
     prompts = (
