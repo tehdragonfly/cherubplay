@@ -82,12 +82,8 @@ def _request_tags_from_form(request, form, new_request):
     fandoms = set()
     for tag_type in Tag.type.type.python_type:
 
-        # Enforce preset values for maturity.
+        # Maturity is set after checking bump_maturity.
         if tag_type == TagType.maturity:
-            name = form["maturity"]
-            if name not in Tag.maturity_names:
-                name = "NSFW extreme"
-            maturity = name
             continue
 
         # Enforce preset values for type.
@@ -146,10 +142,11 @@ def _request_tags_from_form(request, form, new_request):
 
         tag_list.append(RequestTag(tag_id=tag_id))
 
-    if bump_maturity:
-        tag_list.append(RequestTag(tag_id=tag_service.get_or_create(TagType.maturity, "NSFW extreme").id))
+    if bump_maturity or form.get("maturity") not in Tag.maturity_names:
+        maturity_name = "NSFW extreme"
     else:
-        tag_list.append(RequestTag(tag_id=tag_service.get_or_create(TagType.maturity, maturity).id))
+        maturity_name = form["maturity"]
+    tag_list.append(RequestTag(tag_id=tag_service.get_or_create(TagType.maturity, maturity_name).id))
 
     return tag_list
 
