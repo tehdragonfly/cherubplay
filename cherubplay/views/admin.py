@@ -25,8 +25,16 @@ status_filters = {
 @view_config(route_name="admin_report_list_closed", renderer="layout2/admin/report_list.mako", request_method="GET", permission="admin")
 @view_config(route_name="admin_report_list_invalid", renderer="layout2/admin/report_list.mako", request_method="GET", permission="admin")
 def report_list(request):
-    current_status = status_filters[request.matched_route.name]
-    current_page = int(request.GET.get("page", 1))
+
+    try:
+        current_status = status_filters[request.matched_route.name]
+    except KeyError:
+        raise HTTPNotFound
+    try:
+        current_page = int(request.GET.get("page", 1))
+    except ValueError:
+        raise HTTPNotFound
+
     db = request.find_service(name="db")
     reports = db.query(PromptReport).order_by(
         PromptReport.created.desc(),
@@ -34,10 +42,16 @@ def report_list(request):
         joinedload(PromptReport.reporting_user),
         joinedload(PromptReport.reported_user),
     ).limit(25).offset((current_page-1)*25).all()
+
     # 404 on empty pages.
     if current_page != 1 and len(reports) == 0:
         raise HTTPNotFound
-    report_count = db.query(func.count('*')).select_from(PromptReport).filter(PromptReport.status == current_status).scalar()
+
+    report_count = (
+        db.query(func.count('*')).select_from(PromptReport)
+        .filter(PromptReport.status == current_status).scalar()
+    )
+    
     return {
         "PromptReport": PromptReport,
         "reports": reports,
