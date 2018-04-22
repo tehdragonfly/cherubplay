@@ -10,7 +10,7 @@ from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from cherubplay.lib import prompt_categories, prompt_starters, prompt_levels
-from cherubplay.models import Chat, ChatUser, PromptReport, Request, RequestSlot
+from cherubplay.models import Chat, ChatUser, PromptReport, Request, RequestSlot, User
 from cherubplay.models.enums import ChatSource
 from cherubplay.services.redis import INewsStore
 
@@ -51,7 +51,7 @@ def report_list(request):
         db.query(func.count('*')).select_from(PromptReport)
         .filter(PromptReport.status == current_status).scalar()
     )
-    
+
     return {
         "PromptReport": PromptReport,
         "reports": reports,
@@ -63,7 +63,7 @@ def report_list(request):
     }
 
 
-def _report_form(context, request, **kwargs):
+def _report_form(context: PromptReport, request, **kwargs):
     db = request.find_service(name="db")
     return dict(
         PromptReport=PromptReport,
@@ -91,17 +91,17 @@ def _report_form(context, request, **kwargs):
 
 
 @view_config(route_name="admin_report", request_method="GET", permission="admin", renderer="layout2/admin/report.mako")
-def report_get(context, request):
+def report_get(context: PromptReport, request):
     return _report_form(context, request)
 
 
 @view_config(route_name="admin_report_ext", request_method="GET", permission="admin", renderer="json")
-def report_get_ext(context, request):
+def report_get_ext(context: PromptReport, request):
     return context
 
 
 @view_config(route_name="admin_report", renderer="layout2/admin/report.mako", request_method="POST", permission="admin")
-def report_post(context, request):
+def report_post(context: PromptReport, request):
 
     for value in PromptReport.status.type.enums:
         if "status_" + value in request.POST:
@@ -126,29 +126,32 @@ def report_post(context, request):
 
 
 @view_config(route_name="admin_user", renderer="layout2/admin/user.mako", request_method="GET", permission="admin")
-def user(context, request):
+def user(context: User, request):
     return {}
 
 
+def _remove_requests(db, user_id):
+    db.query(Request).filter(and_(
+        Request.user_id == user_id,
+        Request.status == "posted",
+    )).update({"status": "draft"})
+    db.query(RequestSlot).filter(and_(
+        RequestSlot.user_id == user_id,
+        RequestSlot.order != 1,
+    )).update({"user_id": None, "user_name": None}, synchronize_session=False)
+
+
 @view_config(route_name="admin_user_status", request_method="POST", permission="admin")
-def user_status(context, request):
+def user_status(context: User, request):
     if context.status != "banned" and request.POST["status"] == "banned":
         context.unban_date = None
-        db = request.find_service(name="db")
-        db.query(Request).filter(and_(
-            Request.user_id == context.id,
-            Request.status == "posted",
-        )).update({"status": "draft"})
-        db.query(RequestSlot).filter(and_(
-            RequestSlot.user_id == context.id,
-            RequestSlot.order != 1,
-        )).update({"user_id": None, "user_name": None}, synchronize_session=False)
+        _remove_requests(request.find_service(name="db"), context.id)
     context.status = request.POST["status"]
     return HTTPFound(request.route_path("admin_user", username=context.username, _query={"saved": "status"}))
 
 
 @view_config(route_name="admin_user_chat", request_method="POST", permission="admin")
-def user_chat(context, request):
+def user_chat(context: User, request):
     if context.status == "banned" or context.id == request.user.id:
         raise HTTPNotFound
     new_chat = Chat(url=str(uuid.uuid4()), source=ChatSource.admin)
@@ -177,27 +180,19 @@ def user_chat(context, request):
 
 
 @view_config(route_name="admin_user_ban", request_method="POST", permission="admin")
-def user_ban(context, request):
+def user_ban(context: User, request):
     context.status = "banned"
     try:
         days = int(request.POST["days"])
     except (KeyError, ValueError):
         days = 1
     context.unban_date = datetime.now() + timedelta(days)
-    db = request.find_service(name="db")
-    db.query(Request).filter(and_(
-        Request.user_id == context.id,
-        Request.status == "posted",
-    )).update({"status": "draft"})
-    db.query(RequestSlot).filter(and_(
-        RequestSlot.user_id == context.id,
-        RequestSlot.order != 1,
-    )).update({"user_id": None, "user_name": None}, synchronize_session=False)
+    _remove_requests(request.find_service(name="db"), context.id)
     return HTTPFound(request.route_path("admin_user", username=context.username, _query={"saved": "status"}))
 
 
 @view_config(route_name="admin_user_reset_password", request_method="POST", permission="admin", renderer="layout2/admin/reset_password.mako")
-def user_reset_password(context, request):
+def user_reset_password(context: User, request):
     new_password = "".join(choice("1234567890qwertyuiopasdfghjklzxcvbnm") for _ in range(20))
     context.password = hashpw(new_password.encode("utf-8"), gensalt()).decode()
     return {"new_password": new_password}
