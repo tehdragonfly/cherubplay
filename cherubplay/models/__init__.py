@@ -24,7 +24,7 @@ from sqlalchemy import (
     UnicodeText,
     UniqueConstraint,
 )
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import (
     configure_mappers,
@@ -222,6 +222,22 @@ class ChatUser(Base):
     @property
     def handle(self):
         return self.symbol_character or self.name
+
+
+class ChatExport(Base):
+    __tablename__ = "chat_exports"
+    __table_args__ = (
+        CheckConstraint("""
+            (generated is not null) = (expires is not null)
+            and (generated is not null) = (filename is not null)
+        """),
+    )
+    chat_id        = Column(Integer, ForeignKey("chats.id"), primary_key=True)
+    user_id        = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    celery_task_id = Column(UUID, nullable=False)
+    generated      = Column(DateTime)
+    expires        = Column(DateTime)
+    filename       = Column(Unicode(100))
 
 
 class PromptReport(Base, Resource):
@@ -614,6 +630,9 @@ Message.chat_user = relationship(
 
 ChatUser.chat = relationship(Chat, backref="users")
 ChatUser.user = relationship(User, backref="chats")
+
+ChatExport.chat = relationship(Chat)
+ChatExport.user = relationship(User)
 
 PromptReport.duplicate_of = relationship(PromptReport, backref="duplicates", remote_side=PromptReport.id)
 PromptReport.reporting_user = relationship(User, backref="reports_sent", primaryjoin=PromptReport.reporting_user_id == User.id)
