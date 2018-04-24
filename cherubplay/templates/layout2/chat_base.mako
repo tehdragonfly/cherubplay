@@ -54,6 +54,11 @@ ${own_chat_user.title or chat.url} -
           % else:
             <li><a href="${request.route_path("chat_info", url=request.matchdict["url"])}">Info</a></li>
           % endif
+          % if page == "export":
+            <li>Export</li>
+          % else:
+            <li><a href="${request.route_path("chat_export", url=request.matchdict["url"])}">Export</a></li>
+          % endif
         </ul>
       % endif
     </nav>

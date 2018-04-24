@@ -603,3 +603,11 @@ def chat_remove_user(context: ChatContext, request):
 
     return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"]))
 
+
+@view_config(route_name="chat_export", request_method="GET", permission="chat.read", renderer="layout2/chat_export.mako")
+def chat_export_get(context: ChatContext, request):
+    return {
+        "page":              "export",
+        "chat":              context.chat,
+        "own_chat_user":     context.chat_user,
+    }

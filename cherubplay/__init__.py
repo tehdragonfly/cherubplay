@@ -192,6 +192,7 @@ def main(global_config, **settings):
     config.add_route("chat_end",    "/chats/{url}/end/",               factory=ChatContext)
     config.add_route("chat_delete", "/chats/{url}/delete/",            factory=ChatContext)
     config.add_route("chat_leave",  "/chats/{url}/leave/",             factory=ChatContext)
+    config.add_route("chat_export",  "/chats/{url}/export/",           factory=ChatContext)
 
     config.add_ext_route("prompt_list", "/prompts/")
     config.add_route("new_prompt", "/prompts/new/")
