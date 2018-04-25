@@ -16,7 +16,7 @@ from sqlalchemy.sql.expression import cast
 
 from cherubplay import ChatContext
 from cherubplay.lib import colour_validator, preset_colours, trim_with_ellipsis
-from cherubplay.models import Chat, ChatUser, Message
+from cherubplay.models import Chat, ChatExport, ChatUser, Message
 from cherubplay.models.enums import ChatMode, ChatUserStatus, MessageType
 from cherubplay.services.message import IMessageService
 
@@ -606,8 +606,14 @@ def chat_remove_user(context: ChatContext, request):
 
 @view_config(route_name="chat_export", request_method="GET", permission="chat.read", renderer="layout2/chat_export.mako")
 def chat_export_get(context: ChatContext, request):
+    db = request.find_service(name="db")
+    export = db.query(ChatExport).filter(
+        ChatExport.chat_id == context.chat.id,
+        ChatExport.user_id == request.user.id,
+    ).first()
     return {
         "page":              "export",
         "chat":              context.chat,
         "own_chat_user":     context.chat_user,
+        "export":            export,
     }
