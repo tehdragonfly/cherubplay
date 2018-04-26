@@ -19,6 +19,7 @@ from cherubplay.lib import colour_validator, preset_colours, trim_with_ellipsis
 from cherubplay.models import Chat, ChatExport, ChatUser, Message
 from cherubplay.models.enums import ChatMode, ChatUserStatus, MessageType
 from cherubplay.services.message import IMessageService
+from cherubplay.tasks import export_chat
 
 
 @view_config(route_name="chat_list",                request_method="GET", permission="view")
@@ -617,3 +618,22 @@ def chat_export_get(context: ChatContext, request):
         "own_chat_user":     context.chat_user,
         "export":            export,
     }
+
+
+@view_config(route_name="chat_export", request_method="POST", permission="chat.read", renderer="layout2/chat_export.mako")
+def chat_export_post(context: ChatContext, request):
+    db = request.find_service(name="db")
+    export = db.query(ChatExport).filter(
+        ChatExport.chat_id == context.chat.id,
+        ChatExport.user_id == request.user.id,
+    ).first()
+
+    if not export:
+        result = export_chat.delay(context.chat.id)
+        db.add(ChatExport(
+            chat_id=context.chat.id,
+            user_id=request.user.id,
+            celery_task_id=result.id,
+        ))
+
+    return HTTPFound(request.route_path("chat_export", url=context.chat.url))

@@ -243,3 +243,8 @@ def answer_requests_with_full_slots():
         request_service = RequestService(db, redis)
         for request in request_service.requests_with_full_slots():
             request_service.answer(request)
+
+
+@app.task
+def export_chat(chat_id: int):
+    raise NotImplementedError

@@ -10,7 +10,7 @@
       </section>
     % elif export:
       <section class="tile2">
-        <h2>Export in progress</h2>
+        <h3>Export in progress</h3>
         <p>Please wait while we export this chat. It could take a few minutes.</p>
       </section>
     % else:
