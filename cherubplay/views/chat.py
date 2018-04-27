@@ -629,7 +629,7 @@ def chat_export_post(context: ChatContext, request):
     ).first()
 
     if not export:
-        result = export_chat.delay(context.chat.id)
+        result = export_chat.delay(context.chat.id, request.user.id)
         db.add(ChatExport(
             chat_id=context.chat.id,
             user_id=request.user.id,

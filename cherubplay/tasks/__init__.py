@@ -1,4 +1,4 @@
-import jwt, requests, time
+import datetime, jwt, math, requests, time
 
 from celery import group
 from contextlib import contextmanager
@@ -9,7 +9,8 @@ from sqlalchemy.dialects.postgresql import INTERVAL
 from sqlalchemy.sql.expression import cast
 from urllib.parse import urlparse
 
-from cherubplay.models import get_sessionmaker, PushSubscription, Request, RequestSlot, User, VirtualUserConnection
+from cherubplay.models import get_sessionmaker, PushSubscription, Request, RequestSlot, User, VirtualUserConnection, \
+    Chat, ChatUser, Message, ChatExport
 from cherubplay.services.redis import make_redis_login
 from cherubplay.services.request import RequestService
 from cherubplay.services.user_connection import UserConnectionService
@@ -245,6 +246,29 @@ def answer_requests_with_full_slots():
             request_service.answer(request)
 
 
+MESSAGES_PER_PAGE = 25
+EXPIRY_TIME = datetime.timedelta(3)
+
+
 @app.task
-def export_chat(chat_id: int):
-    raise NotImplementedError
+def export_chat(chat_id: int, user_id: int):
+    with db_session() as db:
+        start_time = datetime.datetime.now()
+        chat          = db.query(Chat).filter(Chat.id == chat_id).one()
+        chat_user     = db.query(ChatUser).filter(and_(ChatUser.chat_id == chat_id, ChatUser.user_id == user_id)).one()
+        # TODO check export id against task id
+        chat_export   = db.query(ChatExport).filter(and_(ChatExport.chat_id == chat_id, ChatExport.user_id == user_id)).one()
+        message_count = db.query(func.count("*")).select_from(Message).scalar()
+        page_count    = int(math.ceil(message_count/MESSAGES_PER_PAGE))
+        for n in range(page_count):
+            log.info("Processing page %s of %s." % (n+1, page_count))
+            messages = (
+                db.query(Message)
+                .filter(Message.chat_id == chat_id)
+                .order_by(Message.id)
+                .offset(n * MESSAGES_PER_PAGE).limit(MESSAGES_PER_PAGE)
+            )
+            # TODO render
+        # TODO save and zip
+        chat_export.generated = start_time
+        chat_export.expires   = datetime.datetime.now() + EXPIRY_TIME
