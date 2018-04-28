@@ -159,7 +159,7 @@ def chat_notification(request):
     return {
         "action": "notification",
         "url":    chat.url,
-        "title":  own_chat_user.title or chat.url,
+        "title":  own_chat_user.display_title,
         "colour": message.colour,
         "handle": message.symbol_character or message.chat_user.handle,
         "text":   trim_with_ellipsis(message.text, 100),

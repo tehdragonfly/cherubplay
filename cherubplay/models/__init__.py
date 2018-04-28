@@ -216,6 +216,10 @@ class ChatUser(Base):
         }
 
     @property
+    def display_title(self):
+        return self.title or self.chat.url
+
+    @property
     def symbol_character(self):
         return symbols[self.symbol] if self.symbol is not None else None
 

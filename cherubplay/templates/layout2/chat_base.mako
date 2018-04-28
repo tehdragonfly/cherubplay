@@ -3,7 +3,7 @@
 <% from cherubplay.lib import symbols %>
 <%block name="title">
 % if own_chat_user:
-${own_chat_user.title or chat.url} - 
+${own_chat_user.display_title} - 
 % endif
 </%block>
 <%block name="body_class">layout2</%block>
@@ -30,7 +30,7 @@ ${own_chat_user.title or chat.url} -
       </li>
 </%def>\
 % if own_chat_user:
-  <h2>${own_chat_user.title or chat.url}</h2>
+  <h2>${own_chat_user.display_title}</h2>
 % endif
 <main class="flex">
   <div class="side_column">

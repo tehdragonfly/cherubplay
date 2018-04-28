@@ -125,7 +125,7 @@ ${render_report(request.context)}
       <h3>Chats</h3>
       <ul>
         % for chat, chat_user in chats:
-        <li><a href="${request.route_path("chat", url=chat.url)}">${(chat_user.title or chat.url) if chat_user else chat.url}</a></li>
+        <li><a href="${request.route_path("chat", url=chat.url)}">${(chat_user.display_title) if chat_user else chat.url}</a></li>
         % endfor
       </ul>
     </section>

@@ -1,7 +1,7 @@
 <%inherit file="base.mako" />\
 <% from cherubplay.models.enums import MessageType %>\
 <%namespace name="chat_base" file="chat.mako" />\
-<%block name="title">${own_chat_user.title or chat.url} - </%block>
+<%block name="title">${own_chat_user.display_title} - </%block>
 ${chat_base.render_subnav(action, chat, own_chat_user)}
   <p>Are you sure you want to ${action} this chat?</p>
 % if prompt:

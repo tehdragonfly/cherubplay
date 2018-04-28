@@ -118,7 +118,7 @@ class MessageService(object):
                 self._publish(other_chat_user, {
                     "action": "notification",
                     "url": chat.url,
-                    "title": other_chat_user.title or chat.url,
+                    "title": other_chat_user.display_title,
                     "colour": colour,
                     "symbol": chat_user.symbol_character,
                     "name": chat_user.name,

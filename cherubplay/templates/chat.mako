@@ -1,6 +1,6 @@
 <%inherit file="base.mako" />\
 <% from cherubplay.lib import symbols %>
-<%block name="title">${own_chat_user.title or chat.url} - </%block>
+<%block name="title">${own_chat_user.display_title} - </%block>
 <%def name="render_message(message)">\
 <% from cherubplay.models.enums import MessageType %>\
     <li id="message_${message.id}" class="tile message_${message.type.value}\
@@ -32,7 +32,7 @@
   </section>
 </%def>\
 <%def name="render_subnav(page, chat, own_chat_user)">\
-  <h2>${own_chat_user.title or chat.url}</h2>
+  <h2>${own_chat_user.display_title}</h2>
   <nav id="subnav">
     <section class="tile">
       <ul>

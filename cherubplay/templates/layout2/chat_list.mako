@@ -14,7 +14,7 @@ Your chats\
  unread" title="Updated since your last visit\
 % endif
 ">
-        <h3><a href="${request.route_path("chat", url=chat.url)}">${chat_user.title or chat.url}</a>\
+        <h3><a href="${request.route_path("chat", url=chat.url)}">${chat_user.display_title}</a>\
 % if chat.updated>chat_user.visited:
  (unread)\
 % elif current_status != "unanswered" and chat.last_user_id not in (None, request.user.id):

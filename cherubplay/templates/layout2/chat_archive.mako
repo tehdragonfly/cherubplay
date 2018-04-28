@@ -1,7 +1,7 @@
 <%inherit file="chat_base.mako" />\
 <%block name="title">\
 % if own_chat_user:
-${"Archive - " if continuable else ""}${own_chat_user.title or chat.url} - \
+${"Archive - " if continuable else ""}${own_chat_user.display_title} - \
 % endif
 </%block>
 <%

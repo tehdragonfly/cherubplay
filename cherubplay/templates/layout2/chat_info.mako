@@ -1,6 +1,6 @@
 <%inherit file="chat_base.mako" />\
 <% from cherubplay.models.enums import ChatMode, ChatUserStatus %>
-<%block name="title">Info - ${own_chat_user.title or chat.url} - </%block>
+<%block name="title">Info - ${own_chat_user.display_title} - </%block>
 % if request.GET.get("saved") == "end":
   <p>This chat has now been ended.</p>
 % elif request.GET.get("saved") == "info":
