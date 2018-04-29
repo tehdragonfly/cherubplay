@@ -1,4 +1,12 @@
 <%inherit file="chat_base.mako" />\
+<%block name="title">\
+% if export and export.filename:
+Export complete - \
+% else:
+Export - \
+% endif
+${own_chat_user.display_title} - \
+</%block>
     % if export and export.filename:
       <section class="tile2">
         <h3>Export complete</h3>
