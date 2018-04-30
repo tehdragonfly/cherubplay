@@ -35,6 +35,7 @@ class ChatContext(object):
             acl += [
                 (Allow, self.chat_user.user_id, "chat.read_ooc"),
                 (Allow, self.chat_user.user_id, "chat.info"),
+                (Allow, self.chat_user.user_id, "chat.export"),
             ]
         if self.chat_user and self.chat.status == "ongoing":
             acl += [

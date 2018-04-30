@@ -605,7 +605,7 @@ def chat_remove_user(context: ChatContext, request):
     return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"]))
 
 
-@view_config(route_name="chat_export", request_method="GET", permission="chat.read", renderer="layout2/chat_export.mako")
+@view_config(route_name="chat_export", request_method="GET", permission="chat.export", renderer="layout2/chat_export.mako")
 def chat_export_get(context: ChatContext, request):
     db = request.find_service(name="db")
     export = db.query(ChatExport).filter(
@@ -620,7 +620,7 @@ def chat_export_get(context: ChatContext, request):
     }
 
 
-@view_config(route_name="chat_export", request_method="POST", permission="chat.read", renderer="layout2/chat_export.mako")
+@view_config(route_name="chat_export", request_method="POST", permission="chat.export", renderer="layout2/chat_export.mako")
 def chat_export_post(context: ChatContext, request):
     db = request.find_service(name="db")
     export = db.query(ChatExport).filter(
