@@ -122,14 +122,17 @@ def request_unread_chats(request):
 def main(global_config, **settings):
 
     if "push.private_key" in settings:
-        settings["push.private_key"] = derive_private_key(
-            int(binascii.hexlify(urlsafe_b64decode(
-                settings["push.private_key"].encode()
-                + b"===="[len(settings["push.private_key"]) % 4:]
-            )), 16),
-            curve=SECP256R1(),
-            backend=default_backend(),
-        )
+        try:
+            settings["push.private_key"] = derive_private_key(
+                int(binascii.hexlify(urlsafe_b64decode(
+                    settings["push.private_key"].encode()
+                    + b"===="[len(settings["push.private_key"]) % 4:]
+                )), 16),
+                curve=SECP256R1(),
+                backend=default_backend(),
+            )
+        except ValueError:
+            pass
 
     for tag_type in TagType:
         settings["checkbox_tags." + tag_type.value] = [

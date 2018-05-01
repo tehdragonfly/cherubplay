@@ -1,7 +1,7 @@
 import uuid
 
 from bcrypt import gensalt, hashpw
-from pyramid.httpexceptions import HTTPForbidden, HTTPFound
+from pyramid.httpexceptions import HTTPForbidden, HTTPFound, HTTPNotFound
 from pyramid.renderers import render_to_response
 from pyramid.security import Authenticated
 from pyramid.view import view_config
@@ -137,6 +137,8 @@ def log_out(request):
 
 @view_config(route_name="rules", permission="view", renderer="layout2/content.mako")
 def rules(request):
+    if not request.regstry.settings("rules_file"):
+        raise HTTPNotFound
     with open(request.registry.settings["rules_file"]) as f:
         content = f.read()
     return {"title": rules, "content": content}
