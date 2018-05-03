@@ -312,6 +312,11 @@ def account_connection_chat(context: UserConnection, request):
     return HTTPFound(request.route_path("chat", url=new_chat.url))
 
 
+@view_config(route_name="account_connection_delete", request_method="GET", permission="user_connection.delete")
+def account_connection_delete(request):
+    return {}
+
+
 @view_config(route_name="account_connection_delete", request_method="POST", permission="user_connection.delete")
 def account_connection_delete(context, request):
     request.find_service(name="db").delete(context)

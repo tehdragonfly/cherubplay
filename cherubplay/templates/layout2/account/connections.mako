@@ -25,9 +25,7 @@
                 % endif
               </div>
               <div class="right">
-                <form action="${request.route_path("account_connection_delete", username=connection.to_username)}" method="post">
-                  <button type="submit">Delete</button>
-                </form>
+                <a href="${request.route_path("account_connection_delete", username=connection.to_username)}">Delete</a>
                 ·
                 % if connection.is_mutual:
                   <form action="${request.route_path("account_connection_chat", username=connection.to_username)}" method="post">
