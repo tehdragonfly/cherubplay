@@ -1084,10 +1084,13 @@ var cherubplay = (function() {
 			var message_symbol = $("#message_form .symbol");
 			var message_text = $("#message_text").keypress(function(e) {
 				changed_since_draft = true;
-				if (enter_to_send && e.keyCode==13 && !e.shiftKey) {
+				if (
+				    (enter_to_send && e.keyCode == 13 && !e.shiftKey)
+				    || (!enter_to_send && e.keyCode == 13 && e.shiftKey)
+				) {
 					message_form.submit();
 					return false;
-				} else if (ws.readyState==1) {
+				} else if (ws.readyState == 1) {
 					window.clearTimeout(typing_timeout);
 					if (!typing) {
 						typing = true;
