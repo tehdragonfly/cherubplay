@@ -1,12 +1,15 @@
-import datetime, jwt, math, requests, time
+import datetime, jwt, math, os.path, requests, time
+from zipfile import ZipFile
 
 from celery import group
 from contextlib import contextmanager
 from logging import getLogger
+from pyramid.renderers import render
 from pyramid_celery import celery_app as app
 from sqlalchemy import and_, func
 from sqlalchemy.dialects.postgresql import INTERVAL
 from sqlalchemy.sql.expression import cast
+from tempfile import TemporaryDirectory
 from urllib.parse import urlparse
 
 from cherubplay.models import get_sessionmaker, PushSubscription, Request, RequestSlot, User, VirtualUserConnection, \
@@ -30,7 +33,7 @@ def db_session():
     try:
         yield db
         db.commit()
-    except:
+    except Exception:
         db.rollback()
         raise
     finally:
@@ -252,23 +255,35 @@ EXPIRY_TIME = datetime.timedelta(3)
 
 @app.task
 def export_chat(chat_id: int, user_id: int):
-    with db_session() as db:
-        start_time = datetime.datetime.now()
+    with db_session() as db, TemporaryDirectory() as workspace:
+        start_time    = datetime.datetime.now()
         chat          = db.query(Chat).filter(Chat.id == chat_id).one()
         chat_user     = db.query(ChatUser).filter(and_(ChatUser.chat_id == chat_id, ChatUser.user_id == user_id)).one()
         # TODO check export id against task id
         chat_export   = db.query(ChatExport).filter(and_(ChatExport.chat_id == chat_id, ChatExport.user_id == user_id)).one()
         message_count = db.query(func.count("*")).select_from(Message).scalar()
         page_count    = int(math.ceil(message_count/MESSAGES_PER_PAGE))
-        for n in range(page_count):
-            log.info("Processing page %s of %s." % (n+1, page_count))
-            messages = (
-                db.query(Message)
-                .filter(Message.chat_id == chat_id)
-                .order_by(Message.id)
-                .offset(n * MESSAGES_PER_PAGE).limit(MESSAGES_PER_PAGE)
-            )
-            # TODO render
-        # TODO save and zip
+
+        filename  = "%s.zip" % chat.url
+        file_path = os.path.join(workspace, filename)
+
+        with ZipFile(file_path, "w") as f:
+            for n in range(page_count):
+                log.info("Processing page %s of %s." % (n+1, page_count))
+                messages = (
+                    db.query(Message)
+                    .filter(Message.chat_id == chat_id)
+                    .order_by(Message.id)
+                    .offset(n * MESSAGES_PER_PAGE).limit(MESSAGES_PER_PAGE)
+                )
+                f.writestr("%s.html" % (n+1), render("export/chat.mako", {
+                    "chat":      chat,
+                    "chat_user": chat_user,
+                    "messages":  messages,
+                }))
+
+        os.rename(file_path, os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], filename))
+
         chat_export.generated = start_time
         chat_export.expires   = datetime.datetime.now() + EXPIRY_TIME
+        chat_export.filename  = filename
