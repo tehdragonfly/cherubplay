@@ -1,5 +1,4 @@
-import datetime, jwt, math, os.path, requests, time
-from zipfile import ZipFile
+import datetime, jwt, math, os.path, pathlib, requests, time
 
 from celery import group
 from contextlib import contextmanager
@@ -11,6 +10,7 @@ from sqlalchemy.dialects.postgresql import INTERVAL
 from sqlalchemy.sql.expression import cast
 from tempfile import TemporaryDirectory
 from urllib.parse import urlparse
+from zipfile import ZipFile
 
 from cherubplay.models import get_sessionmaker, PushSubscription, Request, RequestSlot, User, VirtualUserConnection, \
     Chat, ChatUser, Message, ChatExport
@@ -282,7 +282,9 @@ def export_chat(chat_id: int, user_id: int):
                     "messages":  messages,
                 }))
 
-        os.rename(file_path, os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], filename))
+        destination_path = os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat.url, chat_export.celery_task_id)
+        pathlib.Path(destination_path).mkdir(parents=True, exist_ok=True)
+        os.rename(file_path, os.path.join(destination_path, filename))
 
         chat_export.generated = start_time
         chat_export.expires   = datetime.datetime.now() + EXPIRY_TIME
