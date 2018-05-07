@@ -259,15 +259,18 @@ def export_chat(chat_id: int, user_id: int):
         start_time    = datetime.datetime.now()
         chat          = db.query(Chat).filter(Chat.id == chat_id).one()
         chat_user     = db.query(ChatUser).filter(and_(ChatUser.chat_id == chat_id, ChatUser.user_id == user_id)).one()
-        # TODO check export id against task id
+
         chat_export   = db.query(ChatExport).filter(and_(ChatExport.chat_id == chat_id, ChatExport.user_id == user_id)).one()
+        if export_chat.request.id and chat_export.celery_task_id != export_chat.request.id:
+            raise RuntimeError("Current task ID doesn't match value in database.")
+
         message_count = db.query(func.count("*")).select_from(Message).scalar()
         page_count    = int(math.ceil(message_count/MESSAGES_PER_PAGE))
 
-        filename  = "%s.zip" % chat.url
-        file_path = os.path.join(workspace, filename)
+        filename = "%s.zip" % chat.url
+        file_in_workspace = os.path.join(workspace, filename)
 
-        with ZipFile(file_path, "w") as f:
+        with ZipFile(file_in_workspace, "w") as f:
             for n in range(page_count):
                 log.info("Processing page %s of %s." % (n+1, page_count))
                 messages = (
@@ -282,10 +285,10 @@ def export_chat(chat_id: int, user_id: int):
                     "messages":  messages,
                 }))
 
-        destination_path = os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat.url, chat_export.celery_task_id)
-        pathlib.Path(destination_path).mkdir(parents=True, exist_ok=True)
-        os.rename(file_path, os.path.join(destination_path, filename))
+        chat_export.filename = filename
 
         chat_export.generated = start_time
         chat_export.expires   = datetime.datetime.now() + EXPIRY_TIME
-        chat_export.filename  = filename
+
+        pathlib.Path(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat_export.file_directory)).mkdir(parents=True, exist_ok=True)
+        os.rename(file_in_workspace, os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat_export.file_path))

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import datetime
+import os.path
 import zope.sqlalchemy
 
 from pyramid.decorator import reify
@@ -242,6 +243,14 @@ class ChatExport(Base):
     generated      = Column(DateTime)
     expires        = Column(DateTime)
     filename       = Column(Unicode(100))
+
+    @property
+    def file_directory(self):
+        return os.path.join(self.chat.url, self.celery_task_id)
+
+    @property
+    def file_path(self):
+        return os.path.join(self.file_directory, self.filename)
 
 
 class PromptReport(Base, Resource):
