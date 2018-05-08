@@ -280,9 +280,12 @@ def export_chat(chat_id: int, user_id: int):
                     .offset(n * MESSAGES_PER_PAGE).limit(MESSAGES_PER_PAGE)
                 )
                 f.writestr("%s.html" % (n+1), render("export/chat.mako", {
-                    "chat":      chat,
+                    "chat": chat,
                     "chat_user": chat_user,
-                    "messages":  messages,
+                    "messages": messages,
+                    "current_page": n+1,
+                    "messages_per_page": MESSAGES_PER_PAGE,
+                    "message_count": message_count,
                 }))
 
         chat_export.filename = filename
