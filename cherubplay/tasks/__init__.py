@@ -3,6 +3,7 @@ import datetime, jwt, math, os.path, pathlib, requests, time
 from celery import group
 from contextlib import contextmanager
 from logging import getLogger
+from pkg_resources import resource_filename
 from pyramid.renderers import render
 from pyramid_celery import celery_app as app
 from sqlalchemy import and_, func
@@ -271,6 +272,8 @@ def export_chat(chat_id: int, user_id: int):
         file_in_workspace = os.path.join(workspace, filename)
 
         with ZipFile(file_in_workspace, "w") as f:
+            f.write(resource_filename("cherubplay", "static/cherubplay2.css"), "cherubplay2.css")
+            f.write(resource_filename("cherubplay", "static/logo.png"), "logo.png")
             for n in range(page_count):
                 log.info("Processing page %s of %s." % (n+1, page_count))
                 messages = (
