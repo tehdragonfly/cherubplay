@@ -298,3 +298,17 @@ def export_chat(chat_id: int, user_id: int):
 
         pathlib.Path(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat_export.file_directory)).mkdir(parents=True, exist_ok=True)
         os.rename(file_in_workspace, os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat_export.file_path))
+
+
+@app.task
+def cleanup_expired_exports():
+    with db_session() as db:
+        group(
+            delete_expired_export.s(_.chat_id, _.user_id)
+            for _ in db.query(ChatExport).filter(ChatExport.expires < func.now())
+        ).delay()
+
+
+@app.task
+def delete_expired_export(chat_id: int, user_id: int):
+    pass
