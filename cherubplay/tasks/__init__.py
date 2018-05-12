@@ -8,6 +8,7 @@ from pyramid.renderers import render
 from pyramid_celery import celery_app as app
 from sqlalchemy import and_, func
 from sqlalchemy.dialects.postgresql import INTERVAL
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 from tempfile import TemporaryDirectory
 from urllib.parse import urlparse
@@ -311,4 +312,11 @@ def cleanup_expired_exports():
 
 @app.task
 def delete_expired_export(chat_id: int, user_id: int):
-    pass
+    with db_session() as db:
+        try:
+            chat_export = db.query(ChatExport).filter(and_(ChatExport.chat_id == chat_id, ChatExport.user_id == user_id)).one()
+        except NoResultFound:
+            return
+        if chat_export.filename:
+            os.remove(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat_export.file_path))
+        db.delete(chat_export)
