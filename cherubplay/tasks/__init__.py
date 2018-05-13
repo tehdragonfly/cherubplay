@@ -255,7 +255,7 @@ MESSAGES_PER_PAGE = 25
 EXPIRY_TIME = datetime.timedelta(3)
 
 
-@app.task
+@app.task(queue="export")
 def export_chat(chat_id: int, user_id: int):
     with db_session() as db, TemporaryDirectory() as workspace:
         start_time    = datetime.datetime.now()
@@ -301,7 +301,7 @@ def export_chat(chat_id: int, user_id: int):
         os.rename(file_in_workspace, os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat_export.file_path))
 
 
-@app.task
+@app.task(queue="cleanup")
 def cleanup_expired_exports():
     with db_session() as db:
         group(
@@ -310,7 +310,7 @@ def cleanup_expired_exports():
         ).delay()
 
 
-@app.task
+@app.task(queue="cleanup")
 def delete_expired_export(chat_id: int, user_id: int):
     with db_session() as db:
         try:
