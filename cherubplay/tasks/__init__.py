@@ -318,7 +318,10 @@ def delete_expired_export(chat_id: int, user_id: int):
         except NoResultFound:
             return
         if chat_export.filename:
-            os.remove(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat_export.file_path))
+            try:
+                os.remove(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat_export.file_path))
+            except FileNotFoundError:
+                pass
             os.rmdir(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat_export.file_directory))
             # Try to delete the chat directory.
             # May fail if there's another export, so ignore.
