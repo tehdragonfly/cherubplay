@@ -613,10 +613,10 @@ def chat_export_get(context: ChatContext, request):
         ChatExport.user_id == request.user.id,
     ).first()
     return {
-        "page":              "export",
-        "chat":              context.chat,
-        "own_chat_user":     context.chat_user,
-        "export":            export,
+        "page":          "export",
+        "chat":          context.chat,
+        "own_chat_user": context.chat_user,
+        "export":        export,
     }
 
 

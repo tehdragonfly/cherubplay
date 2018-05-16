@@ -643,6 +643,15 @@ Message.chat_user = relationship(
 
 ChatUser.chat = relationship(Chat, backref="users")
 ChatUser.user = relationship(User, backref="chats")
+ChatUser.export = relationship(
+    ChatExport,
+    primaryjoin=and_(
+        ChatUser.chat_id == foreign(ChatExport.chat_id),
+        ChatUser.user_id == foreign(ChatExport.user_id),
+    ),
+    uselist=False,
+    viewonly=True,
+)
 
 ChatExport.chat = relationship(Chat)
 ChatExport.user = relationship(User)
