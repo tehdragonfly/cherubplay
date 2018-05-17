@@ -522,7 +522,11 @@ class Tag(Base):
             "url_name": self.url_name,
         }
         if request and request.user and request.has_permission("directory.manage_tags"):
-            tag_dict["approved"] = self.approved
+            tag_dict.update({
+                "approved": self.approved,
+                "blacklist_default": self.blacklist_default,
+                "bump_maturity": self.bump_maturity,
+            })
         return tag_dict
 
 
