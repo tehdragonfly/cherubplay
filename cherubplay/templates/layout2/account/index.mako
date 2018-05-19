@@ -16,6 +16,14 @@
       <p><label>E-mail address: <input type="email" name="email_address" maxlength="100" required value="${request.user.email or ""}"></label></p>
       <p><button type="submit">Save</button></p>
     </form>
+    <form class="tile2" action="${request.route_path("account_username")}" method="post">
+      <h3>Username</h3>
+% if username_error:
+      <p>${username_error}</p>
+% endif
+      <p><label>Username: <input type="text" name="username" maxlength="100" required value="${request.user.username}"></label></p>
+      <p><button type="submit">Save</button></p>
+    </form>
     <form class="tile2" action="${request.route_path("account_password")}" method="post">
       <h3>Password</h3>
 % if password_error:
@@ -72,4 +80,4 @@
       </select><button type="submit">Save</button></p>
     </form>
   </div>
-<%block name="scripts"><script>cherubplay.account("${request.registry.settings["push.public_key"]}");</script></%block>
+<%block name="scripts"><script>cherubplay.account("${request.registry.settings.get("push.public_key", "")}");</script></%block>

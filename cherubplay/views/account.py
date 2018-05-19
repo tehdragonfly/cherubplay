@@ -9,7 +9,7 @@ from pyramid_mailer.message import Message as EmailMessage
 from sqlalchemy.orm.exc import NoResultFound
 from uuid import uuid4
 
-from cherubplay.lib import email_validator, timezones
+from cherubplay.lib import email_validator, timezones, username_validator, reserved_usernames
 from cherubplay.models import Chat, ChatUser, PushSubscription, User, UserConnection
 from cherubplay.models.enums import ChatSource
 from cherubplay.services.user_connection import IUserConnectionService
@@ -94,7 +94,27 @@ def account_verify_email(request):
     return response
 
 
-@view_config(route_name="account_password", renderer="account.mako", request_method="POST", permission="view")
+@view_config(route_name="account_username", renderer="layout2/account/index.mako", request_method="POST", permission="view")
+def account_username(request):
+    db = request.find_service(name="db")
+
+    username = request.POST.get("username", "").lower()[:100]
+    if username_validator.match(username) is None:
+        return {"username_error": "Usernames can only contain letters, numbers, hyphens and underscores."}
+
+    db = request.find_service(name="db")
+    if (
+        username in reserved_usernames
+        or db.query(User.id).filter(User.username == username).count() == 1
+    ):
+        return {"username_error": "The username \"%s\" has already been taken." % username}
+
+    request.user.username = username
+
+    return HTTPFound(request.route_path("account", _query={"saved": "username"}))
+
+
+@view_config(route_name="account_password", renderer="layout2/account/index.mako", request_method="POST", permission="view")
 def account_password(request):
 
     if hashpw(request.POST["old_password"].encode(), request.user.password.encode()).decode() != request.user.password:
