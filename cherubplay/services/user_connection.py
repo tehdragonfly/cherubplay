@@ -32,6 +32,9 @@ class IUserConnectionService(Interface):
     def convert_virtual_connections(self, to: User):
         pass
 
+    def revert_non_mutual_connections(self, to: User):
+        pass
+
 
 @implementer(IUserConnectionService)
 class UserConnectionService(object):
@@ -114,8 +117,30 @@ class UserConnectionService(object):
         return new_connection
 
     def convert_virtual_connections(self, to: User):
+        """
+        Turns virtual connections to a user into real connections.
+        """
         self._db.execute(CONVERT_QUERY, {"to_id": to.id, "to_username": to.username})
         self._db.query(VirtualUserConnection).filter(VirtualUserConnection.to_username == to.username).delete()
+
+    def revert_non_mutual_connections(self, to: User):
+        """
+        Turns non-mutual user connections into virtual connections, allowing the user to leave them behind when they
+        change their username.
+        """
+        user_connections = (
+            self._db.query(UserConnection)
+            .filter(and_(
+                UserConnection.to_id == to.id,
+                UserConnection.from_id.notin_(
+                    self._db.query(UserConnection.to_id)
+                    .filter(UserConnection.from_id == to.id).subquery()
+                ),
+            )).all()
+        )
+        for user_connection in user_connections:
+            self._db.add(VirtualUserConnection(from_id=user_connection.from_id, to_username=to.username))
+            self._db.delete(user_connection)
 
 
 def includeme(config):

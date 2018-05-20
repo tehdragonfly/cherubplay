@@ -96,7 +96,7 @@ def account_verify_email(request):
 
 @view_config(route_name="account_username", renderer="layout2/account/index.mako", request_method="POST", permission="view")
 def account_username(request):
-    db = request.find_service(name="db")
+    ucs = request.find_service(IUserConnectionService)
 
     username = request.POST.get("username", "").lower()[:100]
     if username_validator.match(username) is None:
@@ -109,7 +109,9 @@ def account_username(request):
     ):
         return {"username_error": "The username \"%s\" has already been taken." % username}
 
+    ucs.revert_non_mutual_connections(request.user)
     request.user.username = username
+    ucs.convert_virtual_connections(request.user)
 
     return HTTPFound(request.route_path("account", _query={"saved": "username"}))
 
