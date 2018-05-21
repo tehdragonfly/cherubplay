@@ -65,6 +65,7 @@ class TagType(JSONMixin, Enum):
     def ui_value(self):
         return self.value.replace("_", " ")
 
+
 TagType.playing_types = {TagType.fandom,        TagType.character,        TagType.gender}
-TagType.wanted_types =  {TagType.fandom_wanted, TagType.character_wanted, TagType.gender_wanted}
+TagType.wanted_types  = {TagType.fandom_wanted, TagType.character_wanted, TagType.gender_wanted}
 

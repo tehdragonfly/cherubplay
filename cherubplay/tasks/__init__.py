@@ -12,7 +12,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 from tempfile import TemporaryDirectory
 from urllib.parse import urlparse
-from zipfile import ZipFile
+from zipfile import ZipFile, ZIP_DEFLATED
 
 from cherubplay.models import get_sessionmaker, PushSubscription, Request, RequestSlot, User, VirtualUserConnection, \
     Chat, ChatUser, Message, ChatExport
@@ -257,6 +257,7 @@ EXPIRY_TIME = datetime.timedelta(3)
 
 @app.task(queue="export")
 def export_chat(chat_id: int, user_id: int):
+    log.info("Starting export for chat %s, user %s." % (chat_id, user_id))
     with db_session() as db, TemporaryDirectory() as workspace:
         start_time    = datetime.datetime.now()
         chat          = db.query(Chat).filter(Chat.id == chat_id).one()
@@ -272,7 +273,7 @@ def export_chat(chat_id: int, user_id: int):
         filename = "%s.zip" % chat.url
         file_in_workspace = os.path.join(workspace, filename)
 
-        with ZipFile(file_in_workspace, "w") as f:
+        with ZipFile(file_in_workspace, "w", ZIP_DEFLATED) as f:
             f.write(resource_filename("cherubplay", "static/cherubplay2.css"), "cherubplay2.css")
             f.write(resource_filename("cherubplay", "static/logo.png"), "logo.png")
             for n in range(page_count):
@@ -299,6 +300,8 @@ def export_chat(chat_id: int, user_id: int):
 
         pathlib.Path(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat_export.file_directory)).mkdir(parents=True, exist_ok=True)
         os.rename(file_in_workspace, os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat_export.file_path))
+
+        log.info("Finished export for chat %s, user %s." % (chat_id, user_id))
 
 
 @app.task(queue="cleanup")
