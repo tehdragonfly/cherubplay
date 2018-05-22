@@ -708,6 +708,10 @@ UserConnection.reverse = relationship(
 VirtualUserConnection.from_ = relationship(User)
 
 
+# Index to make usernames case insensitively unique.
+Index("users_username", func.lower(User.username), unique=True)
+
+
 # XXX indexes on requests table
 # index by user id for your requests?
 
