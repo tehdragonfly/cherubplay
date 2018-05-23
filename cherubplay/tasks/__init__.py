@@ -274,15 +274,17 @@ def export_chat(chat_id: int, user_id: int):
         file_in_workspace = os.path.join(workspace, filename)
 
         with ZipFile(file_in_workspace, "w", ZIP_DEFLATED) as f:
+
             f.write(resource_filename("cherubplay", "static/cherubplay2.css"), "cherubplay2.css")
             f.write(resource_filename("cherubplay", "static/logo.png"), "logo.png")
+
             for n in range(page_count):
                 log.info("Processing page %s of %s." % (n+1, page_count))
                 messages = (
                     db.query(Message)
                     .filter(Message.chat_id == chat_id)
                     .order_by(Message.id)
-                    .offset(n * MESSAGES_PER_PAGE).limit(MESSAGES_PER_PAGE)
+                    .offset(n * MESSAGES_PER_PAGE).limit(MESSAGES_PER_PAGE).all()
                 )
                 f.writestr("%s.html" % (n+1), render("export/chat.mako", {
                     "chat": chat,
@@ -292,6 +294,10 @@ def export_chat(chat_id: int, user_id: int):
                     "messages_per_page": MESSAGES_PER_PAGE,
                     "message_count": message_count,
                 }))
+                f.writestr("%s.json" % (n+1), render("json", messages))
+
+            f.writestr("chat.json",      render("json", chat))
+            f.writestr("chat_user.json", render("json", chat_user))
 
         chat_export.filename = filename
 
