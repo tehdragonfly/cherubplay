@@ -38,7 +38,7 @@ from sqlalchemy_enum34 import EnumType
 from zope.sqlalchemy import ZopeTransactionExtension
 
 from cherubplay.lib import symbols, trim_with_ellipsis
-from cherubplay.models.enums import ChatMode, ChatSource, ChatUserStatus, MessageType, TagType
+from cherubplay.models.enums import ChatMode, ChatSource, ChatUserStatus, MessageFormat, MessageType, TagType
 
 Base = declarative_base()
 
@@ -145,6 +145,7 @@ class Message(Base):
     type = Column(EnumType(MessageType, name=u"message_type"), nullable=False, default=MessageType.ic)
     colour = Column(String(6), nullable=False, default="000000")
     symbol = Column(Integer)
+    format = Column(EnumType(MessageFormat, name=u"message_type"), defualt=MessageFormat.raw) # TODO set nullable=False
     text = Column(UnicodeText, nullable=False)
     posted = Column(DateTime, nullable=False, default=datetime.datetime.now)
     edited = Column(DateTime, nullable=False, default=datetime.datetime.now)
@@ -160,6 +161,7 @@ class Message(Base):
             "symbol": self.symbol,
             "symbol_character": self.symbol_character,
             "handle": self.handle,
+            "format": self.format,
             "text": self.text,
             "posted": self.posted,
             "edited": self.edited,

@@ -29,6 +29,11 @@ class MessageType(JSONMixin, Enum):
     system = "system"
 
 
+class MessageFormat(JSONMixin, Enum):
+    raw      = "raw"
+    markdown = "markdown"
+
+
 class TagType(JSONMixin, Enum):
     maturity         = "maturity"
     warning          = "warning"
