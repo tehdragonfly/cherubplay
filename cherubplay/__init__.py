@@ -252,6 +252,7 @@ def main(global_config, **settings):
 
     config.add_route("account",                    "/account/")
     config.add_route("account_email_address",      "/account/email_address/")
+    config.add_route("account_email_address_remove", "/account/email_address/remove/")
     config.add_route("account_verify_email",       "/account/verify_email/")
     config.add_route("account_username",           "/account/username/")
     config.add_route("account_password",           "/account/password/")

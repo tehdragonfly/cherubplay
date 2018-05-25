@@ -94,6 +94,13 @@ def account_verify_email(request):
     return response
 
 
+@view_config(route_name="account_email_address_remove", request_method="POST")
+def account_email_address_remove(request):
+    request.user.email          = None
+    request.user.email_verified = None
+    return HTTPFound(request.route_path("account"))
+
+
 @view_config(route_name="account_username", renderer="layout2/account/index.mako", request_method="POST", permission="view")
 def account_username(request):
     ucs = request.find_service(IUserConnectionService)
