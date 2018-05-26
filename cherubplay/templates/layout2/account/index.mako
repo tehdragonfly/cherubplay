@@ -15,6 +15,12 @@
 % endif
       <p><label>E-mail address: <input type="email" name="email_address" maxlength="100" required value="${request.user.email or ""}"></label></p>
       <p><button type="submit">Save</button></p>
+% if request.user.email:
+      <hr>
+      <form action="${request.route_path("account_email_address_delete")}" method="post">
+        <button type="submit">Delete email address</button>
+      </form>
+% endif
     </form>
     <form class="tile2" action="${request.route_path("account_username")}" method="post">
       <h3>Username</h3>
