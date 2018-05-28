@@ -254,6 +254,15 @@ class ChatExport(Base):
     def file_path(self):
         return os.path.join(self.file_directory, self.filename)
 
+    def __json__(self, request=None):
+        return {
+            "task_id": self.celery_task_id,
+            "generated": self.generated,
+            "expires": self.expires,
+            "filename": self.filename,
+            "file_path": self.file_path,
+        }
+
 
 class PromptReport(Base, Resource):
     __tablename__ = "prompt_reports"
