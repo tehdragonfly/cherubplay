@@ -33,6 +33,14 @@
     </form>
 % endif
   </form>
+  <form class="tile2" action="${request.route_path("account_username")}" method="post">
+    <h3>Username</h3>
+% if username_error:
+    <p>${username_error}</p>
+% endif
+    <p><label>Username: <input type="text" name="username" maxlength="100" required value="${request.user.username}"></label></p>
+    <p><button type="submit">Save</button></p>
+  </form>
   <form class="tile" action="${request.route_path("account_password")}" method="post">
     <h3>Password</h3>
 % if password_error:
