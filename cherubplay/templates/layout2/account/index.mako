@@ -10,6 +10,7 @@
 % endif
     <form class="tile2" action="${request.route_path("account_email_address")}" method="post">
       <h3>E-mail address</h3>
+      <p>The e-mail address you provide here can be used to recover your account if you ever lose your password.</p>
 % if email_address_error:
       <p>${email_address_error}</p>
 % endif
