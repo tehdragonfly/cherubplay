@@ -216,6 +216,7 @@ class ChatUser(Base):
             "title": self.title,
             "notes": self.notes,
             "labels": self.labels,
+            "draft": self.draft,
         }
 
     @property
