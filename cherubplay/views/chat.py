@@ -75,11 +75,11 @@ def chat_list(request):
 
     if current_status == "unanswered":
         chats = chats.filter(and_(
-            Chat.last_user_id is not None,
+            Chat.last_user_id != None,
             Chat.last_user_id != request.user.id,
         ))
         chat_count = chat_count.join(Chat).filter(and_(
-            Chat.last_user_id is not None,
+            Chat.last_user_id != None,
             Chat.last_user_id != request.user.id,
         ))
     elif current_status is not None:
