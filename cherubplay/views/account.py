@@ -97,7 +97,7 @@ def account_verify_email(request):
 @view_config(route_name="account_email_address_remove", request_method="POST")
 def account_email_address_remove(request):
     request.user.email          = None
-    request.user.email_verified = None
+    request.user.email_verified = False
     return HTTPFound(request.route_path("account"))
 
 
