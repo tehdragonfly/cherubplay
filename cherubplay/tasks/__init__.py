@@ -16,7 +16,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 
 from cherubplay.models import get_sessionmaker, PushSubscription, Request, RequestSlot, User, VirtualUserConnection, \
     Chat, ChatUser, Message, ChatExport
-from cherubplay.services.redis import make_redis_login
+from cherubplay.services.redis import make_redis_connection
 from cherubplay.services.request import RequestService
 from cherubplay.services.user_connection import UserConnectionService
 
@@ -245,7 +245,7 @@ def convert_virtual_connections(user_id: int):
 @app.task
 def answer_requests_with_full_slots():
     with db_session() as db:
-        redis = make_redis_login(app.conf["PYRAMID_REGISTRY"].settings)
+        redis = make_redis_connection(app.conf["PYRAMID_REGISTRY"].settings, "login")
         request_service = RequestService(db, redis)
         for request in request_service.requests_with_full_slots():
             request_service.answer(request)

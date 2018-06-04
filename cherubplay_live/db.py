@@ -9,7 +9,7 @@ from sqlalchemy.orm.exc import NoResultFound
 
 from cherubplay.models import Chat, ChatUser, User
 from cherubplay.models.enums import ChatUserStatus
-from cherubplay.services.redis import make_redis_login, make_redis_pubsub
+from cherubplay.services.redis import make_redis_connection
 
 config_path = sys.argv[1]
 config = ConfigParser()
@@ -41,8 +41,8 @@ def db_session():
         db.close()
 
 
-login_client   = make_redis_login(config["app:main"])
-publish_client = make_redis_pubsub(config["app:main"])
+login_client   = make_redis_connection(config["app:main"], "login")
+publish_client = make_redis_connection(config["app:main"], "pubsub")
 
 
 def get_user(db, cookies):

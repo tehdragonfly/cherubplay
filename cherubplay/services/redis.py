@@ -87,22 +87,14 @@ class OnlineUserStore(object):
         return set(_.decode("utf-8") for _ in self.redis.hvals(online_key(chat)))
 
 
-def make_redis_login(settings):
+def make_redis_connection(settings, key):
     return StrictRedis(connection_pool=ConnectionPool(
         connection_class=UnixDomainSocketConnection,
-        path=settings["cherubplay.socket_login"],
+        path=settings["cherubplay.socket_" + key],
     ))
-
-
-def make_redis_pubsub(settings):
-    return StrictRedis(connection_pool=ConnectionPool(
-        connection_class=UnixDomainSocketConnection,
-        path=settings["cherubplay.socket_pubsub"],
-    ))
-
 
 def includeme(config):
-    redis_login = make_redis_login(config.registry.settings)
+    redis_login = make_redis_connection(config.registry.settings, "login")
     config.register_service(redis_login, name="redis_login")
     # Backwards compatibility because half the code still refers to request.login_store.
     config.add_request_method(
@@ -110,7 +102,7 @@ def includeme(config):
         "login_store",  reify=True,
     )
 
-    redis_pubsub = make_redis_pubsub(config.registry.settings)
+    redis_pubsub = make_redis_connection(config.registry.settings, "pubsub")
     config.register_service(redis_pubsub, name="redis_pubsub")
 
     config.register_service(NewsStore(redis_login), iface=INewsStore)
