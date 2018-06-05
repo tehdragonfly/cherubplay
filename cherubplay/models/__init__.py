@@ -375,6 +375,9 @@ class Request(Base):
         return acl
 
     __tablename__ = "requests"
+    __table_args__ = (
+        CheckConstraint("(posted IS NOT NULL) or (status = 'draft')", name="requests_posted"),
+    )
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     status = Column(SQLAlchemyEnum(u"draft", u"locked", u"posted", u"removed", name=u"requests_status"), nullable=False, default=u"draft")
