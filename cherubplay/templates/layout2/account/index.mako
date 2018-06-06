@@ -8,21 +8,23 @@
 % elif request.GET.get("saved") == "password":
     <p id="confirmation">Your password has been changed.</p>
 % endif
-    <form class="tile2" action="${request.route_path("account_email_address")}" method="post">
+    <div class="tile2">
       <h3>E-mail address</h3>
+      <form action="${request.route_path("account_email_address")}" method="post">
       <p>The e-mail address you provide here can be used to recover your account if you ever lose your password.</p>
 % if email_address_error:
       <p>${email_address_error}</p>
 % endif
       <p><label>E-mail address: <input type="email" name="email_address" maxlength="100" required value="${request.user.email or ""}"></label></p>
       <p><button type="submit">Save</button></p>
+      </form>
 % if request.user.email:
       <hr>
-      <form action="${request.route_path("account_email_address_delete")}" method="post">
-        <button type="submit">Delete email address</button>
+      <form action="${request.route_path("account_email_address_remove")}" method="post">
+        <button type="submit">Remove email address</button>
       </form>
 % endif
-    </form>
+    </div>
     <form class="tile2" action="${request.route_path("account_username")}" method="post">
       <h3>Username</h3>
 % if username_error:
