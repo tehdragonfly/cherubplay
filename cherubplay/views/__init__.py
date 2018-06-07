@@ -36,6 +36,7 @@ def home_guest(request):
 
 @view_config(route_name="sign_up", request_method="POST", renderer="layout2/home_guest.mako")
 def sign_up(request):
+    login_store = request.find_service(name="redis_login")
 
     # Disable signing up in read-only mode.
     if "cherubplay.read_only" in request.registry.settings:
@@ -45,7 +46,7 @@ def sign_up(request):
     # Also don't explode if Redis is down.
     ip_check_key = "ip:" + request.environ["REMOTE_ADDR"]
     try:
-        ip_check = request.login_store.get(ip_check_key)
+        ip_check = login_store.get(ip_check_key)
     except ConnectionError:
         return {"sign_up_error": "We can't create your account because we're having problems with the login server. Please try again later."}
     if ip_check is not None:
@@ -83,11 +84,11 @@ def sign_up(request):
 
     # Generate session ID and add it to the login store.
     new_session_id = str(uuid.uuid4())
-    request.login_store.set("session:" + new_session_id, new_user.id)
+    login_store.set("session:" + new_session_id, new_user.id)
 
     # Remember their IP address for 12 hours.
-    request.login_store.set(ip_check_key, "1")
-    request.login_store.expire(ip_check_key, 43200)
+    login_store.set(ip_check_key, "1")
+    login_store.expire(ip_check_key, 43200)
 
     # Set cookie for session ID.
     response = HTTPFound(request.route_path("home"))
@@ -115,7 +116,7 @@ def log_in(request):
     # Generate session ID and add it to the login store.
     new_session_id = str(uuid.uuid4())
     try:
-        request.login_store.set("session:" + new_session_id, user.id)
+        request.find_service(name="redis_login").set("session:" + new_session_id, user.id)
     except ConnectionError:
         return {"log_in_error": "We can't log you in because we're having problems with the login server. Please try again later."}
 
@@ -129,7 +130,7 @@ def log_in(request):
 @view_config(route_name="log_out", renderer="log_out.mako", request_method="POST")
 def log_out(request):
     if "cherubplay" in request.cookies:
-        request.login_store.delete("session:" + request.cookies["cherubplay"])
+        request.find_service(name="redis_login").delete("session:" + request.cookies["cherubplay"])
     response = HTTPFound(request.route_path("home"))
     response.delete_cookie("cherubplay")
     return response

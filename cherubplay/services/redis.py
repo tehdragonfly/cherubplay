@@ -93,6 +93,7 @@ def make_redis_connection(settings, key):
         path=settings["cherubplay.socket_" + key],
     ))
 
+
 def includeme(config):
     redis_login = make_redis_connection(config.registry.settings, "login")
     config.register_service(redis_login, name="redis_login")

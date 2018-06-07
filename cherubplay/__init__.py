@@ -89,7 +89,7 @@ def request_user(request):
     if "cherubplay.read_only" in request.registry.settings:
         return None
     try:
-        user_id = request.login_store.get("session:" + request.cookies["cherubplay"])
+        user_id = request.find_service(name="redis_login").get("session:" + request.cookies["cherubplay"])
     except ConnectionError:
         return None
     if user_id is not None:
