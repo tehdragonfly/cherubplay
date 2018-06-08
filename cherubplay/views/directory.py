@@ -863,16 +863,17 @@ def directory_request_answer_get(context, request):
 
 @view_config(route_name="directory_request_answer", request_method="POST", permission="request.answer")
 def directory_request_answer_post(context, request):
+    login_store = request.find_service(name="redis_login")
 
-    if request.login_store.get("answered:%s:%s" % (request.user.id, context.id)):
+    if login_store.get("answered:%s:%s" % (request.user.id, context.id)):
         response = render_to_response("layout2/directory/already_answered.mako", {}, request)
         response.status_int = 403
         return response
 
     key = "directory_answer_limit:%s" % request.user.id
     current_time = time.time()
-    if request.login_store.llen(key) >= 12:
-        if current_time - float(request.login_store.lindex(key, 0)) < 3600:
+    if login_store.llen(key) >= 12:
+        if current_time - float(login_store.lindex(key, 0)) < 3600:
             return render_to_response("layout2/directory/answered_too_many.mako", {}, request)
 
     if context.slots:
@@ -893,9 +894,9 @@ def directory_request_answer_post(context, request):
         if not context.slots.all_taken:
             return HTTPFound(request.route_path("directory_request", id=context.id, _query={"answer_status": "waiting"}))
 
-    request.login_store.rpush(key, current_time)
-    request.login_store.ltrim(key, -12, -1)
-    request.login_store.expire(key, 3600)
+    login_store.rpush(key, current_time)
+    login_store.ltrim(key, -12, -1)
+    login_store.expire(key, 3600)
 
     new_chat = request.find_service(IRequestService).answer(context, request.user)
 
