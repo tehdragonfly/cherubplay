@@ -17,7 +17,7 @@ from cherubplay.services.user_connection import IUserConnectionService
 
 def send_email(request, action, user, email_address):
     email_token = str(uuid4())
-    request.login_store.setex(
+    request.find_service(name="redis_login").setex(
         ":".join([action, str(user.id), email_address]),
         86400 if action == "verify_email" else 600,
         email_token,
@@ -42,6 +42,8 @@ def account(request):
 
 @view_config(route_name="account_email_address", renderer="layout2/account/index.mako", request_method="POST", permission="view")
 def account_email_address(request):
+    login_store = request.find_service(name="redis_login")
+
     email_address = request.POST.get("email_address", "").strip()[:100]
     if not email_validator.match(email_address):
         return {"email_address_error": "Please enter a valid e-mail address."}
@@ -49,24 +51,26 @@ def account_email_address(request):
     if email_address == request.user.email:
         return HTTPFound(request.route_path("account"))
 
-    if request.login_store.get("verify_email_limit:%s" % request.user.id):
+    if login_store.get("verify_email_limit:%s" % request.user.id):
         return {"email_address_error": "Sorry, you can only change your e-mail address once per day. Please wait until tomorrow."}
 
     send_email(request, "verify_email", request.user, email_address)
-    request.login_store.setex("verify_email_limit:%s" % request.user.id, 86400, 1)
+    login_store.setex("verify_email_limit:%s" % request.user.id, 86400, 1)
 
     return HTTPFound(request.route_path("account", _query={"saved": "verify_email"}))
 
 
 @view_config(route_name="account_verify_email", request_method="GET")
 def account_verify_email(request):
+    login_store = request.find_service(name="redis_login")
+
     try:
         user_id = int(request.GET["user_id"].strip())
         email_address = request.GET["email_address"].strip()
         token = request.GET["token"].strip()
     except (KeyError, ValueError):
         raise HTTPNotFound
-    stored_token = request.login_store.get("verify_email:%s:%s" % (user_id, email_address))
+    stored_token = login_store.get("verify_email:%s:%s" % (user_id, email_address))
     if not user_id or not email_address or not token or not stored_token:
         raise HTTPNotFound
 
@@ -88,7 +92,7 @@ def account_verify_email(request):
 
     if not request.user or request.user.id != user.id:
         new_session_id = str(uuid4())
-        request.login_store.set("session:" + new_session_id, user.id)
+        login_store.set("session:" + new_session_id, user.id)
         response.set_cookie("cherubplay", new_session_id, 31536000)
 
     return response
@@ -159,8 +163,9 @@ def forgot_password_get(request):
 
 @view_config(route_name="account_forgot_password", request_method="POST", renderer="layout2/forgot_password.mako")
 def forgot_password_post(request):
+    login_store = request.find_service(name="redis_login")
 
-    if request.login_store.get("reset_password_limit:%s" % request.environ["REMOTE_ADDR"]):
+    if login_store.get("reset_password_limit:%s" % request.environ["REMOTE_ADDR"]):
         return {"error": "limit"}
 
     username = request.POST["username"].strip()[:User.username.type.length]
@@ -170,15 +175,15 @@ def forgot_password_post(request):
     except NoResultFound:
         return {"error": "no_user", "username": username}
 
-    if request.login_store.get("reset_password_limit:%s" % user.id):
+    if login_store.get("reset_password_limit:%s" % user.id):
         return {"error": "limit"}
 
     if not user.email or not user.email_verified:
         return {"error": "no_email"}
 
     send_email(request, "reset_password", user, user.email)
-    request.login_store.setex("reset_password_limit:%s" % request.environ["REMOTE_ADDR"], 86400, 1)
-    request.login_store.setex("reset_password_limit:%s" % user.id, 86400, 1)
+    login_store.setex("reset_password_limit:%s" % request.environ["REMOTE_ADDR"], 86400, 1)
+    login_store.setex("reset_password_limit:%s" % user.id, 86400, 1)
 
     return {"saved": "saved"}
 
@@ -190,7 +195,7 @@ def _validate_reset_token(request):
         token = request.GET["token"].strip()
     except (KeyError, ValueError):
         raise HTTPNotFound
-    stored_token = request.login_store.get("reset_password:%s:%s" % (user_id, email_address))
+    stored_token = request.find_service(name="redis_login").get("reset_password:%s:%s" % (user_id, email_address))
     if not user_id or not email_address or not token or not stored_token:
         raise HTTPNotFound
 
@@ -214,6 +219,7 @@ def account_reset_password_get(request):
 
 @view_config(route_name="account_reset_password", request_method="POST", renderer="layout2/reset_password.mako")
 def account_reset_password_post(request):
+    login_store = request.find_service(name="redis_login")
     user = _validate_reset_token(request)
 
     if not request.POST.get("password"):
@@ -224,12 +230,12 @@ def account_reset_password_post(request):
 
     user.password = hashpw(request.POST["password"].encode(), gensalt()).decode()
 
-    request.login_store.delete("reset_password:%s:%s" % (user.id, request.GET["email_address"].strip()))
+    login_store.delete("reset_password:%s:%s" % (user.id, request.GET["email_address"].strip()))
 
     response = HTTPFound(request.route_path("home"))
 
     new_session_id = str(uuid4())
-    request.login_store.set("session:"+new_session_id, user.id)
+    login_store.set("session:"+new_session_id, user.id)
     response.set_cookie("cherubplay", new_session_id, 31536000)
 
     return response
