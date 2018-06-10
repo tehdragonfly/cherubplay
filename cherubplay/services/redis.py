@@ -97,11 +97,6 @@ def make_redis_connection(settings, key):
 def includeme(config):
     redis_login = make_redis_connection(config.registry.settings, "login")
     config.register_service(redis_login, name="redis_login")
-    # Backwards compatibility because half the code still refers to request.login_store.
-    config.add_request_method(
-        lambda request: request.find_service(name="redis_login"),
-        "login_store",  reify=True,
-    )
 
     redis_pubsub = make_redis_connection(config.registry.settings, "pubsub")
     config.register_service(redis_pubsub, name="redis_pubsub")
