@@ -38,10 +38,6 @@ def home_guest(request):
 def sign_up(request):
     login_store = request.find_service(name="redis_login")
 
-    # Disable signing up in read-only mode.
-    if "cherubplay.read_only" in request.registry.settings:
-        raise HTTPForbidden
-
     # Make sure this IP address hasn't created an account recently.
     # Also don't explode if Redis is down.
     ip_check_key = "ip:" + request.environ["REMOTE_ADDR"]
@@ -99,10 +95,6 @@ def sign_up(request):
 
 @view_config(route_name="log_in", request_method="POST", renderer="layout2/home_guest.mako")
 def log_in(request):
-
-    # Disable logging in in read-only mode.
-    if "cherubplay.read_only" in request.registry.settings:
-        raise HTTPForbidden
 
     db = request.find_service(name="db")
     try:

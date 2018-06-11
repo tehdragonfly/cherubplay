@@ -42,13 +42,11 @@
     % endif
   % endif
 % elif not request.matched_route or request.matched_route.name != "home":
-% if "cherubplay.read_only" not in request.registry.settings:
   <nav id="nav">
     <ul>
       <li><a href="${request.route_path("home")}" id="nav_home">Sign up / Log in</a></li>
     </ul>
   </nav>
-% endif
 % endif
 
 <main>

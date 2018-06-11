@@ -85,9 +85,6 @@ class CherubplayRootFactory(Resource):
 def request_user(request):
     if "cherubplay" not in request.cookies:
         return None
-    # If we're in read only mode, make everyone a guest.
-    if "cherubplay.read_only" in request.registry.settings:
-        return None
     try:
         user_id = request.find_service(name="redis_login").get("session:" + request.cookies["cherubplay"])
     except ConnectionError:
