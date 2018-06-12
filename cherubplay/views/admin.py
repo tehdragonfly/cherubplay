@@ -4,7 +4,6 @@ from bcrypt import gensalt, hashpw
 from datetime import datetime, timedelta
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.view import view_config
-from random import choice
 from sqlalchemy import and_, func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
@@ -193,7 +192,7 @@ def user_ban(context: User, request):
 
 @view_config(route_name="admin_user_reset_password", request_method="POST", permission="admin", renderer="layout2/admin/reset_password.mako")
 def user_reset_password(context: User, request):
-    new_password = "".join(choice("1234567890qwertyuiopasdfghjklzxcvbnm") for _ in range(20))
+    new_password = str(uuid.uuid4())
     context.password = hashpw(new_password.encode("utf-8"), gensalt()).decode()
     return {"new_password": new_password}
 
