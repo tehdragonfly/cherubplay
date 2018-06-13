@@ -190,6 +190,9 @@ class RequestService(object):
             "status": "draft",
             "duplicate_of_id": new_request.id,
         }, synchronize_session=False)
+        self._db.query(Chat).filter(Chat.request_id.in_(duplicate_ids)).update({
+            "request_id": new_request.id,
+        }, synchronize_session=False)
 
     def answer(self, request: Request, as_user: User=None) -> Chat:
         if not request.slots and as_user is None:
