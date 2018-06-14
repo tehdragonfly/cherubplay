@@ -518,9 +518,18 @@ class Tag(Base):
     def __repr__(self):
         return "<Tag #%s: %s:%s>" % (self.id, self.type.value, self.name)
 
-    @classmethod
-    def name_from_url(cls, url):
+    @staticmethod
+    def name_from_url(url):
         return url.replace("*s*", "/").replace("*c*", ":").replace("_", " ")
+
+    @staticmethod
+    def normalise_tag_name(tag_type: TagType, name):
+        name = Tag.name_from_url(name).strip()
+        if tag_type == TagType.warning and name.lower().startswith("tw:"):
+            name = name[3:].strip()
+        elif name.startswith("#"):
+            name = name[1:].strip()
+        return name[:100]
 
     @reify
     def url_name(self):

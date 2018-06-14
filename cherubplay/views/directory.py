@@ -68,15 +68,6 @@ def _validate_request_slots(request):
     return slot_name, slot_descriptions
 
 
-def _normalise_tag_name(tag_type, name):
-    name = Tag.name_from_url(name).strip()
-    if tag_type == TagType.warning and name.lower().startswith("tw:"):
-        name = name[3:].strip()
-    elif name.startswith("#"):
-        name = name[1:].strip()
-    return name[:100]
-
-
 def _request_tags_from_form(request, form, new_request):
     tag_set = set()
     fandoms = set()
@@ -100,7 +91,7 @@ def _request_tags_from_form(request, form, new_request):
                     fandoms.add(name.lower())
 
         for name in form[tag_type.value][:1000].split(","):
-            name = _normalise_tag_name(tag_type, name)
+            name = Tag.normalise_tag_name(tag_type, name)
             if name == "":
                 continue
             tag_set.add((tag_type, name))
@@ -762,7 +753,7 @@ def directory_blacklist_add(request):
     db = request.find_service(name="db")
 
     for name in names.split(","):
-        name = _normalise_tag_name(tag_type, name)
+        name = Tag.normalise_tag_name(tag_type, name)
         if not name:
             continue
 
