@@ -37,7 +37,7 @@ from sqlalchemy.orm import (
 from sqlalchemy_enum34 import EnumType
 from zope.sqlalchemy import ZopeTransactionExtension
 
-from cherubplay.lib import symbols, trim_with_ellipsis
+from cherubplay.lib import prompt_hash, symbols, trim_with_ellipsis
 from cherubplay.models.enums import ChatMode, ChatSource, ChatUserStatus, MessageFormat, MessageType, TagType
 
 Base = declarative_base()
@@ -397,6 +397,10 @@ class Request(Base):
 
     def __repr__(self):
         return "<Request #%s>" % self.id
+
+    @property
+    def prompt_hash(self):
+        return prompt_hash(self.ooc_notes + self.starter)
 
     def tags_by_type(self):
         tags = {_: [] for _ in Tag.type.type.python_type}

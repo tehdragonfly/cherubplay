@@ -12,7 +12,6 @@ from typing import List, Set, Union
 from uuid import uuid4
 from zope.interface import Interface, implementer
 
-from cherubplay.lib import prompt_hash
 from cherubplay.models import Request, Tag, User, Chat, ChatUser, Message, RequestTag, RequestSlot
 from cherubplay.models.enums import ChatMode, ChatSource
 
@@ -176,7 +175,7 @@ class RequestService(object):
         return row[0] if row else None
 
     def remove_duplicates(self, new_request: Request):
-        new_hash = prompt_hash(new_request.ooc_notes + new_request.starter)
+        new_hash = new_request.prompt_hash
         duplicate_ids = {
             old_request.id
             for old_request in self._db.query(Request).filter(and_(
@@ -184,7 +183,7 @@ class RequestService(object):
                 Request.user_id == new_request.user_id,
                 Request.status == "posted",
             ))
-            if new_hash == prompt_hash(old_request.ooc_notes + old_request.starter)
+            if new_hash == old_request.prompt_hash
         }
         self._db.query(Request).filter(Request.id.in_(duplicate_ids)).update({
             "status": "draft",
