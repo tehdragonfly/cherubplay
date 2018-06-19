@@ -416,7 +416,7 @@ def request_factory(request):
         query = db.query(Request).filter(Request.id == int(request.matchdict["id"]))
         if request.user.status != "admin":
             query = query.filter(or_(
-                Request.status.in_("posted", "locked"),
+                Request.status.in_(("posted", "locked")),
                 Request.user_id == request.user.id,
             ))
         return query.options(joinedload(Request.tags)).one()

@@ -36,7 +36,7 @@
     </form>
 % endif
   </div>
-  <form class="tile2" action="${request.route_path("account_username")}" method="post">
+  <form class="tile" action="${request.route_path("account_username")}" method="post">
     <h3>Username</h3>
 % if username_error:
     <p>${username_error}</p>
