@@ -605,13 +605,18 @@ def chat_remove_user(context: ChatContext, request):
     return HTTPFound(request.route_path("chat_info", url=request.matchdict["url"]))
 
 
-@view_config(route_name="chat_export", request_method="GET", permission="chat.export", renderer="layout2/chat_export.mako")
+@view_config(route_name="chat_export",     request_method="GET", permission="chat.export", renderer="layout2/chat_export.mako")
+@view_config(route_name="chat_export_ext", request_method="GET", permission="chat.export", extension="json", renderer="json")
 def chat_export_get(context: ChatContext, request):
     db = request.find_service(name="db")
     export = db.query(ChatExport).filter(
         ChatExport.chat_id == context.chat.id,
         ChatExport.user_id == request.user.id,
     ).first()
+
+    if request.matched_route.name == "chat_export_ext":
+        return export
+
     return {
         "page":          "export",
         "chat":          context.chat,

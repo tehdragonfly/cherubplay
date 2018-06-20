@@ -185,6 +185,7 @@ def main(global_config, **settings):
     config.add_route("chat_info",        "/chats/{url}/info/",        factory=ChatContext)
     config.add_route("chat_change_name", "/chats/{url}/change_name/", factory=ChatContext)
     config.add_route("chat_remove_user", "/chats/{url}/remove_user/", factory=ChatContext)
+    config.add_ext_route("chat_export",  "/chats/{url}/export/",      factory=ChatContext)
 
     config.add_route("chat_draft",  "/chats/{url}/draft/",             factory=ChatContext)
     config.add_route("chat_send",   "/chats/{url}/send/",              factory=ChatContext)
@@ -192,7 +193,6 @@ def main(global_config, **settings):
     config.add_route("chat_end",    "/chats/{url}/end/",               factory=ChatContext)
     config.add_route("chat_delete", "/chats/{url}/delete/",            factory=ChatContext)
     config.add_route("chat_leave",  "/chats/{url}/leave/",             factory=ChatContext)
-    config.add_route("chat_export",  "/chats/{url}/export/",           factory=ChatContext)
 
     config.add_ext_route("prompt_list", "/prompts/")
     config.add_route("new_prompt", "/prompts/new/")

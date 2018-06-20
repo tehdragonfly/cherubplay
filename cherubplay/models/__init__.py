@@ -253,7 +253,8 @@ class ChatExport(Base):
 
     @property
     def file_path(self):
-        return os.path.join(self.file_directory, self.filename)
+        if self.filename:
+            return os.path.join(self.file_directory, self.filename)
 
     def __json__(self, request=None):
         return {
