@@ -1354,6 +1354,15 @@ var cherubplay = (function() {
 			}
 
 		},
+		"export": function(url) {
+			var export_interval = window.setInterval(function() {
+				$.get("/chats/" + url + "/export.json", function(data) {
+					if (data.filename) {
+						location.reload();
+					}
+				});
+			}, 10000);
+		},
 	}
 })();
 

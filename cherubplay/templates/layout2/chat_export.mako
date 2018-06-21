@@ -30,3 +30,8 @@ ${own_chat_user.display_title} - \
         </div>
       </form>
     % endif
+<%block name="scripts">
+  % if export and not export.filename:
+    <script>cherubplay.export("${request.matchdict["url"]}");</script>
+  % endif
+</%block>
