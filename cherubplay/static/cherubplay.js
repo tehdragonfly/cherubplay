@@ -1085,8 +1085,8 @@ var cherubplay = (function() {
 			var message_text = $("#message_text").keypress(function(e) {
 				changed_since_draft = true;
 				if (
-				    (enter_to_send && e.keyCode == 13 && !e.shiftKey)
-				    || (!enter_to_send && e.keyCode == 13 && e.shiftKey)
+					(enter_to_send && e.keyCode == 13 && !e.shiftKey)
+					|| (!enter_to_send && e.keyCode == 13 && e.shiftKey)
 				) {
 					message_form.submit();
 					return false;
@@ -1355,10 +1355,21 @@ var cherubplay = (function() {
 
 		},
 		"export": function(url) {
+			var error_count = 0;
 			var export_interval = window.setInterval(function() {
-				$.get("/chats/" + url + "/export.json", function(data) {
-					if (data.filename) {
-						location.reload();
+				$.get({
+					url: "/chats/" + url + "/export.json",
+					success: function(data) {
+						error_count = 0;
+						if (data.filename) {
+							location.reload();
+						}
+					},
+					error: function() {
+						error_count++;
+						if (error_count >= 3) {
+							window.clearInterval(export_interval);
+						}
 					}
 				});
 			}, 10000);
