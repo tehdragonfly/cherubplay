@@ -4,9 +4,6 @@ import paginate, re
 
 from collections import OrderedDict
 from hashlib import sha256
-from markupsafe import escape, Markup
-
-from cherubplay.models.enums import MessageFormat
 
 
 def make_paginator(request, item_count, current_page, items_per_page=25):
@@ -114,17 +111,3 @@ timezones = {
     "Pacific/Pago_Pago", "Pacific/Pitcairn", "Pacific/Tongatapu", "UTC",
 }
 timezones_list = sorted(list(timezones))
-
-
-linebreak_regex = re.compile(r"[\r\n]+")
-paragraph = Markup("<p>%s</p>")
-
-def raw_formatter(message):
-    return "\n".join(
-        paragraph % escape(line)
-        for line in linebreak_regex.split(message.text)
-    )
-
-message_formatters = {
-    MessageFormat.raw: raw_formatter,
-}
