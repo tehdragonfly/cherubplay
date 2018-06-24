@@ -38,6 +38,7 @@ from sqlalchemy_enum34 import EnumType
 from zope.sqlalchemy import ZopeTransactionExtension
 
 from cherubplay.lib import prompt_hash, symbols, trim_with_ellipsis
+from cherubplay.lib.formatters import message_formatters
 from cherubplay.models.enums import ChatMode, ChatSource, ChatUserStatus, MessageFormat, MessageType, TagType
 
 Base = declarative_base()
@@ -182,6 +183,10 @@ class Message(Base):
             return self.symbol_character
         if self.user_id and self.chat_user:
             return self.chat_user.handle
+
+    @reify
+    def formatter(self):
+        return message_formatters[self.format](self)
 
 
 class ChatUser(Base):

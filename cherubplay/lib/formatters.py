@@ -32,6 +32,7 @@ class RawFormatter(Formatter):
             for line in linebreak_regex.split(self._message.text)
         )
 
+
 message_formatters = {
     MessageFormat.raw: RawFormatter,
 }
