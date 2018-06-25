@@ -341,6 +341,10 @@ class Prompt(Base):
     def __repr__(self):
         return "<Prompt #%s: %s>" % (self.id, self.title)
 
+    @property
+    def prompt_hash(self):
+        return prompt_hash(self.text)
+
     def __json__(self, request=None):
         return {
             "id": self.id,
