@@ -195,7 +195,6 @@ class ChatUser(Base):
     last_colour = Column(String(6), nullable=False, default="000000")
     symbol = Column(Integer)
     name = Column(Unicode(50))
-    anonymous = Column(Boolean, nullable=False, default=True)
     visited = Column(DateTime, nullable=False, default=datetime.datetime.now)
     status = Column(EnumType(ChatUserStatus, name=u"chat_user_status"), nullable=False, default=ChatUserStatus.active)
     title = Column(Unicode(100), nullable=False, default=u"")
