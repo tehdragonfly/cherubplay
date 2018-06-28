@@ -134,4 +134,4 @@ def rules(request):
         raise HTTPNotFound
     with open(request.registry.settings["rules_file"]) as f:
         content = f.read()
-    return {"title": rules, "content": content}
+    return {"title": "Rules", "content": content}
