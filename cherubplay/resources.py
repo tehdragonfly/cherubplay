@@ -419,7 +419,7 @@ def request_factory(request):
                 Request.status.in_(("posted", "locked")),
                 Request.user_id == request.user.id,
             ))
-        return query.options(joinedload(Request.tags)).one()
+        return query.options(joinedload(Request.tags), joinedload(Request.slots)).one()
     except (ValueError, NoResultFound):
         raise HTTPNotFound
 
