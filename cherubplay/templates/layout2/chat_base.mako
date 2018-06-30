@@ -16,7 +16,7 @@ ${request.context.chat_user.display_title} -
 % if message.symbol is not None and message.type == MessageType.system:
         <p>${message.text % message.symbol_character}</p>
 % else:
-        <p>${message.text}</p>
+        ${message.formatter.as_html()}
 % endif
         <div class="timestamp">
           % if request.context.chat.mode == ChatMode.group and message.handle:

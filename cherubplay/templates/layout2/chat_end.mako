@@ -11,7 +11,7 @@
 % if prompt.symbol is not None and prompt.type == MessageType.system:
       <p>${prompt.text % prompt.symbol_character}</p>
 % else:
-      <p>${prompt.text}</p>
+      <p>${prompt.formatter.as_html()}</p>
 % endif
       <div class="timestamp">${(request.user.localise_time(prompt.posted) if request.user is not None else prompt.posted).strftime("%Y-%m-%d %H:%M:%S")}</div>
     </div>
@@ -27,7 +27,7 @@
 % if last_message.symbol is not None and last_message.type == MessageType.system:
       <p>${last_message.text % last_message.symbol_character}</p>
 % else:
-      <p>${last_message.text}</p>
+      <p>${last_message.formatter.as_html()}</p>
 % endif
       <div class="timestamp">${(request.user.localise_time(last_message.posted) if request.user is not None else last_message.posted).strftime("%Y-%m-%d %H:%M:%S")}</div>
     </div>
