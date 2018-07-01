@@ -267,7 +267,7 @@ def export_chat(chat_id: int, user_id: int):
         if export_chat.request.id and chat_export.celery_task_id != export_chat.request.id:
             raise RuntimeError("Current task ID doesn't match value in database.")
 
-        message_count = db.query(func.count("*")).select_from(Message).scalar()
+        message_count = db.query(func.count("*")).select_from(Message).filter(Message.chat_id == chat_id).scalar()
         page_count    = int(math.ceil(message_count/MESSAGES_PER_PAGE))
 
         filename = "%s.zip" % chat.url
