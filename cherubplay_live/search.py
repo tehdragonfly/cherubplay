@@ -10,7 +10,7 @@ from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.netutil import bind_unix_socket
 from tornado.web import Application
-from tornado.websocket import WebSocketHandler
+from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 from cherubplay.lib import colour_validator, prompt_hash, prompt_categories, prompt_starters, prompt_levels
 from cherubplay.models import Chat, ChatUser, Message, PromptReport
@@ -53,7 +53,11 @@ def check_prompt_hash(user_id, prompt_hash):
 def write_message_to_searchers(message, category, starter, level):
     for socket in searchers.values():
         if category in socket.categories and starter in socket.starters and level in socket.levels:
-            socket.write_message(message)
+            try:
+                socket.write_message(message)
+            except WebSocketClosedError:
+                print("Removing dead searcher %s" % socket.socket_id)
+                searchers.pop(socket.socket_id)
 
 
 class SearchHandler(WebSocketHandler):
