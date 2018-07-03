@@ -1357,7 +1357,7 @@ var cherubplay = (function() {
 		"export": function(url) {
 			var error_count = 0;
 			var export_interval = window.setInterval(function() {
-				$.get({
+				$.ajax({
 					url: "/chats/" + url + "/export.json",
 					success: function(data) {
 						error_count = 0;
