@@ -955,6 +955,7 @@ def directory_request_edit_get(context, request):
     form_data["ooc_notes"] = context.ooc_notes
     form_data["starter"]   = context.starter
     form_data["mode"]      = "group" if context.slots else "1-on-1"
+    form_data["status"]    = context.status
 
     for slot in context.slots:
         if slot.order == 1:
