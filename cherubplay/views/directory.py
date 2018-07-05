@@ -191,7 +191,10 @@ class RequestListView(object):
         if before_date:
             kwargs["start"] = before_date
         kwargs.update(self.search_args())
-        requests = request_service.search(**kwargs)
+        try:
+            requests = request_service.search(**kwargs)
+        except ValueError:
+            raise HTTPNotFound
 
         # 404 on empty pages, unless it's the first page.
         if len(requests) == 0 and "before" in self.request.GET:
