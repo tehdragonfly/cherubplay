@@ -634,7 +634,9 @@ def chat_export_post(context: ChatContext, request):
     ).first()
 
     if not export:
-        result = export_chat.delay(context.chat.id, request.user.id)
+        # This task can't be called until after the ChatExport row has been committed to the database.
+        # But we can't trigger it in a post-commit hook because we need to include the task ID in the ChatExport.
+        result = export_chat.apply_async((context.chat.id, request.user.id), countdown=5)
         db.add(ChatExport(
             chat_id=context.chat.id,
             user_id=request.user.id,
