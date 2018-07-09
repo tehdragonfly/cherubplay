@@ -1084,7 +1084,7 @@ var cherubplay = (function() {
 			var message_symbol = $("#message_form .symbol");
 			var message_text = $("#message_text").keypress(function(e) {
 				changed_since_draft = true;
-				if (e.keyCode == 13 && (enter_to_send || e.shiftKey)) {
+				if (e.keyCode == 13 && enter_to_send && !e.shiftKey) {
 					message_form.submit();
 					return false;
 				} else if (ws.readyState == 1) {
