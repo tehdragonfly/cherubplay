@@ -1225,7 +1225,6 @@ var cherubplay = (function() {
 					scroll_to_bottom();
 					if (document.hidden || document.webkitHidden || document.msHidden) {
 						set_title("Connected");
-						play_notification_audio();
 					}
 					if (user_list_entries[own_handle]) {
 						document.getElementById("chat_user_list").classList.add("connected");
