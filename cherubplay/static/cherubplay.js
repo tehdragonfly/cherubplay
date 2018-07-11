@@ -473,8 +473,7 @@ var cherubplay = (function() {
 				}
 			}
 
-			var ws_protocol = (location.protocol=="https:") ? "wss://" : "ws://";
-			var ws = new WebSocket(ws_protocol+location.host+"/search/");
+			var ws = new WebSocket("wss://" + location.host + "/search/");
 
 			ws.onopen = function(e) {
 				window.setTimeout(ping, 8000);
@@ -1210,9 +1209,8 @@ var cherubplay = (function() {
 				var ws_works = false;
 				var ws_connected_time = 0;
 				function launch_websocket() {
-					var ws_protocol = location.protocol == "https:" ? "wss://" : "ws://";
 					var after = latest_message_id ? "?after=" + latest_message_id : ""
-					ws = new WebSocket(ws_protocol + location.host + "/live/" + chat_url + "/" + after);
+					ws = new WebSocket("wss://" + location.host + "/live/" + chat_url + "/" + after);
 					ws.onopen = ws_onopen;
 					ws.onmessage = ws_onmessage;
 					ws.onclose = ws_onclose;
