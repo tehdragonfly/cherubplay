@@ -22,16 +22,12 @@ from cherubplay.services.message import IMessageService
 from cherubplay.tasks import export_chat
 
 
-@view_config(route_name="chat_list",                request_method="GET", permission="view")
-@view_config(route_name="chat_list_ext",            request_method="GET", permission="view", extension="json", renderer="json")
-@view_config(route_name="chat_list_unanswered",     request_method="GET", permission="view")
-@view_config(route_name="chat_list_unanswered_ext", request_method="GET", permission="view", extension="json", renderer="json")
-@view_config(route_name="chat_list_ongoing",        request_method="GET", permission="view")
-@view_config(route_name="chat_list_ongoing_ext",    request_method="GET", permission="view", extension="json", renderer="json")
-@view_config(route_name="chat_list_ended",          request_method="GET", permission="view")
-@view_config(route_name="chat_list_ended_ext",      request_method="GET", permission="view", extension="json", renderer="json")
-@view_config(route_name="chat_list_label",          request_method="GET", permission="view")
-@view_config(route_name="chat_list_label_ext",      request_method="GET", permission="view", extension="json", renderer="json")
+@view_config(route_name="chat_list",            request_method="GET", permission="view")
+@view_config(route_name="chat_list_ext",        request_method="GET", permission="view", extension="json", renderer="json")
+@view_config(route_name="chat_list_status",     request_method="GET", permission="view")
+@view_config(route_name="chat_list_status_ext", request_method="GET", permission="view", extension="json", renderer="json")
+@view_config(route_name="chat_list_label",      request_method="GET", permission="view")
+@view_config(route_name="chat_list_label_ext",  request_method="GET", permission="view", extension="json", renderer="json")
 def chat_list(request):
 
     try:
@@ -39,12 +35,8 @@ def chat_list(request):
     except ValueError:
         raise HTTPNotFound
 
-    if request.matched_route.name.startswith("chat_list_unanswered"):
-        current_status = "unanswered"
-    elif request.matched_route.name.startswith("chat_list_ongoing"):
-        current_status = "ongoing"
-    elif request.matched_route.name.startswith("chat_list_ended"):
-        current_status = "ended"
+    if request.matched_route.name.startswith("chat_list_status"):
+        current_status = request.matchdict["status"]
     else:
         current_status = None
 

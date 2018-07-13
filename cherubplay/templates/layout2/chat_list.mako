@@ -80,17 +80,17 @@ ${label.replace("_", " ")}${", " if not loop.last else ""}\
         % if current_status == "unanswered":
         <li>Unanswered</li>
         % else:
-        <li><a href="${request.route_path("chat_list_unanswered")}">Unanswered</a></li>
+        <li><a href="${request.route_path("chat_list_status", status="unanswered")}">Unanswered</a></li>
         % endif
         % if current_status == "ongoing":
         <li>Ongoing</li>
         % else:
-        <li><a href="${request.route_path("chat_list_ongoing")}">Ongoing</a></li>
+        <li><a href="${request.route_path("chat_list_status", status="ongoing")}">Ongoing</a></li>
         % endif
         % if current_status == "ended":
         <li>Ended</li>
         % else:
-        <li><a href="${request.route_path("chat_list_ended")}">Ended</a></li>
+        <li><a href="${request.route_path("chat_list_status", status="ended")}">Ended</a></li>
         % endif
       </ul>
     </nav>
