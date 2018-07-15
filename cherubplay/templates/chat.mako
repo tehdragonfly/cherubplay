@@ -13,11 +13,11 @@
 % if message.type == MessageType.system:
       <p style="color: #${message.colour};">${message.text % message.symbol_character}</p>
 % else:
-      <p style="color: #${message.colour};">${message.symbol_character}: ${message.text}</p>
+      <p style="color: #${message.colour};">${message.symbol_character}: ${message.formatter.as_html()}</p>
 % endif
 % else:
 >
-      <p style="color: #${message.colour};">${message.text}</p>
+      <p style="color: #${message.colour};">${message.formatter.as_html()}</p>
 % endif
     </li>
 </%def>\

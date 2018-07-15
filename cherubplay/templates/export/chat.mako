@@ -44,7 +44,7 @@
           % if message.symbol is not None and message.type == MessageType.system:
             <p>${message.text % message.symbol_character}</p>
           % else:
-            <p>${message.text}</p>
+            <p>${message.formatter.as_html()}</p>
           % endif
           <div class="timestamp">
             % if chat.mode == ChatMode.group and message.handle:
