@@ -252,7 +252,7 @@ def chat(context: ChatContext, request):
     # Update the visited time in archive view if the chat is ended.
     # We need to do this because otherwise it's impossible to mark an ended
     # chat as read.
-    if context.chat_user and context.chat.status == "ended":
+    if context.chat_user and context.chat_user.visited < context.chat.updated and context.chat.status == "ended":
         context.chat_user.visited = datetime.datetime.now()
 
     try:
