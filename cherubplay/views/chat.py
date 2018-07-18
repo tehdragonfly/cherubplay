@@ -35,12 +35,12 @@ def chat_list(request):
     except ValueError:
         raise HTTPNotFound
 
-    if request.matched_route.name.startswith("chat_list_status"):
+    if "status" in request.matchdict:
         current_status = request.matchdict["status"]
     else:
         current_status = None
 
-    if request.matched_route.name.startswith("chat_list_label"):
+    if "label" in request.matchdict:
         current_label = request.matchdict["label"].lower().strip().replace(" ", "_")
         if current_label != request.matchdict["label"]:
             raise HTTPFound(request.route_path("chat_list_label", label=current_label))
