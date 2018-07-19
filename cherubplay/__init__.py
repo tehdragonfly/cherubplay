@@ -176,6 +176,7 @@ def main(global_config, **settings):
     config.add_ext_route("chat_list", "/chats/")
     config.add_ext_route("chat_list_status", "/chats/{status:unanswered|ongoing|ended}/")
     config.add_ext_route("chat_list_label", "/chats/labels/{label}/")
+    config.add_ext_route("chat_list_status_label", "/chats/{status:unanswered|ongoing|ended}/labels/{label}/")
 
     config.add_ext_route("chat_notification", "/chats/notification/")
 

@@ -22,12 +22,14 @@ from cherubplay.services.message import IMessageService
 from cherubplay.tasks import export_chat
 
 
-@view_config(route_name="chat_list",            request_method="GET", permission="view")
-@view_config(route_name="chat_list_ext",        request_method="GET", permission="view", extension="json", renderer="json")
-@view_config(route_name="chat_list_status",     request_method="GET", permission="view")
-@view_config(route_name="chat_list_status_ext", request_method="GET", permission="view", extension="json", renderer="json")
-@view_config(route_name="chat_list_label",      request_method="GET", permission="view")
-@view_config(route_name="chat_list_label_ext",  request_method="GET", permission="view", extension="json", renderer="json")
+@view_config(route_name="chat_list",                   request_method="GET", permission="view")
+@view_config(route_name="chat_list_ext",               request_method="GET", permission="view", extension="json", renderer="json")
+@view_config(route_name="chat_list_status",            request_method="GET", permission="view")
+@view_config(route_name="chat_list_status_ext",        request_method="GET", permission="view", extension="json", renderer="json")
+@view_config(route_name="chat_list_label",             request_method="GET", permission="view")
+@view_config(route_name="chat_list_label_ext",         request_method="GET", permission="view", extension="json", renderer="json")
+@view_config(route_name="chat_list_status_label",      request_method="GET", permission="view")
+@view_config(route_name="chat_list_status_label_ext",  request_method="GET", permission="view", extension="json", renderer="json")
 def chat_list(request):
 
     try:
