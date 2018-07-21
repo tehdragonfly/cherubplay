@@ -2,10 +2,13 @@
 <%def name="render_title()">\
 % if current_status is not None:
 ${current_status.capitalize()} chats\
-% elif current_label is not None:
-Chats labelled "${current_label.replace("_", " ")}"\
-% else:
+% elif current_label is None:
 Your chats\
+% else:
+Chats\
+% endif
+% if current_label is not None:
+ labelled "${current_label.replace("_", " ")}"\
 % endif
 </%def>
 <%block name="title">${render_title()} - </%block>
