@@ -117,9 +117,9 @@ ${label.replace("_", " ")}${", " if not loop.last else ""}\
   <div id="content">
     % if len(chats)==0:
     % if current_status is None:
-    <p>You have no chats. <a href="${request.route_path("home")}">Search for a roleplaying partner to start chatting</a>.</p>
+    <p>You have no chats${" with this label" if current_label else ""}. <a href="${request.route_path("home")}">Search for a roleplaying partner to start chatting</a>.</p>
     % else:
-    <p>You have no ${current_status} chats. <a href="${request.route_path("chat_list")}">Check the full list</a> or <a href="${request.route_path("home")}">search for a roleplaying partner to start chatting</a>.</p>
+    <p>You have no ${current_status} chats${" with this label" if current_label else ""}. <a href="${request.route_path("chat_list")}">Check the full list</a> or <a href="${request.route_path("home")}">search for a roleplaying partner to start chatting</a>.</p>
     % endif
     % else:
     % if paginator.page_count!=1:
