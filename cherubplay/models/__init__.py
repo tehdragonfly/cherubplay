@@ -425,7 +425,7 @@ class Request(Base):
             "tags": {k.value: v for k, v in self.tags_by_type().items()},
             "slots": self.slots,
         }
-        if request is not None:
+        if request is not None and request.user is not None:
             rd["yours"] = request.user.id == self.user_id
         return rd
 
