@@ -75,25 +75,25 @@ ${label.replace("_", " ")}${", " if not loop.last else ""}\
     <nav>
       <h3>Status</h3>
       <ul>
-        % if current_status is None and current_label is None:
+        % if current_status is None:
         <li>All</li>
         % else:
-        <li><a href="${request.route_path("chat_list")}">All</a></li>
+        <li><a href="${request.route_path("chat_list_label", label=current_label) if current_label else request.route_path("chat_list")}">All</a></li>
         % endif
         % if current_status == "unanswered":
         <li>Unanswered</li>
         % else:
-        <li><a href="${request.route_path("chat_list_status", status="unanswered")}">Unanswered</a></li>
+        <li><a href="${request.route_path("chat_list_status_label", status="unanswered", label=current_label) if current_label else request.route_path("chat_list_status", status="unanswered")}">Unanswered</a></li>
         % endif
         % if current_status == "ongoing":
         <li>Ongoing</li>
         % else:
-        <li><a href="${request.route_path("chat_list_status", status="ongoing")}">Ongoing</a></li>
+        <li><a href="${request.route_path("chat_list_status_label", status="ongoing", label=current_label) if current_label else request.route_path("chat_list_status", status="ongoing")}">Ongoing</a></li>
         % endif
         % if current_status == "ended":
         <li>Ended</li>
         % else:
-        <li><a href="${request.route_path("chat_list_status", status="ended")}">Ended</a></li>
+        <li><a href="${request.route_path("chat_list_status_label", status="ended", label=current_label) if current_label else request.route_path("chat_list_status", status="ended")}">Ended</a></li>
         % endif
       </ul>
     </nav>
@@ -103,13 +103,18 @@ ${label.replace("_", " ")}${", " if not loop.last else ""}\
     <nav>
       <h3>Labels</h3>
       <ul>
-      % for label, label_chat_count in labels:
-        % if current_label == label:
-        <li>${label.replace("_", " ")} (${label_chat_count})</li>
+        % if current_label is None:
+          <li>All</li>
         % else:
-        <li><a href="${request.route_path("chat_list_label", label=label)}">${label.replace("_", " ")} (${label_chat_count})</a></li>
+          <li><a href="${request.route_path("chat_list_status", status=current_status) if current_status else request.route_path("chat_list")}">All</a></li>
         % endif
-      % endfor
+        % for label, label_chat_count in labels:
+          % if current_label == label:
+            <li>${label.replace("_", " ")} (${label_chat_count})</li>
+          % else:
+            <li><a href="${request.route_path("chat_list_status_label", status=current_status, label=label) if current_status else request.route_path("chat_list_label", label=label)}">${label.replace("_", " ")} (${label_chat_count})</a></li>
+          % endif
+        % endfor
       </ul>
     </nav>
     % endif
