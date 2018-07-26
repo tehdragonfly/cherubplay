@@ -1083,7 +1083,7 @@ var cherubplay = (function() {
 			var message_symbol = $("#message_form .symbol");
 			var message_text = $("#message_text").keypress(function(e) {
 				changed_since_draft = true;
-				if (e.keyCode == 13 && enter_to_send && !e.shiftKey) {
+				if (e.keyCode == 13 && localStorage.getItem("enter_to_send") == "true" && !e.shiftKey) {
 					message_form.submit();
 					return false;
 				} else if (ws.readyState == 1) {
@@ -1128,8 +1128,6 @@ var cherubplay = (function() {
 			$("#notification_close").click(function() {
 				$("#notification").hide();
 			});
-
-			var enter_to_send = localStorage.getItem("enter_to_send") == "true";
 
 			var changed_since_draft = false;
 			function save_draft() {
