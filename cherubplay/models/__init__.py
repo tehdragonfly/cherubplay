@@ -376,6 +376,8 @@ class Request(Base):
             acl.append((Allow, "admin", "request.read"))
         if self.status == "posted":
             acl.append((Allow, "active", "request.answer"))
+        elif self.status == "removed":
+            acl.append((Allow, "admin", "request.answer"))
         return acl
 
     __tablename__ = "requests"
