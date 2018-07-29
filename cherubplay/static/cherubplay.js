@@ -241,10 +241,30 @@ var cherubplay = (function() {
 
 			var prompt_data = {};
 
+			var category_strings = {
+				"homestuck", "Homestuck",
+				"crossover", "Homestuck crossover",
+				"not-homestuck", "Not Homestuck",
+			};
+			var starter_strings = {
+				"starter", "Starter",
+				"no-starter", "No starter",
+			};
+			var level_strings = {
+				"sfw": "Safe for work",
+				"nsfw": "Not safe for work",
+				"nsfw-extreme": "NSFW extreme",
+			};
+
 			function render_prompt(prompt) {
 				if (filter_phrases.length == 0 || check_filter_phrases(prompt)) {
 					prompt_data[prompt.id] = prompt;
 					var li = $("<li>").attr("id", prompt.id).addClass(tile_class).click(show_overlay);
+					$("<p>").addClass("subtitle").text(
+						category_strings[prompt.category] + ", "
+						+ starter_strings[prompt.starter]+ ", "
+						+ level_strings[prompt.level]
+					).appendTo(li);
 					$("<p>").css("color", "#" + prompt.colour).text(prompt.prompt).appendTo(li);
 					$("<div>").addClass("fade").appendTo(li);
 					li.appendTo(prompt_list);
