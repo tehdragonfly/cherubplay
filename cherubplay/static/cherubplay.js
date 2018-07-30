@@ -242,13 +242,13 @@ var cherubplay = (function() {
 			var prompt_data = {};
 
 			var category_strings = {
-				"homestuck", "Homestuck",
-				"crossover", "Homestuck crossover",
-				"not-homestuck", "Not Homestuck",
+				"homestuck": "Homestuck",
+				"crossover": "Homestuck crossover",
+				"not-homestuck": "Not Homestuck",
 			};
 			var starter_strings = {
-				"starter", "Starter",
-				"no-starter", "No starter",
+				"starter": "Starter",
+				"no-starter": "No starter",
 			};
 			var level_strings = {
 				"sfw": "Safe for work",
@@ -262,7 +262,7 @@ var cherubplay = (function() {
 					var li = $("<li>").attr("id", prompt.id).addClass(tile_class).click(show_overlay);
 					$("<p>").addClass("subtitle").text(
 						category_strings[prompt.category] + ", "
-						+ starter_strings[prompt.starter]+ ", "
+						+ starter_strings[prompt.starter] + ", "
 						+ level_strings[prompt.level]
 					).appendTo(li);
 					$("<p>").css("color", "#" + prompt.colour).text(prompt.prompt).appendTo(li);
