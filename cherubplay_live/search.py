@@ -52,15 +52,15 @@ def check_prompt_hash(user_id, prompt_hash):
 
 def write_message_to_searchers(message, category, starter, level):
     closed_sockets = []
-    for socket in searchers.values():
+    for socket_id, socket in searchers.items():
         if category in socket.categories and starter in socket.starters and level in socket.levels:
             try:
                 socket.write_message(message)
             except WebSocketClosedError:
-                closed_sockets.append(socket.socket_id)
-    for socket in closed_sockets:
-        print("Removing dead searcher %s" % socket.socket_id)
-        searchers.pop(socket.socket_id)
+                closed_sockets.append(socket_id)
+    for socket_id in closed_sockets:
+        print("Removing dead searcher %s" % socket_id)
+        searchers.pop(socket_id)
 
 
 class SearchHandler(WebSocketHandler):
