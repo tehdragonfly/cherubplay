@@ -101,6 +101,7 @@
   </section>
   <section id="overlay">
     <section class="tile">
+      <p id="overlay_subtitle" class="subtitle"></p>
       <p id="overlay_text"></p>
       <button id="overlay_close">Close</button>
       <button id="overlay_report">Report</button>

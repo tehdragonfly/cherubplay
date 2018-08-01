@@ -126,6 +126,7 @@
       </section>
     </div>
     <section class="tile2">
+      <p id="overlay_subtitle" class="subtitle"></p>
       <p id="overlay_text"></p>
     </section>
     <section id="overlay_images"></section>

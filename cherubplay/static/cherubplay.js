@@ -274,12 +274,15 @@ var cherubplay = (function() {
 			var overlay_prompt_id;
 			var overlay = $("#overlay");
 			var overlay_report_and_close = $("#overlay_report_and_close");
+			var overlay_subtitle = $("#overlay_subtitle");
 			var overlay_text = $("#overlay_text");
 			var overlay_images = $("#overlay_images").click(function(e) { e.stopPropagation(); });
 
 			function show_overlay() {
+				var subtitle = $(this).find("p.subtitle");
 				var prompt = $(this).find("p:not(.subtitle)");
 				overlay_prompt_id = this.id;
+				overlay_subtitle.text(subtitle.text());
 				overlay_text.css("color", prompt.css("color")).text(prompt.text());
 				if (body.hasClass("layout2") && prompt_data[this.id] && prompt_data[this.id].images) {
 					var images = prompt_data[this.id].images
