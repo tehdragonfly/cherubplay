@@ -198,6 +198,8 @@ label[for="filter_toggle"]:hover { text-decoration: none; }
 .show_overlay, .show_report_overlay { overflow: hidden; }
 .show_overlay #overlay, .show_report_overlay #report_overlay { display: block; position: fixed; top: 0; right: 0; bottom: 0; left: 0; z-index: 4; overflow-y: scroll; padding: 0 30px; background-color: rgba(238, 238, 238, 0.75); }
 
+#prompt_list li p.subtitle, #overlay_subtitle { margin-bottom: 5px; }
+
 #overlay_report_and_close { position: -webkit-sticky; position: sticky; top: 0; z-index: 3; max-width: 650px; margin: 0 auto; }
 #overlay_report_and_close.fallback .tile2 { position: fixed; z-index: 3; width: 100%; }
 
