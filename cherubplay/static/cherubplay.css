@@ -413,6 +413,8 @@ label[for="filter_toggle"]:hover {
 	background-color: rgba(238, 238, 238, 0.75);
 }
 
+#prompt_list li p.subtitle, #overlay_subtitle { margin-bottom: 5px; }
+
 #post_button, #overlay_close, #overlay_report, #report_overlay_close {
 	float: right;
 }
