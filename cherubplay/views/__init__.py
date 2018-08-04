@@ -36,6 +36,9 @@ def home_guest(request):
 
 @view_config(route_name="sign_up", request_method="POST", renderer="layout2/home_guest.mako")
 def sign_up(request):
+    if "disable_registration" in request.registry.settings:
+        raise HTTPNotFound
+
     login_store = request.find_service(name="redis_login")
 
     # Make sure this IP address hasn't created an account recently.
