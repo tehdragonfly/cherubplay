@@ -15,7 +15,7 @@
     % endif
     % endif
     <section class="tile2 request ${request.context.status}">
-      ${parent.render_request(request.context, expanded=True)}
+      ${parent.render_request(request.context, answered=answered, expanded=True)}
     </section>
     % if chats:
     <ul id="chat_list">

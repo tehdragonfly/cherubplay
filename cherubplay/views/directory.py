@@ -808,16 +808,20 @@ def directory_request(context, request):
         .intersect(db.query(BlacklistedTag.tag_id).filter(BlacklistedTag.user_id == request.user.id))
     )).order_by(Tag.type, Tag.name).all()
 
+    answered = bool(request.find_service(name="redis_login").get("answered:%s:%s" % (request.user.id, context.id)))
+
     if request.matched_route.name == "directory_request_ext":
         return {
             "request": context,
             "chats": [{"chat_user": _[0], "chat": _[1]} for _ in chats],
             "blacklisted_tags": blacklisted_tags,
+            "answered": answered,
         }
 
     return {
         "chats": chats,
         "blacklisted_tags": blacklisted_tags,
+        "answered": answered,
     }
 
 
