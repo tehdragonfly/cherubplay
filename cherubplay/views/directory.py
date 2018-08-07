@@ -940,7 +940,13 @@ def directory_request_kick_post(context, request):
 @view_config(route_name="directory_request_edit", request_method="GET", permission="request.edit", renderer="layout2/directory/new.mako")
 def directory_request_edit_get(context, request):
 
-    form_data = {}
+    form_data = {
+        "colour":    "#" + context.colour,
+        "ooc_notes": context.ooc_notes,
+        "starter":   context.starter,
+        "mode":      "group" if context.slots else "1-on-1",
+        "status":    context.status,
+    }
 
     for tag_type, tags in context.tags_by_type().items():
         if tag_type == TagType.maturity:
@@ -957,12 +963,6 @@ def directory_request_edit_get(context, request):
                 tag.name for tag in tags
                 if tag.name not in request.registry.settings["checkbox_tags." + tag_type.value]
             )
-
-    form_data["colour"]    = "#" + context.colour
-    form_data["ooc_notes"] = context.ooc_notes
-    form_data["starter"]   = context.starter
-    form_data["mode"]      = "group" if context.slots else "1-on-1"
-    form_data["status"]    = context.status
 
     for slot in context.slots:
         if slot.order == 1:
