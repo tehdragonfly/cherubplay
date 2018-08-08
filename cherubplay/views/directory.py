@@ -155,6 +155,8 @@ class ShowBlacklistWarning(Exception): pass
 
 @view_config(context=ShowBlacklistWarning, renderer="layout2/directory/blacklist_warning.mako")
 def blacklist_warning(request):
+    if request.matchdict.get("ext") == "json":
+        return render_to_response("json", {"seen_blacklist_warning": False}, request)
     return {}
 
 
