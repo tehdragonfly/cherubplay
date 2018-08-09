@@ -175,24 +175,25 @@ class RequestListView(object):
         if not self.request.user.seen_blacklist_warning:
             raise ShowBlacklistWarning
 
+        request_service = self.request.find_service(IRequestService)
+        kwargs = {}
+
         if self.request.GET.get("before"):
             try:
-                before_date = datetime.datetime.strptime(
+                kwargs["start"] = datetime.datetime.strptime(
                     self.request.GET["before"],
                     "%Y-%m-%dT%H:%M:%S.%f",
                 )
             except ValueError:
                 raise HTTPNotFound
         else:
-            before_date = None
+            kwargs["start"] = None
 
-        request_service = self.request.find_service(IRequestService)
-        kwargs = {}
         if self.request.GET.get("sort"):
             kwargs["sort"] = self.request.GET["sort"]
-        if before_date:
-            kwargs["start"] = before_date
+
         kwargs.update(self.search_args())
+
         try:
             requests = request_service.search(**kwargs)
         except ValueError:
