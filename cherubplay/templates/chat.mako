@@ -53,9 +53,7 @@
 % else:
         <li><a href="${request.route_path("chat_info", url=request.matchdict["url"])}">Info</a></li>
 % endif
-% if "export" in request.user.flags:
         <li><a href="${request.route_path("chat_export", url=request.matchdict["url"])}">Export</a></li>
-% endif
       </ul>
     </section>
     <form action="${request.route_path("account_layout_version")}" method="post">
