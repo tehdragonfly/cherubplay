@@ -4,13 +4,13 @@ cryptography==2.1.4
 paginate==0.5.6
 psycopg2==2.7.3.2
 PyJWT==1.5.3
-pyramid==1.9.1
+pyramid==1.9.2
 pyramid-celery==3.0.0
 pyramid-chameleon==0.3
 pyramid-debugtoolbar==4.3
 pyramid-mailer==0.15.1
 pyramid-mako==1.0.2
-pyramid-services==1.1
+pyramid-services==2.1
 pyramid-tm==2.2
 pytz==2017.3
 redis==2.10.6
