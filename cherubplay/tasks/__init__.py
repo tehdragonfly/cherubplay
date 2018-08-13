@@ -261,7 +261,12 @@ def export_chat(chat_id: int, user_id: int):
     with db_session() as db, TemporaryDirectory() as workspace:
         start_time    = datetime.datetime.now()
         chat          = db.query(Chat).filter(Chat.id == chat_id).one()
-        chat_user     = db.query(ChatUser).filter(and_(ChatUser.chat_id == chat_id, ChatUser.user_id == user_id)).one()
+        try:
+            chat_user = db.query(ChatUser).filter(and_(ChatUser.chat_id == chat_id, ChatUser.user_id == user_id)).one()
+        except NoResultFound:
+            # ChatUser has probably been deleted since the export was triggered.
+            delete_expired_export.apply_async((chat_id, user_id), countdown=5)
+            raise
 
         chat_export   = db.query(ChatExport).filter(and_(ChatExport.chat_id == chat_id, ChatExport.user_id == user_id)).one()
         if export_chat.request.id and chat_export.celery_task_id != export_chat.request.id:
