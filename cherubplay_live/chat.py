@@ -123,7 +123,8 @@ class ChatHandler(WebSocketHandler):
 
     def on_close(self):
         # Unsubscribe here and let the exit callback handle disconnecting.
-        self.redis_client.unsubscribe(self.redis_channels)
+        if self.redis_client:
+            self.redis_client.unsubscribe(self.redis_channels)
         online_user_store.disconnect(self.chat, self.socket_id)
         # Fire offline message, but only if we don't have any other tabs open.
         if self.chat_user.handle not in online_user_store.online_handles(self.chat):
