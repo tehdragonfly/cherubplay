@@ -242,6 +242,7 @@ class ChatExport(Base):
     chat_id        = Column(Integer, ForeignKey("chats.id"), primary_key=True)
     user_id        = Column(Integer, ForeignKey("users.id"), primary_key=True)
     celery_task_id = Column(UUID, nullable=False)
+    triggered      = Column(DateTime, nullable=False, default=datetime.datetime.now)
     generated      = Column(DateTime)
     expires        = Column(DateTime)
     filename       = Column(Unicode(100))
