@@ -322,6 +322,13 @@ def cleanup_expired_exports():
             delete_expired_export.s(_.chat_id, _.user_id)
             for _ in db.query(ChatExport).filter(ChatExport.expires < func.now())
         ).delay()
+        group(
+            delete_expired_export.s(_.chat_id, _.user_id)
+            for _ in db.query(ChatExport).filter(and_(
+                ChatExport.generated == None,
+                ChatExport.triggered < (func.now() - EXPIRY_TIME),
+            ))
+        ).delay()
 
 
 @app.task(queue="cleanup")
