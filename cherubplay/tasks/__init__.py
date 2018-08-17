@@ -252,11 +252,11 @@ def answer_requests_with_full_slots():
 
 
 MESSAGES_PER_PAGE = 25
-EXPIRY_TIME = datetime.timedelta(3)
 
 
 @app.task(queue="export")
 def export_chat(chat_id: int, user_id: int):
+    settings = app.conf["PYRAMID_REGISTRY"].settings
     log.info("Starting export for chat %s, user %s." % (chat_id, user_id))
     with db_session() as db, TemporaryDirectory() as workspace:
         start_time    = datetime.datetime.now()
@@ -307,7 +307,7 @@ def export_chat(chat_id: int, user_id: int):
         chat_export.filename = filename
 
         chat_export.generated = start_time
-        chat_export.expires   = datetime.datetime.now() + EXPIRY_TIME
+        chat_export.expires   = datetime.datetime.now() + datetime.timedelta(settings["export.expiry_days"])
 
         pathlib.Path(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat_export.file_directory)).mkdir(parents=True, exist_ok=True)
         os.rename(file_in_workspace, os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat_export.file_path))
@@ -317,6 +317,7 @@ def export_chat(chat_id: int, user_id: int):
 
 @app.task(queue="cleanup")
 def cleanup_expired_exports():
+    settings = app.conf["PYRAMID_REGISTRY"].settings
     with db_session() as db:
         group(
             delete_expired_export.s(_.chat_id, _.user_id)
@@ -326,13 +327,14 @@ def cleanup_expired_exports():
             delete_expired_export.s(_.chat_id, _.user_id)
             for _ in db.query(ChatExport).filter(and_(
                 ChatExport.generated == None,
-                ChatExport.triggered < (func.now() - EXPIRY_TIME),
+                ChatExport.triggered < (func.now() - datetime.timedelta(settings["export.expiry_days"])),
             ))
         ).delay()
 
 
 @app.task(queue="cleanup")
 def delete_expired_export(chat_id: int, user_id: int):
+    settings = app.conf["PYRAMID_REGISTRY"].settings
     with db_session() as db:
         try:
             chat_export = db.query(ChatExport).filter(and_(ChatExport.chat_id == chat_id, ChatExport.user_id == user_id)).one()
@@ -340,15 +342,15 @@ def delete_expired_export(chat_id: int, user_id: int):
             return
         if chat_export.filename:
             try:
-                os.remove(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat_export.file_path))
+                os.remove(os.path.join(settings["export_destination"], chat_export.file_path))
             except FileNotFoundError:
                 pass
-            os.rmdir(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat_export.file_directory))
+            os.rmdir(os.path.join(settings["export_destination"], chat_export.file_directory))
             # Try to delete the chat directory.
             # May fail if there's another export, so ignore.
             try:
                 os.rmdir(os.path.join(
-                    app.conf["PYRAMID_REGISTRY"].settings["export_destination"],
+                    settings["export_destination"],
                     chat_export.file_directory.rsplit("/", 1)[0]
                 ))
             except OSError:
