@@ -309,8 +309,8 @@ def export_chat(chat_id: int, user_id: int):
         chat_export.generated = start_time
         chat_export.expires   = datetime.datetime.now() + datetime.timedelta(settings["export.expiry_days"])
 
-        pathlib.Path(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat_export.file_directory)).mkdir(parents=True, exist_ok=True)
-        os.rename(file_in_workspace, os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export_destination"], chat_export.file_path))
+        pathlib.Path(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export.destination"], chat_export.file_directory)).mkdir(parents=True, exist_ok=True)
+        os.rename(file_in_workspace, os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export.destination"], chat_export.file_path))
 
         log.info("Finished export for chat %s, user %s." % (chat_id, user_id))
 
@@ -342,15 +342,15 @@ def delete_expired_export(chat_id: int, user_id: int):
             return
         if chat_export.filename:
             try:
-                os.remove(os.path.join(settings["export_destination"], chat_export.file_path))
+                os.remove(os.path.join(settings["export.destination"], chat_export.file_path))
             except FileNotFoundError:
                 pass
-            os.rmdir(os.path.join(settings["export_destination"], chat_export.file_directory))
+            os.rmdir(os.path.join(settings["export.destination"], chat_export.file_directory))
             # Try to delete the chat directory.
             # May fail if there's another export, so ignore.
             try:
                 os.rmdir(os.path.join(
-                    settings["export_destination"],
+                    settings["export.destination"],
                     chat_export.file_directory.rsplit("/", 1)[0]
                 ))
             except OSError:

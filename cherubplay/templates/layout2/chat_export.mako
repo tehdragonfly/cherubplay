@@ -13,7 +13,7 @@ ${own_chat_user.display_title} - \
         <p>This chat was exported on ${request.user.localise_time(export.generated).strftime("%Y-%m-%d at %H:%M")}.</p>
         <p>Please download it soon - it will expire on ${request.user.localise_time(export.expires).strftime("%Y-%m-%d at %H:%M")}.</p>
         <div class="middle_actions">
-          <a href="${request.registry.settings["export_url"]}/${export.file_path}">Download</a>
+          <a href="${request.registry.settings["export.url"]}/${export.file_path}">Download</a>
         </div>
       </section>
     % elif export:
