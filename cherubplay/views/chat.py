@@ -346,7 +346,7 @@ def _validate_message_form(request, editing=False):
     colour = request.POST["message_colour"]
     if colour.startswith("#"):
         colour = colour[1:]
-    if colour_validator.match(colour) is None:
+    if not colour_validator.match(colour):
         raise HTTPBadRequest("Invalid text colour. The colour needs to be a 6-digit hex code.")
 
     trimmed_message_text = request.POST["message_text"].strip()

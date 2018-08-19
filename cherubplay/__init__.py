@@ -94,7 +94,7 @@ def request_user(request):
             db = request.find_service(name="db")
             user = db.query(User).filter(User.id == int(user_id)).one()
             user.last_online = datetime.now()
-            user.last_ip = request.environ["REMOTE_ADDR"]
+            user.last_ip = request.remote_addr
             if user.status == "banned" and user.unban_date is not None:
                 if user.unban_delta.total_seconds() < 0:
                     user.status = "active"

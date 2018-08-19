@@ -43,7 +43,7 @@ def sign_up(request):
 
     # Make sure this IP address hasn't created an account recently.
     # Also don't explode if Redis is down.
-    ip_check_key = "ip:" + request.environ["REMOTE_ADDR"]
+    ip_check_key = "ip:" + request.remote_addr
     try:
         ip_check = login_store.get(ip_check_key)
     except ConnectionError:
@@ -74,7 +74,7 @@ def sign_up(request):
     new_user = User(
         username=username,
         password=hashpw(request.POST["password"].encode(), gensalt()).decode(),
-        last_ip=request.environ["REMOTE_ADDR"],
+        last_ip=request.remote_addr,
     )
     db.add(new_user)
     db.flush()

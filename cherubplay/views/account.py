@@ -165,7 +165,7 @@ def forgot_password_get(request):
 def forgot_password_post(request):
     login_store = request.find_service(name="redis_login")
 
-    if login_store.get("reset_password_limit:%s" % request.environ["REMOTE_ADDR"]):
+    if login_store.get("reset_password_limit:%s" % request.remote_addr):
         return {"error": "limit"}
 
     username = request.POST["username"].strip()[:User.username.type.length]
@@ -182,7 +182,7 @@ def forgot_password_post(request):
         return {"error": "no_email"}
 
     send_email(request, "reset_password", user, user.email)
-    login_store.setex("reset_password_limit:%s" % request.environ["REMOTE_ADDR"], 86400, 1)
+    login_store.setex("reset_password_limit:%s" % request.remote_addr, 86400, 1)
     login_store.setex("reset_password_limit:%s" % user.id, 86400, 1)
 
     return {"saved": "saved"}
