@@ -1229,6 +1229,7 @@ var cherubplay = (function() {
 				var ws;
 				var ws_works = false;
 				var ws_connected_time = 0;
+				var first_connection = true;
 				function launch_websocket() {
 					var after = latest_message_id ? "?after=" + latest_message_id : ""
 					ws = new WebSocket("wss://" + location.host + "/live/" + chat_url + "/" + after);
@@ -1239,11 +1240,15 @@ var cherubplay = (function() {
 				function ws_onopen(e) {
 					ws_works = true;
 					ws_connected_time = Date.now();
+					first_connection = false;
 					window.setTimeout(ping, 8000);
 					status_bar.text(last_status_message);
 					scroll_to_bottom();
 					if (document.hidden || document.webkitHidden || document.msHidden) {
 						set_title("Connected");
+						if (first_connection) {
+							play_notification_audio();
+						}
 					}
 					if (user_list_entries[own_handle]) {
 						document.getElementById("chat_user_list").classList.add("connected");
