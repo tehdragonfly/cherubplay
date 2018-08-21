@@ -64,17 +64,17 @@ def report_list(request):
 
 def _report_form(context: PromptReport, request, **kwargs):
     db = request.find_service(name="db")
-    return dict(
-        PromptReport=PromptReport,
-        prompt_categories=prompt_categories,
-        prompt_starters=prompt_starters,
-        prompt_levels=prompt_levels,
-        duplicates=(
+    return {
+        "PromptReport": PromptReport,
+        "prompt_categories": prompt_categories,
+        "prompt_starters": prompt_starters,
+        "prompt_levels": prompt_levels,
+        "duplicates": (
             db.query(PromptReport)
             .filter(PromptReport.duplicate_of_id == context.id)
             .order_by(PromptReport.id.desc()).all()
         ),
-        chats=(
+        "chats": (
             db.query(Chat, ChatUser)
             .outerjoin(ChatUser, and_(
                 ChatUser.chat_id == Chat.id,
@@ -86,7 +86,7 @@ def _report_form(context: PromptReport, request, **kwargs):
             .order_by(Chat.id.asc()).all()
         ) if context.chat_ids else [],
         **kwargs
-    )
+    }
 
 
 @view_config(route_name="admin_report", request_method="GET", permission="admin", renderer="layout2/admin/report.mako")
