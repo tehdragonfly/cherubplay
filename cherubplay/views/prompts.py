@@ -40,13 +40,13 @@ def prompt_list(request):
 
 
 def _prompt_form(**kwargs):
-    return dict(
-        preset_colours=preset_colours,
-        prompt_categories=prompt_categories,
-        prompt_starters=prompt_starters,
-        prompt_levels=prompt_levels,
+    return {
+        "preset_colours": preset_colours,
+        "prompt_categories": prompt_categories,
+        "prompt_starters": prompt_starters,
+        "prompt_levels": prompt_levels,
         **kwargs,
-    )
+    }
 
 
 @view_config(route_name="new_prompt", request_method="GET", permission="view", renderer="layout2/new_prompt.mako")
