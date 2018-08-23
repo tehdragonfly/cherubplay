@@ -33,9 +33,6 @@ def prompt_list(request):
         "prompts": prompts,
         "prompt_count": prompt_count,
         "current_page": current_page,
-        "prompt_categories": prompt_categories,
-        "prompt_starters": prompt_starters,
-        "prompt_levels": prompt_levels,
     }
 
 

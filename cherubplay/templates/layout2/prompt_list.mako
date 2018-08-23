@@ -2,7 +2,7 @@
 <%block name="title">Your prompts - </%block>
 <%block name="body_class">layout2</%block>
 <%
-    from cherubplay.lib import make_paginator
+    from cherubplay.lib import make_paginator, prompt_categories, prompt_starters, prompt_levels
     paginator = make_paginator(request, prompt_count, current_page)
 %>
 <h2>Your prompts</h2>
