@@ -95,7 +95,7 @@ def new_prompt_post(request):
 
 @view_config(route_name="prompt", request_method="GET", permission="prompt.read", renderer="layout2/prompt.mako")
 def prompt(context, request):
-    return {"prompt_categories": prompt_categories, "prompt_starters": prompt_starters, "prompt_levels": prompt_levels}
+    return {}
 
 
 @view_config(route_name="prompt_ext", request_method="GET", permission="prompt.read", extension="json", renderer="json")
