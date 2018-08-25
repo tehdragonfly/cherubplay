@@ -147,7 +147,7 @@ def edit_prompt_post(context, request):
 
 @view_config(route_name="delete_prompt", request_method="GET", permission="prompt.delete", renderer="layout2/delete_prompt.mako")
 def delete_prompt_get(context, request):
-    return _prompt_form()
+    return {}
 
 
 @view_config(route_name="delete_prompt", request_method="POST", permission="prompt.delete")

@@ -1,6 +1,7 @@
 <%inherit file="base.mako" />\
 <%block name="title">Delete ${request.context.title} - </%block>
 <%block name="body_class">layout2</%block>
+<% from cherubplay.lib import prompt_categories, prompt_starters, prompt_levels %>
 <h2>Delete ${request.context.title}</h2>
 
 <main class="flex">
