@@ -1,6 +1,7 @@
 <%inherit file="base.mako" />\
 <%block name="title">Write a new prompt - </%block>
 <%block name="body_class">layout2</%block>
+<% from cherubplay.lib import prompt_categories, prompt_starters, prompt_levels %>
 <h2>Write a new prompt</h2>
 <main class="flex">
   <div class="side_column"></div>
