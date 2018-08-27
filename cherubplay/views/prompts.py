@@ -3,7 +3,7 @@ from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.view import view_config
 from sqlalchemy import func
 
-from cherubplay.lib import colour_validator, preset_colours, prompt_categories, prompt_starters, prompt_levels
+from cherubplay.lib import colour_validator, prompt_categories, prompt_starters, prompt_levels
 from cherubplay.models import Prompt
 
 
@@ -46,7 +46,7 @@ def new_prompt_post(request):
 
     trimmed_prompt_title = request.POST.get("prompt_title", "").strip()
     if trimmed_prompt_title == "":
-        return {"error": "blank_title")
+        return {"error": "blank_title"}
 
     colour = request.POST.get("prompt_colour", "")
     if colour.startswith("#"):
@@ -56,7 +56,7 @@ def new_prompt_post(request):
 
     trimmed_prompt_text = request.POST.get("prompt_text", "").strip()
     if trimmed_prompt_text == "":
-        return {"error": "blank_text")
+        return {"error": "blank_text"}
 
     if request.POST.get("prompt_category") not in prompt_categories:
         return {"error": "blank_category"}
