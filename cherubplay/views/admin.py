@@ -8,7 +8,6 @@ from sqlalchemy import and_, func
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
-from cherubplay.lib import prompt_categories, prompt_starters, prompt_levels
 from cherubplay.models import Chat, ChatUser, PromptReport, Request, RequestSlot, User
 from cherubplay.models.enums import ChatSource
 from cherubplay.services.redis import INewsStore
@@ -20,8 +19,8 @@ status_filters = {
 }
 
 
-@view_config(route_name="admin_report_list", renderer="layout2/admin/report_list.mako", request_method="GET", permission="admin")
-@view_config(route_name="admin_report_list_closed", renderer="layout2/admin/report_list.mako", request_method="GET", permission="admin")
+@view_config(route_name="admin_report_list",         renderer="layout2/admin/report_list.mako", request_method="GET", permission="admin")
+@view_config(route_name="admin_report_list_closed",  renderer="layout2/admin/report_list.mako", request_method="GET", permission="admin")
 @view_config(route_name="admin_report_list_invalid", renderer="layout2/admin/report_list.mako", request_method="GET", permission="admin")
 def report_list(request):
 
@@ -52,23 +51,15 @@ def report_list(request):
     )
 
     return {
-        "PromptReport": PromptReport,
         "reports": reports,
         "report_count": report_count,
         "current_page": current_page,
-        "prompt_categories": prompt_categories,
-        "prompt_starters": prompt_starters,
-        "prompt_levels": prompt_levels,
     }
 
 
 def _report_form(context: PromptReport, request, **kwargs):
     db = request.find_service(name="db")
     return {
-        "PromptReport": PromptReport,
-        "prompt_categories": prompt_categories,
-        "prompt_starters": prompt_starters,
-        "prompt_levels": prompt_levels,
         "duplicates": (
             db.query(PromptReport)
             .filter(PromptReport.duplicate_of_id == context.id)

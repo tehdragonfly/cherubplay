@@ -1,6 +1,10 @@
 <%inherit file="../base.mako" />\
 <%block name="title">#${request.context.id} - Prompt reports - </%block>
 <%block name="body_class">layout2</%block>
+<%
+    from cherubplay.lib import prompt_categories, prompt_starters, prompt_levels
+    from cherubplay.models import PromptReport
+%>
 <%def name="render_report(report, detail=True)">\
         <h3>\
 % if detail:

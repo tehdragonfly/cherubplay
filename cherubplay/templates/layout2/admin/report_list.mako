@@ -3,7 +3,8 @@
 <%block name="title">Prompt reports - </%block>
 <%block name="body_class">layout2</%block>
 <%
-    from cherubplay.lib import make_paginator
+    from cherubplay.lib import make_paginator, prompt_categories, prompt_starters, prompt_levels
+    from cherubplay.models import PromptReport
     paginator = make_paginator(request, report_count, current_page)
 %>
 <h2>Prompt reports</h2>
