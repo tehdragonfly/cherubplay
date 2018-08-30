@@ -15,7 +15,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 
 from cherubplay import ChatContext
-from cherubplay.lib import colour_validator, preset_colours, trim_with_ellipsis
+from cherubplay.lib import colour_validator, trim_with_ellipsis
 from cherubplay.models import Chat, ChatExport, ChatUser, Message
 from cherubplay.models.enums import ChatMode, ChatUserStatus, MessageType
 from cherubplay.services.message import IMessageService
@@ -239,7 +239,6 @@ def chat(context: ChatContext, request):
         ) else "chat.mako"
         return render_to_response(template, {
             "page":              "chat",
-            "preset_colours":    preset_colours,
             "chat":              context.chat,
             "own_chat_user":     context.chat_user,
             "from_homepage":     from_homepage,

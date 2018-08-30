@@ -1,5 +1,5 @@
 <%inherit file="base.mako" />\
-<% from cherubplay.lib import symbols %>
+<% from cherubplay.lib import preset_colours, symbols %>
 <%block name="title">${own_chat_user.display_title} - </%block>
 <%def name="render_message(message)">\
 <% from cherubplay.models.enums import MessageType %>\

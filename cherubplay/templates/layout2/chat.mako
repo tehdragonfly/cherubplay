@@ -1,4 +1,5 @@
 <%inherit file="chat_base.mako" />\
+<% from cherubplay.lib import preset_colours %>
 <% from cherubplay.models.enums import ChatMode %>
 <%block name="body_class">layout2 ongoing</%block>
     <ul id="messages" class="tile2">
