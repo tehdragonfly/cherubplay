@@ -1,4 +1,5 @@
 <%inherit file="base.mako" />\
+<% from cherubplay.lib import preset_colours, prompt_categories, prompt_starters, prompt_levels %>\
 % if request.user.status=="banned":
   <h2>Banned</h2>
 % if request.user.unban_date is not None:

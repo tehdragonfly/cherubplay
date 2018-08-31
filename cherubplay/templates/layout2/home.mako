@@ -1,4 +1,5 @@
 <%inherit file="base.mako" />\
+<% from cherubplay.lib import preset_colours, prompt_categories, prompt_starters, prompt_levels %>\
 <%block name="body_class">layout2</%block>
 <main>
 % if request.user.status=="banned":

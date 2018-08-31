@@ -1,14 +1,14 @@
 import uuid
 
 from bcrypt import gensalt, hashpw
-from pyramid.httpexceptions import HTTPForbidden, HTTPFound, HTTPNotFound
+from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.renderers import render_to_response
 from pyramid.security import Authenticated
 from pyramid.view import view_config
 from redis.exceptions import ConnectionError
 from sqlalchemy.orm.exc import NoResultFound
 
-from cherubplay.lib import username_validator, reserved_usernames, preset_colours, prompt_categories, prompt_starters, prompt_levels
+from cherubplay.lib import username_validator, reserved_usernames
 from cherubplay.models import Prompt, User
 from cherubplay.tasks import convert_virtual_connections
 
@@ -22,10 +22,6 @@ def home(request):
             .filter(Prompt.user_id == request.user.id)
             .order_by(Prompt.title).all()
         ),
-        "preset_colours":    preset_colours,
-        "prompt_categories": prompt_categories,
-        "prompt_starters":   prompt_starters,
-        "prompt_levels":     prompt_levels,
     }, request=request)
 
 
