@@ -1,4 +1,5 @@
 <%inherit file="base.mako" />\
+<% from cherubplay.lib import preset_colours %>
 <% from cherubplay.models import Tag %>
 <% from cherubplay.models.enums import TagType %>
 <%block name="heading">\

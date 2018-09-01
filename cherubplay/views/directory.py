@@ -9,7 +9,7 @@ from pyramid.view import view_config
 from sqlalchemy import and_, func, literal
 from sqlalchemy.orm import joinedload
 
-from cherubplay.lib import colour_validator, preset_colours
+from cherubplay.lib import colour_validator
 from cherubplay.models import (
     BlacklistedTag, Chat, ChatUser, Request, RequestSlot, RequestTag, Tag,
     TagParent, TagAddParentSuggestion, TagBumpMaturitySuggestion,
@@ -619,7 +619,7 @@ def directory_random(request):
 
 @view_config(route_name="directory_new", request_method="GET", permission="directory.new_request", renderer="layout2/directory/new.mako")
 def directory_new_get(request):
-    return {"form_data": {"fandom_Homestuck": "on", "fandom_wanted_Homestuck": "on"}, "preset_colours": preset_colours}
+    return {"form_data": {"fandom_Homestuck": "on", "fandom_wanted_Homestuck": "on"}}
 
 
 @view_config(route_name="directory_new", request_method="POST", permission="directory.new_request", renderer="layout2/directory/new.mako")
@@ -628,7 +628,7 @@ def directory_new_post(request):
         colour, ooc_notes, starter = _validate_request_form(request)
         slot_name, slot_descriptions = _validate_request_slots(request)
     except ValidationError as e:
-        return {"form_data": request.POST, "preset_colours": preset_colours, "error": e.message}
+        return {"form_data": request.POST, "error": e.message}
 
     if request.POST.get("status") in ("posted", "locked", "draft"):
         status = request.POST["status"]
@@ -973,7 +973,7 @@ def directory_request_edit_get(context, request):
         else:
             form_data["slot_%s_description" % slot.order] = slot.description or ""
 
-    return {"form_data": form_data, "preset_colours": preset_colours}
+    return {"form_data": form_data}
 
 
 @view_config(route_name="directory_request_edit", request_method="POST", permission="request.edit", renderer="layout2/directory/new.mako")
@@ -983,7 +983,7 @@ def directory_request_edit_post(context, request):
         colour, ooc_notes, starter   = _validate_request_form(request)
         slot_name, slot_descriptions = _validate_request_slots(request)
     except ValidationError as e:
-        return {"form_data": request.POST, "preset_colours": preset_colours, "error": e.message}
+        return {"form_data": request.POST, "error": e.message}
 
     new_date = datetime.datetime.now()
     context.edited = new_date
