@@ -2,8 +2,8 @@
 <% from cherubplay.models.enums import ChatMode %>
 <% from cherubplay.lib import symbols %>
 <%block name="title">
-% if own_chat_user:
-${own_chat_user.display_title} - 
+% if request.context.chat_user:
+${request.context.chat_user.display_title} -
 % endif
 </%block>
 <%block name="body_class">layout2</%block>
@@ -23,21 +23,21 @@ ${own_chat_user.display_title} -
             ${message.handle} ·
           % endif
           ${(request.user.localise_time(message.posted) if request.user is not None else message.posted).strftime("%Y-%m-%d %H:%M:%S")}
-          % if show_edit and own_chat_user.user_id == message.user_id:
+          % if show_edit and request.context.chat_user.user_id == message.user_id:
             · <a href="#" class="edit_link">Edit</a>\
           % endif
         </div>
       </li>
 </%def>\
-% if own_chat_user:
-  <h2>${own_chat_user.display_title}</h2>
+% if request.context.chat_user:
+  <h2>${request.context.chat_user.display_title}</h2>
 % endif
 <main class="flex">
   <div class="side_column">
     <nav>
-      % if own_chat_user:
+      % if request.context.chat_user:
         <ul>
-          % if chat.status == "ongoing":
+          % if request.context.chat.status == "ongoing":
             % if page == "chat":
               <li>Chat</li>
             % else:
