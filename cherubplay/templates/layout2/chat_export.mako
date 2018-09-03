@@ -5,7 +5,7 @@ Export complete - \
 % else:
 Export - \
 % endif
-${own_chat_user.display_title} - \
+${request.context.chat_user.display_title} - \
 </%block>
     % if export and export.filename:
       <section class="tile2">

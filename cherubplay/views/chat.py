@@ -606,12 +606,7 @@ def chat_export_get(context: ChatContext, request):
     if request.matched_route.name == "chat_export_ext":
         return export
 
-    return {
-        "page":          "export",
-        "chat":          context.chat,
-        "own_chat_user": context.chat_user,
-        "export":        export,
-    }
+    return {"page": "export", "export": export}
 
 
 @view_config(route_name="chat_export", request_method="POST", permission="chat.export", renderer="layout2/chat_export.mako")
