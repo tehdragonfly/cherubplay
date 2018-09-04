@@ -1,8 +1,8 @@
 <%inherit file="base.mako" />\
 <% from cherubplay.models.enums import MessageType %>\
 <%namespace name="chat_base" file="chat.mako" />\
-<%block name="title">${own_chat_user.display_title} - </%block>
-${chat_base.render_subnav(action, chat, own_chat_user)}
+<%block name="title">${request.context.chat_user.display_title} - </%block>
+${chat_base.render_subnav(action, request.context.chat, request.context.chat_user)}
   <p>Are you sure you want to ${action} this chat?</p>
 % if prompt:
   <section class="tile message_${prompt.type.value}">
@@ -32,6 +32,6 @@ ${chat_base.render_subnav(action, chat, own_chat_user)}
 % endif
   </section>
 % endif
-  <form action="${request.route_path("chat_"+action, url=chat.url)}" method="post">
+  <form action="${request.route_path("chat_"+action, url=request.context.chat.url)}" method="post">
     <p><button type="submit">${action.capitalize()} chat</button></p>
   </form>

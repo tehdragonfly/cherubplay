@@ -435,8 +435,6 @@ class ChatEndViewBase(object):
         template = "layout2/chat_end.mako" if self.request.user.layout_version == 2 else "chat_end.mako"
         return render_to_response(template, {
             "action":        self.action_name,
-            "chat":          self.context.chat,
-            "own_chat_user": self.context.chat_user,
             "prompt":        prompt,
             "last_message":  last_message,
         }, self.request)

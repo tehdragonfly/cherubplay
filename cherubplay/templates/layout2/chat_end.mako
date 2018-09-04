@@ -33,6 +33,6 @@
     </div>
   </section>
 % endif
-  <form class="actions" action="${request.route_path("chat_"+action, url=chat.url)}" method="post">
+  <form class="actions" action="${request.route_path("chat_"+action, url=request.context.chat.url)}" method="post">
     <div class="right"><button type="submit">${action.capitalize()} chat</button></div>
   </form>
