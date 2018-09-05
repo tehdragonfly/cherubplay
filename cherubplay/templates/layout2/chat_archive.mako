@@ -1,7 +1,7 @@
 <%inherit file="chat_base.mako" />\
 <%block name="title">\
-% if own_chat_user:
-${"Archive - " if continuable else ""}${own_chat_user.display_title} - \
+% if request.context.chat_user:
+${"Archive - " if request.context.is_continuable else ""}${request.context.chat_user.display_title} - \
 % endif
 </%block>
 <%
@@ -18,7 +18,7 @@ ${paginator.pager(format='~5~')|n}
 % for message in messages:
 ${parent.render_message(message)}\
 % endfor
-% if paginator.page == paginator.page_count and continuable:
+% if paginator.page == paginator.page_count and request.context.is_continuable:
       <li class="message_system"><a href="${request.route_path("chat", url=request.matchdict["url"])}">Continue this chat</a></li>
 % endif
     </ul>

@@ -1,16 +1,16 @@
 <%inherit file="base.mako" />\
 <%namespace name="chat_base" file="chat.mako" />\
 <%block name="title">\
-% if own_chat_user:
-${"Archive - " if continuable else ""}${own_chat_user.display_title} - \
+% if request.context.chat_user:
+${"Archive - " if request.context.is_continuable else ""}${request.context.chat_user.display_title} - \
 % endif
 </%block>
 <%
     from cherubplay.lib import make_paginator
     paginator = make_paginator(request, message_count, current_page)
 %>
-% if own_chat_user:
-${chat_base.render_subnav("archive", chat, own_chat_user)}
+% if request.context.chat_user:
+${chat_base.render_subnav("archive", request.context.chat, request.context.chat_user)}
 % endif
 % if symbol_users:
 ${chat_base.user_list(symbol_users)}
@@ -29,7 +29,7 @@ ${chat_base.render_message(message)}\
 % else:
   <p>No messages.</p>
 % endif
-% if paginator.page == paginator.page_count and continuable:
+% if paginator.page == paginator.page_count and request.context.is_continuable:
   <p class="continue tile"><a href="${request.route_path("chat", url=request.matchdict["url"])}">Continue this chat</a></p>
 % endif
 % if paginator.page_count > 1:

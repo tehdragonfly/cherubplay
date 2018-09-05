@@ -319,9 +319,6 @@ def chat(context: ChatContext, request):
     ) else "chat_archive.mako"
     return render_to_response(template, {
         "page":          "archive",
-        "continuable":   context.is_continuable,
-        "chat":          context.chat,
-        "own_chat_user": context.chat_user,
         "messages":      messages,
         "message_count": message_count,
         "current_page":  current_page,
@@ -434,9 +431,9 @@ class ChatEndViewBase(object):
 
         template = "layout2/chat_end.mako" if self.request.user.layout_version == 2 else "chat_end.mako"
         return render_to_response(template, {
-            "action":        self.action_name,
-            "prompt":        prompt,
-            "last_message":  last_message,
+            "action":       self.action_name,
+            "prompt":       prompt,
+            "last_message": last_message,
         }, self.request)
 
 
