@@ -27,17 +27,17 @@ ${away_chat_user.user.away_message}</p></li>
     <section id="message_form_container" class="tile2">
       <form id="message_form" action="${request.route_path("chat_send", url=request.matchdict["url"])}" method="post">
         <div class="actions">
-          <div class="left"><input type="color" id="message_colour" name="message_colour" size="6" value="#${own_chat_user.last_colour}"> <select id="preset_colours" name="preset_colours">
+          <div class="left"><input type="color" id="message_colour" name="message_colour" size="6" value="#${request.context.chat_user.last_colour}"> <select id="preset_colours" name="preset_colours">
             % for hex, name in preset_colours:
             <option value="#${hex}">${name}</option>
             % endfor
           </select></div>
           <label class="right" title="Talk out of character; use ((double brackets)) to automatically OOC."><input id="message_ooc" type="checkbox" name="message_ooc"> OOC</label>
         </div>
-        % if own_chat_user.symbol is not None:
-          <span class="symbol" style="color: #${own_chat_user.last_colour};">${own_chat_user.symbol_character}</span>
+        % if request.context.chat_user.symbol is not None:
+          <span class="symbol" style="color: #${request.context.chat_user.last_colour};">${request.context.chat_user.symbol_character}</span>
         % endif
-        <p><textarea id="message_text" name="message_text" placeholder="Write a message..." style="color: #${own_chat_user.last_colour}">${own_chat_user.draft}</textarea></p>
+        <p><textarea id="message_text" name="message_text" placeholder="Write a message..." style="color: #${request.context.chat_user.last_colour}">${request.context.chat_user.draft}</textarea></p>
         <div class="actions">
           <div class="right"><button type="submit" id="send_button">Send</button></div>
           <div id="info_link" class="left"><a href="${request.route_path("chat_info", url=request.matchdict["url"])}">Edit chat info</a>\
@@ -57,5 +57,5 @@ ${away_chat_user.user.away_message}</p></li>
         <button id="notification_close">Close</button>
     </section>
 <%block name="scripts">
-<script>cherubplay.chat("${request.matchdict["url"]}", "${own_chat_user.handle}");</script>
+<script>cherubplay.chat("${request.matchdict["url"]}", "${request.context.chat_user.handle}");</script>
 </%block>

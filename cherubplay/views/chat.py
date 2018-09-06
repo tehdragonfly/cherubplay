@@ -239,8 +239,6 @@ def chat(context: ChatContext, request):
         ) else "chat.mako"
         return render_to_response(template, {
             "page":              "chat",
-            "chat":              context.chat,
-            "own_chat_user":     context.chat_user,
             "from_homepage":     from_homepage,
             "prompt":            prompt,
             "messages":          messages,

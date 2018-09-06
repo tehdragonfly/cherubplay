@@ -1,6 +1,6 @@
 <%inherit file="base.mako" />\
 <% from cherubplay.lib import preset_colours, symbols %>
-<%block name="title">${own_chat_user.display_title} - </%block>
+<%block name="title">${request.context.chat_user.display_title} - </%block>
 <%def name="render_message(message)">\
 <% from cherubplay.models.enums import MessageType %>\
     <li id="message_${message.id}" class="tile message_${message.type.value}\
@@ -32,11 +32,11 @@
   </section>
 </%def>\
 <%def name="render_subnav(page, chat, own_chat_user)">\
-  <h2>${own_chat_user.display_title}</h2>
+  <h2>${request.context.chat_user.display_title}</h2>
   <nav id="subnav">
     <section class="tile">
       <ul>
-% if chat.status == "ongoing":
+% if request.context.chat.status == "ongoing":
 % if page == "chat":
         <li>Chat</li>
 % else:
@@ -64,7 +64,7 @@
     </form>
   </nav>
 </%def>\
-${render_subnav("chat", chat, own_chat_user)}
+${render_subnav("chat", request.context.chat, request.context.chat_user)}
 % if symbol_users:
 ${user_list(symbol_users)}
 % endif
@@ -84,12 +84,12 @@ Last message: ${request.user.localise_time(messages[-1].posted).strftime("%Y-%m-
 </section>
   <section id="message_form_container" class="tile">
     <form id="message_form" action="${request.route_path("chat_send", url=request.matchdict["url"])}" method="post">
-      <p><input type="color" id="message_colour" name="message_colour" size="6" value="#${own_chat_user.last_colour}"> <select id="preset_colours" name="preset_colours">
+      <p><input type="color" id="message_colour" name="message_colour" size="6" value="#${request.context.chat_user.last_colour}"> <select id="preset_colours" name="preset_colours">
 % for hex, name in preset_colours:
           <option value="#${hex}">${name}</option>
 % endfor
         </select><label title="Talk out of character; use ((double brackets)) to automatically OOC."><input id="message_ooc" type="checkbox" name="message_ooc"> OOC</label></p>
-      <p><textarea id="message_text" name="message_text" placeholder="Write a message..." style="color: #${own_chat_user.last_colour}">${own_chat_user.draft}</textarea></p>
+      <p><textarea id="message_text" name="message_text" placeholder="Write a message..." style="color: #${request.context.chat_user.last_colour}">${request.context.chat_user.draft}</textarea></p>
       <button type="submit" id="send_button">Send</button>
     </form>
     <p id="info_link"><a href="${request.route_path("chat_info", url=request.matchdict["url"])}">Edit chat info</a>\
@@ -99,5 +99,5 @@ Last message: ${request.user.localise_time(messages[-1].posted).strftime("%Y-%m-
 </p>
   </section>
 <%block name="scripts">
-<script>cherubplay.chat("${request.matchdict["url"]}", "${own_chat_user.symbol_character}");</script>
+<script>cherubplay.chat("${request.matchdict["url"]}", "${request.context.chat_user.symbol_character}");</script>
 </%block>
