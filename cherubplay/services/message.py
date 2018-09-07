@@ -1,5 +1,6 @@
 import datetime, json, logging
 
+from functools import singledispatch
 from redis import StrictRedis
 from sqlalchemy import and_
 from typing import Dict, Union
@@ -15,18 +16,27 @@ from cherubplay.tasks import trigger_push_notification
 log = logging.getLogger(__name__)
 
 
-def pubsub_channel(destination: Union[Chat, ChatUser, User]):
-    if type(destination) == Chat:
-        # Chat channel: used for sending ordinary messages.
-        return "chat:%s" % destination.id
-    elif type(destination) == ChatUser:
-        # ChatUser channel: used for single-user messages like kicking.
-        return "chat:%s:user:%s" % (destination.chat_id, destination.user_id)
-    elif type(destination) == User:
-        # User channel: used for cross-chat notifications.
-        return "user:%s" % destination.id
-    else:
-        raise ValueError("object must be Chat, ChatUser or User")
+@singledispatch
+def pubsub_channel(destination):
+    raise ValueError("object must be Chat, ChatUser or User")
+
+
+@pubsub_channel.register(Chat)
+def _(destination: Chat):
+    # Chat channel: used for sending ordinary messages.
+    return "chat:%s" % destination.id
+
+
+@pubsub_channel.register(ChatUser)
+def _(destination: ChatUser):
+    # ChatUser channel: used for single-user messages like kicking.
+    return "chat:%s:user:%s" % (destination.chat_id, destination.user_id)
+
+
+@pubsub_channel.register(User)
+def _(destination: User):
+    # User channel: used for cross-chat notifications.
+    return "user:%s" % destination.id
 
 
 class IMessageService(Interface):
