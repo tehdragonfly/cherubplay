@@ -39,7 +39,7 @@ class ChatHandler(WebSocketHandler):
     redis_client = None
 
     def check_origin(self, origin):
-        return True
+        return origin == config.get("app:main", "cherubplay.socket_origin")
 
     def open(self, chat_url):
         sockets.add(self)

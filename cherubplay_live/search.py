@@ -70,7 +70,7 @@ class SearchHandler(WebSocketHandler):
     state     = "idle"
 
     def check_origin(self, origin):
-        return True
+        return origin == config.get("app:main", "cherubplay.socket_origin")
 
     def open(self):
         with db_session() as db:
