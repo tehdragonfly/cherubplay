@@ -79,7 +79,6 @@ class SearchHandler(WebSocketHandler):
                 self.close()
                 return
         self.socket_id = str(uuid4())
-        self.write_message(json.dumps({"username": self.user.username}))
 
     def reset_state(self):
         if not self.socket_id:
