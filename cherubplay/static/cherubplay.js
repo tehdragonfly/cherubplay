@@ -492,7 +492,6 @@ var cherubplay = (function() {
 				if (ws.readyState==1) {
 					ws.send('{"action":"ping"}');
 					window.setTimeout(ping, 8000);
-					console.log("ping");
 				}
 			}
 
