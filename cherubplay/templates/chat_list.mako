@@ -98,9 +98,9 @@ Started ${chat.created.strftime("%a %d %b %Y")}, last message ${chat.updated.str
 % if prompt is not None:
         <p style="color: #${prompt.colour};">Prompt: \
 % if len(prompt.text)>250:
-${prompt.text[:250]}...\
+${prompt.formatter.as_plain_text()[:250]}...\
 % else:
-${prompt.text}\
+${prompt.formatter.as_plain_text()}\
 % endif
 </p>
 % endif

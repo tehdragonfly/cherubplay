@@ -31,12 +31,12 @@ ${chat.status.capitalize()}. \
 Started ${request.user.localise_time(chat.created).strftime("%a %d %b %Y")}, last message ${request.user.localise_time(chat.updated).strftime("%a %d %b %Y")}. <a href="${request.route_path("chat_info", url=chat.url)}">Edit chat info</a></p>
         % if prompt is not None:
         % if len(prompt.text) <= 250:
-        <p style="color: #${prompt.colour};">${prompt.text}</p>
+        <p style="color: #${prompt.colour};">${prompt.formatter.as_plain_text()}</p>
         % else:
         <div class="expandable">
           <a class="toggle" href="${request.route_path("chat", url=chat.url, _query={"page": 1})}">(more)</a>
           <p class="expanded_content" style="color: #${prompt.colour};" data-href="${request.route_path("chat_ext", ext="json", url=chat.url, _query={"page": 1})}" data-type="chat"></p>
-          <p class="collapsed_content" style="color: #${prompt.colour};">${prompt.text[:250]}...</p>
+          <p class="collapsed_content" style="color: #${prompt.colour};">${prompt.formatter.as_plain_text()[:250]}...</p>
         </div>
         % endif
         % endif

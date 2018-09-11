@@ -156,7 +156,7 @@ def chat_notification(request):
         "title":  own_chat_user.display_title,
         "colour": message.colour,
         "handle": message.symbol_character or message.chat_user.handle,
-        "text":   trim_with_ellipsis(message.text, 100),
+        "text":   trim_with_ellipsis(message.formatter.as_plain_text(), 100),
     }
 
 
