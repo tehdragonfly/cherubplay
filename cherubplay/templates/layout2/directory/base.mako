@@ -156,7 +156,7 @@ ${tag.name}\
                 · Locked
               % endif
             % else:
-              <a href="https://www.tumblr.com/submit_form/cherubplay.tumblr.com/link?post[one]=Report&amp;post[two]=${request.route_url("directory_request", id=rq.id)}" target="_blank">Report</a>
+              <a href="https://cherubplay.tumblr.com/submit" target="_blank">Report</a>
               % if rq.status == "locked":
                 · Locked
               % elif answered:
