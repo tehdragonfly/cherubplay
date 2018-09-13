@@ -142,7 +142,7 @@ def user_status(context: User, request):
 
 @view_config(route_name="admin_user_chat", request_method="POST", permission="admin")
 def user_chat(context: User, request):
-    if context.status == "banned" or context.id == request.user.id:
+    if context.id == request.user.id:
         raise HTTPNotFound
     new_chat = Chat(url=str(uuid.uuid4()), source=ChatSource.admin)
     db = request.find_service(name="db")

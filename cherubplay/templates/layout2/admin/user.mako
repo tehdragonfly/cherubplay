@@ -63,9 +63,6 @@
         </select> <button type="submit">Save</button></p>
       </form>
 % if request.context.status != "banned" and request.context.id != request.user.id:
-      <form action="${request.route_path("admin_user_chat", username=request.matchdict["username"])}" method="post">
-        <p><button type="submit">Chat with ${request.context.username}</button></p>
-      </form>
       <form action="${request.route_path("admin_user_ban", username=request.matchdict["username"])}" method="post">
         <input type="hidden" name="days" value="1">
         <p><button type="submit">Ban for 1 day</button></p>
@@ -73,6 +70,11 @@
       <form action="${request.route_path("admin_user_ban", username=request.matchdict["username"])}" method="post">
         <input type="hidden" name="days" value="7">
         <p><button type="submit">Ban for 7 days</button></p>
+      </form>
+% endif
+% if request.context.id != request.user.id:
+      <form action="${request.route_path("admin_user_chat", username=request.matchdict["username"])}" method="post">
+        <p><button type="submit">Chat with ${request.context.username}</button></p>
       </form>
 % endif
       <form action="${request.route_path("admin_user_reset_password", username=request.matchdict["username"])}" method="post">
