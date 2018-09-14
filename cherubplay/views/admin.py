@@ -133,8 +133,8 @@ def _remove_requests(db, user_id):
 
 @view_config(route_name="admin_user_status", request_method="POST", permission="admin")
 def user_status(context: User, request):
+    context.unban_date = None
     if context.status != "banned" and request.POST["status"] == "banned":
-        context.unban_date = None
         _remove_requests(request.find_service(name="db"), context.id)
     context.status = request.POST["status"]
     return HTTPFound(request.route_path("admin_user", username=context.username, _query={"saved": "status"}))
