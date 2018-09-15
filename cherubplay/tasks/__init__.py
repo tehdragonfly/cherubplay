@@ -57,6 +57,15 @@ def reap_requests():
 
 
 @app.task
+def unban_users():
+    with db_session() as db:
+        db.query(User).filter(and_(
+            User.status == "banned",
+            User.unban_date < func.now(),
+        )).update({"status": "active"}, synchronize_session=False)
+
+
+@app.task
 def update_request_tag_ids(request_id):
     """
     Populate Request.tag_ids with normal tag ids and parent tag ids.
