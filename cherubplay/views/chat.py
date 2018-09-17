@@ -272,7 +272,7 @@ def chat(context: ChatContext, request):
 
     # Hide OOC messages if the chat doesn't belong to us.
     # Also don't hide OOC messages for admins.
-    if not request.has_permission("chat.read_ooc"):
+    if "hide_ooc" in request.GET or not request.has_permission("chat.read_ooc"):
         messages = messages.filter(Message.type != MessageType.ooc)
         message_count = message_count.filter(Message.type != MessageType.ooc)
 
