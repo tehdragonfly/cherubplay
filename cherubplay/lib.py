@@ -12,7 +12,7 @@ def make_paginator(request, item_count, current_page, items_per_page=25):
         page=current_page,
         items_per_page=items_per_page,
         item_count=item_count,
-        url_maker=lambda page: request.current_route_path(_query={"page": page}),
+        url_maker=lambda page: request.current_route_path(_query={**request.GET, "page": page}),
     )
 
 
