@@ -60,11 +60,11 @@
       <section class="tile">
         <ul>
           % if "hide_ooc" in request.GET:
-            <li><a href="${request.route_path("chat_archive", url=request.matchdict["url"])}">Show OOC</a></li>
+            <li><a href="${request.route_path("chat", url=request.matchdict["url"], _query={"page": 1})}">Show OOC</a></li>
             <li>Hide OOC</li>
           % else:
             <li>Show OOC</li>
-            <li><a href="${request.route_path("chat_archive", url=request.matchdict["url"], _query={"hide_ooc": "true"})}">Hide OOC</a></li>
+            <li><a href="${request.route_path("chat", url=request.matchdict["url"], _query={"page": 1, "hide_ooc": "true"})}">Hide OOC</a></li>
           % endif
         </ul>
       </section>
