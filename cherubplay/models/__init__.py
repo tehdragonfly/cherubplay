@@ -339,6 +339,7 @@ class Prompt(Base):
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
     updated = Column(DateTime, nullable=False, default=datetime.datetime.now)
     colour = Column(String(6), nullable=False)
+    format = Column(EnumType(MessageFormat, name=u"message_format"), default=MessageFormat.raw)
     text = Column(UnicodeText, nullable=False)
     category = Column(Unicode(100))
     starter = Column(Unicode(100), nullable=False)
@@ -403,6 +404,7 @@ class Request(Base):
     # Edited indicates when the request was last edited.
     edited = Column(DateTime(), nullable=False, default=datetime.datetime.now)
     colour = Column(Unicode(6), nullable=False, default=u"000000")
+    format = Column(EnumType(MessageFormat, name=u"message_format"), default=MessageFormat.raw)
     ooc_notes = Column(UnicodeText, nullable=False, default=u"")
     starter = Column(UnicodeText, nullable=False, default=u"")
     tag_ids = Column(ARRAY(Integer)) # this makes tag filtering easier
