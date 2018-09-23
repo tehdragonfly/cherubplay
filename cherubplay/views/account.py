@@ -291,7 +291,7 @@ def account_push_unsubscribe(request):
 def account_away_message(request):
     db = request.find_service(name="db")
     db.query(User).filter(User.id == request.user.id).update({
-        "away_message": request.POST.get("away_message", "").strip()[:255] or None,
+        "away_message": request.POST.get("away_message", "").strip()[:500] or None,
     })
     return HTTPFound(request.route_path("account"))
 
