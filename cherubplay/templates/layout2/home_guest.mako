@@ -16,7 +16,7 @@
   </p>
 % endif
   <section id="account_forms">
-  if not "disable_registration" in request.registry.settings:
+  % if not "disable_registration" in request.registry.settings:
   <form action="${request.route_path("sign_up")}" method="post" class="tile2">
     <h3>Create an account</h3>
 % if sign_up_error:
