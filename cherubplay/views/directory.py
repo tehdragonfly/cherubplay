@@ -811,7 +811,11 @@ def directory_request(context, request):
         .intersect(db.query(BlacklistedTag.tag_id).filter(BlacklistedTag.user_id == request.user.id))
     )).order_by(Tag.type, Tag.name).all()
 
-    answered = bool(request.find_service(name="redis_login").get("answered:%s:%s" % (request.user.id, context.id)))
+    login_store = request.find_service(name="redis_login")
+    answered = bool(
+        login_store.get("answered:%s:%s" % (request.user.id, context.id))
+        or login_store.find_service(name="redis_login").get("answered:%s:%s" % (request.user.id, context.prompt_hash))
+    )
 
     if request.matched_route.name == "directory_request_ext":
         return {
@@ -866,7 +870,10 @@ def directory_request_answer_get(context, request):
 def directory_request_answer_post(context, request):
     login_store = request.find_service(name="redis_login")
 
-    if login_store.get("answered:%s:%s" % (request.user.id, context.id)):
+    if (
+        login_store.get("answered:%s:%s" % (request.user.id, context.id))
+        or login_store.get("answered:%s:%s" % (request.user.id, context.prompt_hash))
+    ):
         response = render_to_response("layout2/directory/already_answered.mako", {}, request)
         response.status_int = 403
         return response

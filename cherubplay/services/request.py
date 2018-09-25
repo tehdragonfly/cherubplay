@@ -215,6 +215,7 @@ class RequestService(object):
 
                 if slot.user_id != request.user_id:
                     self._redis.setex("answered:%s:%s" % (slot.user_id, request.id), 86400, request.id)
+                    self._redis.setex("answered:%s:%s" % (slot.user_id, request.prompt_hash), 86400, request.id)
 
                 if slot.user_name in used_names:
                     for n in range(2, 6):
@@ -236,6 +237,7 @@ class RequestService(object):
                 self._db.add(new_chat_user)
         else:
             self._redis.setex("answered:%s:%s" % (as_user.id, request.id), 86400, request.id)
+            self._redis.setex("answered:%s:%s" % (as_user.id, request.id), 86400, request.prompt_hash)
             self._db.add(ChatUser(chat_id=new_chat.id, user_id=request.user_id, symbol=0, last_colour=request.colour))
             self._db.add(ChatUser(chat_id=new_chat.id, user_id=as_user.id, symbol=1))
 
