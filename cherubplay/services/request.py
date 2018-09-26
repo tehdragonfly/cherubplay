@@ -149,6 +149,15 @@ class RequestService(object):
             for rq in requests:
                 pipe.get("answered:%s:%s" % (for_user.id, rq.id))
             answered = set(int(_) for _ in pipe.execute() if _ is not None)
+
+            pipe = self._redis.pipeline()
+            for rq in requests:
+                pipe.get("answered:%s:%s" % (for_user.id, rq.prompt_hash))
+            answered_hashes = set(pipe.execute())
+            for rq in requests:
+                if rq.prompt_hash in answered_hashes:
+                    answered.add(rq.id)
+
         else:
             answered = set()
 
@@ -215,7 +224,7 @@ class RequestService(object):
 
                 if slot.user_id != request.user_id:
                     self._redis.setex("answered:%s:%s" % (slot.user_id, request.id), 86400, request.id)
-                    self._redis.setex("answered:%s:%s" % (slot.user_id, request.prompt_hash), 86400, request.id)
+                    self._redis.setex("answered:%s:%s" % (slot.user_id, request.prompt_hash), 86400, request.prompt_hash)
 
                 if slot.user_name in used_names:
                     for n in range(2, 6):
@@ -237,7 +246,7 @@ class RequestService(object):
                 self._db.add(new_chat_user)
         else:
             self._redis.setex("answered:%s:%s" % (as_user.id, request.id), 86400, request.id)
-            self._redis.setex("answered:%s:%s" % (as_user.id, request.id), 86400, request.prompt_hash)
+            self._redis.setex("answered:%s:%s" % (as_user.id, request.prompt_hash), 86400, request.prompt_hash)
             self._db.add(ChatUser(chat_id=new_chat.id, user_id=request.user_id, symbol=0, last_colour=request.colour))
             self._db.add(ChatUser(chat_id=new_chat.id, user_id=as_user.id, symbol=1))
 
