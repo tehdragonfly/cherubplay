@@ -34,7 +34,16 @@ class RequestList(Sequence):
         return self._requests[key]
 
     def __json__(self, request=None):
-        return list(self)
+        return {
+            "requests": [
+                dict(
+                    _.__json__(request),
+                    answered=_.id in self.answered,
+                )
+                for _ in self
+            ],
+            "next_page_start": self.next_page_start,
+        }
 
 
 sort_choices = {
