@@ -817,7 +817,7 @@ def directory_request(context, request):
     login_store = request.find_service(name="redis_login")
     answered = bool(
         login_store.get("answered:%s:%s" % (request.user.id, context.id))
-        or login_store.find_service(name="redis_login").get("answered:%s:%s" % (request.user.id, context.prompt_hash))
+        or login_store.get("answered:%s:%s" % (request.user.id, context.prompt_hash))
     )
 
     if request.matched_route.name == "directory_request_ext":
