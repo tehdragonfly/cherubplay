@@ -18,6 +18,12 @@ ${paginator.pager(format='~5~')|n}
 % for message in messages:
 ${parent.render_message(message)}\
 % endfor
+% if paginator.page == paginator.page_count and request.context.chat_user and request.context.chat_user.draft:
+      <li class="message_ooc">
+        <p>${request.context.chat_user.draft}</p>
+        <div class="timestamp">Draft</div>
+      </li>
+% endif
 % if paginator.page == paginator.page_count and request.context.is_continuable:
       <li class="message_system"><a href="${request.route_path("chat", url=request.matchdict["url"])}">Continue this chat</a></li>
 % endif
