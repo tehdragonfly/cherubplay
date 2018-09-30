@@ -1,4 +1,5 @@
 <%inherit file="chat_base.mako" />\
+<% from cherubplay.models.enums import ChatMode %>
 <%block name="title">\
 % if request.context.chat_user:
 ${"Archive - " if request.context.is_continuable else ""}${request.context.chat_user.display_title} - \
@@ -21,7 +22,12 @@ ${parent.render_message(message)}\
 % if paginator.page == paginator.page_count and request.context.chat_user and request.context.chat_user.draft:
       <li class="message_ooc">
         <p>${request.context.chat_user.draft}</p>
-        <div class="timestamp">Draft</div>
+        <div class="timestamp">
+          % if request.context.chat.mode == ChatMode.group and request.context.chat_user.handle:
+            ${request.context.chat_user.handle} ·
+          % endif
+          Draft
+        </div>
       </li>
 % endif
 % if paginator.page == paginator.page_count and request.context.is_continuable:
