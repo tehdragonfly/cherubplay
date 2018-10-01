@@ -20,7 +20,7 @@ ${paginator.pager(format='~5~')|n}
 ${parent.render_message(message)}\
 % endfor
 % if paginator.page == paginator.page_count and request.context.chat_user and request.context.chat_user.draft:
-      <li class="message_ooc">
+      <li class="message_draft">
         <p>${request.context.chat_user.draft}</p>
         <div class="timestamp">
           % if request.context.chat.mode == ChatMode.group and request.context.chat_user.handle:
