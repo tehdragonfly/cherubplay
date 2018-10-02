@@ -25,6 +25,11 @@ ${paginator.pager(format='~5~')|n}
 % for message in messages:
 ${chat_base.render_message(message)}\
 % endfor
+% if paginator.page == paginator.page_count and request.context.chat_user and request.context.chat_user.draft:
+    <li class="tile message_draft">
+      <p>${request.context.chat_user.draft}</p>
+    </li>
+% endif
   </ul>
 % else:
   <p>No messages.</p>
