@@ -463,6 +463,10 @@ label[for="filter_toggle"]:hover {
 	text-align: center;
 }
 
+.message_draft {
+	font-style: italic;
+}
+
 .edited p:after {
 	color: #999;
 	content: " (edited)";
