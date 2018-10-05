@@ -19,9 +19,10 @@
           <li>
             <div class="actions">
               <div class="left">
-                ${connection.to_username}
-                % if not connection.is_mutual:
-                  (pending)
+                % if connection.is_mutual:
+                  <a href="${request.route_path("chat_list_label", label=connection.to_username)}">${connection.to_username}</a>
+                % elif not connection.is_mutual:
+                  ${connection.to_username} (pending)
                 % endif
               </div>
               <div class="right">
