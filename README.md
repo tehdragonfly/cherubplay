@@ -1,6 +1,14 @@
 cherubplay README
 ==================
 
+Project structure
+-----------------
+
+* `cherubplay/` - contains the main Pyramid application
+* `cherubplay_live/` - contains Tornado applications for WebSockets
+  * `chat.py` - application for live updates in chats.
+  * `search.py` - application for prompts on the front page.
+
 Setting up a dev environment
 ----------------------------
 
