@@ -4,10 +4,13 @@ cherubplay README
 Project structure
 -----------------
 
-* `cherubplay/` - contains the main Pyramid application
-* `cherubplay_live/` - contains Tornado applications for WebSockets
-  * `chat.py` - application for live updates in chats.
-  * `search.py` - application for prompts on the front page.
+* `cherubplay/` - contains the main Pyramid application.
+  * `scripts/` - various scripts.
+    * `initializedb.py` - script for creating database tables. Installed as `initialize_cherubplay_db`.
+  * `tasks/` - Celery tasks for async work.
+* `cherubplay_live/` - contains Tornado applications for WebSockets.
+  * `chat.py` - application for live updates in chats. Installed as `cherubplay_chat`.
+  * `search.py` - application for prompts on the front page. Installed as `cherubplay_search`.
 
 Setting up a dev environment
 ----------------------------
