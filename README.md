@@ -23,6 +23,8 @@ Install the Cherubplay package:
 
     pip install -e .
 
+`sample.ini` contains an example Paste configuration file. Copy this to `development.ini` and fill in the details.
+
 Create the database tables:
 
     initialize_cherubplay_db development.ini

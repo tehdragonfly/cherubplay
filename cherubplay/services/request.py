@@ -244,7 +244,7 @@ class RequestService(object):
 
                 used_names.add(slot.user_name)
 
-                new_chat_user = ChatUser(chat_id=new_chat.id, user_id=slot.user_id, name=slot.user_name)
+                new_chat_user = ChatUser(chat_id=new_chat.id, user_id=slot.user_id, name=slot.user_name, labels=["group"])
 
                 if slot.user_id == request.user_id:
                     new_chat_user.last_colour = request.colour
