@@ -238,12 +238,12 @@ def chat(context: ChatContext, request):
             or request.user.layout_version == 2
         ) else "chat.mako"
         return render_to_response(template, {
-            "page":              "chat",
-            "from_homepage":     from_homepage,
-            "prompt":            prompt,
-            "messages":          messages,
-            "message_count":     message_count,
-            "symbol_users":      symbol_users,
+            "page":          "chat",
+            "from_homepage": from_homepage,
+            "prompt":        prompt,
+            "messages":      messages,
+            "message_count": message_count,
+            "symbol_users":  symbol_users,
         }, request=request)
 
     # Otherwise show the archive view.
