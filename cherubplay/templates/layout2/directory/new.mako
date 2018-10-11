@@ -10,7 +10,9 @@ Write a new request
 % endif
 </%block>
 <%block name="tag_links">
+% if request.matched_route.name == "directory_new":
 <p>Looking for a specific person? If you know each other's usernames then you can use <a href="${request.route_path("account_connections")}">user connections</a>.</p>
+% endif
 </%block>
   <form id="new_request_form" action="${request.current_route_path()}" method="post">
     <section class="tile2">
