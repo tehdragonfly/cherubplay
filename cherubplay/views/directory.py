@@ -203,8 +203,13 @@ class RequestListView(object):
         if len(requests) == 0 and "before" in self.request.GET:
             raise HTTPNotFound
 
-        response = {"requests": requests}
-        response.update(self.render_args())
+        if self.request.matchdict.get("ext") == "json":
+            return {
+                **requests.__json__(self.request),
+                **self.render_args(),
+            }
+
+        response = {"requests": requests, **self.render_args()}
         return response
 
 
