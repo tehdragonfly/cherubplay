@@ -45,12 +45,16 @@ Cherubplay is currently run using [Supervisor](http://supervisord.org/). Suggest
 Nginx config
 ------------
 
+### Redirect for the bare domain without HTTPS
+
     server {
         listen 80;
         listen [::]:80;
         server_name cherubplay.co.uk;
         return 301 https://cherubplay.co.uk$request_uri;
     }
+
+### Redirect for the bare domain with HTTPS
 
     server {
         listen 443 ssl;
@@ -62,6 +66,15 @@ Nginx config
         return 301 https://www.cherubplay.co.uk$request_uri;
     }
 
+These redirects cause a two-step redirect chain:
+
+1. `http://cherubplay.co.uk/` -> `https://cherubplay.co.uk/`
+2. `https://cherubplay.co.uk/` -> `https://www.cherubplay.co.uk/`
+
+The first step is needed so the browser recieves the HSTS header for the base domain.
+
+### Redirect for www without HTTPS
+
     server {
         listen 80;
         listen [::]:80;
@@ -69,21 +82,26 @@ Nginx config
         return 301 https://www.cherubplay.co.uk$request_uri;
     }
 
+### Actual domain
+
     server {
         listen 443 ssl;
         listen [::]:443 ssl;
-        server_name www.cherubplay.co.uk lurantis.cherubplay.co.uk;
+        server_name www.cherubplay.co.uk;
         charset utf-8;
         ssl_certificate /path/to/letsencrypt/www.cherubplay.co.uk/fullchain.pem;
         ssl_certificate_key /path/to/letsencrypt/www.cherubplay.co.uk/privkey.pem;
         add_header Strict-Transport-Security "max-age=31536000; includeSubdomains";
+        # The service worker is served from /static/ but needs to run on the whole domain.
         add_header Service-Worker-Allowed /;
         location / {
+            # Uses UWSGI to communicate with the main application server
             uwsgi_pass unix:///tmp/cherubplay_uwsgi.sock;
             include uwsgi_params;
             uwsgi_param SCRIPT_NAME "";
         }
         location /search/ {
+            # Proxy to the search WebSocket server
             proxy_pass http://unix:/tmp/cherubplay_search.sock:/;
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
@@ -92,6 +110,7 @@ Nginx config
             proxy_buffering off;
         }
         location /live/ {
+            # Proxy to the chat WebSocket server
             proxy_pass http://unix:/tmp/cherubplay_chat.sock:/;
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
@@ -100,12 +119,15 @@ Nginx config
             proxy_buffering off;
         }
         location /static/ {
+            # Static files
             root /path/to/virtualenv/cherubplay/cherubplay/;
         }
         location /export/ {
+            # Storage for exported chats
             root /path/to/export/;
         }
         location /.well-known/acme-challenge/ {
+            # ACME challenge directory for certificate renewal
             root /usr/share/nginx/html/acme/;
         }
     }
