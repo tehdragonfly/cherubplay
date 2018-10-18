@@ -16,7 +16,7 @@ from cherubplay.models import (
     TagMakeSynonymSuggestion, User,
 )
 from cherubplay.models.enums import ChatUserStatus, TagType
-from cherubplay.resources import CircularReferenceException
+from cherubplay.resources import CircularReferenceException, TagPair
 from cherubplay.services.request import IRequestService
 from cherubplay.services.tag import CreateNotAllowed, ITagService
 from cherubplay.tasks import update_request_tag_ids
@@ -397,7 +397,7 @@ class DirectoryTag(RequestListView):
 
 
 @view_config(route_name="directory_tag_approve", request_method="POST", permission="directory.manage_tags")
-def directory_tag_approve(context, request):
+def directory_tag_approve(context: TagPair, request):
     for tag in context.tags:
         if tag.synonym_id is not None:
             raise HTTPNotFound
@@ -409,7 +409,7 @@ def directory_tag_approve(context, request):
 
 
 @view_config(route_name="directory_tag_suggest", request_method="GET", permission="directory.suggest", renderer="layout2/directory/tag_suggest.mako")
-def directory_tag_suggest_get(context, request):
+def directory_tag_suggest_get(context: TagPair, request):
     if context.tags[0].type in (TagType.maturity, TagType.type):
         raise HTTPNotFound
     db = request.find_service(name="db")
@@ -435,7 +435,7 @@ def directory_tag_suggest_get(context, request):
 
 
 @view_config(route_name="directory_tag_suggest_make_synonym", request_method="POST", permission="directory.suggest")
-def directory_tag_suggest_make_synonym_post(context, request):
+def directory_tag_suggest_make_synonym_post(context: TagPair, request):
     if context.tags[0].synonym_id:
         return HTTPFound(request.route_path("directory_tag_suggest", **request.matchdict))
 
@@ -476,7 +476,7 @@ def directory_tag_suggest_make_synonym_post(context, request):
 
 
 @view_config(route_name="directory_tag_suggest_add_parent", request_method="POST", permission="directory.suggest")
-def directory_tag_suggest_add_parent_post(context, request):
+def directory_tag_suggest_add_parent_post(context: TagPair, request):
     try:
         new_type = TagType(request.POST["tag_type"]).pair[0]
     except ValueError:
@@ -520,7 +520,7 @@ def directory_tag_suggest_add_parent_post(context, request):
 
 
 @view_config(route_name="directory_tag_suggest_bump_maturity", request_method="POST", permission="directory.suggest")
-def directory_tag_suggest_bump_maturity_post(context, request):
+def directory_tag_suggest_bump_maturity_post(context: TagPair, request):
     if context.tags[0].bump_maturity:
         return HTTPFound(request.route_path("directory_tag_suggest", **request.matchdict))
 
@@ -542,7 +542,7 @@ def directory_tag_suggest_bump_maturity_post(context, request):
 
 
 @view_config(route_name="directory_tag_make_synonym", request_method="POST", permission="directory.manage_tags")
-def directory_tag_make_synonym(context, request):
+def directory_tag_make_synonym(context: TagPair, request):
     try:
         new_type = TagType(request.POST["tag_type"])
     except ValueError:
@@ -565,7 +565,7 @@ def directory_tag_make_synonym(context, request):
 
 
 @view_config(route_name="directory_tag_add_parent", request_method="POST", permission="directory.manage_tags")
-def directory_tag_add_parent(context, request):
+def directory_tag_add_parent(context: TagPair, request):
     try:
         parent_type = TagType(request.POST["tag_type"])
     except ValueError:
@@ -584,7 +584,7 @@ def directory_tag_add_parent(context, request):
 
 
 @view_config(route_name="directory_tag_bump_maturity", request_method="POST", permission="directory.manage_tags")
-def directory_tag_bump_maturity(context, request):
+def directory_tag_bump_maturity(context: TagPair, request):
     context.set_bump_maturity(request.POST.get("bump_maturity") == "on")
     return HTTPFound(request.route_path("directory_tag", tag_string=request.matchdict["type"] + ":" + request.matchdict["name"]))
 
@@ -802,7 +802,7 @@ def directory_blacklist_remove(request):
 
 @view_config(route_name="directory_request",     request_method="GET", permission="request.read", renderer="layout2/directory/request.mako")
 @view_config(route_name="directory_request_ext", request_method="GET", permission="request.read", extension="json", renderer="json")
-def directory_request(context, request):
+def directory_request(context: Request, request):
 
     db = request.find_service(name="db")
     chats = db.query(ChatUser, Chat).join(Chat).filter(
@@ -837,7 +837,7 @@ def directory_request(context, request):
     }
 
 
-def _get_current_slot(context, request):
+def _get_current_slot(context: Request, request):
     try:
         order = int(request.GET.get("slot"))
     except (TypeError, ValueError):
@@ -857,7 +857,7 @@ def _get_current_slot(context, request):
 
 
 @view_config(route_name="directory_request_answer", request_method="GET", permission="request.answer")
-def directory_request_answer_get(context, request):
+def directory_request_answer_get(context: Request, request):
     if not context.slots:
         raise HTTPNotFound
 
@@ -872,7 +872,7 @@ def directory_request_answer_get(context, request):
 
 
 @view_config(route_name="directory_request_answer", request_method="POST", permission="request.answer")
-def directory_request_answer_post(context, request):
+def directory_request_answer_post(context: Request, request):
     login_store = request.find_service(name="redis_login")
 
     if (
@@ -917,7 +917,7 @@ def directory_request_answer_post(context, request):
 
 
 @view_config(route_name="directory_request_unanswer", request_method="POST", permission="request.answer")
-def directory_request_unanswer_post(context, request):
+def directory_request_unanswer_post(context: Request, request):
     if request.user.id == context.user_id:
         raise HTTPNotFound
 
@@ -934,7 +934,7 @@ def directory_request_unanswer_post(context, request):
 
 
 @view_config(route_name="directory_request_kick", request_method="POST", permission="request.edit")
-def directory_request_kick_post(context, request):
+def directory_request_kick_post(context: Request, request):
     try:
         order = int(request.POST.get("slot"))
     except (TypeError, ValueError):
@@ -953,7 +953,7 @@ def directory_request_kick_post(context, request):
 
 
 @view_config(route_name="directory_request_edit", request_method="GET", permission="request.edit", renderer="layout2/directory/new.mako")
-def directory_request_edit_get(context, request):
+def directory_request_edit_get(context: Request, request):
 
     form_data = {
         "colour":    "#" + context.colour,
@@ -989,7 +989,7 @@ def directory_request_edit_get(context, request):
 
 
 @view_config(route_name="directory_request_edit", request_method="POST", permission="request.edit", renderer="layout2/directory/new.mako")
-def directory_request_edit_post(context, request):
+def directory_request_edit_post(context: Request, request):
 
     try:
         colour, ooc_notes, starter   = _validate_request_form(request)
@@ -1046,24 +1046,24 @@ def directory_request_edit_post(context, request):
 
 
 @view_config(route_name="directory_request_delete", request_method="GET", permission="request.delete", renderer="layout2/directory/request_delete.mako")
-def directory_request_delete_get(context, request):
+def directory_request_delete_get(context: Request, request):
     return {}
 
 
 @view_config(route_name="directory_request_delete", request_method="POST", permission="request.delete")
-def directory_request_delete_post(context, request):
+def directory_request_delete_post(context: Request, request):
     request.find_service(IRequestService).delete(context)
     return HTTPFound(request.route_path("directory_yours"))
 
 
 @view_config(route_name="directory_request_remove", request_method="POST", permission="request.remove")
-def directory_request_remove(context, request):
+def directory_request_remove(context: Request, request):
     context.status = "removed"
     return HTTPFound(request.route_path("directory_request", id=context.id))
 
 
 @view_config(route_name="directory_request_unremove", request_method="POST", permission="request.remove")
-def directory_request_unremove(context, request):
+def directory_request_unremove(context: Request, request):
     context.status = "draft"
     return HTTPFound(request.route_path("directory_request", id=context.id))
 
