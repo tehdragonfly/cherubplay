@@ -5,36 +5,19 @@ from markupsafe import escape, Markup
 from cherubplay.models.enums import MessageFormat
 
 
-class Formatter:
-    def __init__(self, message):
-        self._message = message
-
-    def as_plain_text(self) -> str:
-        # For notifications etc.
-        raise NotImplementedError
-
-    def as_html(self) -> Markup:
-        # For chat pages.
-        raise NotImplementedError
-
-
 linebreak_regex = re.compile(r"[\r\n]+")
 paragraph = Markup("<p>%s</p>")
 
 
-class RawFormatter(Formatter):
-    def as_plain_text(self) -> str:
-        return self._message.text
+plain_text_formatters = {
+    MessageFormat.raw: lambda value: value,
+}
 
-    def as_html(self) -> Markup:
-        return Markup("\n").join(
-            paragraph % escape(line)
-            for line in linebreak_regex.split(self._message.text)
-        )
-
-
-message_formatters = {
-    MessageFormat.raw: RawFormatter,
+html_formatters = {
+    MessageFormat.raw: lambda value: Markup("\n").join(
+        paragraph % escape(line)
+        for line in linebreak_regex.split(value)
+    ),
 }
 
 
@@ -46,11 +29,11 @@ class FormattedValue:
 
     def as_plain_text(self) -> str:
         # For notifications etc.
-        return getattr(self._obj, self._text_attr)
+        return plain_text_formatters[getattr(self._obj, self._format_attr)](getattr(self._obj, self._text_attr))
 
     def as_html(self) -> Markup:
         # For chat pages.
-        raise NotImplementedError
+        return html_formatters[getattr(self._obj, self._format_attr)](getattr(self._obj, self._text_attr))
 
 
 class FormattedField:

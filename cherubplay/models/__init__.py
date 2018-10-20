@@ -38,7 +38,7 @@ from sqlalchemy_enum34 import EnumType
 from zope.sqlalchemy import ZopeTransactionExtension
 
 from cherubplay.lib import prompt_hash, symbols, trim_with_ellipsis
-from cherubplay.lib.formatters import message_formatters
+from cherubplay.lib.formatters import FormattedField
 from cherubplay.models.enums import ChatMode, ChatSource, ChatUserStatus, MessageFormat, MessageType, TagType
 
 Base = declarative_base()
@@ -146,13 +146,14 @@ class Message(Base):
     type = Column(EnumType(MessageType, name=u"message_type"), nullable=False, default=MessageType.ic)
     colour = Column(String(6), nullable=False, default="000000")
     symbol = Column(Integer)
-    format = Column(EnumType(MessageFormat, name=u"message_format"), default=MessageFormat.raw) # TODO set nullable=False
-    text = Column(UnicodeText, nullable=False)
+    _format = Column("format", EnumType(MessageFormat, name=u"message_format"), default=MessageFormat.raw) # TODO set nullable=False
+    _text = Column("text", UnicodeText, nullable=False)
+    text = FormattedField("_format", "_text")
     posted = Column(DateTime, nullable=False, default=datetime.datetime.now)
     edited = Column(DateTime, nullable=False, default=datetime.datetime.now)
 
     def __repr__(self):
-        return "<Message #%s: \"%s\">" % (self.id, trim_with_ellipsis(self.text, 37))
+        return "<Message #%s: \"%s\">" % (self.id, trim_with_ellipsis(self.text.as_plain_text(), 37))
 
     def __json__(self, request=None):
         return {
@@ -163,8 +164,8 @@ class Message(Base):
             "symbol_character": self.symbol_character,
             "handle": self.handle,
             "format": self.format,
-            "text": self.formatter.as_plain_text(),
-            "html": self.formatter.as_html(),
+            "text": self.text.as_plain_text(),
+            "html": self.text.as_html(),
             "posted": self.posted,
             "edited": self.edited,
             "show_edited": self.show_edited,
@@ -184,10 +185,6 @@ class Message(Base):
             return self.symbol_character
         if self.user_id and self.chat_user:
             return self.chat_user.handle
-
-    @reify
-    def formatter(self):
-        return message_formatters[self.format](self)
 
 
 class ChatUser(Base):
