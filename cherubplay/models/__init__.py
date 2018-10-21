@@ -336,8 +336,9 @@ class Prompt(Base):
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
     updated = Column(DateTime, nullable=False, default=datetime.datetime.now)
     colour = Column(String(6), nullable=False)
-    format = Column(EnumType(MessageFormat, name=u"message_format"), default=MessageFormat.raw)
-    text = Column(UnicodeText, nullable=False)
+    _format = Column("format", EnumType(MessageFormat, name=u"message_format"), default=MessageFormat.raw)
+    _text = Column("text", UnicodeText, nullable=False)
+    text = FormattedField("_format", "_text")
     category = Column(Unicode(100))
     starter = Column(Unicode(100), nullable=False)
     level = Column(Unicode(100), nullable=False)
@@ -401,9 +402,11 @@ class Request(Base):
     # Edited indicates when the request was last edited.
     edited = Column(DateTime(), nullable=False, default=datetime.datetime.now)
     colour = Column(Unicode(6), nullable=False, default=u"000000")
-    format = Column(EnumType(MessageFormat, name=u"message_format"), default=MessageFormat.raw)
-    ooc_notes = Column(UnicodeText, nullable=False, default=u"")
-    starter = Column(UnicodeText, nullable=False, default=u"")
+    _format = Column("format", EnumType(MessageFormat, name=u"message_format"), default=MessageFormat.raw)
+    _ooc_notes = Column("ooc_notes", UnicodeText, nullable=False, default=u"")
+    ooc_notes = FormattedField("_format", "_ooc_notes")
+    _starter = Column("starter", UnicodeText, nullable=False, default=u"")
+    starter = FormattedField("_format", "_starter")
     tag_ids = Column(ARRAY(Integer)) # this makes tag filtering easier
     duplicate_of_id = Column(Integer, ForeignKey("requests.id"))
 
