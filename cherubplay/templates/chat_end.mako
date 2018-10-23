@@ -9,12 +9,12 @@ ${chat_base.render_subnav(action, request.context.chat, request.context.chat_use
     <h3>Prompt</h3>
 % if prompt.symbol is not None:
 % if prompt.type == MessageType.system:
-      <p style="color: #${prompt.colour};">${prompt.text % prompt.symbol_character}</p>
+      <p style="color: #${prompt.colour};">${prompt.text.as_plain_text() % prompt.symbol_character}</p>
 % else:
-      <p style="color: #${prompt.colour};">${prompt.symbol_character}: ${prompt.formatter.as_html()}</p>
+      <p style="color: #${prompt.colour};">${prompt.symbol_character}: ${prompt.text.as_html()}</p>
 % endif
 % else:
-      <p style="color: #${prompt.colour};">${prompt.formatter.as_html()}</p>
+      <p style="color: #${prompt.colour};">${prompt.text.as_html()}</p>
 % endif
   </section>
 % endif
@@ -25,10 +25,10 @@ ${chat_base.render_subnav(action, request.context.chat, request.context.chat_use
 % if last_message.type == MessageType.system:
       <p style="color: #${last_message.colour};">${last_message.text % last_message.symbol_character}</p>
 % else:
-      <p style="color: #${last_message.colour};">${last_message.symbol_character}: ${last_message.formatter.as_html()}</p>
+      <p style="color: #${last_message.colour};">${last_message.symbol_character}: ${last_message.text.as_html()}</p>
 % endif
 % else:
-      <p style="color: #${last_message.colour};">${last_message.formatter.as_html()}</p>
+      <p style="color: #${last_message.colour};">${last_message.text.as_html()}</p>
 % endif
   </section>
 % endif

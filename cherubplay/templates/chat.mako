@@ -11,17 +11,18 @@
 % if message.symbol is not None:
  data-symbol="${message.symbol_character}">
 % if message.type == MessageType.system:
-      <p style="color: #${message.colour};">${message.text % message.symbol_character}</p>
+      <p style="color: #${message.colour};">${message.text.as_plain_text() % message.symbol_character}</p>
 % else:
-      <p style="color: #${message.colour};">${message.symbol_character}: ${message.formatter.as_html()}</p>
+      <p style="color: #${message.colour};">${message.symbol_character}: ${message.text.as_html()}</p>
 % endif
 % else:
 >
-      <p style="color: #${message.colour};">${message.formatter.as_html()}</p>
+      <p style="color: #${message.colour};">${message.text.as_html()}</p>
 % endif
     </li>
 </%def>\
 <%def name="user_list(symbol_users)">\
+  <% from cherubplay.lib import symbols %>\
   <section class="tile">
     <h3>Users</h3>
     <ul>
