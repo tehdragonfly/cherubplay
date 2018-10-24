@@ -24,13 +24,13 @@
       <li class="tile2">
         <h3><a href="${request.route_path("prompt", id=prompt.id)}">${prompt.title}</a></h3>
         <p class="subtitle">${prompt_categories[prompt.category] if prompt.category else "<span class=\"error\">Category not set</span>"|n}, ${prompt_starters[prompt.starter]}, ${prompt_levels[prompt.level]}, written ${request.user.localise_time(prompt.created).strftime("%a %d %b %Y")}.</p>
-        % if len(prompt.text) <= 250:
-        <p style="color: #${prompt.colour};">${prompt.text}</p>
+        % if len(prompt.text.as_plain_text()) <= 250:
+        <div style="color: #${prompt.colour};">${prompt.text.as_html()}</div>
         % else:
         <div class="expandable">
           <a class="toggle" href="${request.route_path("prompt", id=prompt.id)}">(more)</a>
-          <p class="expanded_content" style="color: #${prompt.colour};" data-href="${request.route_path("prompt_ext", ext="json", id=prompt.id)}" data-type="prompt"></p>
-          <p class="collapsed_content" style="color: #${prompt.colour};">${prompt.text[:250]}...</p>
+          <div class="expanded_content" style="color: #${prompt.colour};" data-href="${request.route_path("prompt_ext", ext="json", id=prompt.id)}" data-type="prompt"></div>
+          <p class="collapsed_content" style="color: #${prompt.colour};">${prompt.text.as_plain_text()[:250]}...</p>
         </div>
         % endif
       </li>

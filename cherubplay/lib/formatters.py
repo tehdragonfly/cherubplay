@@ -27,6 +27,10 @@ class FormattedValue:
         self._format_attr = format_attr
         self._text_attr = text_attr
 
+    @property
+    def raw(self) -> str:
+        return getattr(self._obj, self._text_attr)
+
     def as_plain_text(self) -> str:
         # For notifications etc.
         return plain_text_formatters[getattr(self._obj, self._format_attr)](getattr(self._obj, self._text_attr))

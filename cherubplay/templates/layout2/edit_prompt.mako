@@ -20,7 +20,7 @@
 % if error == "invalid_colour":
       <p class="error">Invalid text colour. The colour needs to be a 6-digit hex code.</p>
 % endif
-      <p><textarea id="prompt_text" name="prompt_text" placeholder="Enter your prompt..." required style="color: ${request.POST.get("prompt_colour") or "#" + request.context.colour};">${request.POST.get("prompt_text") or request.context.text}</textarea></p>
+      <p><textarea id="prompt_text" name="prompt_text" placeholder="Enter your prompt..." required style="color: ${request.POST.get("prompt_colour") or "#" + request.context.colour};">${request.POST.get("prompt_text") or request.context.text.raw}</textarea></p>
 % if error == "blank_text":
       <p class="error">Prompt text can't be empty.</p>
 % endif
