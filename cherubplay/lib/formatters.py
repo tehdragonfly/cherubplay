@@ -28,6 +28,10 @@ class FormattedValue:
         self._text_attr = text_attr
 
     @property
+    def format(self) -> str:
+        return getattr(self._obj, self._format_attr)
+
+    @property
     def raw(self) -> str:
         return getattr(self._obj, self._text_attr)
 
@@ -38,6 +42,14 @@ class FormattedValue:
     def as_html(self) -> Markup:
         # For chat pages.
         return html_formatters[getattr(self._obj, self._format_attr)](getattr(self._obj, self._text_attr))
+
+    def __json__(self, request=None):
+        return {
+            "format": self.format,
+            "raw": self.raw,
+            "as_plain_text": self.as_plain_text(),
+            "as_html": self.as_html(),
+        }
 
 
 class FormattedField:
