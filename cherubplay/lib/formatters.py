@@ -27,6 +27,9 @@ class FormattedValue:
         self._format_attr = format_attr
         self._text_attr = text_attr
 
+    def __bool__(self):
+        return bool(getattr(self._obj, self._text_attr))
+
     @property
     def format(self) -> str:
         return getattr(self._obj, self._format_attr)

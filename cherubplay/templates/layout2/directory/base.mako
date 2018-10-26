@@ -70,25 +70,25 @@ ${tag.name}\
         % endif
         % if rq.ooc_notes:
         <hr>
-        % if expanded or len(rq.ooc_notes) <= 250:
-        <p>${rq.ooc_notes}</p>
+        % if expanded or len(rq.ooc_notes.as_plain_text()) <= 250:
+        <p>${rq.ooc_notes.as_html()}</p>
         % else:
         <div class="expandable">
           <a class="toggle" href="${request.route_path("directory_request", id=rq.id)}">(more)</a>
           <p class="expanded_content" data-href="${request.route_path("directory_request_ext", ext="json", id=rq.id)}" data-type="request_ooc_notes"></p>
-          <p class="collapsed_content">${rq.ooc_notes[:250]}...</p>
+          <p class="collapsed_content">${rq.ooc_notes.as_plain_text()[:250]}...</p>
         </div>
         % endif
         % endif
         % if rq.starter:
         <hr>
-        % if expanded or len(rq.starter) <= 250:
-        <p style="color: #${rq.colour};">${rq.starter}</p>
+        % if expanded or len(rq.starter.as_plain_text()) <= 250:
+        <p style="color: #${rq.colour};">${rq.starter.as_html()}</p>
         % else:
         <div class="expandable">
           <a class="toggle" href="${request.route_path("directory_request", id=rq.id)}">(more)</a>
           <p class="expanded_content" style="color: #${rq.colour};" data-href="${request.route_path("directory_request_ext", ext="json", id=rq.id)}" data-type="request_starter"></p>
-          <p class="collapsed_content" style="color: #${rq.colour};">${rq.starter[:250]}...</p>
+          <p class="collapsed_content" style="color: #${rq.colour};">${rq.starter.as_plain_text()[:250]}...</p>
         </div>
         % endif
         % endif
