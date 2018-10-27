@@ -71,7 +71,7 @@ def new_prompt_post(request):
         user_id=request.user.id,
         title=trimmed_prompt_title,
         colour=colour,
-        text=trimmed_prompt_text,
+        _text=trimmed_prompt_text,
         category=request.POST["prompt_category"],
         starter=request.POST["prompt_starter"],
         level=request.POST["prompt_level"],

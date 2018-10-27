@@ -100,7 +100,7 @@ class MessageService(object):
             type=type,
             colour=colour,
             symbol=chat_user.symbol,
-            text=text,
+            _text=text,
             posted=posted_date,
             edited=posted_date,
         )
