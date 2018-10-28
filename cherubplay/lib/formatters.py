@@ -64,3 +64,8 @@ class FormattedField:
         if not instance:
             raise ValueError("can only be accessed from an instance")
         return FormattedValue(instance, self._format_attr, self._text_attr)
+
+    def __set__(self, instance, value):
+        if not instance:
+            raise ValueError("can only be set from an instance")
+        setattr(instance, self._text_attr, value)
