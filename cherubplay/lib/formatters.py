@@ -54,6 +54,10 @@ class FormattedValue:
             "as_html": self.as_html(),
         }
 
+    def update(self, format: MessageFormat, text: str):
+        setattr(self._obj, self._format_attr, format)
+        setattr(self._obj, self._text_attr,   text)
+
 
 class FormattedField:
     def __init__(self, format_attr, text_attr):
