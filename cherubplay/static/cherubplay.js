@@ -1194,7 +1194,11 @@ var cherubplay = (function() {
 					} else {
 						var text = message.text;
 					}
-					$("<p>").text(text).appendTo(li);
+					if (message.html) {
+						li[0].insertAdjacentHTML("beforeend", message.html);
+					} else {
+						$("<p>").text(text).appendTo(li);
+					}
 					timestamp.appendTo(li);
 					li.appendTo(messages);
 				} else {
