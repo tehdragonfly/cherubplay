@@ -8,7 +8,7 @@ from zope.interface import Interface, implementer
 
 from cherubplay.lib import trim_with_ellipsis
 from cherubplay.models import Chat, ChatUser, ChatUserStatus, Message, User
-from cherubplay.models.enums import MessageType
+from cherubplay.models.enums import MessageFormat, MessageType
 from cherubplay.services.redis import IOnlineUserStore
 from cherubplay.tasks import trigger_push_notification
 
@@ -100,10 +100,10 @@ class MessageService(object):
             type=type,
             colour=colour,
             symbol=chat_user.symbol,
-            _text=text,
             posted=posted_date,
             edited=posted_date,
         )
+        new_message.text.update(MessageFormat.raw, text)
         self._db.add(new_message)
         self._db.flush()
 
