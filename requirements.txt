@@ -14,7 +14,7 @@ pyramid-services==2.1
 pyramid-tm==2.2
 pytz==2018.5
 redis==2.10.6
-requests==2.19.1
+requests==2.20.0
 SQLAlchemy==1.1.15
 SQLAlchemy-Enum34==1.0.1
 tornado==4.5.2
