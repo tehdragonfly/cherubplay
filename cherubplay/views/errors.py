@@ -1,5 +1,9 @@
+from logging import getLogger
 from pyramid.renderers import render_to_response
 from pyramid.view import view_config, forbidden_view_config, notfound_view_config
+
+
+log = getLogger(__name__)
 
 
 @forbidden_view_config()
@@ -23,6 +27,7 @@ def not_found(request):
 def internal_server_error(context, request):
     if "pyramid_debugtoolbar" in request.registry.settings["pyramid.includes"]:
         raise context
+    log.error("Caught exception:", exc_info=context)
     resp = render_to_response("errors/internal_server_error.mako", {}, request=request)
     resp.status_int = 500
     return resp
