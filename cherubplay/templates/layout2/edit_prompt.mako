@@ -1,7 +1,7 @@
 <%inherit file="base.mako" />\
 <%block name="title">Edit ${request.context.title} - </%block>
 <%block name="body_class">layout2</%block>
-<% from cherubplay.lib import prompt_categories, prompt_starters, prompt_levels %>
+<% from cherubplay.lib import preset_colours, prompt_categories, prompt_starters, prompt_levels %>
 <h2>Edit ${request.context.title}</h2>
 <main class="flex">
   <div class="side_column"></div>
