@@ -70,6 +70,7 @@
       <form class="tile2" action="${request.route_path("account_away_message")}" method="post">
         <h3>Away message</h3>
         <p>If you're leaving Cherubplay you can leave a message here to explain why. Your roleplaying partners will then see it when they visit chats with you.</p>
+        <p>Note that if you have multiple chats with the same person then they'll be able to tell they're all you.</p>
         <textarea class="full" name="away_message" maxlength="500" placeholder="Away message...">${request.user.away_message or ""}</textarea>
         <div class="actions">
           <div class="right"><button type="submit">Save</button></div>
