@@ -8,16 +8,18 @@
  edited\
 % endif
 "\
+ style="color: #${message.colour};"\
 % if message.symbol is not None:
  data-symbol="${message.symbol_character}">
 % if message.type == MessageType.system:
       <p style="color: #${message.colour};">${message.text.as_plain_text() % message.symbol_character}</p>
 % else:
-      <p style="color: #${message.colour};">${message.symbol_character}: ${message.text.as_html()}</p>
+      <span class="symbol">${message.symbol_character}:&nbsp;</span>
+      ${message.text.as_html()}
 % endif
 % else:
 >
-      <p style="color: #${message.colour};">${message.text.as_html()}</p>
+      ${message.text.as_html()}
 % endif
     </li>
 </%def>\
