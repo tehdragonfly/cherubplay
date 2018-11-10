@@ -346,7 +346,7 @@ class Prompt(Base):
 
     @property
     def prompt_hash(self):
-        return prompt_hash(self.text)
+        return prompt_hash(self.text.as_plain_text())
 
     def __json__(self, request=None):
         return {
@@ -413,7 +413,7 @@ class Request(Base):
 
     @property
     def prompt_hash(self):
-        return prompt_hash(self.ooc_notes + self.starter)
+        return prompt_hash(self.ooc_notes.as_plain_text() + self.starter.as_plain_text())
 
     def tags_by_type(self):
         tags = {_: [] for _ in Tag.type.type.python_type}
