@@ -107,7 +107,8 @@ class ChatHandler(WebSocketHandler):
                             "colour": message.colour,
                             "symbol": message.symbol_character,
                             "name":   message.chat_user.name if message.chat_user else None,
-                            "text":   message.text,
+                            "text":   message.text.as_plain_text(),
+                            "html":   message.text.as_html(),
                         }
                     })
 
