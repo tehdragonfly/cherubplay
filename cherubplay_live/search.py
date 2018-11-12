@@ -14,7 +14,7 @@ from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 from cherubplay.lib import colour_validator, prompt_hash, prompt_categories, prompt_starters, prompt_levels
 from cherubplay.models import Chat, ChatUser, Message, PromptReport
-from cherubplay.models.enums import ChatSource
+from cherubplay.models.enums import ChatSource, MessageFormat
 
 from cherubplay_live.db import config, db_session, get_user, login_client
 
@@ -128,6 +128,14 @@ class SearchHandler(WebSocketHandler):
                     "error": "The colour needs to be a valid hex code, for example \"#0715CD\" or \"#A15000\".",
                 }))
                 return
+            try:
+                format_ = MessageFormat(message["format"])
+            except ValueError:
+                self.write_message(json.dumps({
+                    "action": "prompt_error",
+                    "error": "Bad format.",
+                }))
+                return
             if message["prompt"].strip() == "":
                 self.write_message(json.dumps({
                     "action": "prompt_error",
@@ -163,6 +171,7 @@ class SearchHandler(WebSocketHandler):
             prompters[self.socket_id] = self
             self.colour   = message["colour"]
             self.prompt   = message["prompt"]
+            self.format   = format_
             self.hash     = message_hash
             self.category = message["category"]
             self.starter  = message["starter"]
