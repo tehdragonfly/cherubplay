@@ -41,19 +41,19 @@ var cherubplay = (function() {
 			$.get(expanded_content.attr("data-href"), function(data) {
 				switch (expanded_content.attr("data-type")) {
 					case "prompt":
-						var text = data.text;
+						var text = data.text.as_plain_text;
 						break;
 					case "prompt_report":
 						var text = data.prompt;
 						break;
 					case "request_ooc_notes":
-						var text = data.request.ooc_notes;
+						var text = data.request.ooc_notes.as_plain_text;
 						break;
 					case "request_starter":
-						var text = data.request.starter;
+						var text = data.request.starter.as_plain_text;
 						break;
 					case "chat":
-						var text = data.messages[0].text;
+						var text = data.messages[0].text.as_plain_text;
 						break;
 				}
 				expanded_content.text(text);
