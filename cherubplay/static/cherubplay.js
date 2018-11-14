@@ -37,6 +37,7 @@ var cherubplay = (function() {
 		var expanded_content = expandable_toggle.next(".expanded_content");
 		if (expanded_content.html()) {
 			expandable_toggle.parent().toggleClass("expanded");
+			expandable_toggle.text(expandable_toggle.parent().hasClass("expanded") ? "(less)" : "(more)");
 		} else {
 			$.get(expanded_content.attr("data-href"), function(data) {
 				switch (expanded_content.attr("data-type")) {
@@ -58,6 +59,7 @@ var cherubplay = (function() {
 				}
 				expanded_content.text(text);
 				expandable_toggle.parent().addClass("expanded");
+				expandable_toggle.text("(less)");
 			});
 		}
 		return false;
