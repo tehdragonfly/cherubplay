@@ -382,7 +382,8 @@ var cherubplay = (function() {
 							ws.send(JSON.stringify({
 								"action":   "prompt",
 								"colour":   data.colour,
-								"prompt":   data.text,
+								"format":   data.text.format,
+								"prompt":   data.text.raw,
 								"category": data.category,
 								"starter":  data.starter,
 								"level":    data.level,
@@ -418,6 +419,7 @@ var cherubplay = (function() {
 				ws.send(JSON.stringify({
 					"action": "prompt",
 					"colour": prompt_colour.val().substr(1, 6),
+					"format": "raw",
 					"prompt": prompt_text.val(),
 					"category": prompt_category.val(),
 					"starter": prompt_starter.val(),
