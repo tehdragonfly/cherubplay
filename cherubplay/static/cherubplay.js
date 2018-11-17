@@ -1206,21 +1206,25 @@ var cherubplay = (function() {
 					timestamp.appendTo(li);
 					li.appendTo(messages);
 				} else {
-					var li = $("<li>").attr("id", "message_"+message.id).addClass("tile message_"+message.type);
+					var li = $("<li>").attr("id", "message_"+message.id).addClass("tile message_"+message.type).css("color", "#" + message.colour);
 					if (message.symbol) {
 						li.attr("data-symbol", message.symbol);
 						if (message.symbol == own_handle) {
 							li.dblclick(start_editing);
 						}
 						if (message.type == "system") {
-							var text = message.text.replace("%s", message.symbol);
+							var text = message.html.replace("%s", message.symbol);
 						} else {
-							var text = message.symbol+": "+message.text;
+							$("<span>").addClass("symbol").text(message.symbol).appendTo(li);
 						}
 					} else {
 						var text = message.text;
 					}
-					var p = $("<p>").css("color", "#"+message.colour).text(text).appendTo(li);
+					if (message.html) {
+						li[0].insertAdjacentHTML("beforeend", message.html);
+					} else {
+						$("<p>").text(text).appendTo(li);
+					}
 					li.appendTo(messages);
 				}
 				if (scroll_after_render) {
