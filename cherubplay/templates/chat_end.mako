@@ -19,7 +19,7 @@ ${chat_base.render_subnav(action, request.context.chat, request.context.chat_use
 % endif
   </section>
 % endif
-% if last_message and last_message != last_message:
+% if last_message and last_message != prompt:
   <section class="tile message_${last_message.type.value}" style="color: #${last_message.colour};">
     <h3>Last message</h3>
 % if last_message.symbol is not None:

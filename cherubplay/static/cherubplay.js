@@ -1195,13 +1195,9 @@ var cherubplay = (function() {
 					}
 					if (message_handle && message.type == "system") {
 						var text = message.text.replace("%s", message_handle);
-					} else {
-						var text = message.text;
-					}
-					if (message.html) {
-						li[0].insertAdjacentHTML("beforeend", message.html);
-					} else {
 						$("<p>").text(text).appendTo(li);
+					} else {
+						li[0].insertAdjacentHTML("beforeend", message.html);
 					}
 					timestamp.appendTo(li);
 					li.appendTo(messages);
@@ -1212,18 +1208,15 @@ var cherubplay = (function() {
 						if (message.symbol == own_handle) {
 							li.dblclick(start_editing);
 						}
-						if (message.type == "system") {
-							var text = message.html.replace("%s", message.symbol);
-						} else {
+						if (message.type != "system") {
 							$("<span>").addClass("symbol").text(message.symbol).appendTo(li);
 						}
-					} else {
-						var text = message.text;
 					}
-					if (message.html) {
-						li[0].insertAdjacentHTML("beforeend", message.html);
-					} else {
+					if (message.symbol && message.type == "system") {
+						var text = message.html.replace("%s", message.symbol);
 						$("<p>").text(text).appendTo(li);
+					} else {
+						li[0].insertAdjacentHTML("beforeend", message.html);
 					}
 					li.appendTo(messages);
 				}
