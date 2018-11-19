@@ -1213,7 +1213,7 @@ var cherubplay = (function() {
 						}
 					}
 					if (message.symbol && message.type == "system") {
-						var text = message.html.replace("%s", message.symbol);
+						var text = message.text.replace("%s", message.symbol);
 						$("<p>").text(text).appendTo(li);
 					} else {
 						li[0].insertAdjacentHTML("beforeend", message.html);
