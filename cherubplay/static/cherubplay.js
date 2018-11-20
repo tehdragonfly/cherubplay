@@ -398,7 +398,7 @@ var cherubplay = (function() {
 				}
 				localStorage.setItem("new_or_saved_prompt", "new_prompt");
 				if (!colour_regex.test(prompt_colour.val())) {
-					alert("The colour needs to be a valid hex code, for example \"#0715CD\" or \"#416600\".");
+					alert('The colour needs to be a valid hex code, for example "#0715CD" or "#416600".');
 					return false;
 				}
 				if (prompt_category.val() == "" || prompt_starter.val() == "" || prompt_level.val() == "") {
@@ -820,10 +820,10 @@ var cherubplay = (function() {
 
 			});
 
-			var prompt_colour = $("#new_request_form input[name=\"colour\"]").change(function() {
-				$("#new_request_form textarea[name=\"prompt\"]").css("color", this.value);
+			var prompt_colour = $('#new_request_form input[name="colour"]').change(function() {
+				$('#new_request_form textarea[name="prompt"]').css("color", this.value);
 			});
-			var preset_colours = $("#new_request_form select[name=\"preset_colours\"]").change(function() {
+			var preset_colours = $('#new_request_form select[name="preset_colours"]').change(function() {
 				prompt_colour.val(this.value).change();
 			});
 
@@ -1060,7 +1060,7 @@ var cherubplay = (function() {
 			});
 			var message_form = $("#message_form").submit(function() {
 				if (!colour_regex.test(message_colour.val())) {
-					alert("The colour needs to be a valid hex code, for example \"#0715CD\" or \"#416600\".");
+					alert('The colour needs to be a valid hex code, for example "#0715CD" or "#416600".');
 					return false;
 				}
 				message_text.val(message_text.val().trim());
@@ -1116,11 +1116,11 @@ var cherubplay = (function() {
 					window.clearTimeout(typing_timeout);
 					if (!typing) {
 						typing = true;
-						ws.send("{\"action\":\"typing\"}");
+						ws.send('{"action":"typing"}');
 					}
 					typing_timeout = window.setTimeout(function() {
 						typing = false;
-						ws.send("{\"action\":\"stopped_typing\"}");
+						ws.send('{"action":"stopped_typing"}');
 					}, 1000);
 				}
 			});
