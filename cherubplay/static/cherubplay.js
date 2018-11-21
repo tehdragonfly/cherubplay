@@ -73,7 +73,7 @@ var cherubplay = (function() {
 		window.scroll(0, document.documentElement.scrollHeight - document.documentElement.clientHeight);
 	}
 
-	$("textarea").keyup(function() {
+	$("textarea").on("input", function() {
 		// Check if we're at the bottom before resizing because resizing will mean that we're not.
 		var scroll_after_resize = is_at_bottom();
 		this.style.height = this.scrollHeight + "px";
