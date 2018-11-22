@@ -76,6 +76,7 @@ var cherubplay = (function() {
 	$("textarea").on("input", function() {
 		// Check if we're at the bottom before resizing because resizing will mean that we're not.
 		var scroll_after_resize = is_at_bottom();
+		this.style.height = null;
 		this.style.height = this.scrollHeight + "px";
 		if (scroll_after_resize) {
 			scroll_to_bottom();
