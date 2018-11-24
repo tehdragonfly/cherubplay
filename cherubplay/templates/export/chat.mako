@@ -42,9 +42,9 @@
             <span class="symbol">${message.symbol_character}</span>
           % endif
           % if message.symbol is not None and message.type == MessageType.system:
-            <p>${message.text % message.symbol_character}</p>
+            <p>${message.text.as_plain_text() % message.symbol_character}</p>
           % else:
-            <p>${message.formatter.as_html()}</p>
+            ${message.text.as_html()}
           % endif
           <div class="timestamp">
             % if chat.mode == ChatMode.group and message.handle:
