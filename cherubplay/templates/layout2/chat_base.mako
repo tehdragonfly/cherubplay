@@ -7,7 +7,7 @@ ${request.context.chat_user.display_title} -
 % endif
 </%block>
 <%block name="body_class">layout2</%block>
-<%def name="render_message(message, show_edit=False)">\
+<%def name="render_message(chat, user, chat_user, message, show_edit=False)">\
 <% from cherubplay.models.enums import ChatMode, MessageType %>\
       <li id="message_${message.id}" class="message_${message.type.value}${" edited" if message.show_edited else ""}" data-handle="${message.handle or ""}" style="color: #${message.colour};">
 % if message.symbol is not None:
@@ -19,11 +19,11 @@ ${request.context.chat_user.display_title} -
         ${message.text.as_html()}
 % endif
         <div class="timestamp">
-          % if request.context.chat.mode == ChatMode.group and message.handle:
+          % if chat.mode == ChatMode.group and message.handle:
             ${message.handle} ·
           % endif
-          ${(request.user.localise_time(message.posted) if request.user is not None else message.posted).strftime("%Y-%m-%d %H:%M:%S")}
-          % if show_edit and request.context.chat_user.user_id == message.user_id:
+          ${(user.localise_time(message.posted) if user is not None else message.posted).strftime("%Y-%m-%d %H:%M:%S")}
+          % if show_edit and chat_user.user_id == message.user_id:
             · <a href="#" class="edit_link">Edit</a>\
           % endif
         </div>

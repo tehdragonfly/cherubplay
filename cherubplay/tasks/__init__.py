@@ -270,6 +270,7 @@ def export_chat(chat_id: int, user_id: int):
     with db_session() as db, TemporaryDirectory() as workspace:
         start_time    = datetime.datetime.now()
         chat          = db.query(Chat).filter(Chat.id == chat_id).one()
+        user          = db.query(User).filter(User.id == user_id).one()
         try:
             chat_user = db.query(ChatUser).filter(and_(ChatUser.chat_id == chat_id, ChatUser.user_id == user_id)).one()
         except NoResultFound:
@@ -302,6 +303,7 @@ def export_chat(chat_id: int, user_id: int):
                 )
                 f.writestr("%s.html" % (n+1), render("export/chat.mako", {
                     "chat": chat,
+                    "user": user,
                     "chat_user": chat_user,
                     "messages": messages,
                     "current_page": n+1,
@@ -316,7 +318,7 @@ def export_chat(chat_id: int, user_id: int):
         chat_export.filename = filename
 
         chat_export.generated = start_time
-        chat_export.expires   = datetime.datetime.now() + datetime.timedelta(settings["export.expiry_days"])
+        chat_export.expires   = datetime.datetime.now() + datetime.timedelta(int(settings["export.expiry_days"]))
 
         pathlib.Path(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export.destination"], chat_export.file_directory)).mkdir(parents=True, exist_ok=True)
         os.rename(file_in_workspace, os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export.destination"], chat_export.file_path))

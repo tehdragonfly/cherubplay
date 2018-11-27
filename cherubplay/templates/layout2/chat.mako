@@ -4,11 +4,11 @@
 <%block name="body_class">layout2 ongoing</%block>
     <ul id="messages" class="tile2">
       % if prompt:
-      ${parent.render_message(prompt)}\
+      ${parent.render_message(request.context.chat, request.user, request.context.chat_user, prompt)}\
       <li class="message_system"><a href="${request.route_path("chat", url=request.matchdict["url"], _query={ "page": 1 })}">${message_count-26} more messages</a></li>
       % endif
       % for message in messages:
-      ${parent.render_message(message, show_edit=True)}\
+      ${parent.render_message(request.context.chat, request.user, request.context.chat_user, message, show_edit=True)}\
       % endfor
       % if request.context.chat.mode != ChatMode.group:
         % for banned_chat_user in request.context.banned_chat_users:

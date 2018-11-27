@@ -17,7 +17,7 @@ ${paginator.pager(format='~5~')|n}
 % if messages:
     <ul id="messages" class="tile2">
 % for message in messages:
-${parent.render_message(message)}\
+${parent.render_message(request.context.chat, request.user, request.context.chat_user, message)}\
 % endfor
 % if paginator.page == paginator.page_count and request.context.chat_user and request.context.chat_user.draft:
       <li class="message_draft">

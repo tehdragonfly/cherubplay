@@ -38,7 +38,7 @@
     % endif
     <ul id="messages" class="tile2">
       % for message in messages:
-        ${chat_base.render_message(message, False)}
+        ${chat_base.render_message(chat, user, chat_user, message, False)}
       % endfor
     </ul>
     % if paginator.page_count > 1:
