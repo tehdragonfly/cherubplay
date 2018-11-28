@@ -8,8 +8,12 @@ ${request.context.chat_user.display_title} -
 </%block>
 <%block name="body_class">layout2</%block>
 <%def name="render_message(chat, user, chat_user, message, show_edit=False)">\
-<% from cherubplay.models.enums import ChatMode, MessageType %>\
       <li id="message_${message.id}" class="message_${message.type.value}${" edited" if message.show_edited else ""}" data-handle="${message.handle or ""}" style="color: #${message.colour};">
+        ${render_message_inner(chat, user, chat_user, message, show_edit)}
+      </li>
+</%def>\
+<%def name="render_message_inner(chat, user, chat_user, message, show_edit=False)">\
+<% from cherubplay.models.enums import ChatMode, MessageType %>\
 % if message.symbol is not None:
         <span class="symbol">${message.symbol_character}</span>
 % endif
@@ -27,7 +31,6 @@ ${request.context.chat_user.display_title} -
             · <a href="#" class="edit_link">Edit</a>\
           % endif
         </div>
-      </li>
 </%def>\
 % if request.context.chat_user:
   <h2>${request.context.chat_user.display_title}</h2>
