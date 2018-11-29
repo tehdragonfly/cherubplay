@@ -28,8 +28,6 @@
 <h2>${chat_user.display_title}</h2>
 
 <main class="flex">
-  <div class="side_column"></div>
-  <div class="side_column"></div>
   <div id="content">
     % if paginator.page_count > 1:
       <p class="pager tile2">
