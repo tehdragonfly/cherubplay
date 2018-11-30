@@ -1191,11 +1191,11 @@ var cherubplay = (function() {
 						$("<span>").addClass("symbol").text(message.symbol).appendTo(li);
 					}
 					if (message_handle && message.type == "system") {
-						var text = message.text.replace("%s", message_handle);
-						$("<p>").text(text).appendTo(li);
+						var html = message.html.replace("%s", message_handle);
 					} else {
-						li[0].insertAdjacentHTML("beforeend", message.html);
+						var html = message.html;
 					}
+					li[0].insertAdjacentHTML("beforeend", html);
 					timestamp.appendTo(li);
 					li.appendTo(messages);
 				} else {
