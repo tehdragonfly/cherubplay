@@ -1209,12 +1209,12 @@ var cherubplay = (function() {
 							$("<span>").addClass("symbol").text(message.symbol).appendTo(li);
 						}
 					}
-					if (message.symbol && message.type == "system") {
-						var text = message.text.replace("%s", message.symbol);
-						$("<p>").text(text).appendTo(li);
+					if (message_handle && message.type == "system") {
+						var html = message.html.replace("%s", message_handle);
 					} else {
-						li[0].insertAdjacentHTML("beforeend", message.html);
+						var html = message.html;
 					}
+					li[0].insertAdjacentHTML("beforeend", html);
 					li.appendTo(messages);
 				}
 				if (scroll_after_render) {
