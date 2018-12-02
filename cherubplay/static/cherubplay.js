@@ -1274,16 +1274,16 @@ var cherubplay = (function() {
 							if (li.length == 0) {
 								return;
 							}
-							li.removeClass("message_ic").removeClass("message_ooc").addClass("message_"+message.message.type);
+							li.removeClass("message_ic").removeClass("message_ooc").addClass("message_" + message.message.type);
 							if (message.message.show_edited) {
 								li.addClass("edited");
 							}
-							var p = li.find("p")
+							li.css("color", "#"+message.message.colour);
+							li.find(":not(.symbol, .timestamp)").remove();
 							if (body.hasClass("layout2")) {
-								li.css("color", "#"+message.message.colour);
-								p.text(message.message.text);
+								li.find(".timestamp")[0].insertAdjacentHTML("beforebegin", html);
 							} else {
-								p.css("color", "#"+message.message.colour).text(message.message.symbol+": "+message.message.text);
+								li[0].insertAdjacentHTML("beforeend", html);
 							}
 						} else if (message.action == "end" || message.action == "kicked") {
 							$(body).removeClass("ongoing");
