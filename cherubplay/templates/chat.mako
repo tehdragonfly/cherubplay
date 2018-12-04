@@ -9,6 +9,7 @@
 % endif
 "\
  style="color: #${message.colour};"\
+ data-raw="${message.text.raw}"\
 % if message.symbol is not None:
  data-symbol="${message.symbol_character}">
 % if message.type == MessageType.system:
