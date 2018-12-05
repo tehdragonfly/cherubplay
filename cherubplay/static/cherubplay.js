@@ -1018,10 +1018,9 @@ var cherubplay = (function() {
 					}
 					message_form_container.addClass("editing");
 					var paragraph = jquery_this.find("p");
-					message_colour.val(paragraph.css("color")).change();
+					message_colour.val(jquery_this.css("color")).change();
 					message_ooc[0].checked = jquery_this.hasClass("message_ooc");
-					var edit_text = body.hasClass("layout2") ? paragraph.text() : paragraph.text().substr(3);
-					message_text.css("height", "100px").val(edit_text).keyup();
+					message_text.css("height", "100px").val(jquery_this[0].dataset.raw).keyup();
 					message_form.find("button").text("Edit");
 					window.scrollTo(0, message_form_container.position()["top"]-50);
 					message_text.focus();
