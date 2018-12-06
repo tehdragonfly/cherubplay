@@ -358,3 +358,8 @@ def account_connection_delete_post(context, request):
     if request.is_xhr:
         return HTTPNoContent()
     return HTTPFound(request.route_path("account_connections"))
+
+
+@view_config(route_name="well_known_change_password")
+def well_known_change_password(request):
+    return HTTPFound(request.route_path("account"))

@@ -266,6 +266,8 @@ def main(global_config, **settings):
     config.add_route("account_connection_chat",    "/account/connections/{username}/chat/",   factory=connection_factory)
     config.add_route("account_connection_delete",  "/account/connections/{username}/delete/", factory=connection_factory)
 
+    config.add_route("well_known_change_password", "/.well-known/change-password")
+
     config.add_route("admin_report_list",         "/admin/reports/")
     config.add_route("admin_report_list_closed",  "/admin/reports/closed/")
     config.add_route("admin_report_list_invalid", "/admin/reports/invalid/")
