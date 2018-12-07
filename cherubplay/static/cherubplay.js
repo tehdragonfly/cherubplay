@@ -995,11 +995,13 @@ var cherubplay = (function() {
 					return;
 				}
 				if (body.hasClass("layout2")) {
-					var jquery_this = $(this.parentNode.parentNode);
+					var li = this.parentNode.parentNode;
+					var $li = $(li);
 				} else {
-					var jquery_this = $(this);
+					var li = this;
+					var $li = $(this);
 				}
-				var editing_this = jquery_this.hasClass("editing");
+				var editing_this = $li.hasClass("editing");
 				if (editing_this) {
 					cancel_editing();
 				} else {
@@ -1010,17 +1012,17 @@ var cherubplay = (function() {
 						pre_edit_ooc = message_ooc[0].checked;
 						pre_edit_text = message_text.val();
 					}
-					editing_id = jquery_this.attr("id").substr(8);
+					editing_id = $li.attr("id").substr(8);
 					message_form.attr("action", "/chats/"+chat_url+"/edit/"+editing_id+"/");
-					jquery_this.addClass("editing");
+					$li.addClass("editing");
 					if (body.hasClass("layout2")) {
 						this.innerHTML = "Stop editing";
 					}
 					message_form_container.addClass("editing");
-					var paragraph = jquery_this.find("p");
-					message_colour.val(jquery_this.css("color")).change();
-					message_ooc[0].checked = jquery_this.hasClass("message_ooc");
-					message_text.css("height", "100px").val(jquery_this[0].dataset.raw).keyup();
+					var paragraph = $li.find("p");
+					message_colour.val($li.css("color")).change();
+					message_ooc[0].checked = $li.hasClass("message_ooc");
+					message_text.css("height", "100px").val(li.dataset.raw).keyup();
 					message_form.find("button").text("Edit");
 					window.scrollTo(0, message_form_container.position()["top"]-50);
 					message_text.focus();
