@@ -1,6 +1,6 @@
 import re
 
-from markdown import Markdown
+from markdown import Markdown, Extension
 from markupsafe import escape, Markup
 
 from cherubplay.models.enums import MessageFormat
@@ -10,7 +10,13 @@ linebreak_regex = re.compile(r"[\r\n]+")
 paragraph = Markup("<p>%s</p>")
 
 
-md = Markdown()
+class EscapeHTML(Extension):
+    def extendMarkdown(self, md):
+        del md.preprocessors["html_block"]
+        del md.inlinePatterns["html"]
+
+
+md = Markdown(extensions=[EscapeHTML()])
 
 
 plain_text_formatters = {
@@ -23,7 +29,7 @@ html_formatters = {
         paragraph % escape(line)
         for line in linebreak_regex.split(value)
     ),
-    MessageFormat.markdown: lambda value: Markup(md.convert(value)),
+    MessageFormat.markdown: lambda value: Markup(md.reset().convert(value)),
 }
 
 
