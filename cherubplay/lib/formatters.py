@@ -13,7 +13,11 @@ paragraph = Markup("<p>%s</p>")
 class EscapeHTML(Extension):
     def extendMarkdown(self, md):
         del md.preprocessors["html_block"]
-        del md.inlinePatterns["html"]
+        for key in [
+            "backtick", "reference", "link", "image_link", "image_reference",
+            "short_reference", "autolink", "automail", "html", "entity",
+        ]:
+            del md.inlinePatterns[key]
 
 
 md = Markdown(extensions=[EscapeHTML()])
