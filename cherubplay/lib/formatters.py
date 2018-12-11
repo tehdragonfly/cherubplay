@@ -18,6 +18,8 @@ class EscapeHTML(Extension):
             "short_reference", "autolink", "automail", "html", "entity",
         ]:
             del md.inlinePatterns[key]
+        for key in ["code", "hashheader", "setextheader", "quote"]:
+            del md.parser.blockprocessors[key]
 
 
 md = Markdown(extensions=[EscapeHTML()])
