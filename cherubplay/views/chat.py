@@ -366,7 +366,7 @@ def _validate_message_form(request, editing=False):
 def chat_send(context: ChatContext, request):
     colour, trimmed_message_text, message_type = _validate_message_form(request)
     message_service = request.find_service(IMessageService)
-    message_service.send_message(context.chat_user, message_type, colour, MessageFormat.raw, trimmed_message_text)
+    message_service.send_message(context.chat_user, message_type, colour, MessageFormat.markdown, trimmed_message_text)
 
     if request.is_xhr:
         return HTTPNoContent()
