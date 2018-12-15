@@ -13,6 +13,7 @@ from tornado.web import Application
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 from cherubplay.lib import colour_validator, prompt_hash, prompt_categories, prompt_starters, prompt_levels
+from cherubplay.lib.formatters import html_formatters
 from cherubplay.models import Chat, ChatUser, Message, PromptReport
 from cherubplay.models.enums import ChatSource, MessageFormat
 
@@ -110,7 +111,7 @@ class SearchHandler(WebSocketHandler):
                     {
                         "id":       _.socket_id,
                         "colour":   _.colour,
-                        "prompt":   _.prompt,
+                        "prompt_html": _.prompt_html,
                         "category": _.category,
                         "starter":  _.starter,
                         "level":    _.level,
@@ -172,6 +173,7 @@ class SearchHandler(WebSocketHandler):
             self.colour   = message["colour"]
             self.prompt   = message["prompt"]
             self.format   = format_
+            self.prompt_html = html_formatters[format_](self.prompt)
             self.hash     = message_hash
             self.category = message["category"]
             self.starter  = message["starter"]
@@ -199,7 +201,7 @@ class SearchHandler(WebSocketHandler):
                 "action":   "new_prompt",
                 "id":       self.socket_id,
                 "colour":   self.colour,
-                "prompt":   self.prompt,
+                "prompt_html":   self.prompt_html,
                 "category": self.category,
                 "starter":  self.starter,
                 "level":    self.level,
