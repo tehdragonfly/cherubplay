@@ -111,6 +111,7 @@ class SearchHandler(WebSocketHandler):
                     {
                         "id":       _.socket_id,
                         "colour":   _.colour,
+                        "prompt": _.prompt,
                         "prompt_html": _.prompt_html,
                         "category": _.category,
                         "starter":  _.starter,
@@ -201,6 +202,7 @@ class SearchHandler(WebSocketHandler):
                 "action":   "new_prompt",
                 "id":       self.socket_id,
                 "colour":   self.colour,
+                "prompt":   self.prompt,
                 "prompt_html":   self.prompt_html,
                 "category": self.category,
                 "starter":  self.starter,

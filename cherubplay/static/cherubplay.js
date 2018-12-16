@@ -268,7 +268,7 @@ var cherubplay = (function() {
 						+ starter_strings[prompt.starter] + ", "
 						+ level_strings[prompt.level]
 					).appendTo(li);
-					$("<p>").css("color", "#" + prompt.colour).text(prompt.prompt).appendTo(li);
+					li[0].insertAdjacentHTML("beforeend", prompt.prompt_html);
 					$("<div>").addClass("fade").appendTo(li);
 					li.appendTo(prompt_list);
 				}
