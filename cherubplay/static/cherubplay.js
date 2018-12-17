@@ -420,7 +420,7 @@ var cherubplay = (function() {
 				ws.send(JSON.stringify({
 					"action": "prompt",
 					"colour": prompt_colour.val().substr(1, 6),
-					"format": "raw",
+					"format": "markdown",
 					"prompt": prompt_text.val(),
 					"category": prompt_category.val(),
 					"starter": prompt_starter.val(),

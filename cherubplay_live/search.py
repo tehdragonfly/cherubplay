@@ -274,13 +274,14 @@ class SearchHandler(WebSocketHandler):
                         user_id=self.user.id,
                         symbol=1,
                     ))
-                db.add(Message(
+                new_message = Message(
                     chat_id=new_chat.id,
                     user_id=prompter.user.id,
                     colour=prompter.colour,
                     symbol=0,
-                    text=prompter.prompt,
-                ))
+                )
+                new_message.text.update(prompter.format, prompter.prompt)
+                db.add(new_message)
                 response = json.dumps({"action": "chat", "url": new_chat_url})
                 prompter.write_message(response)
                 self.write_message(response)
