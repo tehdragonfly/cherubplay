@@ -144,7 +144,7 @@ class MessageService(object):
                 "colour": new_message.colour,
                 "symbol": chat_user.symbol_character,
                 "name": chat_user.name,
-                "text": new_message.text.as_plain_text(),
+                "raw": new_message.text.raw,
                 "html": new_message.text.as_html(),
             },
         })
@@ -181,7 +181,7 @@ class MessageService(object):
                 "colour": message.colour,
                 "symbol": message.symbol_character,
                 "name": message.chat_user.name,
-                "text": message.text.as_plain_text(),
+                "raw": message.text.raw,
                 "html": message.text.as_html(),
                 "show_edited": message.show_edited,
             },

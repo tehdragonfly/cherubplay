@@ -1174,8 +1174,12 @@ var cherubplay = (function() {
 				// Check if we're at the bottom before rendering because rendering will mean that we're not.
 				var scroll_after_render = is_at_bottom();
 				var message_handle = (message.symbol || message.name);
+				var li = $("<li>")
+					.attr("id", "message_" + message.id)
+					.addClass("message_" + message.type)
+					.css("color", "#" + message.colour);
+				li[0].dataset.raw = message.raw;
 				if (body.hasClass("layout2")) {
-					var li = $("<li>").attr("id", "message_" + message.id).addClass("message_" + message.type).css("color", "#" + message.colour);
 					var timestamp = $("<div>").addClass("timestamp");
 					if (message.name) {
 						timestamp.text(message.name + " · ");
@@ -1200,7 +1204,7 @@ var cherubplay = (function() {
 					timestamp.appendTo(li);
 					li.appendTo(messages);
 				} else {
-					var li = $("<li>").attr("id", "message_"+message.id).addClass("tile message_"+message.type).css("color", "#" + message.colour);
+					li.addClass("tile");
 					if (message.symbol) {
 						li.attr("data-symbol", message.symbol);
 						if (message.symbol == own_handle) {
