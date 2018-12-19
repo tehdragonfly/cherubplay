@@ -1013,7 +1013,7 @@ var cherubplay = (function() {
 						pre_edit_text = message_text.val();
 					}
 					editing_id = $li.attr("id").substr(8);
-					message_form.attr("action", "/chats/"+chat_url+"/edit/"+editing_id+"/");
+					message_form.attr("action", "/chats/" + chat_url + "/edit/" + editing_id + "/");
 					$li.addClass("editing");
 					if (body.hasClass("layout2")) {
 						this.innerHTML = "Stop editing";
@@ -1034,7 +1034,7 @@ var cherubplay = (function() {
 				$(".editing .edit_link").text("Edit");
 				$(".editing").removeClass("editing");
 				editing_id = null;
-				message_form.attr("action", "/chats/"+chat_url+"/send/");
+				message_form.attr("action", "/chats/" + chat_url + "/send/");
 				message_colour.val(pre_edit_color).change();
 				message_ooc[0].checked = pre_edit_ooc;
 				message_text.css("height", "100px").val(pre_edit_text).change().keyup();
@@ -1062,7 +1062,7 @@ var cherubplay = (function() {
 					return false;
 				}
 				message_text.val(message_text.val().trim());
-				if (message_text.val()=="") {
+				if (message_text.val() == "") {
 					alert("You can't submit a blank message.")
 					return false;
 				}
@@ -1286,9 +1286,9 @@ var cherubplay = (function() {
 							li.css("color", "#"+message.message.colour);
 							li.find(":not(.symbol, .timestamp)").remove();
 							if (body.hasClass("layout2")) {
-								li.find(".timestamp")[0].insertAdjacentHTML("beforebegin", html);
+								li.find(".timestamp")[0].insertAdjacentHTML("beforebegin", message.message.html);
 							} else {
-								li[0].insertAdjacentHTML("beforeend", html);
+								li[0].insertAdjacentHTML("beforeend", message.message.html);
 							}
 						} else if (message.action == "end" || message.action == "kicked") {
 							$(body).removeClass("ongoing");
