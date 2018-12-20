@@ -317,6 +317,7 @@ body.ongoing main { margin-bottom: 0; }
 #messages li { position: relative; padding: 20px 0; }
 #messages li:not(:first-child) { border-top: 1px solid #ddd; }
 #messages li > p, .delete_preview > p { margin: 0; }
+#messages li > p:not(:last-of-type), .delete_preview > p:not(:last-of-type) { margin-bottom: 5px; }
 #messages .editing p { text-decoration: line-through; }
 
 .message_ooc { opacity: 0.5; }
