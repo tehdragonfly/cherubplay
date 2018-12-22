@@ -285,6 +285,7 @@ var cherubplay = (function() {
 				var prompt = $(this).find("p:not(.subtitle)");
 				overlay_prompt_id = this.id;
 				overlay_content.css("color", prompt.css("color")).html($(this).html());
+				overlay_content.find(".fade").remove();
 				if (body.hasClass("layout2") && prompt_data[this.id] && prompt_data[this.id].images) {
 					var images = prompt_data[this.id].images
 					for (var i = 0; i < images.length; i++) {
