@@ -39,6 +39,12 @@ html_formatters = {
     MessageFormat.markdown: lambda value: Markup(md.reset().convert(value)),
 }
 
+trimmers = {
+    MessageFormat.raw: lambda value, length: html_formatters[MessageFormat.raw](
+        value if len(value) <= length else text[:length - 3] + "...",
+    ),
+}
+
 
 class FormattedValue:
     def __init__(self, obj, format_attr, text_attr):
@@ -76,6 +82,10 @@ class FormattedValue:
     def update(self, format: MessageFormat, text: str):
         setattr(self._obj, self._format_attr, format)
         setattr(self._obj, self._text_attr,   text)
+
+    def trim_html(self, length: int):
+        # For list pages.
+        return trimmers[getattr(self._obj, self._format_attr)](getattr(self._obj, self._text_attr), length)
 
 
 class FormattedField:
