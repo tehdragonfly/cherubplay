@@ -30,17 +30,18 @@ ${chat.status.capitalize()}. \
 % endif
 Started ${request.user.localise_time(chat.created).strftime("%a %d %b %Y")}, last message ${request.user.localise_time(chat.updated).strftime("%a %d %b %Y")}. <a href="${request.route_path("chat_info", url=chat.url)}">Edit chat info</a></p>
         % if prompt is not None:
-        % if len(prompt.text.as_plain_text()) <= 250:
-        <div style="color: #${prompt.colour};">${prompt.text.as_html()}</div>
-        % else:
-        <div class="expandable">
-          <a class="toggle" href="${request.route_path("chat", url=chat.url, _query={"page": 1})}">(more)</a>
-          <div class="expanded_content" style="color: #${prompt.colour};" data-href="${request.route_path("chat_ext", ext="json", url=chat.url, _query={"page": 1})}" data-type="chat"></div>
-          <div class="collapsed_content" style="color: #${prompt.colour};">${prompt.text.trim_html(250)}</div>
-        </div>
+          <% was_trimmed, preview_text = prompt.text.trim_html(250) %>
+          % if not was_trimmed:
+            <div style="color: #${prompt.colour};">${preview_text}</div>
+          % else:
+            <div class="expandable">
+              <a class="toggle" href="${request.route_path("chat", url=chat.url, _query={"page": 1})}">(more)</a>
+              <div class="expanded_content" style="color: #${prompt.colour};" data-href="${request.route_path("chat_ext", ext="json", url=chat.url, _query={"page": 1})}" data-type="chat"></div>
+              <div class="collapsed_content" style="color: #${prompt.colour};">${preview_text}</div>
+            </div>
+          % endif
         % endif
-        % endif
-        % if chat_user.notes != "" or chat_user.labels or (show_request and chat.request and (request.user.status == "admin" or chat.request.status == "posted" or chat.request.user_id == request.user.id)):
+        % if chat_user.notes != "" or chat_user.labels or (show_request and chat.request and (request.user.status == "admin" or chat.request.status in ("posted", "locked") or chat.request.user_id == request.user.id)):
         <hr>
         % endif
         % if show_request and chat.request and (request.user.status == "admin" or chat.request.status in ("posted", "locked") or chat.request.user_id == request.user.id):

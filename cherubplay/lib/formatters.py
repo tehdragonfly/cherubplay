@@ -39,10 +39,21 @@ html_formatters = {
     MessageFormat.markdown: lambda value: Markup(md.reset().convert(value)),
 }
 
+
+def raw_trimmer(value: str, length: int) -> (bool, str):
+    """
+    Trim `value` to a maximum of `length`.
+
+    Returns a tuple with a boolean indicating whether the string needed to be
+    trimmed followed by the trimmed or whole string.
+    """
+    if len(value) <= length:
+        return False, html_formatters[MessageFormat.raw](value)
+    return True, html_formatters[MessageFormat.raw](value[:length - 3] + "...")
+
+
 trimmers = {
-    MessageFormat.raw: lambda value, length: html_formatters[MessageFormat.raw](
-        value if len(value) <= length else text[:length - 3] + "...",
-    ),
+    MessageFormat.raw: raw_trimmer,
 }
 
 
