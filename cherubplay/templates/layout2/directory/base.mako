@@ -68,29 +68,39 @@ ${tag.name}\
           % endfor
         </ul>
         % endif
-        % if rq.ooc_notes:
-        <hr>
-        % if expanded or len(rq.ooc_notes.as_plain_text()) <= 250:
-        <p>${rq.ooc_notes.as_html()}</p>
-        % else:
-        <div class="expandable">
-          <a class="toggle" href="${request.route_path("directory_request", id=rq.id)}">(more)</a>
-          <p class="expanded_content" data-href="${request.route_path("directory_request_ext", ext="json", id=rq.id)}" data-type="request_ooc_notes"></p>
-          <p class="collapsed_content">${rq.ooc_notes.as_plain_text()[:250]}...</p>
-        </div>
+        % if rq.ooc_notes.raw:
+          <hr>
+          % if expanded:
+            <div>${rq.ooc_notes.as_html()}</div>
+          % else:
+            <% was_trimmed, preview_text = rq.ooc_notes.trim_html(250) %>
+            % if not was_trimmed:
+              <div>${preview_text}</div>
+            % else:
+              <div class="expandable">
+                <a class="toggle" href="${request.route_path("directory_request", id=rq.id)}">(more)</a>
+                <div class="expanded_content" data-href="${request.route_path("directory_request_ext", ext="json", id=rq.id)}" data-type="request_ooc_notes"></div>
+                <div class="collapsed_content">${preview_text}</div>
+              </div>
+            % endif
+          % endif
         % endif
-        % endif
-        % if rq.starter:
-        <hr>
-        % if expanded or len(rq.starter.as_plain_text()) <= 250:
-        <p style="color: #${rq.colour};">${rq.starter.as_html()}</p>
-        % else:
-        <div class="expandable">
-          <a class="toggle" href="${request.route_path("directory_request", id=rq.id)}">(more)</a>
-          <p class="expanded_content" style="color: #${rq.colour};" data-href="${request.route_path("directory_request_ext", ext="json", id=rq.id)}" data-type="request_starter"></p>
-          <p class="collapsed_content" style="color: #${rq.colour};">${rq.starter.as_plain_text()[:250]}...</p>
-        </div>
-        % endif
+        % if rq.starter.raw:
+          <hr>
+          % if expanded:
+            <div style="color: #${rq.colour};">${rq.starter.as_html()}</div>
+          % else:
+            <% was_trimmed, preview_text = rq.starter.trim_html(250) %>
+            % if not was_trimmed:
+              <div style="color: #${rq.colour};">${preview_text}</div>
+            % else:
+              <div class="expandable">
+                <a class="toggle" href="${request.route_path("directory_request", id=rq.id)}">(more)</a>
+                <div class="expanded_content" style="color: #${rq.colour};" data-href="${request.route_path("directory_request_ext", ext="json", id=rq.id)}" data-type="request_starter"></div>
+                <div class="collapsed_content" style="color: #${rq.colour};">${preview_text}</div>
+              </div>
+            % endif
+          % endif
         % endif
         % if request.matched_route.name != "directory_request_delete":
         <hr>
