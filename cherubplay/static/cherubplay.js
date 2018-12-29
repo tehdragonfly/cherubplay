@@ -40,24 +40,25 @@ var cherubplay = (function() {
 			expandable_toggle.text(expandable_toggle.parent().hasClass("expanded") ? "(less)" : "(more)");
 		} else {
 			$.get(expanded_content.attr("data-href"), function(data) {
-				switch (expanded_content.attr("data-type")) {
-					case "prompt":
-						var text = data.text.as_plain_text;
-						break;
-					case "prompt_report":
-						var text = data.prompt;
-						break;
-					case "request_ooc_notes":
-						var text = data.request.ooc_notes.as_plain_text;
-						break;
-					case "request_starter":
-						var text = data.request.starter.as_plain_text;
-						break;
-					case "chat":
-						var text = data.messages[0].text.as_plain_text;
-						break;
+				if (expanded_content.attr("data-type") == "prompt_report") {
+					expanded_content.text(data.prompt);
+				} else {
+					switch (expanded_content.attr("data-type")) {
+						case "prompt":
+							var html = data.text.as_html;
+							break;
+						case "request_ooc_notes":
+							var html = data.request.ooc_notes.as_html;
+							break;
+						case "request_starter":
+							var html = data.request.starter.as_html;
+							break;
+						case "chat":
+							var html = data.messages[0].text.as_html;
+							break;
+					}
+					expanded_content.html(html);
 				}
-				expanded_content.text(text);
 				expandable_toggle.parent().addClass("expanded");
 				expandable_toggle.text("(less)");
 			});
