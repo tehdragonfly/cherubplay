@@ -3,6 +3,7 @@
 import paginate, re
 
 from collections import OrderedDict
+from datetime import datetime
 from hashlib import sha256
 
 
@@ -24,7 +25,7 @@ reserved_usernames = ()
 
 symbols = (u"●", u"🌀", u"♠", u"♣", u"♦", u"♥", u"▲", u"■", u"⬟", u"★")
 
-preset_colours = [
+homestuck_preset_colours = [
     ("000000", "Preset colours..."),
     ("000000", "Basic black"),
     ("FFFFFF", "Omniscient asshole white"),
@@ -56,6 +57,48 @@ preset_colours = [
     ("2ED73A", "Hideous dead sister green"),
     ("FF00EE", "Obnoxious fantroll pink"),
 ]
+
+problem_sleuth_preset_colours = [
+    ("000000", "Preset colours..."),
+    ("000000", "Problem Sleuth black"),
+    ("000000", "Ace Dick black"),
+    ("000000", "Pickle Inspector black"),
+    ("000000", "Hysterical Dame black"),
+    ("000000", "Nervous Broad black"),
+    ("000000", "Madame Murel black"),
+    ("000000", "Mobster Kingpin black"),
+    ("000000", "Death black"),
+]
+
+class DateBasedListProxy:
+    def __init__(self, old_list, new_list, cutoff):
+        self.old_list = old_list
+        self.new_list = new_list
+        self.cutoff = cutoff
+    # This is probably enough properties to be list-like.
+    # Though all we actually do is iterate so it doesn't really matter.
+    def __len__(self):
+        if datetime.now() >= self.cutoff:
+            return len(self.new_list)
+        return len(self.old_list)
+    def __iter__(self):
+        if datetime.now() >= self.cutoff:
+            return iter(self.new_list)
+        return iter(self.old_list)
+    def __getitem__(self, key):
+        if datetime.now() >= self.cutoff:
+            return self.new_list[key]
+        return self.old_list[key]
+    def __getattr__(self, attr):
+        if datetime.now() >= self.cutoff:
+            return getattr(self.new_list, attr)
+        return getattr(self.old_list, attr)
+
+preset_colours = DateBasedListProxy(
+    homestuck_preset_colours,
+    problem_sleuth_preset_colours,
+    datetime(2019, 1, 1, 0, 0, 0),
+)
 
 prompt_categories = OrderedDict([
     ("homestuck", "Homestuck"),
