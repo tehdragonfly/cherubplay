@@ -31,7 +31,7 @@
           <div class="expandable">
             <a class="toggle" href="${request.route_path("prompt", id=prompt.id)}">(more)</a>
             <div class="expanded_content" style="color: #${prompt.colour};" data-href="${request.route_path("prompt_ext", ext="json", id=prompt.id)}" data-type="prompt"></div>
-            <p class="collapsed_content" style="color: #${prompt.colour};">${preview_text}</p>
+            <div class="collapsed_content" style="color: #${prompt.colour};">${preview_text}</div>
           </div>
         % endif
       </li>
