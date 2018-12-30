@@ -100,7 +100,10 @@ class User(Base):
         utc_datetime = utc.localize(input_datetime)
         if self.timezone is None:
             return utc_datetime
-        return utc_datetime.astimezone(timezone(self.timezone))
+        t = utc_datetime.astimezone(timezone(self.timezone))
+        if t.year == 2019:
+            t = t.replace(year=2009)
+        return t
 
 
 class PushSubscription(Base):
