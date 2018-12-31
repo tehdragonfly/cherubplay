@@ -6,6 +6,7 @@ from cryptography.hazmat.primitives.asymmetric.ec import SECP256R1, derive_priva
 from datetime import datetime
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
+from pyramid.events import BeforeRender
 from pyramid.httpexceptions import HTTPFound
 from pyramid.renderers import JSON
 from pyramid.security import Authenticated, Everyone
@@ -116,6 +117,14 @@ def request_unread_chats(request):
     )).scalar()
 
 
+SLEUTH_DATE = datetime(2019, 1, 1, 0, 0, 0)
+
+
+def sleuth(event):
+    print("EVENT", event)
+    event["sleuth"] = datetime.now() >= SLEUTH_DATE
+
+
 def main(global_config, **settings):
 
     if "push.private_key" in settings:
@@ -153,6 +162,8 @@ def main(global_config, **settings):
     config.include("cherubplay.services.request")
     config.include("cherubplay.services.tag")
     config.include("cherubplay.services.user_connection")
+
+    config.add_subscriber(sleuth, BeforeRender)
 
     config.add_renderer("json", JSONRenderer)
 

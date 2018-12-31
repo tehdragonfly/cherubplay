@@ -56,6 +56,7 @@
 
 ${next.body()}\
 
+<script>var sleuth = ${"true" if sleuth else "false"};</script>
 <script src="https://lurantis.scorpiaproductions.co.uk/js/jquery-2.0.3.min.js"></script>
 <script src="/static/cherubplay.js?33"></script>
 <%block name="scripts"></%block>
