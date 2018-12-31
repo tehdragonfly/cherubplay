@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title><%block name="title"></%block>Cherubplay</title>
+<title><%block name="title"></%block>${"Sleuthplay" if sleuth else "Cherubplay"}</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#393">
 <link rel="stylesheet" href="/static/cherubplay2.css?32">

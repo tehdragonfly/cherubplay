@@ -11,7 +11,7 @@
       % endfor
       % if request.context.chat.mode != ChatMode.group:
         % for banned_chat_user in request.context.banned_chat_users:
-          <li class="message_system">${banned_chat_user.handle} has been ${"temporarily" if banned_chat_user.user.unban_date else "permanently"} banned from Cherubplay.</li>
+          <li class="message_system">${banned_chat_user.handle} has been ${"temporarily" if banned_chat_user.user.unban_date else "permanently"} banned from ${"Sleuthplay" if sleuth else "Cherubplay"}.</li>
         % endfor
         % for away_chat_user in request.context.away_chat_users:
           % if away_chat_user not in request.context.banned_chat_users:

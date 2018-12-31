@@ -1,6 +1,6 @@
 <%inherit file="base.mako" />\
 <%block name="heading">User connections</%block>
-    <p>User connections allow you to chat with specific Cherubplay users.</p>
+    <p>User connections allow you to chat with specific ${"Sleuthplay" if sleuth else "Cherubplay"} users.</p>
     <p>Enter the username of someone you'd like to connect to, and when they do the same with your username you'll be able to begin a chat.</p>
     <section class="tile2">
       <ul class="tag_list">

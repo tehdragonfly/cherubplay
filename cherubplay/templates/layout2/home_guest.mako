@@ -5,8 +5,8 @@
   <h2>Access denied</h2>
   <p>You need to be logged in to access this page. Please sign up or log in below:</p>
 % else:
-  <h2>Welcome to Cherubplay</h2>
-  <p>Cherubplay is a paragraph-style roleplaying website for Homestuck fans. Here, you can post your prompts, answer other people's prompts and chat with other roleplayers. To get started, sign up or log in below:</p>
+  <h2>Welcome to ${"Sleuthplay" if sleuth else "Cherubplay"}</h2>
+  <p>${"Sleuthplay" if sleuth else "Cherubplay"} is a paragraph-style roleplaying website for ${"Problem Sleuth" if sleuth else "Homestuck"} fans. Here, you can post your prompts, answer other people's prompts and chat with other roleplayers. To get started, sign up or log in below:</p>
 % endif
   <section id="account_forms">
   <form action="${request.route_path("sign_up")}" method="post" class="tile2">

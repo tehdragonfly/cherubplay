@@ -58,7 +58,7 @@
       </div>
       <div id="push_notifications_disabled">
         <p>Push notifications are currently disabled on this device.</p>
-        <p id="push_notifications_denied">You've previously blocked push notifications on Cherubplay. You may need to remove the block in your browser's settings before you can enable push notifications.</p>
+        <p id="push_notifications_denied">You've previously blocked push notifications on ${"Sleuthplay" if sleuth else "Cherubplay"}. You may need to remove the block in your browser's settings before you can enable push notifications.</p>
         <button id="enable_push_notifications">Enable push notifications</button>
       </div>
       <div id="push_notifications_enabled">
@@ -69,7 +69,7 @@
     % if request.user.status != "banned":
       <form class="tile2" action="${request.route_path("account_away_message")}" method="post">
         <h3>Away message</h3>
-        <p>If you're leaving Cherubplay you can leave a message here to explain why. Your roleplaying partners will then see it when they visit chats with you.</p>
+        <p>If you're leaving ${"Sleuthplay" if sleuth else "Cherubplay"} you can leave a message here to explain why. Your roleplaying partners will then see it when they visit chats with you.</p>
         <textarea class="full" name="away_message" maxlength="255" placeholder="Away message...">${request.user.away_message or ""}</textarea>
         <div class="actions">
           <div class="right"><button type="submit">Save</button></div>
