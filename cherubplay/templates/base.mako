@@ -7,13 +7,22 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#393">
 <link rel="stylesheet" href="/static/cherubplay.css?32">
+% if sleuth:
+<link rel="stylesheet" href="/static/sleuthplay.css">
+% endif
 <link rel="shortcut icon" href="/static/favicon.ico">
 <link rel="manifest" href="/static/manifest.json">
 </head>
 <body class="<%block name="body_class"></%block>">
 
 <header>
-  <h1><a href="${request.route_path("home")}"><img src="/static/logo.png" alt="CHERUBPLAY"></a></h1>
+  <h1><a href="${request.route_path("home")}">
+    % if sleuth:
+      <img src="/static/logo_sleuth.png" alt="SLEUTHPLAY">
+    % else:
+      <img src="/static/logo.png" alt="CHERUBPLAY">
+    % endif
+  </a></h1>
 </header>
 
 % if request.user:
@@ -55,7 +64,7 @@ ${next.body()}\
 
 <script>var sleuth = ${"true" if sleuth else "false"};</script>
 <script src="https://lurantis.scorpiaproductions.co.uk/js/jquery-2.0.3.min.js"></script>
-<script src="/static/cherubplay.js?33"></script>
+<script src="/static/cherubplay.js?34"></script>
 <%block name="scripts"></%block>
 
 % if request.user and request.user.timezone is None:

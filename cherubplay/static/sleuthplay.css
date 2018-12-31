@@ -1,0 +1,7 @@
+body { background-color: #eee; }
+header { background-color: #eee; background: url("/static/header_back_1.png") left center, url("/static/header_back_2.png") right center, #eee; background-repeat: no-repeat; background-size: contain; }
+header a { max-width: 590px; }
+#nav { background-color: #333; }
+h1, h2, h3, h4, h5, h6 { color: #000; }
+a, label[for="filter_toggle"] { color: #555; }
+.unread, .editing { box-shadow-color: #555; }
