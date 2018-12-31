@@ -14,6 +14,7 @@ from redis.exceptions import ConnectionError
 from sqlalchemy import and_, func
 from sqlalchemy.orm.exc import NoResultFound
 
+from cherubplay.lib import SLEUTH_DATE
 from cherubplay.models import Base, Chat, ChatUser, Resource, User
 from cherubplay.models.enums import ChatUserStatus, TagType
 from cherubplay.resources import (
@@ -115,9 +116,6 @@ def request_unread_chats(request):
         ChatUser.status == ChatUserStatus.active,
         Chat.updated > ChatUser.visited,
     )).scalar()
-
-
-SLEUTH_DATE = datetime(2019, 1, 1, 0, 0, 0)
 
 
 def sleuth(event):

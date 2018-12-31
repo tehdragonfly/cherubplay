@@ -7,6 +7,9 @@ from datetime import datetime
 from hashlib import sha256
 
 
+SLEUTH_DATE = datetime(2019, 1, 1, 0, 0, 0)
+
+
 def make_paginator(request, item_count, current_page, items_per_page=25):
     return paginate.Page(
         [],
@@ -97,7 +100,7 @@ class DateBasedListProxy:
 preset_colours = DateBasedListProxy(
     homestuck_preset_colours,
     problem_sleuth_preset_colours,
-    datetime(2019, 1, 1, 0, 0, 0),
+    SLEUTH_DATE,
 )
 
 homestuck_prompt_categories = OrderedDict([
@@ -115,7 +118,7 @@ problem_sleuth_prompt_categories = OrderedDict([
 prompt_categories = DateBasedListProxy(
     homestuck_prompt_categories,
     problem_sleuth_prompt_categories,
-    datetime(2019, 1, 1, 0, 0, 0),
+    SLEUTH_DATE,
 )
 
 prompt_starters = OrderedDict([

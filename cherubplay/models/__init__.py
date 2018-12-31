@@ -37,7 +37,7 @@ from sqlalchemy.orm import (
 from sqlalchemy_enum34 import EnumType
 from zope.sqlalchemy import ZopeTransactionExtension
 
-from cherubplay.lib import prompt_hash, symbols, trim_with_ellipsis
+from cherubplay.lib import prompt_hash, symbols, trim_with_ellipsis, SLEUTH_DATE
 from cherubplay.models.enums import ChatMode, ChatSource, ChatUserStatus, MessageFormat, MessageType, TagType
 
 Base = declarative_base()
@@ -101,7 +101,7 @@ class User(Base):
         if self.timezone is None:
             return utc_datetime
         t = utc_datetime.astimezone(timezone(self.timezone))
-        if t.year == 2019:
+        if t.year == SLEUTH_DATE.year:
             t = t.replace(year=2009)
         return t
 
