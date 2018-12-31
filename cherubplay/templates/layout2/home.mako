@@ -1,6 +1,9 @@
 <%inherit file="base.mako" />\
 <%block name="body_class">layout2</%block>
 <main>
+% if sleuth:
+  <img src="https://i.imgur.com/PjMsXFv.jpg" style="display: block; margin: 0 auto; width: 500px; max-width: 100%" alt="Happy New Year 2009!">
+% endif
 % if request.user.status=="banned":
   <h2>Banned</h2>
 % if request.user.unban_date is not None:
