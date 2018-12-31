@@ -100,11 +100,23 @@ preset_colours = DateBasedListProxy(
     datetime(2019, 1, 1, 0, 0, 0),
 )
 
-prompt_categories = OrderedDict([
+homestuck_prompt_categories = OrderedDict([
     ("homestuck", "Homestuck"),
     ("crossover", "Homestuck crossover"),
     ("not-homestuck", "Not Homestuck"),
 ])
+
+problem_sleuth_prompt_categories = OrderedDict([
+    ("homestuck", "Problem Sleuth"),
+    ("crossover", "Problem Sleuth crossover"),
+    ("not-homestuck", "Not Problem Sleuth"),
+])
+
+prompt_categories = DateBasedListProxy(
+    homestuck_prompt_categories,
+    problem_sleuth_prompt_categories,
+    datetime(2019, 1, 1, 0, 0, 0),
+)
 
 prompt_starters = OrderedDict([
     ("starter", "Starter"),

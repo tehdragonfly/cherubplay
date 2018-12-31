@@ -121,7 +121,6 @@ SLEUTH_DATE = datetime(2019, 1, 1, 0, 0, 0)
 
 
 def sleuth(event):
-    print("EVENT", event)
     event["sleuth"] = datetime.now() >= SLEUTH_DATE
 
 

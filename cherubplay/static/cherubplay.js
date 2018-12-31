@@ -241,11 +241,16 @@ var cherubplay = (function() {
 
 			var prompt_data = {};
 
-			var category_strings = {
-				"homestuck": "Homestuck",
-				"crossover": "Homestuck crossover",
-				"not-homestuck": "Not Homestuck",
-			};
+			var category_strings =
+				sleuth ? {
+					"homestuck": "Problem Sleuth",
+					"crossover": "Problem Sleuth crossover",
+					"not-homestuck": "Not Problem Sleuth",
+				} : {
+					"homestuck": "Homestuck",
+					"crossover": "Homestuck crossover",
+					"not-homestuck": "Not Homestuck",
+				};
 			var starter_strings = {
 				"starter": "Starter",
 				"no-starter": "No starter",
