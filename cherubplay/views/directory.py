@@ -9,7 +9,7 @@ from pyramid.view import view_config
 from sqlalchemy import and_, func, literal
 from sqlalchemy.orm import joinedload
 
-from cherubplay.lib import colour_validator, preset_colours
+from cherubplay.lib import colour_validator, preset_colours, SLEUTH_DATE
 from cherubplay.models import (
     BlacklistedTag, Chat, ChatUser, Request, RequestSlot, RequestTag, Tag,
     TagParent, TagAddParentSuggestion, TagBumpMaturitySuggestion,
@@ -107,8 +107,12 @@ def _request_tags_from_form(request, form, new_request):
     if len(fandoms) > 1:
         tag_set.add((TagType.type, u"Crossover"))
 
-    if u"homestuck" not in fandoms:
-        tag_set.add((TagType.type, u"Not Homestuck"))
+    if datetime.datetime.now() >= SLEUTH_DATE:
+        if u"homestuck" not in fandoms and u"problem sleuth" not in fandoms:
+            tag_set.add((TagType.type, u"Not Problem Sleuth"))
+    else:
+        if u"homestuck" not in fandoms:
+            tag_set.add((TagType.type, u"Not Homestuck"))
 
     if form.get("mode") == "group":
         tag_set.add((TagType.type, u"Group chat"))
