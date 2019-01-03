@@ -52,8 +52,16 @@ def raw_trimmer(value: str, length: int) -> (bool, str):
     return True, html_formatters[MessageFormat.raw](value[:length - 3] + "...")
 
 
+def markdown_trimmer(value: str, length: int) -> (bool, str):
+    # TODO make sure this doesn't cut markdown syntax in half
+    if len(value) <= length:
+        return False, html_formatters[MessageFormat.markdown](value)
+    return True, html_formatters[MessageFormat.markdown](value[:length - 3] + "...")
+
+
 trimmers = {
     MessageFormat.raw: raw_trimmer,
+    MessageFormat.markdown: markdown_trimmer,
 }
 
 
