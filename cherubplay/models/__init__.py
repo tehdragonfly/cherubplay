@@ -72,6 +72,7 @@ class User(Base):
     layout_version = Column(Integer, nullable=False, default=2)
     timezone = Column(Unicode(255))
     seen_blacklist_warning = Column(Boolean, nullable=False, default=False)
+    show_nsfw = Column(Boolean)
     last_read_news = Column(DateTime)
     away_message = Column(Unicode(255))
     flags = Column(ARRAY(Unicode(500)), nullable=False, default=list)
