@@ -659,8 +659,8 @@ def directory_new_post(request):
         edited=new_date,
         colour=colour,
     )
-    new_request.ooc_notes.update(MessageFormat.raw, ooc_notes)
-    new_request.starter.update(MessageFormat.raw, starter)
+    new_request.ooc_notes.update(MessageFormat.markdown, ooc_notes)
+    new_request.starter.update(MessageFormat.markdown, starter)
     db = request.find_service(name="db")
     db.add(new_request)
     db.flush()
