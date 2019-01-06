@@ -77,7 +77,7 @@ def new_prompt_post(request):
         starter=request.POST["prompt_starter"],
         level=request.POST["prompt_level"],
     )
-    new_prompt.text.update(MessageFormat.raw, trimmed_prompt_text)
+    new_prompt.text.update(MessageFormat.markdown, trimmed_prompt_text)
     db = request.find_service(name="db")
     db.add(new_prompt)
     db.flush()
