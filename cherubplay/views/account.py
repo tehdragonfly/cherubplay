@@ -146,6 +146,12 @@ def account_password(request):
     return HTTPFound(request.route_path("account", _query={"saved": "password"}))
 
 
+@view_config(route_name="account_show_nsfw", request_method="POST", permission="view")
+def account_show_nsfw(request):
+    request.user.show_nsfw = request.POST.get("action") == "enable"
+    return HTTPFound(request.route_path("account"))
+
+
 @view_config(route_name="account_timezone", request_method="POST", permission="view")
 def account_timezone(request):
     if request.POST["timezone"] in timezones:
