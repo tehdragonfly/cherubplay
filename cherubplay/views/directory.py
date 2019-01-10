@@ -819,13 +819,21 @@ def directory_blacklist_remove(request):
     if "shutdown.directory" in request.registry.settings:
         raise HTTPNotFound
 
+    db = request.find_service(name="db")
+
     try:
-        request.find_service(name="db").query(BlacklistedTag).filter(and_(
-            BlacklistedTag.user_id == request.user.id,
-            BlacklistedTag.tag_id == request.POST["tag_id"],
-        )).delete()
-    except (KeyError, ValueError):
+        tag = db.query(Tag).filter(Tag.id == request.POST["tag_id"])
+    except (KeyError, ValueError, NoResultFound):
         raise HTTPBadRequest
+
+    if tag.type == TagType.maturity and tag.name != "Safe for work" and not request.user.show_nsfw:
+        raise HTTPBadRequest
+
+    db.query(BlacklistedTag).filter(and_(
+        BlacklistedTag.user_id == request.user.id,
+        BlacklistedTag.tag_id == request.POST["tag_id"],
+    )).delete()
+
     if request.is_xhr:
         return HTTPNoContent()
     return HTTPFound(request.headers.get("Referer") or request.route_path("directory_blacklist"))
