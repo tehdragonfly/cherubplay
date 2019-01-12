@@ -8,6 +8,7 @@ from pyramid.renderers import render_to_response
 from pyramid.view import view_config
 from sqlalchemy import and_, func, literal
 from sqlalchemy.orm import joinedload
+from sqlalchemy.orm.exc import NoResultFound
 
 from cherubplay.lib import colour_validator
 from cherubplay.models import (
@@ -822,11 +823,11 @@ def directory_blacklist_remove(request):
     db = request.find_service(name="db")
 
     try:
-        tag = db.query(Tag).filter(Tag.id == request.POST["tag_id"])
+        tag = db.query(Tag).filter(Tag.id == request.POST["tag_id"]).one()
     except (KeyError, ValueError, NoResultFound):
         raise HTTPBadRequest
 
-    if tag.type == TagType.maturity and tag.name != "Safe for work" and not request.user.show_nsfw:
+    if tag.type == TagType.maturity and not request.user.show_nsfw and tag.name != "Safe for work":
         raise HTTPBadRequest
 
     db.query(BlacklistedTag).filter(and_(

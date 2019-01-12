@@ -42,7 +42,7 @@
         % for tag in tags:
         <li>
           % if "shutdown.directory" not in request.registry.settings:
-            % if not request.user.show_nsfw and tag.type == TagType.maturity and tag.name != "Safe for work":
+            % if request.user.show_nsfw or tag.type != TagType.maturity or tag.name == "Safe for work":
               <form class="remove_form" action="${request.route_path("directory_blacklist_remove")}" method="post">
                 <input type="hidden" name="tag_id" value="${tag.id}">
                 <button type="submit">Remove</button>
