@@ -767,6 +767,8 @@ def directory_blacklist_setup(request):
             ["user_id", "tag_id"],
             db.query(literal(request.user.id), Tag.id).filter(Tag.blacklist_default is True)
         ))
+    else:
+        request.user.show_nsfw = True
 
     db.query(User).filter(User.id == request.user.id).update({"seen_blacklist_warning": True})
 
