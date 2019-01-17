@@ -3,6 +3,7 @@ import re
 from markdown import Markdown, Extension
 from markupsafe import escape, Markup
 
+from cherubplay.lib.markdown_processors import HashHeaderProcessor
 from cherubplay.models.enums import MessageFormat
 
 
@@ -24,6 +25,7 @@ class EscapeHTML(Extension):
 
 
 md = Markdown(extensions=[EscapeHTML()])
+md.parser.blockprocessors.register(HashHeaderProcessor(md.parser), 'hashheader', 70)
 
 
 plain_text_formatters = {
