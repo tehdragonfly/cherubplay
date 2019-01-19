@@ -36,11 +36,15 @@
         <li><label><input type="checkbox" name="${id}"> ${name}</label></li>
 % endfor
       </ul>
+% if request.user.show_nsfw:
       <ul id="answer_levels">
 % for id, name in prompt_levels.items():
         <li><label><input type="checkbox" name="${id}"> ${name}</label></li>
 % endfor
       </ul>
+% else:
+      <p>NSFW content is hidden in your <a href="${request.route_path("account")}">account settings</a>.</p>
+% endif
       <input type="checkbox" id="filter_toggle">
       <p><label for="filter_toggle">Set custom filters</label></p>
       <form>
