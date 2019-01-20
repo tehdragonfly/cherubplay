@@ -3,7 +3,7 @@ import re
 from markdown import Markdown, Extension
 from markupsafe import escape, Markup
 
-from cherubplay.lib.markdown_processors import HashHeaderProcessor
+from cherubplay.lib.markdown_processors import HashHeaderProcessor, LinkRelProcessor
 from cherubplay.models.enums import MessageFormat
 
 
@@ -16,8 +16,8 @@ class EscapeHTML(Extension):
         for key in ["html_block", "reference"]:
             del md.preprocessors[key]
         for key in [
-            "backtick", "reference", "link", "image_link", "image_reference",
-            "short_reference", "autolink", "automail", "html", "entity",
+            "backtick", "reference", "image_link", "image_reference",
+            "short_reference", "automail", "html", "entity",
         ]:
             del md.inlinePatterns[key]
         for key in ["code", "hashheader", "setextheader", "quote"]:
@@ -25,7 +25,8 @@ class EscapeHTML(Extension):
 
 
 md = Markdown(extensions=[EscapeHTML()])
-md.parser.blockprocessors.register(HashHeaderProcessor(md.parser), 'hashheader', 70)
+md.parser.blockprocessors.register(HashHeaderProcessor(md.parser), "hashheader", 70)
+md.treeprocessors.register(LinkRelProcessor(md), "link_rel", 10)
 
 
 plain_text_formatters = {

@@ -2,6 +2,7 @@ import re
 
 from markdown import util
 from markdown.blockprocessors import BlockProcessor
+from markdown.treeprocessors import Treeprocessor
 
 
 # Copy of Markdown's HashHeaderProcessor, limited to h3+
@@ -36,3 +37,20 @@ class HashHeaderProcessor(BlockProcessor):
         else:  # pragma: no cover
             # This should never happen, but just in case...
             logger.warn("We've got a problem header: %r" % block)
+
+
+class LinkRelProcessor(Treeprocessor):
+    """
+    Tree processor to add rel="noopener" to links.
+    """
+
+    def __init__(self, md):
+        self.md = md
+
+    def run(self, tree, ancestors=None):
+        for element in tree.iter():
+            if element.tag == "a":
+                element.set("target", "_blank")
+                element.set("rel", "noopener")
+        return tree
+
