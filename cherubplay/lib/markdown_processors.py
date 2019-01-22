@@ -35,4 +35,7 @@ class LinkRelProcessor(Treeprocessor):
             if element.tag == "a":
                 element.set("target", "_blank")
                 element.set("rel", "noopener")
+                href = element.get("href")
+                if not href.startswith("http://") and not href.startswith("https://"):
+                    element.set("href", "")
         return tree
