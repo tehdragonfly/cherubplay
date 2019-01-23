@@ -322,6 +322,9 @@ body.ongoing main { margin-bottom: 0; }
 #messages li > p:not(:last-of-type), .delete_preview > p:not(:last-of-type) { margin-bottom: 5px; }
 #messages .editing p { text-decoration: line-through; }
 
+#messages hr { margin: 5px 0; border: none; text-align: center; }
+#messages hr:after { content: "·  ·  ·"; }
+
 .message_ooc { opacity: 0.5; }
 .message_ooc:hover { opacity: 1; }
 .message_draft { font-style: italic; }
