@@ -26,12 +26,12 @@
         <p class="subtitle">${prompt_categories[prompt.category] if prompt.category else "<span class=\"error\">Category not set</span>"|n}, ${prompt_starters[prompt.starter]}, ${prompt_levels[prompt.level]}, written ${request.user.localise_time(prompt.created).strftime("%a %d %b %Y")}.</p>
         <% was_trimmed, preview_text = prompt.text.trim_html(250) %>
         % if not was_trimmed:
-          <div style="color: #${prompt.colour};">${preview_text}</div>
+          <div class="message" style="color: #${prompt.colour};">${preview_text}</div>
         % else:
           <div class="expandable">
             <a class="toggle" href="${request.route_path("prompt", id=prompt.id)}">(more)</a>
-            <div class="expanded_content" style="color: #${prompt.colour};" data-href="${request.route_path("prompt_ext", ext="json", id=prompt.id)}" data-type="prompt"></div>
-            <div class="collapsed_content" style="color: #${prompt.colour};">${preview_text}</div>
+            <div class="expanded_content message" style="color: #${prompt.colour};" data-href="${request.route_path("prompt_ext", ext="json", id=prompt.id)}" data-type="prompt"></div>
+            <div class="collapsed_content message" style="color: #${prompt.colour};">${preview_text}</div>
           </div>
         % endif
       </li>

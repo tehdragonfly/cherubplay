@@ -32,12 +32,12 @@ Started ${request.user.localise_time(chat.created).strftime("%a %d %b %Y")}, las
         % if prompt is not None:
           <% was_trimmed, preview_text = prompt.text.trim_html(250) %>
           % if not was_trimmed:
-            <div style="color: #${prompt.colour};">${preview_text}</div>
+            <div class="message" style="color: #${prompt.colour};">${preview_text}</div>
           % else:
             <div class="expandable">
               <a class="toggle" href="${request.route_path("chat", url=chat.url, _query={"page": 1})}">(more)</a>
-              <div class="expanded_content" style="color: #${prompt.colour};" data-href="${request.route_path("chat_ext", ext="json", url=chat.url, _query={"page": 1})}" data-type="chat"></div>
-              <div class="collapsed_content" style="color: #${prompt.colour};">${preview_text}</div>
+              <div class="expanded_content message" style="color: #${prompt.colour};" data-href="${request.route_path("chat_ext", ext="json", url=chat.url, _query={"page": 1})}" data-type="chat"></div>
+              <div class="collapsed_content message" style="color: #${prompt.colour};">${preview_text}</div>
             </div>
           % endif
         % endif
