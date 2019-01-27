@@ -71,16 +71,16 @@ ${tag.name}\
         % if rq.ooc_notes.raw:
           <hr>
           % if expanded:
-            <div>${rq.ooc_notes.as_html()}</div>
+            <div class="message">${rq.ooc_notes.as_html()}</div>
           % else:
             <% was_trimmed, preview_text = rq.ooc_notes.trim_html(250) %>
             % if not was_trimmed:
-              <div>${preview_text}</div>
+              <div class="message">${preview_text}</div>
             % else:
               <div class="expandable">
                 <a class="toggle" href="${request.route_path("directory_request", id=rq.id)}">(more)</a>
-                <div class="expanded_content" data-href="${request.route_path("directory_request_ext", ext="json", id=rq.id)}" data-type="request_ooc_notes"></div>
-                <div class="collapsed_content">${preview_text}</div>
+                <div class="message expanded_content" data-href="${request.route_path("directory_request_ext", ext="json", id=rq.id)}" data-type="request_ooc_notes"></div>
+                <div class="message collapsed_content">${preview_text}</div>
               </div>
             % endif
           % endif
@@ -88,16 +88,16 @@ ${tag.name}\
         % if rq.starter.raw:
           <hr>
           % if expanded:
-            <div style="color: #${rq.colour};">${rq.starter.as_html()}</div>
+            <div class="message" style="color: #${rq.colour};">${rq.starter.as_html()}</div>
           % else:
             <% was_trimmed, preview_text = rq.starter.trim_html(250) %>
             % if not was_trimmed:
-              <div style="color: #${rq.colour};">${preview_text}</div>
+              <div class="message" style="color: #${rq.colour};">${preview_text}</div>
             % else:
               <div class="expandable">
                 <a class="toggle" href="${request.route_path("directory_request", id=rq.id)}">(more)</a>
-                <div class="expanded_content" style="color: #${rq.colour};" data-href="${request.route_path("directory_request_ext", ext="json", id=rq.id)}" data-type="request_starter"></div>
-                <div class="collapsed_content" style="color: #${rq.colour};">${preview_text}</div>
+                <div class="message expanded_content" style="color: #${rq.colour};" data-href="${request.route_path("directory_request_ext", ext="json", id=rq.id)}" data-type="request_starter"></div>
+                <div class="message collapsed_content" style="color: #${rq.colour};">${preview_text}</div>
               </div>
             % endif
           % endif
