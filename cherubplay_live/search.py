@@ -187,6 +187,8 @@ class SearchHandler(WebSocketHandler):
                         extension = parsed_url.path.split(".")[-1]
                         if extension in ("jpg", "jpeg", "png", "gif"):
                             self.images.append("https://cdn.discordapp.com" + parsed_url.path)
+                    if parsed_url.netloc == "pbs.twimg.com":
+                        self.images.append("https://pbs.twimg.com" + parsed_url.path)
                     if len(self.images) == 3:
                         break
 
