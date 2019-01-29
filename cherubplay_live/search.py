@@ -182,7 +182,8 @@ class SearchHandler(WebSocketHandler):
                         path_with_extension = parsed_url.path if "." in parsed_url.path else parsed_url.path + ".jpg"
                         self.images.append("https://i.imgur.com" + path_with_extension)
                     elif parsed_url.netloc.endswith(".media.tumblr.com") or parsed_url.netloc == "media.tumblr.com":
-                        self.images.append("https://" + parsed_url.netloc + parsed_url.path)
+                        if extension in ("jpg", "jpeg", "png", "gif"):
+                            self.images.append("https://" + parsed_url.netloc + parsed_url.path)
                     elif parsed_url.netloc == "cdn.discordapp.com":
                         extension = parsed_url.path.split(".")[-1]
                         if extension in ("jpg", "jpeg", "png", "gif"):
