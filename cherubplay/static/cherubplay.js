@@ -263,7 +263,7 @@ var cherubplay = (function() {
 			function render_prompt(prompt) {
 				if (filter_phrases.length == 0 || check_filter_phrases(prompt)) {
 					prompt_data[prompt.id] = prompt;
-					var li = $("<li>").attr("id", prompt.id).addClass(tile_class).click(show_overlay);
+					var li = $("<li>").attr("id", prompt.id).addClass(tile_class).addClass("message").click(show_overlay);
 					$("<p>").addClass("subtitle").text(
 						category_strings[prompt.category] + ", "
 						+ starter_strings[prompt.starter] + ", "
