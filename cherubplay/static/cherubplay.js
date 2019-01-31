@@ -1176,6 +1176,7 @@ var cherubplay = (function() {
 				var message_handle = (message.symbol || message.name);
 				var li = $("<li>")
 					.attr("id", "message_" + message.id)
+					.addClass("message")
 					.addClass("message_" + message.type)
 					.css("color", "#" + message.colour);
 				li[0].dataset.raw = message.raw;

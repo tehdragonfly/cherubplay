@@ -8,7 +8,7 @@ ${request.context.chat_user.display_title} -
 </%block>
 <%block name="body_class">layout2</%block>
 <%def name="render_message(chat, user, chat_user, message, show_edit=False)">\
-      <li id="message message_${message.id}" class="message_${message.type.value}${" edited" if message.show_edited else ""}" data-handle="${message.handle or ""}" style="color: #${message.colour};" data-raw="${message.text.raw}">
+      <li id="message_${message.id}" class="message message_${message.type.value}${" edited" if message.show_edited else ""}" data-handle="${message.handle or ""}" style="color: #${message.colour};" data-raw="${message.text.raw}">
         ${render_message_inner(chat, user, chat_user, message, show_edit)}
       </li>
 </%def>\
