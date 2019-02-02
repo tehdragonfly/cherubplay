@@ -323,7 +323,7 @@ body.ongoing main { margin-bottom: 0; }
 #messages .editing p { text-decoration: line-through; }
 
 .message hr { margin: 5px 0; border: none; text-align: center; line-height: 5px; }
-.message hr:after { content: "·  ·  ·"; }
+.message hr:after { content: "●  ●  ●"; }
 
 .message_ooc { opacity: 0.5; }
 .message_ooc:hover { opacity: 1; }
