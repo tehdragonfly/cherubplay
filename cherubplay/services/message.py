@@ -8,7 +8,7 @@ from zope.interface import Interface, implementer
 
 from cherubplay.lib import trim_with_ellipsis
 from cherubplay.models import Chat, ChatUser, ChatUserStatus, Message, User
-from cherubplay.models.enums import MessageType
+from cherubplay.models.enums import MessageFormat, MessageType
 from cherubplay.services.redis import IOnlineUserStore
 from cherubplay.tasks import trigger_push_notification
 
@@ -40,7 +40,7 @@ def _(destination: User):
 
 
 class IMessageService(Interface):
-    def send_message(self, chat_user: ChatUser, type: MessageType, colour: str, text: str, action: str="message"):
+    def send_message(self, chat_user: ChatUser, type: MessageType, colour: str, format: MessageFormat, text: str, action: str="message"):
         pass
 
     def send_end_message(self, chat_user: ChatUser):
@@ -74,7 +74,7 @@ class MessageService(object):
         except ConnectionError:
             log.error("Failed to send pubsub message.")
 
-    def send_message(self, chat_user: ChatUser, type: MessageType, colour: str, text: str, action: str="message"):
+    def send_message(self, chat_user: ChatUser, type: MessageType, colour: str, format: MessageFormat, text: str, action: str="message"):
         chat = chat_user.chat
 
         # Only trigger notifications if the user has seen the most recent message.
@@ -100,10 +100,10 @@ class MessageService(object):
             type=type,
             colour=colour,
             symbol=chat_user.symbol,
-            text=text,
             posted=posted_date,
             edited=posted_date,
         )
+        new_message.text.update(format, text)
         self._db.add(new_message)
         self._db.flush()
 
@@ -144,27 +144,28 @@ class MessageService(object):
                 "colour": new_message.colour,
                 "symbol": chat_user.symbol_character,
                 "name": chat_user.name,
-                "text": new_message.text,
+                "raw": new_message.text.raw,
+                "html": new_message.text.as_html(),
             },
         })
 
     def send_end_message(self, chat_user: ChatUser):
-        self.send_message(chat_user, MessageType.system, "000000", "%s ended the chat.", "end")
+        self.send_message(chat_user, MessageType.system, "000000", MessageFormat.raw, "%s ended the chat.", "end")
         chat_user.visited = datetime.datetime.now()
 
     def send_leave_message(self, chat_user: ChatUser):
-        self.send_message(chat_user, MessageType.system, "000000", "%s left the chat.", "message")
+        self.send_message(chat_user, MessageType.system, "000000", MessageFormat.raw, "%s left the chat.", "message")
         chat_user.visited = datetime.datetime.now()
 
     def send_kick_message(self, kicking_chat_user: ChatUser, kicked_chat_user: ChatUser):
         text = "%s has been removed from the chat." % kicked_chat_user.name
-        self.send_message(kicked_chat_user, MessageType.system, "000000", text, "message")
+        self.send_message(kicked_chat_user, MessageType.system, "000000", MessageFormat.raw, text, "message")
         self._publish(kicked_chat_user, "kicked")
         kicking_chat_user.visited = datetime.datetime.now()
 
     def send_change_name_message(self, chat_user: ChatUser, old_name: str):
         text = "%s is now %s." % (old_name, chat_user.name)
-        self.send_message(chat_user, MessageType.system, "000000", text, "end")
+        self.send_message(chat_user, MessageType.system, "000000", MessageFormat.raw, text, "end")
         self._publish(chat_user.chat, {
             "action":   "name_change",
             "old_name": old_name,
@@ -180,7 +181,8 @@ class MessageService(object):
                 "colour": message.colour,
                 "symbol": message.symbol_character,
                 "name": message.chat_user.name,
-                "text": message.text,
+                "raw": message.text.raw,
+                "html": message.text.as_html(),
                 "show_edited": message.show_edited,
             },
         })

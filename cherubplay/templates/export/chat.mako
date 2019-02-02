@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<%namespace name="chat_base" file="/layout2/chat_base.mako" />\
 <%
     import paginate
     from cherubplay.models.enums import ChatMode, MessageType
@@ -27,8 +28,6 @@
 <h2>${chat_user.display_title}</h2>
 
 <main class="flex">
-  <div class="side_column"></div>
-  <div class="side_column"></div>
   <div id="content">
     % if paginator.page_count > 1:
       <p class="pager tile2">
@@ -37,22 +36,7 @@
     % endif
     <ul id="messages" class="tile2">
       % for message in messages:
-        <li id="message_${message.id}" class="message_${message.type.value}${" edited" if message.show_edited else ""}" style="color: #${message.colour};">
-          % if message.symbol is not None:
-            <span class="symbol">${message.symbol_character}</span>
-          % endif
-          % if message.symbol is not None and message.type == MessageType.system:
-            <p>${message.text % message.symbol_character}</p>
-          % else:
-            <p>${message.text}</p>
-          % endif
-          <div class="timestamp">
-            % if chat.mode == ChatMode.group and message.handle:
-              ${message.handle} ·
-            % endif
-            ${message.posted.strftime("%Y-%m-%d %H:%M:%S")}
-          </div>
-        </li>
+        ${chat_base.render_message(chat, user, chat_user, message, False)}
       % endfor
     </ul>
     % if paginator.page_count > 1:

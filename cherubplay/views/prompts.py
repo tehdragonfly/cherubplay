@@ -5,6 +5,7 @@ from sqlalchemy import func
 
 from cherubplay.lib import colour_validator, prompt_categories, prompt_starters, prompt_levels
 from cherubplay.models import Prompt
+from cherubplay.models.enums import MessageFormat
 
 
 @view_config(route_name="prompt_list", request_method="GET", permission="view", renderer="layout2/prompt_list.mako")
@@ -71,11 +72,12 @@ def new_prompt_post(request):
         user_id=request.user.id,
         title=trimmed_prompt_title,
         colour=colour,
-        text=trimmed_prompt_text,
+        _text=trimmed_prompt_text,
         category=request.POST["prompt_category"],
         starter=request.POST["prompt_starter"],
         level=request.POST["prompt_level"],
     )
+    new_prompt.text.update(MessageFormat.markdown, trimmed_prompt_text)
     db = request.find_service(name="db")
     db.add(new_prompt)
     db.flush()

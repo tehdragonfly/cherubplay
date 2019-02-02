@@ -16,7 +16,7 @@ from cherubplay.models import (
     TagParent, TagAddParentSuggestion, TagBumpMaturitySuggestion,
     TagMakeSynonymSuggestion, User,
 )
-from cherubplay.models.enums import ChatUserStatus, TagType
+from cherubplay.models.enums import ChatUserStatus, MessageFormat, TagType
 from cherubplay.resources import CircularReferenceException, TagPair
 from cherubplay.services.request import IRequestService
 from cherubplay.services.tag import CreateNotAllowed, ITagService
@@ -658,9 +658,9 @@ def directory_new_post(request):
         posted=new_date if status == "posted" else None,
         edited=new_date,
         colour=colour,
-        ooc_notes=ooc_notes,
-        starter=starter,
     )
+    new_request.ooc_notes.update(MessageFormat.markdown, ooc_notes)
+    new_request.starter.update(MessageFormat.markdown, starter)
     db = request.find_service(name="db")
     db.add(new_request)
     db.flush()

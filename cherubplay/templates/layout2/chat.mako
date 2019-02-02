@@ -4,19 +4,19 @@
 <%block name="body_class">layout2 ongoing</%block>
     <ul id="messages" class="tile2">
       % if prompt:
-      ${parent.render_message(prompt)}\
-      <li class="message_system"><a href="${request.route_path("chat", url=request.matchdict["url"], _query={ "page": 1 })}">${message_count-26} more messages</a></li>
+      ${parent.render_message(request.context.chat, request.user, request.context.chat_user, prompt)}\
+      <li class="message message_system"><a href="${request.route_path("chat", url=request.matchdict["url"], _query={ "page": 1 })}">${message_count-26} more messages</a></li>
       % endif
       % for message in messages:
-      ${parent.render_message(message, show_edit=True)}\
+      ${parent.render_message(request.context.chat, request.user, request.context.chat_user, message, show_edit=True)}\
       % endfor
       % if request.context.chat.mode != ChatMode.group:
         % for banned_chat_user in request.context.banned_chat_users:
-          <li class="message_system">${banned_chat_user.handle} has been ${"temporarily" if banned_chat_user.user.unban_date else "permanently"} banned from Cherubplay.</li>
+          <li class="message message_system">${banned_chat_user.handle} has been ${"temporarily" if banned_chat_user.user.unban_date else "permanently"} banned from Cherubplay.</li>
         % endfor
         % for away_chat_user in request.context.away_chat_users:
           % if away_chat_user not in request.context.banned_chat_users:
-            <li class="message_system"><p>${away_chat_user.handle} has marked their account as away. They left this message:
+            <li class="message message_system"><p>${away_chat_user.handle} has marked their account as away. They left this message:
 
 ${away_chat_user.user.away_message}</p></li>
           % endif

@@ -38,6 +38,7 @@ from sqlalchemy_enum34 import EnumType
 from zope.sqlalchemy import ZopeTransactionExtension
 
 from cherubplay.lib import prompt_hash, symbols, trim_with_ellipsis
+from cherubplay.lib.formatters import FormattedField
 from cherubplay.models.enums import ChatMode, ChatSource, ChatUserStatus, MessageFormat, MessageType, TagType
 
 Base = declarative_base()
@@ -145,13 +146,14 @@ class Message(Base):
     type = Column(EnumType(MessageType, name=u"message_type"), nullable=False, default=MessageType.ic)
     colour = Column(String(6), nullable=False, default="000000")
     symbol = Column(Integer)
-    format = Column(EnumType(MessageFormat, name=u"message_format"), default=MessageFormat.raw) # TODO set nullable=False
-    text = Column(UnicodeText, nullable=False)
+    _format = Column("format", EnumType(MessageFormat, name=u"message_format"), default=MessageFormat.raw) # TODO set nullable=False
+    _text = Column("text", UnicodeText, nullable=False)
+    text = FormattedField("_format", "_text")
     posted = Column(DateTime, nullable=False, default=datetime.datetime.now)
     edited = Column(DateTime, nullable=False, default=datetime.datetime.now)
 
     def __repr__(self):
-        return "<Message #%s: \"%s\">" % (self.id, trim_with_ellipsis(self.text, 37))
+        return "<Message #%s: \"%s\">" % (self.id, trim_with_ellipsis(self.text.as_plain_text(), 37))
 
     def __json__(self, request=None):
         return {
@@ -161,7 +163,6 @@ class Message(Base):
             "symbol": self.symbol,
             "symbol_character": self.symbol_character,
             "handle": self.handle,
-            "format": self.format,
             "text": self.text,
             "posted": self.posted,
             "edited": self.edited,
@@ -333,7 +334,9 @@ class Prompt(Base):
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
     updated = Column(DateTime, nullable=False, default=datetime.datetime.now)
     colour = Column(String(6), nullable=False)
-    text = Column(UnicodeText, nullable=False)
+    _format = Column("format", EnumType(MessageFormat, name=u"message_format"), default=MessageFormat.raw)
+    _text = Column("text", UnicodeText, nullable=False)
+    text = FormattedField("_format", "_text")
     category = Column(Unicode(100))
     starter = Column(Unicode(100), nullable=False)
     level = Column(Unicode(100), nullable=False)
@@ -343,7 +346,7 @@ class Prompt(Base):
 
     @property
     def prompt_hash(self):
-        return prompt_hash(self.text)
+        return prompt_hash(self.text.as_plain_text())
 
     def __json__(self, request=None):
         return {
@@ -397,8 +400,11 @@ class Request(Base):
     # Edited indicates when the request was last edited.
     edited = Column(DateTime(), nullable=False, default=datetime.datetime.now)
     colour = Column(Unicode(6), nullable=False, default=u"000000")
-    ooc_notes = Column(UnicodeText, nullable=False, default=u"")
-    starter = Column(UnicodeText, nullable=False, default=u"")
+    _format = Column("format", EnumType(MessageFormat, name=u"message_format"), default=MessageFormat.raw)
+    _ooc_notes = Column("ooc_notes", UnicodeText, nullable=False, default=u"")
+    ooc_notes = FormattedField("_format", "_ooc_notes")
+    _starter = Column("starter", UnicodeText, nullable=False, default=u"")
+    starter = FormattedField("_format", "_starter")
     tag_ids = Column(ARRAY(Integer)) # this makes tag filtering easier
     duplicate_of_id = Column(Integer, ForeignKey("requests.id"))
 
@@ -407,7 +413,7 @@ class Request(Base):
 
     @property
     def prompt_hash(self):
-        return prompt_hash(self.ooc_notes + self.starter)
+        return prompt_hash(self.ooc_notes.as_plain_text() + self.starter.as_plain_text())
 
     def tags_by_type(self):
         tags = {_: [] for _ in Tag.type.type.python_type}

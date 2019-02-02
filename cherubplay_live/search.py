@@ -13,8 +13,9 @@ from tornado.web import Application
 from tornado.websocket import WebSocketHandler, WebSocketClosedError
 
 from cherubplay.lib import colour_validator, prompt_hash, prompt_categories, prompt_starters, prompt_levels
+from cherubplay.lib.formatters import html_formatters
 from cherubplay.models import Chat, ChatUser, Message, PromptReport
-from cherubplay.models.enums import ChatSource
+from cherubplay.models.enums import ChatSource, MessageFormat
 
 from cherubplay_live.db import config, db_session, get_user, login_client
 
@@ -110,7 +111,8 @@ class SearchHandler(WebSocketHandler):
                     {
                         "id":       _.socket_id,
                         "colour":   _.colour,
-                        "prompt":   _.prompt,
+                        "prompt": _.prompt,
+                        "prompt_html": _.prompt_html,
                         "category": _.category,
                         "starter":  _.starter,
                         "level":    _.level,
@@ -126,6 +128,14 @@ class SearchHandler(WebSocketHandler):
                 self.write_message(json.dumps({
                     "action": "prompt_error",
                     "error": "The colour needs to be a valid hex code, for example \"#0715CD\" or \"#A15000\".",
+                }))
+                return
+            try:
+                format_ = MessageFormat(message["format"])
+            except ValueError:
+                self.write_message(json.dumps({
+                    "action": "prompt_error",
+                    "error": "Bad format.",
                 }))
                 return
             if message["prompt"].strip() == "":
@@ -163,6 +173,8 @@ class SearchHandler(WebSocketHandler):
             prompters[self.socket_id] = self
             self.colour   = message["colour"]
             self.prompt   = message["prompt"]
+            self.format   = format_
+            self.prompt_html = html_formatters[format_](self.prompt)
             self.hash     = message_hash
             self.category = message["category"]
             self.starter  = message["starter"]
@@ -198,6 +210,7 @@ class SearchHandler(WebSocketHandler):
                 "id":       self.socket_id,
                 "colour":   self.colour,
                 "prompt":   self.prompt,
+                "prompt_html":   self.prompt_html,
                 "category": self.category,
                 "starter":  self.starter,
                 "level":    self.level,
@@ -268,13 +281,14 @@ class SearchHandler(WebSocketHandler):
                         user_id=self.user.id,
                         symbol=1,
                     ))
-                db.add(Message(
+                new_message = Message(
                     chat_id=new_chat.id,
                     user_id=prompter.user.id,
                     colour=prompter.colour,
                     symbol=0,
-                    text=prompter.prompt,
-                ))
+                )
+                new_message.text.update(prompter.format, prompter.prompt)
+                db.add(new_message)
                 response = json.dumps({"action": "chat", "url": new_chat_url})
                 prompter.write_message(response)
                 self.write_message(response)

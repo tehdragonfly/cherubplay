@@ -17,10 +17,10 @@ ${paginator.pager(format='~5~')|n}
 % if messages:
     <ul id="messages" class="tile2">
 % for message in messages:
-${parent.render_message(message)}\
+${parent.render_message(request.context.chat, request.user, request.context.chat_user, message)}\
 % endfor
 % if paginator.page == paginator.page_count and request.context.chat_user and request.context.chat_user.draft:
-      <li class="message_draft">
+      <li class="message message_draft">
         <p>${request.context.chat_user.draft}</p>
         <div class="timestamp">
           % if request.context.chat.mode == ChatMode.group and request.context.chat_user.handle:
@@ -31,7 +31,7 @@ ${parent.render_message(message)}\
       </li>
 % endif
 % if paginator.page == paginator.page_count and request.context.is_continuable:
-      <li class="message_system"><a href="${request.route_path("chat", url=request.matchdict["url"])}">Continue this chat</a></li>
+      <li class="message message_system"><a href="${request.route_path("chat", url=request.matchdict["url"])}">Continue this chat</a></li>
 % endif
     </ul>
 % else:

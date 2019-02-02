@@ -85,6 +85,8 @@ h2 + main { margin-top: 0; }
 
 h3 { margin-bottom: 0; }
 
+h3:first-child, h4:first-child, h5:first-child, h6:first-child { margin-top: 0; }
+
 p { max-width: 650px; margin: 15px auto; line-height: 1.5em; word-wrap: break-word; }
 
 hr { margin: 15px 0; border: 0; border-top: 1px solid #ddd; }
@@ -317,7 +319,11 @@ body.ongoing main { margin-bottom: 0; }
 #messages li { position: relative; padding: 20px 0; }
 #messages li:not(:first-child) { border-top: 1px solid #ddd; }
 #messages li > p, .delete_preview > p { margin: 0; }
+#messages li > p:not(:last-of-type), .delete_preview > p:not(:last-of-type) { margin-bottom: 5px; }
 #messages .editing p { text-decoration: line-through; }
+
+.message hr { margin: 5px 0; border: none; text-align: center; line-height: 5px; }
+.message hr:after { content: "·  ·  ·"; }
 
 .message_ooc { opacity: 0.5; }
 .message_ooc:hover { opacity: 1; }

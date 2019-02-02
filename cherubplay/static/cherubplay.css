@@ -472,6 +472,15 @@ label[for="filter_toggle"]:hover {
 	content: " (edited)";
 }
 
+.symbol {
+    float: left;
+    line-height: 1.5rem;
+}
+
+.symbol + p {
+    margin-top: 0;
+}
+
 #status_bar {
 	max-width: 70ex;
 	margin: -5px auto;

@@ -97,10 +97,10 @@ ${chat.status.capitalize()}. \
 Started ${chat.created.strftime("%a %d %b %Y")}, last message ${chat.updated.strftime("%a %d %b %Y")}. <a href="${request.route_path("chat_info", url=chat.url)}">Edit chat info</a></p>
 % if prompt is not None:
         <p style="color: #${prompt.colour};">Prompt: \
-% if len(prompt.text)>250:
-${prompt.text[:250]}...\
+% if len(prompt.text.as_plain_text())>250:
+${prompt.text.as_plain_text()[:250]}...\
 % else:
-${prompt.text}\
+${prompt.text.as_plain_text()}\
 % endif
 </p>
 % endif

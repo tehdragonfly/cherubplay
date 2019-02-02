@@ -126,10 +126,7 @@
         <div class="right"><button id="overlay_close">Close</button></div>
       </section>
     </div>
-    <section class="tile2">
-      <p id="overlay_subtitle" class="subtitle"></p>
-      <p id="overlay_text"></p>
-    </section>
+    <section id="overlay_content" class="tile2 message"></section>
     <section id="overlay_images"></section>
     <button id="overlay_answer">Answer</button>
   </section>

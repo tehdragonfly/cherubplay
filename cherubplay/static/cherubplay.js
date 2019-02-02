@@ -37,27 +37,30 @@ var cherubplay = (function() {
 		var expanded_content = expandable_toggle.next(".expanded_content");
 		if (expanded_content.html()) {
 			expandable_toggle.parent().toggleClass("expanded");
+			expandable_toggle.text(expandable_toggle.parent().hasClass("expanded") ? "(less)" : "(more)");
 		} else {
 			$.get(expanded_content.attr("data-href"), function(data) {
-				switch (expanded_content.attr("data-type")) {
-					case "prompt":
-						var text = data.text;
-						break;
-					case "prompt_report":
-						var text = data.prompt;
-						break;
-					case "request_ooc_notes":
-						var text = data.request.ooc_notes;
-						break;
-					case "request_starter":
-						var text = data.request.starter;
-						break;
-					case "chat":
-						var text = data.messages[0].text;
-						break;
+				if (expanded_content.attr("data-type") == "prompt_report") {
+					expanded_content.text(data.prompt);
+				} else {
+					switch (expanded_content.attr("data-type")) {
+						case "prompt":
+							var html = data.text.as_html;
+							break;
+						case "request_ooc_notes":
+							var html = data.request.ooc_notes.as_html;
+							break;
+						case "request_starter":
+							var html = data.request.starter.as_html;
+							break;
+						case "chat":
+							var html = data.messages[0].text.as_html;
+							break;
+					}
+					expanded_content.html(html);
 				}
-				expanded_content.text(text);
 				expandable_toggle.parent().addClass("expanded");
+				expandable_toggle.text("(less)");
 			});
 		}
 		return false;
@@ -71,9 +74,10 @@ var cherubplay = (function() {
 		window.scroll(0, document.documentElement.scrollHeight - document.documentElement.clientHeight);
 	}
 
-	$("textarea").keyup(function() {
+	$("textarea").on("input", function() {
 		// Check if we're at the bottom before resizing because resizing will mean that we're not.
 		var scroll_after_resize = is_at_bottom();
+		this.style.height = null;
 		this.style.height = this.scrollHeight + "px";
 		if (scroll_after_resize) {
 			scroll_to_bottom();
@@ -259,13 +263,13 @@ var cherubplay = (function() {
 			function render_prompt(prompt) {
 				if (filter_phrases.length == 0 || check_filter_phrases(prompt)) {
 					prompt_data[prompt.id] = prompt;
-					var li = $("<li>").attr("id", prompt.id).addClass(tile_class).click(show_overlay);
+					var li = $("<li>").attr("id", prompt.id).addClass(tile_class).addClass("message").click(show_overlay);
 					$("<p>").addClass("subtitle").text(
 						category_strings[prompt.category] + ", "
 						+ starter_strings[prompt.starter] + ", "
 						+ level_strings[prompt.level]
 					).appendTo(li);
-					$("<p>").css("color", "#" + prompt.colour).text(prompt.prompt).appendTo(li);
+					li[0].insertAdjacentHTML("beforeend", prompt.prompt_html);
 					$("<div>").addClass("fade").appendTo(li);
 					li.appendTo(prompt_list);
 				}
@@ -274,16 +278,15 @@ var cherubplay = (function() {
 			var overlay_prompt_id;
 			var overlay = $("#overlay");
 			var overlay_report_and_close = $("#overlay_report_and_close");
-			var overlay_subtitle = $("#overlay_subtitle");
-			var overlay_text = $("#overlay_text");
+			var overlay_content = $("#overlay_content");
 			var overlay_images = $("#overlay_images").click(function(e) { e.stopPropagation(); });
 
 			function show_overlay() {
 				var subtitle = $(this).find("p.subtitle");
 				var prompt = $(this).find("p:not(.subtitle)");
 				overlay_prompt_id = this.id;
-				overlay_subtitle.text(subtitle.text());
-				overlay_text.css("color", prompt.css("color")).text(prompt.text());
+				overlay_content.css("color", prompt.css("color")).html("");
+				$(this).children(":not(.fade)").clone().appendTo(overlay_content);
 				if (body.hasClass("layout2") && prompt_data[this.id] && prompt_data[this.id].images) {
 					var images = prompt_data[this.id].images
 					for (var i = 0; i < images.length; i++) {
@@ -380,7 +383,8 @@ var cherubplay = (function() {
 							ws.send(JSON.stringify({
 								"action":   "prompt",
 								"colour":   data.colour,
-								"prompt":   data.text,
+								"format":   data.text.format,
+								"prompt":   data.text.raw,
 								"category": data.category,
 								"starter":  data.starter,
 								"level":    data.level,
@@ -395,7 +399,7 @@ var cherubplay = (function() {
 				}
 				localStorage.setItem("new_or_saved_prompt", "new_prompt");
 				if (!colour_regex.test(prompt_colour.val())) {
-					alert("The colour needs to be a valid hex code, for example \"#0715CD\" or \"#416600\".");
+					alert('The colour needs to be a valid hex code, for example "#0715CD" or "#416600".');
 					return false;
 				}
 				if (prompt_category.val() == "" || prompt_starter.val() == "" || prompt_level.val() == "") {
@@ -416,6 +420,7 @@ var cherubplay = (function() {
 				ws.send(JSON.stringify({
 					"action": "prompt",
 					"colour": prompt_colour.val().substr(1, 6),
+					"format": "markdown",
 					"prompt": prompt_text.val(),
 					"category": prompt_category.val(),
 					"starter": prompt_starter.val(),
@@ -441,15 +446,11 @@ var cherubplay = (function() {
 				prompt_category.val("");
 				prompt_starter.val("");
 				prompt_level.val("");
-				key_counter++;
-				if (key_counter == 10) {
-					key_counter = 0;
-					localStorage.setItem("prompt_colour",   prompt_colour.val());
-					localStorage.setItem("prompt_text",     prompt_text.val());
-					localStorage.setItem("prompt_category", prompt_category.val());
-					localStorage.setItem("prompt_starter",  prompt_starter.val());
-					localStorage.setItem("prompt_level",    prompt_level.val());
-				}
+				localStorage.setItem("prompt_colour",   prompt_colour.val());
+				localStorage.setItem("prompt_text",     prompt_text.val());
+				localStorage.setItem("prompt_category", prompt_category.val());
+				localStorage.setItem("prompt_starter",  prompt_starter.val());
+				localStorage.setItem("prompt_level",    prompt_level.val());
 			});
 			var prompt_category = $("#prompt_category");
 			var prompt_starter = $("#prompt_starter");
@@ -816,10 +817,10 @@ var cherubplay = (function() {
 
 			});
 
-			var prompt_colour = $("#new_request_form input[name=\"colour\"]").change(function() {
-				$("#new_request_form textarea[name=\"prompt\"]").css("color", this.value);
+			var prompt_colour = $('#new_request_form input[name="colour"]').change(function() {
+				$('#new_request_form textarea[name="prompt"]').css("color", this.value);
 			});
-			var preset_colours = $("#new_request_form select[name=\"preset_colours\"]").change(function() {
+			var preset_colours = $('#new_request_form select[name="preset_colours"]').change(function() {
 				prompt_colour.val(this.value).change();
 			});
 
@@ -994,11 +995,13 @@ var cherubplay = (function() {
 					return;
 				}
 				if (body.hasClass("layout2")) {
-					var jquery_this = $(this.parentNode.parentNode);
+					var li = this.parentNode.parentNode;
+					var $li = $(li);
 				} else {
-					var jquery_this = $(this);
+					var li = this;
+					var $li = $(this);
 				}
-				var editing_this = jquery_this.hasClass("editing");
+				var editing_this = $li.hasClass("editing");
 				if (editing_this) {
 					cancel_editing();
 				} else {
@@ -1009,18 +1012,17 @@ var cherubplay = (function() {
 						pre_edit_ooc = message_ooc[0].checked;
 						pre_edit_text = message_text.val();
 					}
-					editing_id = jquery_this.attr("id").substr(8);
-					message_form.attr("action", "/chats/"+chat_url+"/edit/"+editing_id+"/");
-					jquery_this.addClass("editing");
+					editing_id = $li.attr("id").substr(8);
+					message_form.attr("action", "/chats/" + chat_url + "/edit/" + editing_id + "/");
+					$li.addClass("editing");
 					if (body.hasClass("layout2")) {
 						this.innerHTML = "Stop editing";
 					}
 					message_form_container.addClass("editing");
-					var paragraph = jquery_this.find("p");
-					message_colour.val(paragraph.css("color")).change();
-					message_ooc[0].checked = jquery_this.hasClass("message_ooc");
-					var edit_text = body.hasClass("layout2") ? paragraph.text() : paragraph.text().substr(3);
-					message_text.css("height", "100px").val(edit_text).keyup();
+					var paragraph = $li.find("p");
+					message_colour.val($li.css("color")).change();
+					message_ooc[0].checked = $li.hasClass("message_ooc");
+					message_text.css("height", "100px").val(li.dataset.raw).keyup();
 					message_form.find("button").text("Edit");
 					window.scrollTo(0, message_form_container.position()["top"]-50);
 					message_text.focus();
@@ -1032,7 +1034,7 @@ var cherubplay = (function() {
 				$(".editing .edit_link").text("Edit");
 				$(".editing").removeClass("editing");
 				editing_id = null;
-				message_form.attr("action", "/chats/"+chat_url+"/send/");
+				message_form.attr("action", "/chats/" + chat_url + "/send/");
 				message_colour.val(pre_edit_color).change();
 				message_ooc[0].checked = pre_edit_ooc;
 				message_text.css("height", "100px").val(pre_edit_text).change().keyup();
@@ -1056,11 +1058,11 @@ var cherubplay = (function() {
 			});
 			var message_form = $("#message_form").submit(function() {
 				if (!colour_regex.test(message_colour.val())) {
-					alert("The colour needs to be a valid hex code, for example \"#0715CD\" or \"#416600\".");
+					alert('The colour needs to be a valid hex code, for example "#0715CD" or "#416600".');
 					return false;
 				}
 				message_text.val(message_text.val().trim());
-				if (message_text.val()=="") {
+				if (message_text.val() == "") {
 					alert("You can't submit a blank message.")
 					return false;
 				}
@@ -1112,11 +1114,11 @@ var cherubplay = (function() {
 					window.clearTimeout(typing_timeout);
 					if (!typing) {
 						typing = true;
-						ws.send("{\"action\":\"typing\"}");
+						ws.send('{"action":"typing"}');
 					}
 					typing_timeout = window.setTimeout(function() {
 						typing = false;
-						ws.send("{\"action\":\"stopped_typing\"}");
+						ws.send('{"action":"stopped_typing"}');
 					}, 1000);
 				}
 			});
@@ -1172,8 +1174,13 @@ var cherubplay = (function() {
 				// Check if we're at the bottom before rendering because rendering will mean that we're not.
 				var scroll_after_render = is_at_bottom();
 				var message_handle = (message.symbol || message.name);
+				var li = $("<li>")
+					.attr("id", "message_" + message.id)
+					.addClass("message")
+					.addClass("message_" + message.type)
+					.css("color", "#" + message.colour);
+				li[0].dataset.raw = message.raw;
 				if (body.hasClass("layout2")) {
-					var li = $("<li>").attr("id", "message_" + message.id).addClass("message_" + message.type).css("color", "#" + message.colour);
 					var timestamp = $("<div>").addClass("timestamp");
 					if (message.name) {
 						timestamp.text(message.name + " · ");
@@ -1190,29 +1197,30 @@ var cherubplay = (function() {
 						$("<span>").addClass("symbol").text(message.symbol).appendTo(li);
 					}
 					if (message_handle && message.type == "system") {
-						var text = message.text.replace("%s", message_handle);
+						var html = message.html.replace("%s", message_handle);
 					} else {
-						var text = message.text;
+						var html = message.html;
 					}
-					$("<p>").text(text).appendTo(li);
+					li[0].insertAdjacentHTML("beforeend", html);
 					timestamp.appendTo(li);
 					li.appendTo(messages);
 				} else {
-					var li = $("<li>").attr("id", "message_"+message.id).addClass("tile message_"+message.type);
+					li.addClass("tile");
 					if (message.symbol) {
 						li.attr("data-symbol", message.symbol);
 						if (message.symbol == own_handle) {
 							li.dblclick(start_editing);
 						}
-						if (message.type == "system") {
-							var text = message.text.replace("%s", message.symbol);
-						} else {
-							var text = message.symbol+": "+message.text;
+						if (message.type != "system") {
+							$("<span>").addClass("symbol").text(message.symbol).appendTo(li);
 						}
-					} else {
-						var text = message.text;
 					}
-					var p = $("<p>").css("color", "#"+message.colour).text(text).appendTo(li);
+					if (message_handle && message.type == "system") {
+						var html = message.html.replace("%s", message_handle);
+					} else {
+						var html = message.html;
+					}
+					li[0].insertAdjacentHTML("beforeend", html);
 					li.appendTo(messages);
 				}
 				if (scroll_after_render) {
@@ -1272,16 +1280,16 @@ var cherubplay = (function() {
 							if (li.length == 0) {
 								return;
 							}
-							li.removeClass("message_ic").removeClass("message_ooc").addClass("message_"+message.message.type);
+							li.removeClass("message_ic").removeClass("message_ooc").addClass("message_" + message.message.type);
 							if (message.message.show_edited) {
 								li.addClass("edited");
 							}
-							var p = li.find("p")
+							li.css("color", "#"+message.message.colour);
+							li.find(":not(.symbol, .timestamp)").remove();
 							if (body.hasClass("layout2")) {
-								li.css("color", "#"+message.message.colour);
-								p.text(message.message.text);
+								li.find(".timestamp")[0].insertAdjacentHTML("beforebegin", message.message.html);
 							} else {
-								p.css("color", "#"+message.message.colour).text(message.message.symbol+": "+message.message.text);
+								li[0].insertAdjacentHTML("beforeend", message.message.html);
 							}
 						} else if (message.action == "end" || message.action == "kicked") {
 							$(body).removeClass("ongoing");
