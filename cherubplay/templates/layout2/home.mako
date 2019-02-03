@@ -102,12 +102,18 @@
             <option value="${id}">${name}</option>
 % endfor
           </select>
+% if request.user.show_nsfw:
           <select id="prompt_level" name="prompt_level">
             <option value="">Level...</option>
 % for id, name in prompt_levels.items():
             <option value="${id}">${name}</option>
 % endfor
           </select>
+% else:
+          <select id="prompt_level" name="prompt_level" readonly>
+            <option value="sfw">Safe for work</option>
+          </select>
+% endif
           (<a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under" target="_blank">?</a>)
           <hr>
         </div>
