@@ -162,7 +162,7 @@ class SearchHandler(WebSocketHandler):
                     "error": "The specified level doesn't seem to exist.",
                 }))
                 return
-            if not request.user.show_nsfw and message["level"] != "sfw":
+            if not self.user.show_nsfw and message["level"] != "sfw":
                 self.write_message(json.dumps({
                     "action": "prompt_error",
                     "error": "Your user settings only allow you to post Safe for work prompts.",

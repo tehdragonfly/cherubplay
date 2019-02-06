@@ -139,11 +139,16 @@ var cherubplay = (function() {
 			function change_mode(new_mode) {
 				body.removeClass("answer_mode").removeClass("prompt_mode").removeClass("wait_mode");
 				if (ws.readyState == WebSocket.OPEN && new_mode == "answer_mode") {
+					if (answer_levels.length) {
+						var levels = answer_string(answer_levels);
+					} else {
+						var levels = "sfw";
+					}
 					ws.send(JSON.stringify({
 						"action": "search",
 						"categories": answer_string(answer_categories),
 						"starters": answer_string(answer_starters),
-						"levels": answer_string(answer_levels),
+						"levels": levels,
 					}));
 					body.addClass("answer_mode");
 					localStorage.setItem("last_mode", "answer_mode");
