@@ -110,7 +110,8 @@
 % endfor
           </select>
 % else:
-          <select id="prompt_level" name="prompt_level" readonly>
+          <select id="prompt_level" name="prompt_level">
+            <option value="">Level...</option>
             <option value="sfw">Safe for work</option>
           </select>
 % endif
