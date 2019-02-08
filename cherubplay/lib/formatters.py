@@ -1,9 +1,10 @@
 import re
 
 from markdown import Markdown, Extension
+from markdown.inlinepatterns import AutolinkInlineProcessor
 from markupsafe import escape, Markup
 
-from cherubplay.lib.markdown_processors import HeaderLevelProcessor, LinkRelProcessor
+from cherubplay.lib.markdown_processors import AUTOLINK_RE, HeaderLevelProcessor, LinkRelProcessor
 from cherubplay.models.enums import MessageFormat
 
 
@@ -17,9 +18,10 @@ class EscapeHTML(Extension):
             del md.preprocessors[key]
         for key in [
             "backtick", "reference", "image_link", "image_reference",
-            "short_reference", "automail", "html", "entity",
+            "short_reference", "autolink", "automail", "html", "entity",
         ]:
             del md.inlinePatterns[key]
+        md.inlinePatterns.register(AutolinkInlineProcessor(AUTOLINK_RE, md), "autolink", 120)
         for key in ["code", "quote"]:
             del md.parser.blockprocessors[key]
 

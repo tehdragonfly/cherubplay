@@ -4,6 +4,9 @@ from markdown import util
 from markdown.treeprocessors import Treeprocessor
 
 
+AUTOLINK_RE = r"((?:[Ff]|[Hh][Tt])[Tt][Pp][Ss]?://[^\s]+)"
+
+
 class HeaderLevelProcessor(Treeprocessor):
     """
     Shift headings down two levels.
