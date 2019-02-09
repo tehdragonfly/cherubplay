@@ -4,7 +4,9 @@ from markdown import util
 from markdown.treeprocessors import Treeprocessor
 
 
-AUTOLINK_RE = r"((?:[Ff]|[Hh][Tt])[Tt][Pp][Ss]?://[^\s]+)"
+# Custom autolink regex because the standard one requires angle brackets.
+# Also we only autolink HTTPS links.
+AUTOLINK_RE = r"((?:[Ff]|[Hh][Tt])[Tt][Pp][Ss]://[^\s]+)"
 
 
 class HeaderLevelProcessor(Treeprocessor):

@@ -12,8 +12,12 @@ linebreak_regex = re.compile(r"[\r\n]+")
 paragraph = Markup("<p>%s</p>")
 
 
-class EscapeHTML(Extension):
+class ProcessorExtension(Extension):
     def extendMarkdown(self, md):
+        """
+        Remove processors allowing raw HTML, images and some formatting we
+        don't have CSS for.
+        """
         for key in ["html_block", "reference"]:
             del md.preprocessors[key]
         for key in [
@@ -26,7 +30,7 @@ class EscapeHTML(Extension):
             del md.parser.blockprocessors[key]
 
 
-md = Markdown(extensions=[EscapeHTML()])
+md = Markdown(extensions=[ProcessorExtension()])
 md.treeprocessors.register(HeaderLevelProcessor(md), "header_level", 10)
 md.treeprocessors.register(LinkRelProcessor(md), "link_rel", 10)
 
