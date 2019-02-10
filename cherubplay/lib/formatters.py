@@ -28,11 +28,11 @@ class ProcessorExtension(Extension):
         md.inlinePatterns.register(AutolinkInlineProcessor(AUTOLINK_RE, md), "autolink", 120)
         for key in ["code", "quote"]:
             del md.parser.blockprocessors[key]
+        md.treeprocessors.register(HeaderLevelProcessor(md), "header_level", 10)
+        md.treeprocessors.register(LinkRelProcessor(md), "link_rel", 10)
 
 
 md = Markdown(extensions=[ProcessorExtension()])
-md.treeprocessors.register(HeaderLevelProcessor(md), "header_level", 10)
-md.treeprocessors.register(LinkRelProcessor(md), "link_rel", 10)
 
 
 plain_text_formatters = {
