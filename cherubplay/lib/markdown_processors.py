@@ -43,4 +43,8 @@ class LinkRelProcessor(Treeprocessor):
                 href = element.get("href")
                 if not href.startswith("http://") and not href.startswith("https://"):
                     element.set("href", "")
+                if element.text == href and href.endswith(")") and not "(" in href:
+                    element.text = element.text[:-1]
+                    element.set("href", href[:-1])
+                    element.tail = ")" + (element.tail or "")
         return tree
