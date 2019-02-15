@@ -41,8 +41,16 @@ class LinkRelProcessor(Treeprocessor):
                 element.set("target", "_blank")
                 element.set("rel", "noopener")
                 href = element.get("href")
+                # Only allow HTTP and HTTPS links.
                 if not href.startswith("http://") and not href.startswith("https://"):
                     element.set("href", "")
+                # Don't allow misleading links.
+                if (
+                    (element.text.startswith("http://") or element.text.startswith("https://"))
+                    and element.text != href
+                ):
+                    element.text = href
+                # Don't capture close brackets unless there's an open bracket.
                 if element.text == href and href.endswith(")") and not "(" in href:
                     element.text = element.text[:-1]
                     element.set("href", href[:-1])
