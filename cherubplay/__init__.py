@@ -14,7 +14,7 @@ from sqlalchemy import and_, func
 from sqlalchemy.orm.exc import NoResultFound
 
 from cherubplay.models import Base, Chat, ChatUser, Resource, User
-from cherubplay.models.enums import ChatUserStatus, TagType
+from cherubplay.models.enums import ChatUserStatus, MessageFormat, TagType
 from cherubplay.resources import (
     ChatContext, prompt_factory, report_factory, TagList, TagPair,
     connection_factory, request_factory, user_factory,
@@ -137,6 +137,11 @@ def main(global_config, **settings):
             for name in settings.get("checkbox_tags." + tag_type.value, "").split("\n")
             if name.strip()
         ]
+
+    if "default_format" in settings:
+        settings["default_format"] = MessageFormat(settings["default_format"])
+    else:
+        settings["default_format"] = MessageFormat.raw
 
     config = Configurator(
         authentication_policy=CherubplayAuthenticationPolicy(),

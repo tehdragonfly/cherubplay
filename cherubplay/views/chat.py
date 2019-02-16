@@ -17,7 +17,7 @@ from sqlalchemy.sql.expression import cast
 from cherubplay import ChatContext
 from cherubplay.lib import colour_validator, trim_with_ellipsis
 from cherubplay.models import Chat, ChatExport, ChatUser, Message
-from cherubplay.models.enums import ChatMode, ChatUserStatus, MessageFormat, MessageType
+from cherubplay.models.enums import ChatMode, ChatUserStatus, MessageType
 from cherubplay.services.message import IMessageService
 from cherubplay.tasks import export_chat
 
@@ -366,7 +366,7 @@ def _validate_message_form(request, editing=False):
 def chat_send(context: ChatContext, request):
     colour, trimmed_message_text, message_type = _validate_message_form(request)
     message_service = request.find_service(IMessageService)
-    message_service.send_message(context.chat_user, message_type, colour, MessageFormat.markdown, trimmed_message_text)
+    message_service.send_message(context.chat_user, message_type, colour, request.registry.settings["default_format"], trimmed_message_text)
 
     if request.is_xhr:
         return HTTPNoContent()
