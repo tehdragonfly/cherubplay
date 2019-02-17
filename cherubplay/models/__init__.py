@@ -79,6 +79,7 @@ class User(Base):
         u"posted", u"edited", u"posted_oldest", u"edited_oldest",
         name="user_default_request_order",
     ), nullable=False, default=u"posted")
+    default_format = Column(EnumType(MessageFormat, name=u"message_format"), default=MessageFormat.markdown)
 
     def __repr__(self):
         return "<User #%s: %s>" % (self.id, self.username)
