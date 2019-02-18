@@ -16,9 +16,6 @@ class HeaderLevelProcessor(Treeprocessor):
     h1 and h2 are already used by the layout, so we only want h3+ in messages.
     """
 
-    def __init__(self, md):
-        self.md = md
-
     def run(self, tree, ancestors=None):
         for element in tree.iter():
             if element.tag in ("h1", "h2", "h3", "h4", "h5", "h6"):
@@ -31,9 +28,6 @@ class LinkRelProcessor(Treeprocessor):
     """
     Tree processor to add rel="noopener" to links.
     """
-
-    def __init__(self, md):
-        self.md = md
 
     def run(self, tree, ancestors=None):
         for element in tree.iter():
