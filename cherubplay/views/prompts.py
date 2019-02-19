@@ -76,7 +76,8 @@ def new_prompt_post(request):
         starter=request.POST["prompt_starter"],
         level=request.POST["prompt_level"],
     )
-    new_prompt.text.update(request.registry.settings["default_format"], trimmed_prompt_text)
+    default_format = request.user.default_format or request.registry.settings["default_format"]
+    new_prompt.text.update(default_format, trimmed_prompt_text)
     db = request.find_service(name="db")
     db.add(new_prompt)
     db.flush()

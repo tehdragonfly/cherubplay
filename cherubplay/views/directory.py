@@ -659,8 +659,9 @@ def directory_new_post(request):
         edited=new_date,
         colour=colour,
     )
-    new_request.ooc_notes.update(request.registry.settings["default_format"], ooc_notes)
-    new_request.starter.update(request.registry.settings["default_format"], starter)
+    default_format = request.user.default_format or request.registry.settings["default_format"]
+    new_request.ooc_notes.update(default_format, ooc_notes)
+    new_request.starter.update(default_format, starter)
     db = request.find_service(name="db")
     db.add(new_request)
     db.flush()
