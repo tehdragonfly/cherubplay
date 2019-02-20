@@ -124,7 +124,7 @@ var cherubplay = (function() {
 	});
 
 	return {
-		"home": function() {
+		"home": function(default_format) {
 
 			// Modes
 
@@ -420,7 +420,7 @@ var cherubplay = (function() {
 				ws.send(JSON.stringify({
 					"action": "prompt",
 					"colour": prompt_colour.val().substr(1, 6),
-					"format": "markdown",
+					"format": default_format,
 					"prompt": prompt_text.val(),
 					"category": prompt_category.val(),
 					"starter": prompt_starter.val(),
