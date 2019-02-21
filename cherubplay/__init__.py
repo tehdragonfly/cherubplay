@@ -264,6 +264,7 @@ def main(global_config, **settings):
     config.add_route("account_push_subscribe",     "/account/push/subscribe/")
     config.add_route("account_push_unsubscribe",   "/account/push/unsubscribe/")
     config.add_route("account_away_message",       "/account/away_message/")
+    config.add_route("account_message_format",     "/account/message_format/")
     config.add_route("account_read_news",          "/account/read_news/")
     config.add_ext_route("account_connections",    "/account/connections/")
     # Not /account/connections/new/ because that could collide with a user called "new".

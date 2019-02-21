@@ -11,7 +11,7 @@ from uuid import uuid4
 
 from cherubplay.lib import email_validator, timezones, username_validator, reserved_usernames
 from cherubplay.models import Chat, ChatUser, PushSubscription, User, UserConnection
-from cherubplay.models.enums import ChatSource
+from cherubplay.models.enums import ChatSource, MessageFormat
 from cherubplay.services.user_connection import IUserConnectionService
 
 
@@ -292,6 +292,19 @@ def account_away_message(request):
     db = request.find_service(name="db")
     db.query(User).filter(User.id == request.user.id).update({
         "away_message": request.POST.get("away_message", "").strip()[:500] or None,
+    })
+    return HTTPFound(request.route_path("account"))
+
+
+@view_config(route_name="account_message_format", request_method="POST", permission="chat")
+def account_message_format(request):
+    try:
+        message_format = MessageFormat(request.POST.get("message_format"))
+    except ValueError:
+        raise HTTPBadRequest
+    db = request.find_service(name="db")
+    db.query(User).filter(User.id == request.user.id).update({
+        "default_format": message_format,
     })
     return HTTPFound(request.route_path("account"))
 
