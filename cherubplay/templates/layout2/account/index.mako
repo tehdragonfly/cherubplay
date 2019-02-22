@@ -89,5 +89,11 @@
         % endfor
       </select><button type="submit">Save</button></p>
     </form>
+    <form class="tile2" action="${request.route_path("account_message_format")}" method="post">
+      <h3>Message format</h3>
+      <p><input type="radio" name="message_format" value="raw"> Save messages in plain text format</p>
+      <p><input type="radio" name="message_format" value="markdown"> Save messages in markdown format</p>
+      <p class="middle_actions"><button type="submit">Save</button></p>
+    </form>
   </div>
 <%block name="scripts"><script>cherubplay.account("${request.registry.settings.get("push.public_key", "")}");</script></%block>
