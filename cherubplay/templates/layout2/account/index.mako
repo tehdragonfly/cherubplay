@@ -1,5 +1,6 @@
 <%inherit file="base.mako" />\
 <% from cherubplay.lib import timezones_list %>
+<% from cherubplay.models.enums import MessageFormat %>
 <%block name="heading">Account settings</%block>
 % if request.GET.get("saved") == "verify_email":
     <p id="confirmation">We've sent you an e-mail. Please click the link in the e-mail to verify your address.</p>
@@ -91,8 +92,9 @@
     </form>
     <form class="tile2" action="${request.route_path("account_message_format")}" method="post">
       <h3>Message format</h3>
-      <p><input type="radio" name="message_format" value="raw"> Save messages in plain text format</p>
-      <p><input type="radio" name="message_format" value="markdown"> Save messages in markdown format</p>
+      <% default_format = request.user.default_format or request.registry.settings["default_format"] %>
+      <p><label><input type="radio" name="message_format" value="raw" ${"checked" if default_format == MessageFormat.raw else ""}> Save messages in plain text format</label></p>
+      <p><label><input type="radio" name="message_format" value="markdown" ${"checked" if default_format == MessageFormat.markdown else ""}> Save messages in markdown format</label></p>
       <p class="middle_actions"><button type="submit">Save</button></p>
     </form>
   </div>
