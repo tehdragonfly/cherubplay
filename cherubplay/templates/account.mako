@@ -80,4 +80,11 @@
       <div class="right"><button type="submit">Save</button></div>
     </div>
   </form>
+  <form class="tile" action="${request.route_path("account_message_format")}" method="post">
+    <h3>Message format</h3>
+    <% default_format = request.user.default_format or request.registry.settings["default_format"] %>
+    <p><label><input type="radio" name="message_format" value="raw" ${"checked" if default_format == MessageFormat.raw else ""}> Save messages in plain text format</label></p>
+    <p><label><input type="radio" name="message_format" value="markdown" ${"checked" if default_format == MessageFormat.markdown else ""}> Save messages in markdown format</label></p>
+    <p class="actions"><div class="right"><button type="submit">Save</button></div></p>
+  </form>
 <%block name="scripts"><script>cherubplay.account();</script></%block>
