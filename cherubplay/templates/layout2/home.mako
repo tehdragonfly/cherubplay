@@ -164,6 +164,6 @@
       </div>
     </section>
   </section>
-<%block name="scripts"><script>cherubplay.home();</script></%block>
+<%block name="scripts"><script>cherubplay.home("${(request.user.default_format or request.registry.settings.default_format).value}");</script></%block>
 % endif
 </main>
