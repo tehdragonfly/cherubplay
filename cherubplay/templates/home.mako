@@ -140,5 +140,5 @@
       <button id="report_overlay_submit">Submit</button>
     </section>
   </section>
-<%block name="scripts"><script>cherubplay.home("${(request.user.default_format or request.registry.settings.default_format).value}");</script></%block>
+<%block name="scripts"><script>cherubplay.home("${(request.user.default_format or request.registry.settings["default_format"]).value}");</script></%block>
 % endif
