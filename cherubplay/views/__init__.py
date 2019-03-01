@@ -129,8 +129,8 @@ def log_out(request):
 
 @view_config(route_name="rules", permission="view", renderer="layout2/content.mako")
 def rules(request):
-    if not request.regstry.settings("rules_file"):
+    if not request.regstry.settings("content.rules"):
         raise HTTPNotFound
-    with open(request.registry.settings["rules_file"]) as f:
+    with open(request.registry.settings["content.rules"]) as f:
         content = f.read()
     return {"title": "Rules", "content": content}
