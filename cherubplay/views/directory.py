@@ -33,7 +33,9 @@ class ValidationError(Exception):
 
 
 def _validate_request_form(request):
-    if request.POST.get("maturity") not in Tag.maturity_names:
+    if not request.user.show_nsfw and request.POST.get("maturity") != "Safe for work":
+        raise ValidationError("blank_maturity")
+    elif request.POST.get("maturity") not in Tag.maturity_names:
         raise ValidationError("blank_maturity")
 
     colour = request.POST.get("colour", "")
