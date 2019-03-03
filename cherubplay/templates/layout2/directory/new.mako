@@ -20,9 +20,13 @@ Write a new request
         % if request.matched_route.name != "directory_request_edit":
         <option value=""></option>
         % endif
-        % for maturity in Tag.maturity_names:
-        <option${" selected" if form_data.get("maturity") == maturity else ""}>${maturity}</option>
-        % endfor
+        % if request.user.show_nsfw:
+          % for maturity in Tag.maturity_names:
+            <option${" selected" if form_data.get("maturity") == maturity else ""}>${maturity}</option>
+          % endfor
+        % else:
+            <option${" selected" if form_data.get("maturity") == "Safe for work" else ""}>Safe for work</option>
+        % endif
       </select> (<a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under" target="_blank">Category rules</a>)</label></p>
       % if error == "blank_maturity":
       <p class="error">Please choose a maturity for your prompt.</p>
