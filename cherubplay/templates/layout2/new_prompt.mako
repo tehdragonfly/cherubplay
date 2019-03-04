@@ -39,9 +39,13 @@
         </select>
         <select id="prompt_level" name="prompt_level" required>
           <option value="">Level...</option>
-% for id, name in prompt_levels.items():
-          <option value="${id}">${name}</option>
-% endfor
+          % if request.user.show_nsfw:
+            % for id, name in prompt_levels.items():
+              <option value="${id}">${name}</option>
+            % endfor
+          % else:
+            <option value="sfw">Safe for work</option>
+          % endif
         </select>
         (<a href="http://cherubplay.tumblr.com/post/85827459447/heres-a-little-expansion-on-what-belongs-under" target="_blank">?</a>)
       </div>
