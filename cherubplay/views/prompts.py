@@ -68,7 +68,9 @@ def new_prompt_post(request):
     if request.POST.get("prompt_starter") not in prompt_starters:
         return {"error": "blank_starter"}
 
-    if request.POST.get("prompt_level") not in prompt_levels:
+    if not request.user.show_nsfw and request.POST.get("prompt_level") != "sfw":
+        return {"error": "blank_level"}
+    elif request.POST.get("prompt_level") not in prompt_levels:
         return {"error": "blank_level"}
 
     new_prompt = Prompt(
