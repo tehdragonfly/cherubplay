@@ -139,6 +139,9 @@ def _tags_from_form(request, form, new_request):
 
         tag_list.append(tag_id)
 
+    if bump_maturity and not request.user.show_nsfw:
+        raise ValidationError("blank_maturity")
+
     if bump_maturity or form.get("maturity") not in Tag.maturity_names:
         maturity_name = "NSFW extreme"
     else:
