@@ -756,6 +756,7 @@ var cherubplay = (function() {
 				}
 
 				function make_tag_list(value) {
+					var lis = Array.from(tag_list.children());
 					value.split(",").forEach(function(tag_name) {
 
 						tag_name = tag_name.trim();
@@ -772,7 +773,6 @@ var cherubplay = (function() {
 
 						var li = $("<li>").text(" ");
 						if (tag_type == "warning") { li.addClass("warning"); }
-						li.appendTo(tag_list);
 						$("<a>").attr({
 							"href": "#",
 							"data-tag-name": tag_name,
@@ -781,8 +781,18 @@ var cherubplay = (function() {
 							refresh_hidden_input();
 							return false;
 						}).text(tag_name).appendTo(li);
+						lis.push(li);
 
 					});
+
+					lis.sort(function(first, second) {
+						console.log(first,second);
+						first_name  = first.children()[0].dataset.tagName;
+						second_name = second.children()[0].dataset.tagName;
+						console.log(first_name, second_name);
+						return first_name > second_name ? 1 : -1;
+					});
+					lis.forEach(function(li) { li.appendTo(tag_list) });
 				}
 
 				var active_request = null;
