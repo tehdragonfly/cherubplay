@@ -688,6 +688,8 @@ var cherubplay = (function() {
 				this.value == "NSFW extreme" ? warning_checkboxes.show() : warning_checkboxes.hide();
 			}).change();
 
+			var tag_checkboxes = Array.from(document.querySelectorAll("input[type=checkbox]"));
+
 			$("#new_request_form .tag_input").each(function() {
 
 				var tag_list = $(this).find(".request_tags");
@@ -771,17 +773,24 @@ var cherubplay = (function() {
 							}
 						}
 
-						var li = $("<li>").text(" ");
-						if (tag_type == "warning") { li.addClass("warning"); }
-						$("<a>").attr({
-							"href": "#",
-							"data-tag-name": tag_name,
-						}).click(function() {
-							$(this.parentNode).remove();
-							refresh_hidden_input();
-							return false;
-						}).text(tag_name).appendTo(li);
-						lis.push(li);
+						var matching_checkboxes = tag_checkboxes.filter(function(checkbox) {
+							return checkbox.name.toLowerCase() == tag_type + "_" + tag_name.toLowerCase();
+						});
+						if (matching_checkboxes.length == 1) {
+							matching_checkboxes[0].checked = true;
+						} else {
+							var li = $("<li>").text(" ");
+							if (tag_type == "warning") { li.addClass("warning"); }
+							$("<a>").attr({
+								"href": "#",
+								"data-tag-name": tag_name,
+							}).click(function() {
+								$(this.parentNode).remove();
+								refresh_hidden_input();
+								return false;
+							}).text(tag_name).appendTo(li);
+							lis.push(li);
+						}
 
 					});
 
