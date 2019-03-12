@@ -1069,11 +1069,11 @@ def directory_request_delete_post(context: Request, request):
 @view_config(route_name="directory_request_remove", request_method="POST", permission="request.remove")
 def directory_request_remove(context: Request, request):
     context.status = "removed"
-    return HTTPFound(request.route_path("directory_request", id=context.id))
+    return HTTPFound(request.headers.get("Referer") or request.route_path("directory_request", id=context.id))
 
 
 @view_config(route_name="directory_request_unremove", request_method="POST", permission="request.remove")
 def directory_request_unremove(context: Request, request):
     context.status = "draft"
-    return HTTPFound(request.route_path("directory_request", id=context.id))
+    return HTTPFound(request.headers.get("Referer") or request.route_path("directory_request", id=context.id))
 
