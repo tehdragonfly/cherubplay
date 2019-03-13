@@ -737,12 +737,11 @@ def directory_blacklist(request):
 
 @view_config(route_name="directory_blacklist_setup", request_method="POST", permission="directory.read")
 def directory_blacklist_setup(request):
+    if request.user.seen_blacklist_warning:
+        return HTTPFound(request.headers.get("Referer") or request.route_path("directory"))
 
     if request.POST.get("blacklist") not in ("none", "default"):
         raise HTTPBadRequest
-
-    if request.user.seen_blacklist_warning:
-        return HTTPFound(request.headers.get("Referer") or request.route_path("directory"))
 
     db = request.find_service(name="db")
     if request.POST["blacklist"] == "default":
@@ -793,7 +792,7 @@ def directory_blacklist_add(request):
 
     if request.is_xhr:
         return HTTPNoContent()
-    return HTTPFound(request.route_path("directory_blacklist"))
+    return HTTPFound(request.headers.get("Referer") or request.route_path("directory_blacklist"))
 
 
 @view_config(route_name="directory_blacklist_remove", request_method="POST", permission="directory.read")
@@ -807,7 +806,7 @@ def directory_blacklist_remove(request):
         raise HTTPBadRequest
     if request.is_xhr:
         return HTTPNoContent()
-    return HTTPFound(request.route_path("directory_blacklist"))
+    return HTTPFound(request.headers.get("Referer") or request.route_path("directory_blacklist"))
 
 
 @view_config(route_name="directory_request",     request_method="GET", permission="request.read", renderer="layout2/directory/request.mako")
