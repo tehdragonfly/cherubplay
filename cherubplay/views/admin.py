@@ -137,7 +137,10 @@ def user_status(context: User, request):
     if context.status != "banned" and request.POST["status"] == "banned":
         _remove_requests(request.find_service(name="db"), context.id)
     context.status = request.POST["status"]
-    return HTTPFound(request.route_path("admin_user", username=context.username, _query={"saved": "status"}))
+    return HTTPFound(
+        request.headers.get("Referer")
+        or request.route_path("admin_user", username=context.username, _query={"saved": "status"})
+    )
 
 
 @view_config(route_name="admin_user_chat", request_method="POST", permission="admin")
@@ -178,7 +181,10 @@ def user_ban(context: User, request):
         days = 1
     context.unban_date = datetime.now() + timedelta(days)
     _remove_requests(request.find_service(name="db"), context.id)
-    return HTTPFound(request.route_path("admin_user", username=context.username, _query={"saved": "status"}))
+    return HTTPFound(
+        request.headers.get("Referer")
+        or request.route_path("admin_user", username=context.username, _query={"saved": "status"})
+    )
 
 
 @view_config(route_name="admin_user_reset_password", request_method="POST", permission="admin", renderer="layout2/admin/reset_password.mako")
