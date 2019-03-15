@@ -26,9 +26,6 @@ def prompt_list(request):
         .filter(Prompt.user_id == request.user.id).scalar()
     )
 
-    if request.matched_route.name == "prompt_list_ext":
-        return {"prompts": prompts, "prompt_count": prompt_count}
-
     return {
         "prompts": prompts,
         "prompt_count": prompt_count,
