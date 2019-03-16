@@ -260,19 +260,25 @@ class RequestService(object):
             self._db.add(ChatUser(chat_id=new_chat.id, user_id=as_user.id, symbol=1))
 
         if request.ooc_notes:
+            ooc_notes_date = datetime.datetime.now()
             self._db.add(Message(
                 chat_id=new_chat.id,
                 user_id=request.user_id,
                 symbol=None if request.slots else 0,
                 text=request.ooc_notes,
+                posted=ooc_notes_date,
+                edited=ooc_notes_date,
             ))
         if request.starter:
+            starter_date = datetime.datetime.now()
             self._db.add(Message(
                 chat_id=new_chat.id,
                 user_id=request.user_id,
                 symbol=None if request.slots else 0,
                 colour=request.colour,
                 text=request.starter,
+                posted=starter_date,
+                edited=starter_date,
             ))
 
         return new_chat
