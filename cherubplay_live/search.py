@@ -280,11 +280,14 @@ class SearchHandler(WebSocketHandler):
                         user_id=self.user.id,
                         symbol=1,
                     ))
+                posted_date = datetime.now()
                 new_message = Message(
                     chat_id=new_chat.id,
                     user_id=prompter.user.id,
                     colour=prompter.colour,
                     symbol=0,
+                    posted=posted_date,
+                    edited=posted_date,
                 )
                 new_message.text.update(prompter.format, prompter.prompt)
                 db.add(new_message)
