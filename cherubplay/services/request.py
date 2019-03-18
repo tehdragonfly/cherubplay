@@ -261,25 +261,27 @@ class RequestService(object):
 
         if request.ooc_notes:
             ooc_notes_date = datetime.datetime.now()
-            self._db.add(Message(
+            ooc_notes_message = Message(
                 chat_id=new_chat.id,
                 user_id=request.user_id,
                 symbol=None if request.slots else 0,
-                text=request.ooc_notes,
                 posted=ooc_notes_date,
                 edited=ooc_notes_date,
-            ))
+            )
+            ooc_notes_message.text.update(request.ooc_notes.format, request.ooc_notes.raw)
+            self._db.add(ooc_notes_message)
         if request.starter:
             starter_date = datetime.datetime.now()
-            self._db.add(Message(
+            starter_message = Message(
                 chat_id=new_chat.id,
                 user_id=request.user_id,
                 symbol=None if request.slots else 0,
                 colour=request.colour,
-                text=request.starter,
                 posted=starter_date,
                 edited=starter_date,
-            ))
+            )
+            starter_message.text.update(request.starter.format, request.starter.raw)
+            self._db.add(starter_message)
 
         return new_chat
 
