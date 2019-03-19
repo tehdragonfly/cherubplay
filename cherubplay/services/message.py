@@ -150,22 +150,22 @@ class MessageService(object):
         })
 
     def send_end_message(self, chat_user: ChatUser):
-        self.send_message(chat_user, MessageType.system, "000000", MessageFormat.raw, "%s ended the chat.", "end")
+        self.send_message(chat_user, MessageType.system, "000000", MessageFormat.markdown, "*%s* ended the chat.", "end")
         chat_user.visited = datetime.datetime.now()
 
     def send_leave_message(self, chat_user: ChatUser):
-        self.send_message(chat_user, MessageType.system, "000000", MessageFormat.raw, "%s left the chat.", "message")
+        self.send_message(chat_user, MessageType.system, "000000", MessageFormat.markdown, "*%s* left the chat.", "message")
         chat_user.visited = datetime.datetime.now()
 
     def send_kick_message(self, kicking_chat_user: ChatUser, kicked_chat_user: ChatUser):
-        text = "%s has been removed from the chat." % kicked_chat_user.name
-        self.send_message(kicked_chat_user, MessageType.system, "000000", MessageFormat.raw, text, "message")
+        text = "*%s* has been removed from the chat." % kicked_chat_user.name
+        self.send_message(kicked_chat_user, MessageType.system, "000000", MessageFormat.markdown, text, "message")
         self._publish(kicked_chat_user, "kicked")
         kicking_chat_user.visited = datetime.datetime.now()
 
     def send_change_name_message(self, chat_user: ChatUser, old_name: str):
-        text = "%s is now %s." % (old_name, chat_user.name)
-        self.send_message(chat_user, MessageType.system, "000000", MessageFormat.raw, text, "end")
+        text = "*%s* is now *%s*." % (old_name, chat_user.name)
+        self.send_message(chat_user, MessageType.system, "000000", MessageFormat.markdown, text, "end")
         self._publish(chat_user.chat, {
             "action":   "name_change",
             "old_name": old_name,
