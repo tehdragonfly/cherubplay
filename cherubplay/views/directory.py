@@ -691,7 +691,10 @@ def directory_new_post(request):
 
     request.find_service(IRequestService).remove_duplicates(new_request)
 
-    new_request.request_tags += _request_tags_from_form(request, request.POST, new_request)
+    try:
+        new_request.request_tags += _request_tags_from_form(request, request.POST, new_request)
+    except ValidationError as e:
+        raise HTTPBadRequest
 
     if slot_name and slot_descriptions:
         db.add(RequestSlot(
@@ -1070,7 +1073,11 @@ def directory_request_edit_post(context: Request, request):
     db = request.find_service(name="db")
     db.query(RequestTag).filter(RequestTag.request_id == context.id).delete()
 
-    new_tags = _request_tags_from_form(request, request.POST, context)
+    try:
+        new_tags = _request_tags_from_form(request, request.POST, context)
+    except ValidationError as e:
+        raise HTTPBadRequest
+
     context.request_tags += new_tags
     context.tag_ids = None
 
