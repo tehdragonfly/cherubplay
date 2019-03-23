@@ -80,6 +80,9 @@ class FormattedValue:
         self._format_attr = format_attr
         self._text_attr = text_attr
 
+    def __repr__(self):
+        return "<FormattedValue \"%s\" in %s>" % (self.raw, self.format)
+
     def __bool__(self):
         return bool(getattr(self._obj, self._text_attr))
 
