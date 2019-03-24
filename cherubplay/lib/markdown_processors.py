@@ -1,6 +1,3 @@
-import re
-
-from markdown import util
 from markdown.treeprocessors import Treeprocessor
 
 

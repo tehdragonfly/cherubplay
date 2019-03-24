@@ -34,7 +34,7 @@ def db_session():
     try:
         yield db
         db.commit()
-    except:
+    except Exception:
         db.rollback()
         raise
     finally:

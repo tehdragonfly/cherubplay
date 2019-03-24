@@ -1,5 +1,4 @@
-import datetime, time, transaction
-import re
+import datetime, re, time, transaction
 
 from itertools import zip_longest
 from pyramid.httpexceptions import (
