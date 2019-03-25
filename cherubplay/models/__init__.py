@@ -147,7 +147,7 @@ class Message(Base):
     type = Column(EnumType(MessageType, name=u"message_type"), nullable=False, default=MessageType.ic)
     colour = Column(String(6), nullable=False, default="000000")
     symbol = Column(Integer)
-    _format = Column("format", EnumType(MessageFormat, name=u"message_format"), default=MessageFormat.raw) # TODO set nullable=False
+    _format = Column("format", EnumType(MessageFormat, name=u"message_format"), nullable=False, default=MessageFormat.raw)
     _text = Column("text", UnicodeText, nullable=False)
     text = FormattedField("_format", "_text")
     posted = Column(DateTime, nullable=False, default=datetime.datetime.now)
