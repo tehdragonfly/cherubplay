@@ -335,7 +335,7 @@ class Prompt(Base):
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
     updated = Column(DateTime, nullable=False, default=datetime.datetime.now)
     colour = Column(String(6), nullable=False)
-    _format = Column("format", EnumType(MessageFormat, name=u"message_format"), default=MessageFormat.raw)
+    _format = Column("format", EnumType(MessageFormat, name=u"message_format"), nullable=False, default=MessageFormat.raw)
     _text = Column("text", UnicodeText, nullable=False)
     text = FormattedField("_format", "_text")
     category = Column(Unicode(100))
@@ -401,7 +401,7 @@ class Request(Base):
     # Edited indicates when the request was last edited.
     edited = Column(DateTime(), nullable=False, default=datetime.datetime.now)
     colour = Column(Unicode(6), nullable=False, default=u"000000")
-    _format = Column("format", EnumType(MessageFormat, name=u"message_format"), default=MessageFormat.raw)
+    _format = Column("format", EnumType(MessageFormat, name=u"message_format"), nullable=False, default=MessageFormat.raw)
     _ooc_notes = Column("ooc_notes", UnicodeText, nullable=False, default=u"")
     ooc_notes = FormattedField("_format", "_ooc_notes")
     _starter = Column("starter", UnicodeText, nullable=False, default=u"")
