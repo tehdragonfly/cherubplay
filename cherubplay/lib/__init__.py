@@ -85,7 +85,7 @@ def prompt_hash(text):
 def trim_with_ellipsis(text: str, length: int) -> str:
     if len(text) <= length:
         return text
-    return text[:length - 3] + "..."
+    return text[:length - 1] + "…"
 
 
 timezones = {
