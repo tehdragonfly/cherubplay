@@ -2,7 +2,7 @@
 <%block name="title">#${request.context.id} - Prompt reports - </%block>
 <%block name="body_class">layout2</%block>
 <%
-    from cherubplay.lib import prompt_categories, prompt_starters, prompt_levels
+    from cherubplay.lib import prompt_categories, prompt_starters, prompt_levels, trim_with_ellipsis
     from cherubplay.models import PromptReport
 %>
 <%def name="render_report(report, detail=True)">\
@@ -49,7 +49,7 @@
         <div class="expandable">
           <a class="toggle" href="${request.route_path("admin_report", id=report.id)}">(more)</a>
           <p class="expanded_content" style="color: #${report.colour};" data-href="${request.route_path("admin_report_ext", ext="json", id=report.id)}" data-type="prompt_report"></p>
-          <p class="collapsed_content" style="color: #${report.colour};">${report.prompt[:250]}...</p>
+          <p class="collapsed_content" style="color: #${report.colour};">${trim_with_ellipsis(report.prompt, 250)}</p>
         </div>
         % endif
         <p>Reason: \
