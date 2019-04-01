@@ -183,23 +183,22 @@ class SearchHandler(WebSocketHandler):
             self.images = []
             for url in url_regex.findall(self.prompt):
                 parsed_url = urlparse(url)
-                if parsed_url.netloc == "i.imgur.com":
-                    # Rewrite URL to force HTTPS
-                    self.images.append("https://i.imgur.com" + parsed_url.path)
-                elif parsed_url.netloc == "imgur.com":
+                if parsed_url.netloc == "imgur.com":
                     # Skip album links
                     if parsed_url.path.rindex("/") != 0:
                         continue
                     path_with_extension = parsed_url.path if "." in parsed_url.path else parsed_url.path + ".jpg"
                     self.images.append("https://i.imgur.com" + path_with_extension)
                 elif (
-                    parsed_url.netloc.endswith(".media.tumblr.com")
+                    parsed_url.netloc == "i.imgur.com"
+                    or parsed_url.netloc.endswith(".media.tumblr.com")
                     or parsed_url.netloc == "media.tumblr.com"
                     or parsed_url.netloc == "cdn.discordapp.com"
                     or parsed_url.netloc == "pbs.twimg.com"
                 ):
                     extension = parsed_url.path.split(".")[-1]
                     if extension in ("jpg", "jpeg", "png", "gif"):
+                        # Rewrite URL to force HTTPS
                         self.images.append("https://" + parsed_url.netloc + parsed_url.path)
                 if len(self.images) == 3:
                     break
