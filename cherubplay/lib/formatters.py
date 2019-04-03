@@ -19,15 +19,15 @@ class ProcessorExtension(Extension):
         don't have CSS for.
         """
         for key in ["html_block", "reference"]:
-            md.preprocessors.pop(key)
+            md.preprocessors.deregister(key)
         for key in [
             "backtick", "reference", "image_link", "image_reference",
             "short_reference", "autolink", "automail", "html", "entity",
         ]:
-            md.inlinePatterns.pop(key)
+            md.inlinePatterns.deregister(key)
         md.inlinePatterns.register(AutolinkInlineProcessor(AUTOLINK_RE, md), "autolink", 120)
         for key in ["code", "quote"]:
-            md.parser.blockprocessors.pop(key)
+            md.parser.blockprocessors.deregister(key)
         md.treeprocessors.register(HeaderLevelProcessor(md), "header_level", 10)
         md.treeprocessors.register(LinkRelProcessor(md), "link_rel", 10)
 
