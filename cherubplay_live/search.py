@@ -197,12 +197,11 @@ class SearchHandler(WebSocketHandler):
                     or parsed_url.netloc == "pbs.twimg.com"
                 ):
                     extension = parsed_url.path.split(".")[-1]
-                    if (
-                        (extension in ("jpg", "jpeg", "png", "gif"))
-                        or (parsed_url.netloc == "i.imgur.com" and extension == "gifv")
-                    ):
+                    if extension in ("jpg", "jpeg", "png", "gif"):
                         # Rewrite URL to force HTTPS
                         self.images.append("https://" + parsed_url.netloc + parsed_url.path)
+                    elif parsed_url.netloc == "i.imgur.com" and extension == "gifv":
+                        self.images.append("https://" + parsed_url.netloc + parsed_url.path[:-1])
                 if len(self.images) == 3:
                     break
 
