@@ -128,7 +128,7 @@ def chat_list(request):
     }, request=request)
 
 
-@view_config(route_name="chat_notification", request_method="GET", permission="chat", renderer="json")
+@view_config(route_name="chat_notification", request_method="GET", permission="view", renderer="json")
 def chat_notification(request):
     db = request.find_service(name="db")
     result = db.query(ChatUser, Chat).join(Chat).filter(and_(
