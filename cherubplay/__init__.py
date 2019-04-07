@@ -38,7 +38,7 @@ class ExtensionPredicate(object):
     def __call__(self, context, request):
         # Redirect to no extension if extension is html.
         if request.matchdict["ext"] == "html":
-            del request.matchdict["ext"]
+            request.matchdict.pop("ext")
             plain_route = request.matched_route.name.split("_ext")[0]
             raise HTTPFound(request.route_path(plain_route, **request.matchdict))
         return request.matchdict["ext"] == self.extension
