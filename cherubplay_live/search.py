@@ -29,18 +29,18 @@ class AnswerDenied(Exception):
     pass
 
 
-ANSWER_LIMIT_TIME = 1800 # 30 minutes
+ANSWER_LIMIT_TIME = 3600 # 1 hour
 PROMPT_HASH_TIME = 86400 # 24 hours
 
 
 def check_answer_limit(user_id):
     key = "answer_limit:%s" % user_id
     current_time = time.time()
-    if login_client.llen(key) >= 6:
+    if login_client.llen(key) >= 12:
         if current_time - float(login_client.lindex(key, 0)) < ANSWER_LIMIT_TIME:
             raise AnswerDenied("User %s has exceeded the answer limit." % user_id)
     login_client.rpush(key, current_time)
-    login_client.ltrim(key, -6, -1)
+    login_client.ltrim(key, -12, -1)
     login_client.expire(key, ANSWER_LIMIT_TIME)
 
 
