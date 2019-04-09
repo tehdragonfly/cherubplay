@@ -158,6 +158,12 @@ def _trigger_update_request_tag_ids(request_id: int):
     return hook
 
 
+def _forbidden_response(*args):
+    response = render_to_response(*args)
+    response.status_int = 403
+    return response
+
+
 class ShowBlacklistWarning(Exception): pass
 
 
@@ -872,9 +878,7 @@ def directory_request_answer_get(context: Request, request):
     try:
         _get_current_slot(context, request)
     except ValidationError as e:
-        response = render_to_response("layout2/directory/%s.mako" % e.message, {}, request)
-        response.status_int = 403
-        return response
+        return _forbidden_response("layout2/directory/%s.mako" % e.message, {}, request)
 
     return render_to_response("layout2/directory/slot_name.mako", {}, request)
 
@@ -887,9 +891,7 @@ def directory_request_answer_post(context: Request, request):
         login_store.get("answered:%s:%s" % (request.user.id, context.id))
         or login_store.get("answered:%s:%s" % (request.user.id, context.prompt_hash))
     ):
-        response = render_to_response("layout2/directory/already_answered.mako", {}, request)
-        response.status_int = 403
-        return response
+        return _forbidden_response("layout2/directory/already_answered.mako", {}, request)
 
     key = "directory_answer_limit:%s" % request.user.id
     current_time = time.time()
@@ -901,9 +903,7 @@ def directory_request_answer_post(context: Request, request):
         try:
             current_slot = _get_current_slot(context, request)
         except ValidationError as e:
-            response = render_to_response("layout2/directory/%s.mako" % e.message, {}, request)
-            response.status_int = 403
-            return response
+            return _forbidden_response("layout2/directory/%s.mako" % e.message, {}, request)
 
         slot_name = request.POST.get("name", "").strip()[:50]
         if not slot_name:
