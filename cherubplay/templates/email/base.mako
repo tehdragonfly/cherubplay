@@ -8,7 +8,7 @@
 <div style="background-color: #393;">
   <h1 style="margin: 0; padding: 10px; color: #fff;">
     <a style="display: block; max-width: 565px; margin: 0 auto;" href="${request.route_url("home", _scheme="https")}">
-      <img style="display: block; max-width: 100%; margin: 0 auto;" src="${request.route_url("home", _scheme="https")}static/logo.png" alt="CHERUBPLAY">
+      <img style="display: block; max-width: 100%; margin: 0 auto;" src="${request.route_url("home", _scheme="https")}static/logo.png" alt="Cherubplay">
     </a>
   </h1>
 </div>

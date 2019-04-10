@@ -22,7 +22,7 @@
 <body class="layout2">
 
 <header>
-  <h1><img src="logo.png" alt="CHERUBPLAY"></h1>
+  <h1><img src="logo.png" alt="Cherubplay"></h1>
 </header>
 
 <h2>${chat_user.display_title}</h2>

@@ -13,7 +13,7 @@
 <body class="<%block name="body_class"></%block>">
 
 <header>
-  <h1><a href="${request.route_path("home")}"><img src="/static/logo.png" alt="CHERUBPLAY"></a></h1>
+  <h1><a href="${request.route_path("home")}"><img src="/static/logo.png" alt="Cherubplay"></a></h1>
 </header>
 
 % if request.user:
