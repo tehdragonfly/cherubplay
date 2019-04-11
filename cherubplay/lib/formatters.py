@@ -26,7 +26,7 @@ class ProcessorExtension(Extension):
         ]:
             md.inlinePatterns.deregister(key)
         md.inlinePatterns.register(AutolinkInlineProcessor(AUTOLINK_RE, md), "autolink", 120)
-        for key in ["code", "quote"]:
+        for key in ["code"]:
             md.parser.blockprocessors.deregister(key)
         md.treeprocessors.register(HeaderLevelProcessor(md), "header_level", 10)
         md.treeprocessors.register(LinkRelProcessor(md), "link_rel", 10)
