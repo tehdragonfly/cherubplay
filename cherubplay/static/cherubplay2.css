@@ -318,12 +318,16 @@ body.ongoing main { margin-bottom: 0; }
 #messages { margin: 0; padding: 0 25px; list-style-type: none; }
 #messages li { position: relative; padding: 20px 0; }
 #messages li:not(:first-child) { border-top: 1px solid #ddd; }
-#messages li > p, .delete_preview > p { margin: 0; }
-#messages li > p:not(:last-of-type), .delete_preview > p:not(:last-of-type) { margin-bottom: 5px; }
+#messages li > p, #messages li > blockquote p, .delete_preview > p, .delete_preview > blockquote p { margin: 0; }
+#messages li > p:not(:last-of-type),
+#messages li > blockquote:not(:last-of-type) p:not(:last-of-type),
+.delete_preview > p:not(:last-of-type),
+.delete_preview > blockquote:not(:last-of-type) p:not(:last-of-type) { margin-bottom: 5px; }
 #messages .editing p { text-decoration: line-through; }
 
 .message hr { margin: 5px 0; border: none; text-align: center; line-height: 5px; }
 .message hr:after { content: "●  ●  ●"; }
+.message blockquote { margin: 0; padding-left: 5px; border-left: 3px solid #ccc; }
 
 .message_ooc { opacity: 0.5; }
 .message_ooc:hover { opacity: 1; }
