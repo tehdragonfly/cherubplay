@@ -1,5 +1,6 @@
 <%inherit file="base.mako" />\
 <% from cherubplay.lib import timezones_list %>
+<% from cherubplay.models.enums import MessageFormat %>
 <%block name="title">Account settings - </%block>
   <h2>${request.user.username}</h2>
   <nav id="subnav">
