@@ -511,6 +511,9 @@ blockquote {
     border-left: 3px solid #ccc;
     clear: both;
 }
+blockquote:not(:last-child) {
+    margin-bottom: 5px;
+}
 
 /* Chat notes */
 
