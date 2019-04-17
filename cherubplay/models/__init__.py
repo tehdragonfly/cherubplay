@@ -64,7 +64,6 @@ class User(Base):
     password = Column(String(60), nullable=False)
     status = Column(SQLAlchemyEnum(u"active", u"banned", u"admin", name="user_status"), nullable=False, default=u"active")
     email = Column(Unicode(255))
-    email_verified = Column(Boolean, nullable=False, default=False)
     created = Column(DateTime, nullable=False, default=datetime.datetime.now)
     last_online = Column(DateTime, nullable=False, default=datetime.datetime.now)
     last_ip = Column(String(40))

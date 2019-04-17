@@ -86,7 +86,6 @@ def account_verify_email(request):
         raise HTTPNotFound
 
     user.email = email_address
-    user.email_verified = True
 
     response = HTTPFound(request.route_path("account", _query={"saved": "email_address"}))
 
@@ -100,8 +99,7 @@ def account_verify_email(request):
 
 @view_config(route_name="account_email_address_remove", request_method="POST")
 def account_email_address_remove(request):
-    request.user.email          = None
-    request.user.email_verified = False
+    request.user.email = None
     return HTTPFound(request.route_path("account"))
 
 
@@ -178,7 +176,7 @@ def forgot_password_post(request):
     if login_store.get("reset_password_limit:%s" % user.id):
         return {"error": "limit"}
 
-    if not user.email or not user.email_verified:
+    if not user.email:
         return {"error": "no_email"}
 
     send_email(request, "reset_password", user, user.email)
