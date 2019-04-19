@@ -188,8 +188,8 @@ class Message(Base):
 class ChatUser(Base):
     __tablename__ = "chat_users"
     __table_args__ = (
-        UniqueConstraint('chat_id', 'symbol', name='chat_user_symbol_unique'),
-        CheckConstraint('(symbol is not null) != (name is not null)', name='chat_user_symbol_or_name'),
+        UniqueConstraint("chat_id", "symbol", name="chat_user_symbol_unique"),
+        CheckConstraint("(symbol is not null) != (name is not null)", name="chat_user_symbol_or_name"),
     )
     chat_id = Column(Integer, ForeignKey("chats.id"), primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
