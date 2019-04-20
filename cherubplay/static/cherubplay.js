@@ -32,7 +32,7 @@ var cherubplay = (function() {
 		});
 	}
 
-	$(".expandable .toggle").click(function() {
+	var expandable_click = function() {
 		var expandable_toggle = $(this);
 		var expanded_content = expandable_toggle.next(".expanded_content");
 		if (expanded_content.html()) {
@@ -64,7 +64,8 @@ var cherubplay = (function() {
 			});
 		}
 		return false;
-	});
+	}
+	$(".expandable .toggle").click(expandable_click);
 
 	function is_at_bottom() {
 		return window.scrollY == document.documentElement.scrollHeight - document.documentElement.clientHeight;
