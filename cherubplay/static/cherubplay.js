@@ -32,7 +32,7 @@ var cherubplay = (function() {
 		});
 	}
 
-	var expandable_click = function() {
+	var expandable_click = function(e) {
 		var expandable_toggle = $(this);
 		var expanded_content = expandable_toggle.next(".expanded_content");
 		if (expanded_content.html()) {
@@ -63,7 +63,7 @@ var cherubplay = (function() {
 				expandable_toggle.text("(less)");
 			});
 		}
-		return false;
+		e.preventDefault();
 	}
 	$(".expandable .toggle").click(expandable_click);
 
