@@ -33,7 +33,7 @@ var cherubplay = (function() {
 	}
 
 	var expandable_click = function(e) {
-		var expandable_toggle = $(this);
+		var expandable_toggle = $(e.target);
 		var expanded_content = expandable_toggle.next(".expanded_content");
 		if (expanded_content.html()) {
 			expandable_toggle.parent().toggleClass("expanded");
@@ -65,7 +65,11 @@ var cherubplay = (function() {
 		}
 		e.preventDefault();
 	}
-	$(".expandable .toggle").click(expandable_click);
+	document.addEventListener("click", function(e) {
+		if (e.target.matches(".expandable .toggle")) {
+			expandable_click(e);
+		}
+	});
 
 	function is_at_bottom() {
 		return window.scrollY == document.documentElement.scrollHeight - document.documentElement.clientHeight;
