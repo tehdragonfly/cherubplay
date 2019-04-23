@@ -122,10 +122,10 @@ var cherubplay = (function() {
 	}
 
 	// News
-	$("#news_hide").click(function() {
+	$("#news_hide").click(function(e) {
 		$("#news").remove();
 		$.post("/account/read_news/");
-		return false;
+		e.preventDefault();
 	});
 
 	return {
