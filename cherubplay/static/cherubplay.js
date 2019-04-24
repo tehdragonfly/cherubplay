@@ -223,7 +223,7 @@ var cherubplay = (function() {
 			}
 			var filter_phrases = make_filter_phrases();
 
-			var filter_form = $("#categories form").submit(function() {
+			var filter_form = $("#categories form").submit(function(e) {
 				filter_sites.each(function(index, checkbox) {
 					localStorage.setItem("filter_" + checkbox.name, checkbox.checked);
 				});
@@ -231,7 +231,7 @@ var cherubplay = (function() {
 				filter_phrases = make_filter_phrases();
 				filter_toggle[0].checked = false;
 				change_mode("answer_mode");
-				return false;
+				e.preventDefault();
 			});
 
 			var prompt_list = $("#prompt_list");
