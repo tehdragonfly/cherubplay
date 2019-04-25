@@ -1,4 +1,4 @@
-bcrypt==3.1.4
+bcrypt==3.1.6
 celery==4.1.0
 cryptography==2.3.1
 markdown==3.0.1
