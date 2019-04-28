@@ -1,7 +1,7 @@
 bcrypt==3.1.6
 celery==4.3.0
 cryptography==2.3.1
-markdown==3.0.1
+markdown==3.1
 paginate==0.5.6
 psycopg2==2.7.5
 PyJWT==1.7.1
