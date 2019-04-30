@@ -50,7 +50,7 @@ def chat_list(request):
         current_label = None
 
     db = request.find_service(name="db")
-    chats = db.query(ChatUser, Chat, Message).join(Chat).outerjoin(
+    chats = db.query(ChatUser, Chat, Message).select_from(ChatUser).join(Chat).outerjoin(
         Message,
         Message.id == db.query(
             func.min(Message.id),
