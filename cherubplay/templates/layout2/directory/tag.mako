@@ -124,9 +124,9 @@
       % endif
     % elif not requests:
       % if len(request.context.tags) == 1:
-      <p>There are no requests with this tag.</p>
+        <p>There are no requests with this tag.</p>
       % else:
-      <p>There are no requests with these tags.</p>
+        <p>There are no requests with all of these tags.</p>
       % endif
     % else:
       % if "before" in request.GET:
