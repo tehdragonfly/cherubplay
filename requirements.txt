@@ -7,7 +7,6 @@ psycopg2==2.8.2
 PyJWT==1.7.1
 pyramid==1.9.4
 pyramid-celery==3.0.0
-pyramid-chameleon==0.3
 pyramid-debugtoolbar==4.5
 pyramid-mailer==0.15.1
 pyramid-mako==1.0.2
