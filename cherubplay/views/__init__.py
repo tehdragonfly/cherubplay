@@ -101,7 +101,7 @@ def log_in(request):
     except NoResultFound:
         return {"log_in_error": "Username and/or password not recognised."}
 
-    if hashpw(request.POST["password"].encode(), user.password.encode()).decode() != user.password:
+    if not user.check_password(request.POST["password"]):
         return {"log_in_error": "Username and/or password not recognised."}
 
     # Generate session ID and add it to the login store.
