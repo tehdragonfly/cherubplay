@@ -128,7 +128,7 @@ def account_username(request):
 @view_config(route_name="account_password", renderer="layout2/account/index.mako", request_method="POST", permission="view")
 def account_password(request):
 
-    if hashpw(request.POST["old_password"].encode(), request.user.password.encode()).decode() != request.user.password:
+    if not request.user.check_password(request.POST["old_password"]):
         return {"password_error": "That isn't your old password."}
     if request.POST["password"] == "":
         return {"password_error": "Please don't use a blank password."}
