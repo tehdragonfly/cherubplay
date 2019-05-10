@@ -10,7 +10,7 @@ pyramid-celery==3.0.0
 pyramid-debugtoolbar==4.5
 pyramid-mailer==0.15.1
 pyramid-mako==1.0.2
-pyramid-services==2.1
+pyramid-services==2.2
 pyramid-tm==2.2
 pytz==2019.1
 redis==2.10.6
