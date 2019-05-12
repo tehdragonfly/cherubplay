@@ -1,7 +1,7 @@
 import datetime, json, logging
 
 from functools import singledispatch
-from redis import StrictRedis
+from redis import Redis
 from sqlalchemy import and_
 from typing import Dict, Union
 from zope.interface import Interface, implementer
@@ -61,7 +61,7 @@ class IMessageService(Interface):
 
 @implementer(IMessageService)
 class MessageService(object):
-    def __init__(self, db, pubsub: StrictRedis, online_user_store: IOnlineUserStore):
+    def __init__(self, db, pubsub: Redis, online_user_store: IOnlineUserStore):
         self._db     = db
         self._pubsub = pubsub
         self._online_user_store = online_user_store

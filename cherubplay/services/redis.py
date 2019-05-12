@@ -1,5 +1,5 @@
 from datetime import datetime
-from redis import ConnectionPool, StrictRedis, UnixDomainSocketConnection
+from redis import ConnectionPool, Redis, UnixDomainSocketConnection
 from time import mktime
 from typing import Set, Optional
 from zope.interface import Interface, implementer
@@ -20,7 +20,7 @@ class INewsStore(Interface):
 
 @implementer(INewsStore)
 class NewsStore(object):
-    def __init__(self, redis: StrictRedis): # Login Redis instance
+    def __init__(self, redis: Redis): # Login Redis instance
         self._redis = redis
 
     def get_news(self) -> Optional[str]:
@@ -68,7 +68,7 @@ class IOnlineUserStore(Interface):
 
 @implementer(IOnlineUserStore)
 class OnlineUserStore(object):
-    def __init__(self, redis: StrictRedis): # Pubsub Redis instance
+    def __init__(self, redis: Redis): # Pubsub Redis instance
         self.redis = redis
 
     def connect(self, chat_user: ChatUser, socket_id: str):
@@ -88,7 +88,7 @@ class OnlineUserStore(object):
 
 
 def make_redis_connection(settings, key):
-    return StrictRedis(connection_pool=ConnectionPool(
+    return Redis(connection_pool=ConnectionPool(
         connection_class=UnixDomainSocketConnection,
         path=settings["cherubplay.socket_" + key],
     ))

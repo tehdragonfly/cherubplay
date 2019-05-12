@@ -2,7 +2,7 @@ import datetime
 
 from collections.abc import Sequence
 
-from redis import StrictRedis
+from redis import Redis
 from sqlalchemy import and_, func, Integer
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import joinedload, subqueryload
@@ -85,7 +85,7 @@ class IRequestService(Interface):
 
 @implementer(IRequestService)
 class RequestService(object):
-    def __init__(self, db, redis: StrictRedis): # Login Redis instance
+    def __init__(self, db, redis: Redis): # Login Redis instance
         self._db    = db
         self._redis = redis
 
