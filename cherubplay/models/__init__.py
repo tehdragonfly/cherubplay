@@ -4,7 +4,7 @@ import datetime
 import os.path
 import zope.sqlalchemy
 
-from bcrypt import hashpw
+from bcrypt import checkpw
 from pyramid.decorator import reify
 from pyramid.security import Allow, Authenticated, Deny
 from pytz import timezone, utc
@@ -105,7 +105,7 @@ class User(Base):
         return utc_datetime.astimezone(timezone(self.timezone))
 
     def check_password(self, password):
-        return hashpw(password.encode(), self.password.encode()).decode() != self.password
+        return checkpw(password.encode(), self.password.encode())
 
 
 class PushSubscription(Base):
