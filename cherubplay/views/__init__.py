@@ -1,6 +1,5 @@
 import uuid
 
-from bcrypt import gensalt, hashpw
 from pyramid.httpexceptions import HTTPFound, HTTPNotFound
 from pyramid.renderers import render_to_response
 from pyramid.security import Authenticated
@@ -69,9 +68,9 @@ def sign_up(request):
     # Create the user.
     new_user = User(
         username=username,
-        password=hashpw(request.POST["password"].encode(), gensalt()).decode(),
         last_ip=request.remote_addr,
     )
+    new_user.set_password(request.POST["password"])
     db.add(new_user)
     db.flush()
 
