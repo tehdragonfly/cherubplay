@@ -1,6 +1,5 @@
 import datetime, json
 
-from bcrypt import gensalt, hashpw
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNoContent, HTTPNotFound, HTTPRequestEntityTooLarge
 from pyramid.renderers import render, render_to_response
 from pyramid.view import view_config
@@ -135,7 +134,7 @@ def account_password(request):
     if request.POST["password"] != request.POST["password_again"]:
         return {"password_error": "The two passwords didn't match."}
 
-    request.user.password = hashpw(request.POST["password"].encode(), gensalt()).decode()
+    request.user.set_password(request.POST["password"])
 
     return HTTPFound(request.route_path("account", _query={"saved": "password"}))
 
@@ -226,7 +225,7 @@ def account_reset_password_post(request):
     if request.POST["password"] != request.POST["password_again"]:
         return {"error": "passwords_didnt_match"}
 
-    user.password = hashpw(request.POST["password"].encode(), gensalt()).decode()
+    user.set_password(request.POST["password"])
 
     login_store.delete("reset_password:%s:%s" % (user.id, request.GET["email_address"].strip()))
 
