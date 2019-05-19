@@ -195,7 +195,7 @@ def user_reset_password(context: User, request):
 
 @view_config(route_name="admin_news", request_method="GET", permission="admin", renderer="layout2/admin/news.mako")
 def admin_news_get(request):
-    return {"current_news": request.find_service(INewsStore).get_news()}
+    return {"current_news": request.find_service(INewsStore).get_news() or ""}
 
 
 @view_config(route_name="admin_news", request_method="POST", permission="admin", renderer="layout2/admin/news.mako")
