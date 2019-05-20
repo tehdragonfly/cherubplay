@@ -8,10 +8,10 @@ from cherubplay.models import Chat, ChatUser, User
 
 
 class INewsStore(Interface):
-    def get_news(self) -> str:
+    def get_news(self) -> Optional[str]:
         pass
 
-    def set_news(self, news: str):
+    def set_news(self, news: Optional[str]):
         pass
 
     def should_show_news(self, user: User) -> bool:
@@ -29,8 +29,9 @@ class NewsStore(object):
             return news.decode("utf-8")
         return None
 
-    def set_news(self, news: str):
-        news = news.strip().encode("utf-8")
+    def set_news(self, news: Optional[str]):
+        if news:
+            news = news.strip().encode("utf-8")
         if news:
             self._redis.set("news", news)
             self._redis.set("news_last_updated", mktime(datetime.now().timetuple()))
