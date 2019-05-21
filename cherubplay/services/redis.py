@@ -54,7 +54,7 @@ def online_key(chat: Chat) -> str:
 
 
 class IOnlineUserStore(Interface):
-    def connect(self, chat: Chat, chat_user: ChatUser, socket_id: str):
+    def connect(self, chat_user: ChatUser, socket_id: str):
         pass
 
     def disconnect(self, chat: Chat, socket_id: str):
