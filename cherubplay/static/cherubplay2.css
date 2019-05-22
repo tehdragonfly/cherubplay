@@ -136,7 +136,7 @@ textarea { resize: vertical; }
 .tile2.pager { z-index: 1; margin: 0; padding-top: 10px; padding-bottom: 10px; background-color: #f6f6f6; box-shadow: 0 1px 2px #ccc; text-align: center; }
 img.tile2 { display: block; padding: 0; }
 
-.subtitle, .help, label, #prompt_dropdowns { font-size: 10pt; color: #333; } /* TODO put the last two selectors somewhere else */
+.subtitle, .help, label, #prompt_dropdowns { font-size: 10pt; color: #333; }
 .subtitle { text-align: center; }
 h3 + .subtitle, h3 + .help { margin-top: 5px; }
 
