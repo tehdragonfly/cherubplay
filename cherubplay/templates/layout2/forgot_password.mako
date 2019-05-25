@@ -4,7 +4,7 @@
   <h2>Forgotten your password?</h2>
   % if error == "limit":
   <div class="tile2">
-    <p>Sorry, you can only reset your password once per day. Please wait until tomorrow.</p>
+    <p>Sorry, you can only reset your password once per day. Please wait 24 hours before trying again.</p>
   </div>
   % elif saved:
   <div class="tile2">
