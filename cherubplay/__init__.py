@@ -53,15 +53,18 @@ def add_ext_route(configurator, name, pattern, **kwargs):
 
 class CherubplayAuthenticationPolicy(object):
 
-    def authenticated_userid(self, request):
+    @staticmethod
+    def authenticated_userid(request):
         if request.user is not None:
             return request.user.id
 
-    def unauthenticated_userid(self, request):
+    @staticmethod
+    def unauthenticated_userid(request):
         if request.user is not None:
             return request.user.id
 
-    def effective_principals(self, request):
+    @staticmethod
+    def effective_principals(request):
         if request.user is None:
             return Everyone,
         elif request.user.status == "banned":
