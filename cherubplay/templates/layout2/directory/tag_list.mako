@@ -1,5 +1,13 @@
 <%inherit file="base.mako" />\
-<%block name="heading">${"Unapproved tags" if request.matched_route.name == "directory_tag_list_unapproved" else "Blacklist default tags" if request.matched_route.name == "directory_tag_list_blacklist_default" else "All tags"}</%block>
+<%block name="heading">
+% if request.matched_route.name == "directory_tag_list_unapproved":
+Unapproved tags
+% elif request.matched_route.name == "directory_tag_list_blacklist_default":
+Blacklist default tags
+% else:
+All tags
+% endif
+</%block>
 <%
     from cherubplay.lib import make_paginator
     paginator = make_paginator(request, tag_count, current_page, items_per_page=250)
