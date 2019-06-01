@@ -1141,7 +1141,7 @@ var cherubplay = (function() {
 					typing_timeout = window.setTimeout(function() {
 						typing = false;
 						ws.send('{"action":"stopped_typing"}');
-						save_draft();
+						window.setTimeout(save_draft, 1000);
 					}, 1000);
 				}
 			});
