@@ -1183,7 +1183,7 @@ var cherubplay = (function() {
 				}
 				changed_since_draft = false;
 			}
-			window.setInterval(save_draft, 15000);
+			window.setInterval(save_draft, 10000);
 
 			function ping() {
 				if (ws.readyState==1) {
