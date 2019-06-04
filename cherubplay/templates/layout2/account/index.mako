@@ -44,6 +44,14 @@
       <p><label>New password again: <input type="password" name="password_again" required></label></p>
       <p><button type="submit">Save</button></p>
     </form>
+    <form class="tile2" action="${request.route_path("account_message_format")}" method="post">
+      <h3>Message format</h3>
+      <p>Plain text displays your messages exactly as you entered them. Markdown allows you to add simple formatting to your messages - examples include *asterisks* for <i>italic text</i>, **double asterisks** for bold text and # hashes for headings. <a href="https://daringfireball.net/projects/markdown/syntax#header" target="_blank" rel="noopener">See here</a> for a more comprehensive guide.</p>
+      <% default_format = request.user.default_format or request.registry.settings["default_format"] %>
+      <p><label><input type="radio" name="message_format" value="raw" ${"checked" if default_format == MessageFormat.raw else ""}> Save messages in plain text format</label></p>
+      <p><label><input type="radio" name="message_format" value="markdown" ${"checked" if default_format == MessageFormat.markdown else ""}> Save messages in markdown format</label></p>
+      <p class="middle_actions"><button type="submit">Save</button></p>
+    </form>
     <section class="tile2">
       <h3>Chat options</h3>
       <p id="option_confirmation"></p>
@@ -89,14 +97,6 @@
 >${timezone.replace("_", " ")}</option>
         % endfor
       </select><button type="submit">Save</button></p>
-    </form>
-    <form class="tile2" action="${request.route_path("account_message_format")}" method="post">
-      <h3>Message format</h3>
-      <p>Plain text displays your messages exactly as you entered them. Markdown allows you to add simple formatting to your messages - examples include *asterisks* for <i>italic text</i>, **double asterisks** for bold text and # hashes for headings. <a href="https://daringfireball.net/projects/markdown/syntax#header" target="_blank" rel="noopener">See here</a> for a more comprehensive guide.</p>
-      <% default_format = request.user.default_format or request.registry.settings["default_format"] %>
-      <p><label><input type="radio" name="message_format" value="raw" ${"checked" if default_format == MessageFormat.raw else ""}> Save messages in plain text format</label></p>
-      <p><label><input type="radio" name="message_format" value="markdown" ${"checked" if default_format == MessageFormat.markdown else ""}> Save messages in markdown format</label></p>
-      <p class="middle_actions"><button type="submit">Save</button></p>
     </form>
   </div>
 <%block name="scripts"><script>cherubplay.account("${request.registry.settings.get("push.public_key", "")}");</script></%block>
