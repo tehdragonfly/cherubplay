@@ -104,11 +104,15 @@
                   (<a href="${request.route_path("directory_tag", tag_string=",".join(_.tag_string for _ in request.context.tags if _ != tag))}">x</a>)
                 </div>
                 <div class="right">
-                  <form action="${request.route_path("directory_blacklist_add")}" method="post">
-                    <input type="hidden" name="tag_type" value="${tag.type.value}">
-                    <input type="hidden" name="name" value="${tag.name}">
-                    <button type="submit">Add to blacklist</button>
-                  </form>
+                  % if tag in blacklisted_tags:
+                    Blacklisted
+                  % else:
+                    <form action="${request.route_path("directory_blacklist_add")}" method="post">
+                      <input type="hidden" name="tag_type" value="${tag.type.value}">
+                      <input type="hidden" name="name" value="${tag.name}">
+                      <button type="submit">Add to blacklist</button>
+                    </form>
+                  % endif
                 </div>
               </div>
             </li>
