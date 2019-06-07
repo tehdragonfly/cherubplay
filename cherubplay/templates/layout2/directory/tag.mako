@@ -122,9 +122,9 @@
     % endif
     % if not requests and blacklisted_tags:
       % if len(request.context.tags) == 1:
-        <p>This tag can't be shown because it's on your <a href="${request.route_path("directory_blacklist")}">blacklist</a>.</p>
+        <p>Requests with this tag can't be shown because the tag is on your <a href="${request.route_path("directory_blacklist")}">blacklist</a>.</p>
       % else:
-        <p>These tags can't be shown because one or more of them are on your <a href="${request.route_path("directory_blacklist")}">blacklist</a>.</p>
+        <p>Requests with these tags can't be shown because one or more of the tags are on your <a href="${request.route_path("directory_blacklist")}">blacklist</a>.</p>
       % endif
     % elif not requests:
       % if len(request.context.tags) == 1:
