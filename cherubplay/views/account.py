@@ -57,7 +57,7 @@ def account_email_address(request):
             return {"email_address_error": "Sorry, you can only set your e-mail address once per day. Please wait 24 hours before trying again."}
 
     send_email(request, "verify_email", request.user, email_address)
-    login_store.setex("verify_email_limit:%s" % request.user.id, 86400, 1)
+    login_store.setex("verify_email_limit:%s" % request.user.id, 43200, 1)
 
     return HTTPFound(request.route_path("account", _query={"saved": "verify_email"}))
 
