@@ -52,9 +52,9 @@ def account_email_address(request):
 
     if login_store.get("verify_email_limit:%s" % request.user.id):
         if request.user.email:
-            return {"email_address_error": "Sorry, you can only change your e-mail address once per day. Please wait 24 hours before trying again."}
+            return {"email_address_error": "Sorry, you need to wait 12 hours before you can change your e-mail address again."}
         else:
-            return {"email_address_error": "Sorry, you can only set your e-mail address once per day. Please wait 24 hours before trying again."}
+            return {"email_address_error": "Sorry, you need to wait 12 hours before you can set your e-mail address again."}
 
     send_email(request, "verify_email", request.user, email_address)
     login_store.setex("verify_email_limit:%s" % request.user.id, 43200, 1)
