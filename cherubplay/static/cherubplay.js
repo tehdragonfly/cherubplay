@@ -135,7 +135,7 @@ var cherubplay = (function() {
 
 			function change_mode(new_mode) {
 				body.removeClass("answer_mode").removeClass("prompt_mode").removeClass("wait_mode");
-				if (ws.readyState == 1 && new_mode == "answer_mode") {
+				if (ws.readyState == WebSocket.OPEN && new_mode == "answer_mode") {
 					ws.send(JSON.stringify({
 						"action": "search",
 						"categories": answer_string(answer_categories),
@@ -144,13 +144,13 @@ var cherubplay = (function() {
 					}));
 					body.addClass("answer_mode");
 					localStorage.setItem("last_mode", "answer_mode");
-				} else if (ws.readyState == 1 && new_mode == "prompt_mode") {
+				} else if (ws.readyState == WebSocket.OPEN && new_mode == "prompt_mode") {
 					ws.send('{"action":"idle"}');
 					body.addClass("prompt_mode");
 					localStorage.setItem("last_mode", "prompt_mode");
-				} else if (ws.readyState == 1 && new_mode == "wait_mode") {
+				} else if (ws.readyState == WebSocket.OPEN && new_mode == "wait_mode") {
 					body.addClass("wait_mode");
-				} else if (ws.readyState == 3) {
+				} else if (ws.readyState == WebSocket.CLOSED) {
 					body.addClass("connection_error");
 				}
 			}
@@ -1132,7 +1132,7 @@ var cherubplay = (function() {
 				if (e.keyCode == 13 && localStorage.getItem("enter_to_send") == "true" && !e.shiftKey) {
 					message_form.submit();
 					return false;
-				} else if (ws.readyState == 1) {
+				} else if (ws.readyState == WebSocket.OPEN) {
 					window.clearTimeout(typing_timeout);
 					if (!typing) {
 						typing = true;
