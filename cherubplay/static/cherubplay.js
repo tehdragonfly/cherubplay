@@ -495,7 +495,7 @@ var cherubplay = (function() {
 			// Communication
 
 			function ping() {
-				if (ws.readyState==1) {
+				if (ws.readyState == WebSocket.OPEN) {
 					ws.send('{"action":"ping"}');
 					window.setTimeout(ping, 8000);
 				}
@@ -1090,7 +1090,7 @@ var cherubplay = (function() {
 				}
 				typing = false;
 				window.clearTimeout(typing_timeout);
-				if (ws.readyState==1) {
+				if (ws.readyState == WebSocket.OPEN) {
 					$.ajax({
 						"url": this.action,
 						"method": "POST",
@@ -1186,7 +1186,7 @@ var cherubplay = (function() {
 			window.setInterval(save_draft, 10000);
 
 			function ping() {
-				if (ws.readyState==1) {
+				if (ws.readyState == WebSocket.OPEN) {
 					ws.send('{"action":"ping"}');
 					window.setTimeout(ping, 8000);
 				}
@@ -1398,7 +1398,7 @@ var cherubplay = (function() {
 				launch_websocket();
 			} else {
 				var ws = {
-					readyState: 3,
+					readyState: WebSocket.CLOSED,
 				};
 				status_bar.text("Live updates are not available because your browser does not appear to support WebSockets. Please refresh to see new messages.");
 			}
