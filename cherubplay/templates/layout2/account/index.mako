@@ -56,6 +56,7 @@
       <h3>Chat options</h3>
       <p id="option_confirmation"></p>
       <p><label><input type="checkbox" id="sound_notifications"> Enable sound notifications</label></p>
+      <p>If sound notifications aren't working for you, it may be because your browser doesn't allow autoplaying audio.</p>
       <p><label><input type="checkbox" id="enter_to_send"> Press enter to send</label></p>
       <p><label><input type="checkbox" id="cross_chat_notifications"> Get notifications from other chats (desktop only)</label></p>
     </section>
