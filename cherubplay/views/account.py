@@ -373,6 +373,24 @@ def account_connection_delete_post(context, request):
     return HTTPFound(request.route_path("account_connections"))
 
 
+EXPORT_ROLLOUT_START    = datetime.datetime(2019, 6, 22, 0, 0, 0)
+EXPORT_ROLLOUT_DURATION = 720 # 720 hours = 30 days
+
+
+def _export_rollout_time(user: User):
+    delay = (user.id % EXPORT_ROLLOUT_DURATION) * 60 * 60
+    return EXPORT_ROLLOUT_START + datetime.timedelta(0, delay)
+
+
+@view_config(route_name="account_export", request_method="GET", permission="view")
+def account_export(request):
+    rollout_time = _export_rollout_time(request.user)
+    return {
+        "can_export":   rollout_time <= datetime.datetime.now(),
+        "rollout_time": rollout_time,
+    }
+
+
 @view_config(route_name="well_known_change_password")
 def well_known_change_password(request):
     return HTTPFound(request.route_path("account"))
