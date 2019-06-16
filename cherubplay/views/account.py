@@ -382,7 +382,7 @@ def _export_rollout_time(user: User):
     return EXPORT_ROLLOUT_START + datetime.timedelta(0, delay)
 
 
-@view_config(route_name="account_export", request_method="GET", permission="view")
+@view_config(route_name="account_export", request_method="GET", permission="view", renderer="layout2/account/export.mako")
 def account_export(request):
     rollout_time = _export_rollout_time(request.user)
     return {
