@@ -16,6 +16,11 @@
         % else:
           <li><a href="${request.route_path("account_connections")}">User connections</a></li>
         % endif
+        % if request.matched_route.name == "account_export":
+          <li>Export your account data</li>
+        % else:
+          <li><a href="${request.route_path("account_export")}">Export your account data</a></li>
+        % endif
       </ul>
       <form action="${request.route_path("account_layout_version")}" method="post">
         <input type="hidden" name="layout_version" value="1">
