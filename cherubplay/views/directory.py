@@ -965,8 +965,8 @@ def directory_request_edit_get(context: Request, request):
 
     form_data = {
         "colour":    "#" + context.colour,
-        "ooc_notes": context.ooc_notes,
-        "starter":   context.starter,
+        "ooc_notes": context.ooc_notes.raw,
+        "starter":   context.starter.raw,
         "mode":      "group" if context.slots else "1-on-1",
         "status":    context.status,
     }
