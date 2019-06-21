@@ -373,7 +373,7 @@ def account_connection_delete_post(context, request):
     return HTTPFound(request.route_path("account_connections"))
 
 
-EXPORT_ROLLOUT_START    = datetime.datetime(2019, 6, 22, 0, 0, 0)
+EXPORT_ROLLOUT_START    = datetime.datetime(2019, 7, 1, 0, 0, 0)
 EXPORT_ROLLOUT_DURATION = 720 # 720 hours = 30 days
 
 

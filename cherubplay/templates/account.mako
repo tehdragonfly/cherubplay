@@ -4,6 +4,12 @@
 <%block name="title">Account settings - </%block>
   <h2>${request.user.username}</h2>
   <nav id="subnav">
+    <section class="tile">
+      <ul>
+        <li>Settings</li>
+        <li><a href="${request.route_path("account_export")}">Export your account data</li>
+      </ul>
+    </section>
     <form action="${request.route_path("account_layout_version")}" method="post">
       <section class="tile">
         <p>This is the old layout. <button type="submit">Try the new layout</button></p>
