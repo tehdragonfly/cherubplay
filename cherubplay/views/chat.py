@@ -1,4 +1,5 @@
 import datetime
+import transaction
 
 from pyramid.httpexceptions import (
     HTTPBadRequest,
@@ -13,6 +14,7 @@ from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
+from uuid import uuid4
 
 from cherubplay import ChatContext
 from cherubplay.lib import colour_validator, trim_with_ellipsis
@@ -612,13 +614,17 @@ def chat_export_post(context: ChatContext, request):
     ).first()
 
     if not export:
-        # This task can't be called until after the ChatExport row has been committed to the database.
-        # But we can't trigger it in a post-commit hook because we need to include the task ID in the ChatExport.
-        result = export_chat.apply_async((context.chat.id, request.user.id), countdown=5)
+        task_id = str(uuid4())
         db.add(ChatExport(
             chat_id=context.chat.id,
             user_id=request.user.id,
-            celery_task_id=result.id,
+            celery_task_id=task_id,
         ))
+
+        def hook(status):
+            if not status:
+                return
+            export_chat.apply_async((context.chat.id, request.user.id), task_id=task_id, countdown=5)
+        transaction.get().addAfterCommitHook(hook)
 
     return HTTPFound(request.route_path("chat_export", url=context.chat.url))
