@@ -1,17 +1,21 @@
-import datetime, json
+import datetime, json, transaction
 
+from celery import group
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNoContent, HTTPNotFound, HTTPRequestEntityTooLarge
 from pyramid.renderers import render, render_to_response
 from pyramid.view import view_config
 from pyramid_mailer import get_mailer
 from pyramid_mailer.message import Message as EmailMessage
+from sqlalchemy import and_
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from uuid import uuid4
 
 from cherubplay.lib import email_validator, timezones, username_validator, reserved_usernames
-from cherubplay.models import Chat, ChatUser, PushSubscription, User, UserConnection
-from cherubplay.models.enums import ChatSource, MessageFormat
+from cherubplay.models import Chat, ChatExport, ChatUser, PushSubscription, User, UserConnection
+from cherubplay.models.enums import ChatSource, ChatUserStatus, MessageFormat
 from cherubplay.services.user_connection import IUserConnectionService
+from cherubplay.tasks import export_chat
 
 
 def send_email(request, action, user, email_address):
@@ -383,12 +387,43 @@ def _export_rollout_time(user: User):
 
 
 @view_config(route_name="account_export", request_method="GET", permission="view", renderer="layout2/account/export.mako")
-def account_export(request):
+def account_export_get(request):
     rollout_time = _export_rollout_time(request.user)
     return {
         "can_export":   rollout_time <= datetime.datetime.now(),
         "rollout_time": rollout_time,
     }
+
+
+@view_config(route_name="account_export", request_method="POST", permission="view")
+def account_export_post(request):
+    db = request.find_service(name="db")
+
+    chat_users = db.query(ChatUser).filter(and_(
+        ChatUser.user_id == request.user.id,
+        ChatUser.status == ChatUserStatus.active,
+    )).options(joinedload(Chat)).all()
+
+    task_ids = {chat_user.chat.id: str(uuid4()) for chat_user in chat_users}
+
+    for chat_user in chat_users:
+        db.add(ChatExport(
+            chat_id=chat_user.chat.id,
+            user_id=request.user.id,
+            celery_task_id=task_ids[chat_user.chat.id],
+        ))
+
+    def hook(status):
+        if not status:
+            return
+        group([
+            export_chat.s((chat_user.chat.id, request.user.id), task_id=task_ids[chat_user.chat.id])
+            for chat_user in chat_users
+        ])
+
+    transaction.get().addAfterCommitHook(hook)
+
+    return HTTPFound(request.route_path("account_export"))
 
 
 @view_config(route_name="well_known_change_password")
