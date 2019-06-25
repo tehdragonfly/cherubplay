@@ -621,10 +621,13 @@ def chat_export_post(context: ChatContext, request):
             celery_task_id=task_id,
         ))
 
+        # Needed because we can't access context.chat and request.user after commit.
+        args = (context.chat.id, request.user.id)
+
         def hook(status):
             if not status:
                 return
-            export_chat.apply_async((context.chat.id, request.user.id), task_id=task_id, countdown=5)
+            export_chat.apply_async(args, task_id=task_id)
         transaction.get().addAfterCommitHook(hook)
 
     return HTTPFound(request.route_path("chat_export", url=context.chat.url))

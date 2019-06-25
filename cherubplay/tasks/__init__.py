@@ -326,6 +326,11 @@ def export_chat(chat_id: int, user_id: int):
         log.info("Finished export for chat %s, user %s." % (chat_id, user_id))
 
 
+@app.task(queue="export")
+def export_account(results):
+    raise NotImplementedError #TODO
+
+
 @app.task(queue="cleanup")
 def cleanup_expired_exports():
     settings = app.conf["PYRAMID_REGISTRY"].settings

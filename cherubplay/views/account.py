@@ -1,6 +1,6 @@
 import datetime, json, transaction
 
-from celery import group
+from celery import chord
 from pyramid.httpexceptions import HTTPBadRequest, HTTPFound, HTTPNoContent, HTTPNotFound, HTTPRequestEntityTooLarge
 from pyramid.renderers import render, render_to_response
 from pyramid.view import view_config
@@ -15,7 +15,7 @@ from cherubplay.lib import email_validator, timezones, username_validator, reser
 from cherubplay.models import Chat, ChatExport, ChatUser, PushSubscription, User, UserConnection
 from cherubplay.models.enums import ChatSource, ChatUserStatus, MessageFormat
 from cherubplay.services.user_connection import IUserConnectionService
-from cherubplay.tasks import export_chat
+from cherubplay.tasks import export_account, export_chat
 
 
 def send_email(request, action, user, email_address):
@@ -402,24 +402,28 @@ def account_export_post(request):
     chat_users = db.query(ChatUser).filter(and_(
         ChatUser.user_id == request.user.id,
         ChatUser.status == ChatUserStatus.active,
-    )).options(joinedload(Chat)).all()
+    )).options(joinedload(ChatUser.chat)).all()
 
     task_ids = {chat_user.chat.id: str(uuid4()) for chat_user in chat_users}
 
     for chat_user in chat_users:
+        # TODO remove existing exports first
         db.add(ChatExport(
             chat_id=chat_user.chat.id,
             user_id=request.user.id,
             celery_task_id=task_ids[chat_user.chat.id],
         ))
 
+    # Needed because we can't access request.user after commit.
+    user_id = request.user.id
+
     def hook(status):
         if not status:
             return
-        group([
-            export_chat.s((chat_user.chat.id, request.user.id), task_id=task_ids[chat_user.chat.id])
-            for chat_user in chat_users
-        ])
+        chord([
+            export_chat.signature((chat_id, user_id), task_id=task_id)
+            for chat_id, task_id in task_ids.items()
+        ])(export_account.s())
 
     transaction.get().addAfterCommitHook(hook)
 
