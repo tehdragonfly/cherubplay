@@ -348,6 +348,25 @@ def cleanup_expired_exports():
         ).delay()
 
 
+def delete_export(db, settings, chat_export: ChatExport):
+    if chat_export.filename:
+        try:
+            os.remove(os.path.join(settings["export.destination"], chat_export.file_path))
+        except FileNotFoundError:
+            pass
+        os.rmdir(os.path.join(settings["export.destination"], chat_export.file_directory))
+        # Try to delete the chat directory.
+        # May fail if there's another export, so ignore.
+        try:
+            os.rmdir(os.path.join(
+                settings["export.destination"],
+                chat_export.file_directory.rsplit("/", 1)[0]
+            ))
+        except OSError:
+            pass
+    db.delete(chat_export)
+
+
 @app.task(queue="cleanup")
 def delete_expired_export(chat_id: int, user_id: int):
     settings = app.conf["PYRAMID_REGISTRY"].settings
@@ -356,19 +375,4 @@ def delete_expired_export(chat_id: int, user_id: int):
             chat_export = db.query(ChatExport).filter(and_(ChatExport.chat_id == chat_id, ChatExport.user_id == user_id)).one()
         except NoResultFound:
             return
-        if chat_export.filename:
-            try:
-                os.remove(os.path.join(settings["export.destination"], chat_export.file_path))
-            except FileNotFoundError:
-                pass
-            os.rmdir(os.path.join(settings["export.destination"], chat_export.file_directory))
-            # Try to delete the chat directory.
-            # May fail if there's another export, so ignore.
-            try:
-                os.rmdir(os.path.join(
-                    settings["export.destination"],
-                    chat_export.file_directory.rsplit("/", 1)[0]
-                ))
-            except OSError:
-                pass
-        db.delete(chat_export)
+        delete_export(db, settings, chat_export)

@@ -15,7 +15,7 @@ from cherubplay.lib import email_validator, timezones, username_validator, reser
 from cherubplay.models import Chat, ChatExport, ChatUser, PushSubscription, User, UserConnection
 from cherubplay.models.enums import ChatSource, ChatUserStatus, MessageFormat
 from cherubplay.services.user_connection import IUserConnectionService
-from cherubplay.tasks import export_account, export_chat
+from cherubplay.tasks import export_account, export_chat, delete_export
 
 
 def send_email(request, action, user, email_address):
@@ -399,6 +399,9 @@ def account_export_get(request):
 def account_export_post(request):
     db = request.find_service(name="db")
 
+    for chat_export in db.query(ChatExport).filter(ChatExport.user_id == request.user.id).all():
+        delete_export(db, request.registry.settings, chat_export)
+
     chat_users = db.query(ChatUser).filter(and_(
         ChatUser.user_id == request.user.id,
         ChatUser.status == ChatUserStatus.active,
@@ -407,7 +410,6 @@ def account_export_post(request):
     task_ids = {chat_user.chat.id: str(uuid4()) for chat_user in chat_users}
 
     for chat_user in chat_users:
-        # TODO remove existing exports first
         db.add(ChatExport(
             chat_id=chat_user.chat.id,
             user_id=request.user.id,
