@@ -15,7 +15,7 @@ from cherubplay.lib import email_validator, timezones, username_validator, reser
 from cherubplay.models import Chat, ChatExport, ChatUser, PushSubscription, User, UserConnection
 from cherubplay.models.enums import ChatSource, ChatUserStatus, MessageFormat
 from cherubplay.services.user_connection import IUserConnectionService
-from cherubplay.tasks import export_account, export_chat, delete_export
+from cherubplay.tasks import export_user, export_chat, delete_export
 
 
 def send_email(request, action, user, email_address):
@@ -425,7 +425,7 @@ def account_export_post(request):
         chord([
             export_chat.signature((chat_id, user_id), task_id=task_id)
             for chat_id, task_id in task_ids.items()
-        ])(export_account.s())
+        ])(export_user.s(user_id))
 
     transaction.get().addAfterCommitHook(hook)
 

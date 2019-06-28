@@ -8,6 +8,7 @@ from pyramid.renderers import render
 from pyramid_celery import celery_app as app
 from sqlalchemy import and_, func
 from sqlalchemy.dialects.postgresql import INTERVAL
+from sqlalchemy.orm import joinedload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 from tempfile import TemporaryDirectory
@@ -327,8 +328,30 @@ def export_chat(chat_id: int, user_id: int):
 
 
 @app.task(queue="export")
-def export_account(results):
-    raise NotImplementedError #TODO
+def export_user(results, user_id):
+    settings = app.conf["PYRAMID_REGISTRY"].settings
+    log.info("Starting account export for user %s." % user_id)
+    with db_session() as db, TemporaryDirectory() as workspace:
+
+        user = db.query(User).filter(User.id == user_id).one()
+        chat_exports = db.query(ChatExport).filter(ChatExport.user_id == user_id).options(joinedload(ChatExport.chat)).all()
+
+        filename = "%s.zip" % user.username
+        file_in_workspace = os.path.join(workspace, filename)
+
+        with ZipFile(file_in_workspace, "w", ZIP_DEFLATED) as f:
+            for chat_export in chat_exports:
+                if not chat_export.filename:
+                    log.warning("Chat export for chat %s, user %s hasn't been built." % (chat_export.chat_id, user_id))
+                    continue
+                full_path = os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export.destination"], chat_export.file_path)
+                with ZipFile(full_path, "r") as chat_f:
+                    for n in chat_f.namelist():
+                        f.writestr("/chats/%s/%s" % (chat_export.chat.url,  n), chat_f.read(n))
+
+        # TODO include task id in filename
+        pathlib.Path(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export.destination"], "user")).mkdir(parents=True, exist_ok=True)
+        os.rename(file_in_workspace, os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export.destination"], "user", filename))
 
 
 @app.task(queue="cleanup")
