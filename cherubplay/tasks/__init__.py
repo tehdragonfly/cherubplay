@@ -340,6 +340,10 @@ def export_user(results, user_id):
         file_in_workspace = os.path.join(workspace, filename)
 
         with ZipFile(file_in_workspace, "w", ZIP_DEFLATED) as f:
+
+            f.write(resource_filename("cherubplay", "static/cherubplay2.css"), "cherubplay2.css")
+            f.write(resource_filename("cherubplay", "static/logo.png"), "logo.png")
+
             for chat_export in chat_exports:
                 if not chat_export.filename:
                     log.warning("Chat export for chat %s, user %s hasn't been built." % (chat_export.chat_id, user_id))
