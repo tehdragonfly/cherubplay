@@ -334,7 +334,11 @@ def export_user(results, user_id):
     with db_session() as db, TemporaryDirectory() as workspace:
 
         user = db.query(User).filter(User.id == user_id).one()
-        chat_exports = db.query(ChatExport).filter(ChatExport.user_id == user_id).options(joinedload(ChatExport.chat)).all()
+        chat_exports = (
+            db.query(ChatExport)
+            .filter(ChatExport.user_id == user_id)
+            .options(joinedload(ChatExport.chat), joinedload(ChatExport.chat_user)).all()
+        )
 
         filename = "%s.zip" % user.username
         file_in_workspace = os.path.join(workspace, filename)
@@ -352,6 +356,17 @@ def export_user(results, user_id):
                 with ZipFile(full_path, "r") as chat_f:
                     for n in chat_f.namelist():
                         f.writestr("/chats/%s/%s" % (chat_export.chat.url,  n), chat_f.read(n))
+
+            chat_exports.sort(key=lambda _: _.chat.updated, reverse=True)
+            f.writestr("chats/index.html", render("export/chat_list.mako", {
+                "chats": [(
+                    _.chat,
+                    _.chat_user,
+                    # TODO join this in the original query like in the chat_list view
+                    db.query(Message).filter(Message.chat_id == _.chat.id).order_by(Message.posted.asc()).first(),
+                ) for _ in chat_exports if _.filename],
+                "user": user,
+            }))
 
         # TODO include task id in filename
         pathlib.Path(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export.destination"], "user")).mkdir(parents=True, exist_ok=True)

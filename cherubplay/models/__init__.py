@@ -707,6 +707,11 @@ ChatUser.export = relationship(
 
 ChatExport.chat = relationship(Chat)
 ChatExport.user = relationship(User)
+ChatExport.chat_user = relationship(
+    ChatUser,
+    primaryjoin=and_(ChatExport.chat_id == ChatUser.chat_id, ChatExport.user_id == ChatUser.user_id),
+    foreign_keys=[ChatExport.chat_id, ChatExport.user_id],
+)
 
 PromptReport.duplicate_of = relationship(PromptReport, backref="duplicates", remote_side=PromptReport.id)
 PromptReport.reporting_user = relationship(User, backref="reports_sent", primaryjoin=PromptReport.reporting_user_id == User.id)
