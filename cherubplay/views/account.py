@@ -390,13 +390,16 @@ def _export_rollout_time(user: User):
 def account_export_get(request):
     rollout_time = _export_rollout_time(request.user)
     return {
-        "can_export":   rollout_time <= datetime.datetime.now(),
+        "can_export":   rollout_time <= datetime.datetime.now() and request.user.status == "admin",
         "rollout_time": rollout_time,
     }
 
 
 @view_config(route_name="account_export", request_method="POST", permission="view")
 def account_export_post(request):
+    if _export_rollout_time(request.user) > datetime.datetime.now() and request.user.status != "admin":
+        raise HTTPNotFound
+
     db = request.find_service(name="db")
 
     for chat_export in db.query(ChatExport).filter(ChatExport.user_id == request.user.id).all():

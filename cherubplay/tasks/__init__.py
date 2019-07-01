@@ -16,7 +16,7 @@ from urllib.parse import urlparse
 from zipfile import ZipFile, ZIP_DEFLATED
 
 from cherubplay.models import get_sessionmaker, PushSubscription, Request, RequestSlot, User, VirtualUserConnection, \
-    Chat, ChatUser, Message, ChatExport
+    Chat, ChatUser, Message, ChatExport, Prompt
 from cherubplay.services.redis import make_redis_connection
 from cherubplay.services.request import RequestService
 from cherubplay.services.user_connection import UserConnectionService
@@ -348,6 +348,7 @@ def export_user(results, user_id):
             f.write(resource_filename("cherubplay", "static/cherubplay2.css"), "cherubplay2.css")
             f.write(resource_filename("cherubplay", "static/logo.png"), "logo.png")
 
+            # Chats: gather files from chat export tasks.
             for chat_export in chat_exports:
                 if not chat_export.filename:
                     log.warning("Chat export for chat %s, user %s hasn't been built." % (chat_export.chat_id, user_id))
@@ -365,6 +366,20 @@ def export_user(results, user_id):
                     # TODO join this in the original query like in the chat_list view
                     db.query(Message).filter(Message.chat_id == _.chat.id).order_by(Message.posted.asc()).first(),
                 ) for _ in chat_exports if _.filename],
+                "user": user,
+            }))
+
+            # Prompts
+            prompts = db.query(Prompt).filter(Prompt.user_id == user.id).order_by(Prompt.created.desc()).all()
+            for prompt in prompts:
+                f.writestr("prompts/%s.html" % prompt.id, render("export/prompt.mako", {
+                    "prompt": prompt,
+                    "user": user,
+                }))
+                f.writestr("prompts/%s.json" % prompt.id, render("json", prompt))
+
+            f.writestr("prompts/index.html", render("export/prompt_list.mako", {
+                "prompts": prompts,
                 "user": user,
             }))
 
