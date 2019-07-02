@@ -16,7 +16,7 @@ from urllib.parse import urlparse
 from zipfile import ZipFile, ZIP_DEFLATED
 
 from cherubplay.models import get_sessionmaker, PushSubscription, Request, RequestSlot, User, VirtualUserConnection, \
-    Chat, ChatUser, Message, ChatExport, Prompt
+    Chat, ChatUser, Message, ChatExport, Prompt, UserExport
 from cherubplay.services.redis import make_redis_connection
 from cherubplay.services.request import RequestService
 from cherubplay.services.user_connection import UserConnectionService
@@ -332,13 +332,11 @@ def export_user(results, user_id):
     settings = app.conf["PYRAMID_REGISTRY"].settings
     log.info("Starting account export for user %s." % user_id)
     with db_session() as db, TemporaryDirectory() as workspace:
-
-        user = db.query(User).filter(User.id == user_id).one()
-        chat_exports = (
-            db.query(ChatExport)
-            .filter(ChatExport.user_id == user_id)
-            .options(joinedload(ChatExport.chat), joinedload(ChatExport.chat_user)).all()
-        )
+        start_time  = datetime.datetime.now()
+        user        = db.query(User).filter(User.id == user_id).one()
+        user_export = db.query(UserExport).filter(UserExport.user_id == user.id).one()
+        if export_chat.request.id and user_export.celery_task_id != export_chat.request.id:
+            raise RuntimeError("Current task ID doesn't match value in database.")
 
         filename = "%s.zip" % user.username
         file_in_workspace = os.path.join(workspace, filename)
@@ -349,6 +347,11 @@ def export_user(results, user_id):
             f.write(resource_filename("cherubplay", "static/logo.png"), "logo.png")
 
             # Chats: gather files from chat export tasks.
+            chat_exports = (
+                db.query(ChatExport)
+                    .filter(ChatExport.user_id == user_id)
+                    .options(joinedload(ChatExport.chat), joinedload(ChatExport.chat_user)).all()
+            )
             for chat_export in chat_exports:
                 if not chat_export.filename:
                     log.warning("Chat export for chat %s, user %s hasn't been built." % (chat_export.chat_id, user_id))
@@ -402,9 +405,13 @@ def export_user(results, user_id):
                 "user": user,
             }))
 
-        # TODO include task id in filename
-        pathlib.Path(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export.destination"], "user")).mkdir(parents=True, exist_ok=True)
-        os.rename(file_in_workspace, os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export.destination"], "user", filename))
+        user_export.filename = filename
+
+        user_export.generated = start_time
+        user_export.expires   = datetime.datetime.now() + datetime.timedelta(int(settings["export.expiry_days"]))
+
+        pathlib.Path(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export.destination"], user_export.file_directory)).mkdir(parents=True, exist_ok=True)
+        os.rename(file_in_workspace, os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export.destination"], user_export.file_path))
 
 
 @app.task(queue="cleanup")

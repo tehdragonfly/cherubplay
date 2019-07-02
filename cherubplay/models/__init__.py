@@ -111,6 +111,40 @@ class User(Base):
         self.password = hashpw(new_password.encode(), gensalt()).decode()
 
 
+class UserExport(Base):
+    __tablename__ = "account_exports"
+    __table_args__ = (
+        CheckConstraint("""
+            (generated is not null) = (expires is not null)
+            and (generated is not null) = (filename is not null)
+        """),
+    )
+    user_id        = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    celery_task_id = Column(UUID, nullable=False)
+    triggered      = Column(DateTime, nullable=False, default=datetime.datetime.now)
+    generated      = Column(DateTime)
+    expires        = Column(DateTime)
+    filename       = Column(Unicode(100))
+
+    @property
+    def file_directory(self):
+        return os.path.join("account", self.celery_task_id)
+
+    @property
+    def file_path(self):
+        if self.filename:
+            return os.path.join(self.file_directory, self.filename)
+
+    def __json__(self, request=None):
+        return {
+            "task_id": self.celery_task_id,
+            "generated": self.generated,
+            "expires": self.expires,
+            "filename": self.filename,
+            "file_path": self.file_path,
+        }
+
+
 class PushSubscription(Base):
     __tablename__ = "push_subscriptions"
     id = Column(Integer, primary_key=True)

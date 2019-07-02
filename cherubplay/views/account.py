@@ -12,7 +12,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from uuid import uuid4
 
 from cherubplay.lib import email_validator, timezones, username_validator, reserved_usernames
-from cherubplay.models import Chat, ChatExport, ChatUser, PushSubscription, User, UserConnection
+from cherubplay.models import Chat, ChatExport, ChatUser, PushSubscription, User, UserConnection, UserExport
 from cherubplay.models.enums import ChatSource, ChatUserStatus, MessageFormat
 from cherubplay.services.user_connection import IUserConnectionService
 from cherubplay.tasks import export_user, export_chat, delete_export
@@ -389,9 +389,11 @@ def _export_rollout_time(user: User):
 @view_config(route_name="account_export", request_method="GET", permission="view", renderer="layout2/account/export.mako")
 def account_export_get(request):
     rollout_time = _export_rollout_time(request.user)
+    db = request.find_service(name="db")
     return {
         "can_export":   rollout_time <= datetime.datetime.now() and request.user.status == "admin",
         "rollout_time": rollout_time,
+        "export":       db.query(UserExport).filter(UserExport.user_id == request.user.id).first(),
     }
 
 
@@ -402,6 +404,17 @@ def account_export_post(request):
 
     db = request.find_service(name="db")
 
+    existing_user_export = db.query(UserExport).filter(UserExport.user_id == request.user.id).first()
+    if existing_user_export:
+        raise HTTPNotFound
+
+    user_task_id = str(uuid4())
+
+    db.add(UserExport(
+        user_id=request.user.id,
+        celery_task_id=user_task_id,
+    ))
+
     for chat_export in db.query(ChatExport).filter(ChatExport.user_id == request.user.id).all():
         delete_export(db, request.registry.settings, chat_export)
 
@@ -410,13 +423,13 @@ def account_export_post(request):
         ChatUser.status == ChatUserStatus.active,
     )).options(joinedload(ChatUser.chat)).all()
 
-    task_ids = {chat_user.chat.id: str(uuid4()) for chat_user in chat_users}
+    chat_task_ids = {chat_user.chat.id: str(uuid4()) for chat_user in chat_users}
 
     for chat_user in chat_users:
         db.add(ChatExport(
             chat_id=chat_user.chat.id,
             user_id=request.user.id,
-            celery_task_id=task_ids[chat_user.chat.id],
+            celery_task_id=chat_task_ids[chat_user.chat.id],
         ))
 
     # Needed because we can't access request.user after commit.
@@ -427,8 +440,8 @@ def account_export_post(request):
             return
         chord([
             export_chat.signature((chat_id, user_id), task_id=task_id)
-            for chat_id, task_id in task_ids.items()
-        ])(export_user.s(user_id))
+            for chat_id, task_id in chat_task_ids.items()
+        ])(export_user.signature((user_id,), task_id=user_task_id))
 
     transaction.get().addAfterCommitHook(hook)
 
