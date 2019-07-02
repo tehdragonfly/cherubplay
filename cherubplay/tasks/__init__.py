@@ -8,7 +8,7 @@ from pyramid.renderers import render
 from pyramid_celery import celery_app as app
 from sqlalchemy import and_, func
 from sqlalchemy.dialects.postgresql import INTERVAL
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, subqueryload
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.sql.expression import cast
 from tempfile import TemporaryDirectory
@@ -380,6 +380,25 @@ def export_user(results, user_id):
 
             f.writestr("prompts/index.html", render("export/prompt_list.mako", {
                 "prompts": prompts,
+                "user": user,
+            }))
+
+            # Requests
+            requests = (
+                db.query(Request)
+                .filter(Request.user_id == user.id)
+                .order_by(func.coalesce(Request.posted, Request.created).desc())
+                .options(joinedload(Request.tags), subqueryload(Request.slots)).all()
+            )
+            for request in requests:
+                f.writestr("requests/%s.html" % request.id, render("export/request.mako", {
+                    "rq": request,
+                    "user": user,
+                }))
+                f.writestr("requests/%s.json" % request.id, render("json", request))
+
+            f.writestr("requests/index.html", render("export/request_list.mako", {
+                "requests": requests,
                 "user": user,
             }))
 
