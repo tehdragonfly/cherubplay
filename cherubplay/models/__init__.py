@@ -112,7 +112,7 @@ class User(Base):
 
 
 class UserExport(Base):
-    __tablename__ = "account_exports"
+    __tablename__ = "user_exports"
     __table_args__ = (
         CheckConstraint("""
             (generated is not null) = (expires is not null)
@@ -128,7 +128,7 @@ class UserExport(Base):
 
     @property
     def file_directory(self):
-        return os.path.join("account", self.celery_task_id)
+        return os.path.join("user", self.celery_task_id)
 
     @property
     def file_path(self):

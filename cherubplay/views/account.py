@@ -386,14 +386,18 @@ def _export_rollout_time(user: User):
     return EXPORT_ROLLOUT_START + datetime.timedelta(0, delay)
 
 
-@view_config(route_name="account_export", request_method="GET", permission="view", renderer="layout2/account/export.mako")
+@view_config(route_name="account_export",     request_method="GET", permission="view", renderer="layout2/account/export.mako")
+@view_config(route_name="account_export_ext", request_method="GET", permission="view", extension="json", renderer="json")
 def account_export_get(request):
     rollout_time = _export_rollout_time(request.user)
     db = request.find_service(name="db")
+    export = db.query(UserExport).filter(UserExport.user_id == request.user.id).first()
+    if request.matchdict.get("ext") == "json":
+        return export
     return {
         "can_export":   rollout_time <= datetime.datetime.now() and request.user.status == "admin",
         "rollout_time": rollout_time,
-        "export":       db.query(UserExport).filter(UserExport.user_id == request.user.id).first(),
+        "export":       export,
     }
 
 

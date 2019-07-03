@@ -27,3 +27,8 @@
       <p>The export function is not available to you yet. You'll be able to use it on ${request.user.localise_time(rollout_time).strftime("%A %d %B at %H:%M")}.</p>
     </section>
   % endif
+<%block name="scripts">
+  % if export and not export.filename:
+    <script>cherubplay.user_export();</script>
+  % endif
+</%block>

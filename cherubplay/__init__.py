@@ -274,7 +274,7 @@ def main(global_config, **settings):
     config.add_route("account_connections_new",    "/account/new_connection/")
     config.add_route("account_connection_chat",    "/account/connections/{username}/chat/",   factory=connection_factory)
     config.add_route("account_connection_delete",  "/account/connections/{username}/delete/", factory=connection_factory)
-    config.add_route("account_export",             "/account/export/")
+    config.add_ext_route("account_export",         "/account/export/")
 
     config.add_route("well_known_change_password", "/.well-known/change-password")
 

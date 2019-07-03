@@ -330,7 +330,7 @@ def export_chat(chat_id: int, user_id: int):
 @app.task(queue="export")
 def export_user(results, user_id):
     settings = app.conf["PYRAMID_REGISTRY"].settings
-    log.info("Starting account export for user %s." % user_id)
+    log.info("Starting user export for user %s." % user_id)
     with db_session() as db, TemporaryDirectory() as workspace:
         start_time  = datetime.datetime.now()
         user        = db.query(User).filter(User.id == user_id).one()

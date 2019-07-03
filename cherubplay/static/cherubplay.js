@@ -1431,6 +1431,26 @@ var cherubplay = (function() {
 				});
 			}, 5000);
 		},
+		"user_export": function(url) {
+			var error_count = 0;
+			var export_interval = window.setInterval(function() {
+				$.ajax({
+					url: "/account/export.json",
+					success: function(data) {
+						error_count = 0;
+						if (data.filename) {
+							location.reload();
+						}
+					},
+					error: function() {
+						error_count++;
+						if (error_count >= 3) {
+							window.clearInterval(export_interval);
+						}
+					}
+				});
+			}, 5000);
+		},
 	}
 })();
 
