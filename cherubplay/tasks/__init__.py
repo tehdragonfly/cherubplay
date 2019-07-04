@@ -418,6 +418,7 @@ def export_user(results, user_id):
 def cleanup_expired_exports():
     settings = app.conf["PYRAMID_REGISTRY"].settings
     with db_session() as db:
+        # Chat exports
         group(
             delete_expired_export.s(_.chat_id, _.user_id)
             for _ in db.query(ChatExport).filter(ChatExport.expires < func.now())
@@ -426,7 +427,19 @@ def cleanup_expired_exports():
             delete_expired_export.s(_.chat_id, _.user_id)
             for _ in db.query(ChatExport).filter(and_(
                 ChatExport.generated == None,
-                ChatExport.triggered < (func.now() - datetime.timedelta(settings["export.expiry_days"])),
+                ChatExport.triggered < (func.now() - datetime.timedelta(int(settings["export.expiry_days"]))),
+            ))
+        ).delay()
+        # User exports
+        group(
+            delete_expired_user_export.s(_.user_id)
+            for _ in db.query(UserExport).filter(UserExport.expires < func.now())
+        ).delay()
+        group(
+            delete_expired_user_export.s(_.user_id)
+            for _ in db.query(UserExport).filter(and_(
+                UserExport.generated == None,
+                UserExport.triggered < (func.now() - datetime.timedelta(int(settings["export.expiry_days"]))),
             ))
         ).delay()
 
@@ -438,6 +451,7 @@ def delete_export(db, settings, chat_export: ChatExport):
         except FileNotFoundError:
             pass
         os.rmdir(os.path.join(settings["export.destination"], chat_export.file_directory))
+
         # Try to delete the chat directory.
         # May fail if there's another export, so ignore.
         try:
@@ -447,6 +461,7 @@ def delete_export(db, settings, chat_export: ChatExport):
             ))
         except OSError:
             pass
+
     db.delete(chat_export)
 
 
@@ -459,3 +474,22 @@ def delete_expired_export(chat_id: int, user_id: int):
         except NoResultFound:
             return
         delete_export(db, settings, chat_export)
+
+
+@app.task(queue="cleanup")
+def delete_expired_user_export(user_id: int):
+    settings = app.conf["PYRAMID_REGISTRY"].settings
+    with db_session() as db:
+        try:
+            user_export = db.query(UserExport).filter(UserExport.user_id == user_id).one()
+        except NoResultFound:
+            return
+
+        if user_export.filename:
+            try:
+                os.remove(os.path.join(settings["export.destination"], user_export.file_path))
+            except FileNotFoundError:
+                pass
+            os.rmdir(os.path.join(settings["export.destination"], user_export.file_directory))
+
+        db.delete(user_export)
