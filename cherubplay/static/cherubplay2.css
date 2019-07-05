@@ -142,7 +142,7 @@ h3 + .subtitle, h3 + .help { margin-top: 5px; }
 
 /* 2.3. Expandable */
 
-.expandable .toggle { float: right; margin-left: 5px; outline: none; }
+.expandable .toggle { float: right; margin-left: 5px; outline: none; text-align: right; }
 .expandable .expanded_content, .expandable.expanded .collapsed_content { display: none; }
 .expandable.expanded .expanded_content { display: block; }
 .expandable:last-child > p { margin-bottom: 0; }

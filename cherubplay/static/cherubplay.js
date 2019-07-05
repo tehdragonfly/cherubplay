@@ -60,6 +60,7 @@ var cherubplay = (function() {
 					expanded_content.html(html);
 				}
 				expandable_toggle.parent().addClass("expanded");
+				expandable_toggle.css("width", getComputedStyle(expandable_toggle[0]).width);
 				expandable_toggle.text("(less)");
 			});
 		}
@@ -83,7 +84,7 @@ var cherubplay = (function() {
 		// Check if we're at the bottom before resizing because resizing will mean that we're not.
 		var scroll_after_resize = is_at_bottom();
 		// Hide the scrollbar so it doesn't affect when text is wrapped.
-		this.style.overflowY = hidden;
+		this.style.overflowY = "hidden";
 		this.style.height = null;
 		this.style.height = this.scrollHeight + "px";
 		if (scroll_after_resize) {
