@@ -88,7 +88,7 @@ class FormattedValue:
 
     @property
     def format(self) -> str:
-        return getattr(self._obj, self._format_attr)
+        return getattr(self._obj, self._format_attr) or MessageFormat.raw
 
     @property
     def raw(self) -> str:
