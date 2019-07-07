@@ -84,7 +84,7 @@ class FormattedValue:
         return "<FormattedValue \"%s\" in %s>" % (self.raw, self.format)
 
     def __bool__(self):
-        return bool(getattr(self._obj, self._text_attr))
+        return bool(self.raw)
 
     @property
     def format(self) -> str:
@@ -96,11 +96,11 @@ class FormattedValue:
 
     def as_plain_text(self) -> str:
         # For notifications etc.
-        return plain_text_formatters[getattr(self._obj, self._format_attr)](getattr(self._obj, self._text_attr))
+        return plain_text_formatters[self.format](self.raw)
 
     def as_html(self) -> Markup:
         # For chat pages.
-        return html_formatters[getattr(self._obj, self._format_attr)](getattr(self._obj, self._text_attr))
+        return html_formatters[self.format](self.raw)
 
     def __json__(self, request=None):
         return {
@@ -116,7 +116,7 @@ class FormattedValue:
 
     def trim_html(self, length: int):
         # For list pages.
-        return trimmers[getattr(self._obj, self._format_attr)](getattr(self._obj, self._text_attr), length)
+        return trimmers[self.format](self.raw, length)
 
 
 class FormattedField:
