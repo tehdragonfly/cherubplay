@@ -322,7 +322,7 @@ body.ongoing main { margin-bottom: 0; }
 #messages li > p:not(:last-of-type),
 #messages li > blockquote:not(:last-of-type) p:not(:last-of-type),
 .delete_preview > p:not(:last-of-type),
-.delete_preview > blockquote:not(:last-of-type) p:not(:last-of-type) { margin-bottom: 5px; }
+.delete_preview > blockquote:not(:last-of-type) p:not(:last-of-type) { margin-bottom: 15px; }
 #messages .editing p { text-decoration: line-through; }
 
 .message hr { margin: 5px 0; border: none; text-align: center; line-height: 5px; }
