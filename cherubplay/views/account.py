@@ -395,7 +395,7 @@ def account_export_get(request):
     if request.matchdict.get("ext") == "json":
         return export
     return {
-        "can_export":   rollout_time <= datetime.datetime.now() and request.user.status == "admin",
+        "can_export":   rollout_time <= datetime.datetime.now() or request.user.status == "admin",
         "rollout_time": rollout_time,
         "export":       export,
     }
