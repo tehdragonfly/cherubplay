@@ -61,10 +61,11 @@ class IMessageService(Interface):
 
 @implementer(IMessageService)
 class MessageService(object):
-    def __init__(self, db, pubsub: Redis, online_user_store: IOnlineUserStore):
+    def __init__(self, db, pubsub: Redis, online_user_store: IOnlineUserStore, push_enabled: bool):
         self._db     = db
         self._pubsub = pubsub
         self._online_user_store = online_user_store
+        self._push_enabled = push_enabled
 
     def _publish(self, destination: Union[Chat, ChatUser, User], message: Union[str, Dict]):
         if isinstance(message, dict):
@@ -134,7 +135,8 @@ class MessageService(object):
                     "name": chat_user.name,
                     "text": trim_with_ellipsis(notification_text, 100),
                 })
-                trigger_push_notification.delay(other_chat_user.user_id)
+                if self._push_enabled:
+                    trigger_push_notification.delay(other_chat_user.user_id)
 
         self._publish(chat, {
             "action": action,
@@ -193,4 +195,5 @@ def includeme(config):
         request.find_service(name="db"),
         request.find_service(name="redis_pubsub"),
         request.find_service(IOnlineUserStore),
+        "push.private_key" in request.registry.settings,
     ), iface=IMessageService)
