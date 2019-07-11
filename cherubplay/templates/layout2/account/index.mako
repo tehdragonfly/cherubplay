@@ -60,6 +60,7 @@
       <p><label><input type="checkbox" id="enter_to_send"> Press enter to send</label></p>
       <p><label><input type="checkbox" id="cross_chat_notifications"> Get notifications from other chats (desktop only)</label></p>
     </section>
+    % if "push.private_key" in request.registry.settings:
     <section class="tile2">
       <h3>Push notifications</h3>
       <noscript>Push notifications require JavaScript, so please enable JavaScript to receive them.</noscript>
@@ -76,6 +77,7 @@
         <button id="disable_push_notifications">Disable push notifications</button>
       </div>
     </section>
+    % endif
     % if request.user.status != "banned":
       <form class="tile2" action="${request.route_path("account_away_message")}" method="post">
         <h3>Away message</h3>
