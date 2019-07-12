@@ -213,7 +213,7 @@ def post_push_notification(subscription_id, endpoint):
             "Authorization": "Bearer " + jwt.encode(
                 {
                     "aud": "https://" + urlparse(endpoint).hostname,
-                    "sub": "mailto:mysticdragonfly@hotmail.co.uk",
+                    "sub": "mailto:" + settings["push.admin_email"],
                     "exp": int(time.time()) + 86400,
                 },
                 settings["push.private_key"],
