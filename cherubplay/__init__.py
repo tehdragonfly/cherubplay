@@ -132,7 +132,7 @@ def main(global_config, **settings):
                 backend=default_backend(),
             )
         except ValueError:
-            pass
+            settings.pop("push.private_key")
 
     for tag_type in TagType:
         settings["checkbox_tags." + tag_type.value] = [
