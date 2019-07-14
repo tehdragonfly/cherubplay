@@ -1,4 +1,4 @@
-import binascii
+import binascii, logging
 
 from base64 import urlsafe_b64decode
 from cryptography.hazmat.backends import default_backend
@@ -19,6 +19,9 @@ from cherubplay.resources import (
     ChatContext, prompt_factory, report_factory, TagList, TagPair,
     connection_factory, request_factory, user_factory,
 )
+
+
+log = logging.getLogger(__name__)
 
 
 JSONRenderer = JSON()
@@ -133,6 +136,7 @@ def main(global_config, **settings):
             )
         except ValueError:
             settings.pop("push.private_key")
+            log.warn("Unable to parse push private key. Push notifications will be disabled.")
 
     for tag_type in TagType:
         settings["checkbox_tags." + tag_type.value] = [
