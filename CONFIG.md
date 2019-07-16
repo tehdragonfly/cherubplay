@@ -37,6 +37,26 @@ Cherubplay is currently run using [Supervisor](http://supervisord.org/). Suggest
 
 ### Task runners
 
+Cherubplay uses two Celery workers: one for quick tasks like triggering push
+notifications and another for longer tasks like exporting chats and cleanup
+tasks. Celery recommends doing this so that quick tasks don't get stuck behind
+slower ones.
+
+When you're running multiple Celery processes on the same host you need to
+specify worker names manually with `-n` to disambiguate them.
+
+    [program:cherubplay_celery_main]
+    command = /path/to/virtualenv/bin/celery worker -A pyramid_celery.celery_app --ini /conf/cherubplay.ini -l DEBUG -c 4 -n "main@%h"
+    autostart = false
+    user = cherubplay
+
+    [program:cherubplay_celery_export]
+    command = /path/to/virtualenv/bin/celery worker -A pyramid_celery.celery_app --ini /conf/cherubplay.ini -l DEBUG -c 4 -n "export@%h" -Q export,cleanup
+    autostart = false
+    user = cherubplay
+
+The beat process triggers scheduled tasks.
+
     [program:cherubplay_celerybeat]
     command = /path/to/virtualenv/bin/celery beat -A pyramid_celery.celery_app --ini /conf/cherubplay.ini -l DEBUG
     autostart = false
