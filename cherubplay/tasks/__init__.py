@@ -359,7 +359,7 @@ def export_user(results, user_id):
                 full_path = os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export.destination"], chat_export.file_path)
                 with ZipFile(full_path, "r") as chat_f:
                     for n in chat_f.namelist():
-                        f.writestr("/chats/%s/%s" % (chat_export.chat.url,  n), chat_f.read(n))
+                        f.writestr("chats/%s/%s" % (chat_export.chat.url, n), chat_f.read(n))
 
             chat_exports.sort(key=lambda _: _.chat.updated, reverse=True)
             f.writestr("chats/index.html", render("export/chat_list.mako", {
