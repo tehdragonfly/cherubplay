@@ -316,8 +316,8 @@ table.tile2 .synonym a { color: #ccc; }
 body.ongoing main { margin-bottom: 0; }
 
 #messages { margin: 0; padding: 0 25px; list-style-type: none; }
-#messages li { position: relative; padding: 20px 0; }
-#messages li:not(:first-child) { border-top: 1px solid #ddd; }
+#messages > li { position: relative; padding: 20px 0; }
+#messages > li:not(:first-child) { border-top: 1px solid #ddd; }
 #messages li > p, #messages li > blockquote p, .delete_preview > p, .delete_preview > blockquote p { margin: 0; }
 #messages li > p:not(:last-of-type),
 #messages li > blockquote:not(:last-of-type) p:not(:last-of-type),
@@ -358,7 +358,7 @@ body.ongoing main { margin-bottom: 0; }
 
 @media (max-width: 640px) {
     #messages { padding: 0 15px; }
-    #messages li { padding: 10px 0; }
+    #messages > li { padding: 10px 0; }
     .symbol { width: 30px; left: -30px; font-size: 1em; }
     #message_form .symbol { margin-top: 10px; }
 }
