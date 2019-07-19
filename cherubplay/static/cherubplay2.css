@@ -325,6 +325,7 @@ body.ongoing main { margin-bottom: 0; }
 .delete_preview > blockquote:not(:last-of-type) p:not(:last-of-type) { margin-bottom: 15px; }
 #messages .editing p { text-decoration: line-through; }
 
+.message ul { list-style-type: disc; }
 .message hr { margin: 5px 0; border: none; text-align: center; line-height: 5px; }
 .message hr:after { content: "●  ●  ●"; }
 .message blockquote { margin: 0; padding-left: 5px; border-left: 3px solid #ccc; }
