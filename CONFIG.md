@@ -140,11 +140,11 @@ The first step is needed so the browser recieves the HSTS header for the base do
         }
         location /static/ {
             # Static files
-            root /path/to/virtualenv/cherubplay/cherubplay/;
+            alias /path/to/virtualenv/cherubplay/cherubplay/static/;
         }
         location /export/ {
             # Storage for exported chats
-            root /path/to/export/;
+            alias /path/to/export/;
         }
         location /.well-known/acme-challenge/ {
             # ACME challenge directory for certificate renewal
