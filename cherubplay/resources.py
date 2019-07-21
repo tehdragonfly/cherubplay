@@ -22,6 +22,8 @@ from cherubplay.tasks import update_missing_request_tag_ids
 
 
 class ChatContext(object):
+    """Context for the chat views, grouping the relevant Chat and ChatUsers."""
+
     __parent__ = Resource
 
     @reify
@@ -146,6 +148,8 @@ def report_factory(request):
 
 
 class TagList(object):
+    """A list of tags for the multi-tag search pages."""
+
     __parent__ = Resource
 
     def __init__(self, request):
@@ -214,6 +218,23 @@ def _trigger_update_missing_request_tag_ids(status):
 
 
 class TagPair(object):
+    """
+    A tag or pair of tags for the tag management pages.
+
+    There are several tools which can be used to wrangle tags:
+    * Maturity bumping: this tag shouldn't be posted outside the NSFWE section,
+      so if the user adds it to a request then that requests maturity should be
+      bumped.
+    * Synonym relationships: when the user adds tag A to a request, replace it
+      with tag B.
+    * Parent relationships: when the user adds tag A to a request, also tag the
+      request with tag B.
+
+    These actions need to be mirrored across the tags in a playing/wanted pair
+    (character/character_wanted etc.), so this class pairs a tag with its
+    converse in order to do that.
+    """
+
     __parent__ = Resource
 
     def __init__(self, db, tag_service, first_tag: Tag, **kwargs):
