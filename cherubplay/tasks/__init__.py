@@ -319,7 +319,7 @@ def export_chat(chat_id: int, user_id: int):
         chat_export.filename = filename
 
         chat_export.generated = start_time
-        chat_export.expires   = datetime.datetime.now() + datetime.timedelta(int(settings["export.expiry_days"]))
+        chat_export.expires   = datetime.datetime.now() + settings["export.expiry_days"]
 
         pathlib.Path(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export.destination"], chat_export.file_directory)).mkdir(parents=True, exist_ok=True)
         os.rename(file_in_workspace, os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export.destination"], chat_export.file_path))
@@ -408,7 +408,7 @@ def export_user(results, user_id):
         user_export.filename = filename
 
         user_export.generated = start_time
-        user_export.expires   = datetime.datetime.now() + datetime.timedelta(int(settings["export.expiry_days"]))
+        user_export.expires   = datetime.datetime.now() + settings["export.expiry_days"]
 
         pathlib.Path(os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export.destination"], user_export.file_directory)).mkdir(parents=True, exist_ok=True)
         os.rename(file_in_workspace, os.path.join(app.conf["PYRAMID_REGISTRY"].settings["export.destination"], user_export.file_path))
@@ -427,7 +427,7 @@ def cleanup_expired_exports():
             delete_expired_export.s(_.chat_id, _.user_id)
             for _ in db.query(ChatExport).filter(and_(
                 ChatExport.generated == None,
-                ChatExport.triggered < (func.now() - datetime.timedelta(int(settings["export.expiry_days"]))),
+                ChatExport.triggered < (func.now() - settings["export.expiry_days"]),
             ))
         ).delay()
         # User exports
@@ -439,7 +439,7 @@ def cleanup_expired_exports():
             delete_expired_user_export.s(_.user_id)
             for _ in db.query(UserExport).filter(and_(
                 UserExport.generated == None,
-                UserExport.triggered < (func.now() - datetime.timedelta(int(settings["export.expiry_days"]))),
+                UserExport.triggered < (func.now() - settings["export.expiry_days"]),
             ))
         ).delay()
 

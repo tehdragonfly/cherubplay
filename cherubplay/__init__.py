@@ -3,7 +3,7 @@ import binascii, logging
 from base64 import urlsafe_b64decode
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.ec import SECP256R1, derive_private_key
-from datetime import datetime
+from datetime import datetime, timedelta
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPFound
@@ -149,6 +149,9 @@ def main(global_config, **settings):
         settings["default_format"] = MessageFormat(settings["default_format"])
     else:
         settings["default_format"] = MessageFormat.raw
+
+    if "export.expiry_days" in settings:
+        settings["export.expiry_days"] = timedelta(int(settings["export.expiry_days"]))
 
     config = Configurator(
         authentication_policy=CherubplayAuthenticationPolicy(),
