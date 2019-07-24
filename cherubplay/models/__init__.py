@@ -432,6 +432,7 @@ class Request(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"))
     status = Column(SQLAlchemyEnum(u"draft", u"locked", u"posted", u"removed", name=u"requests_status"), nullable=False, default=u"draft")
+    lock_after_answers = Column(Integer)
     # Created indicates when the request was created, and is never modified.
     created = Column(DateTime(), nullable=False, default=datetime.datetime.now)
     # Posted indicates when the request was first posted.

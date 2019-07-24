@@ -73,7 +73,7 @@ class IRequestService(Interface):
     def remove_duplicates(self, new_request: Request):
         pass
 
-    def answer(self, request: Request, as_user: User = None) -> Chat:
+    def answer(self, request: Request, as_user: User=None) -> Chat:
         pass
 
     def requests_with_full_slots(self) -> List[Request]:
@@ -282,6 +282,13 @@ class RequestService(object):
             )
             starter_message.text.update(request.starter.format, request.starter.raw)
             self._db.add(starter_message)
+
+        if request.lock_after_answers is not None:
+            if request.lock_after_answers <= 1:
+                request.status = "locked"
+                request.lock_after_answers = None
+            else:
+                request.lock_after_answers -= 1
 
         return new_chat
 
