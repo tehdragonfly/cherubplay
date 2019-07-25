@@ -25,11 +25,6 @@ from cherubplay.tasks import update_request_tag_ids
 LINEBREAK_REGEX = re.compile(r"\n\n+")
 
 
-def _trim_linebreaks(text):
-    """Don't allow more than consecutive line breaks."""
-    return LINEBREAK_REGEX.sub("\n\n", text)
-
-
 class ValidationError(Exception):
     def __init__(self, message):
         super().__init__(message)
@@ -46,8 +41,8 @@ def _validate_request_form(request):
     if colour_validator.match(colour) is None:
         raise ValidationError("invalid_colour")
 
-    ooc_notes = _trim_linebreaks(request.POST.get("ooc_notes", "").strip())
-    starter   = _trim_linebreaks(request.POST.get("starter", "").strip())
+    ooc_notes = request.POST.get("ooc_notes", "").strip()
+    starter   = request.POST.get("starter", "").strip()
 
     if not ooc_notes and not starter:
         raise ValidationError("blank_ooc_notes_and_starter")
