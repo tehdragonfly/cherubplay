@@ -4,6 +4,7 @@ from base64 import urlsafe_b64decode
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.ec import SECP256R1, derive_private_key
 from datetime import datetime, timedelta
+from enum import Enum
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.config import Configurator
 from pyramid.httpexceptions import HTTPFound
@@ -26,6 +27,7 @@ log = logging.getLogger(__name__)
 
 JSONRenderer = JSON()
 JSONRenderer.add_adapter(datetime, lambda obj, request: obj.isoformat())
+JSONRenderer.add_adapter(Enum,     lambda obj, request: obj.value)
 JSONRenderer.add_adapter(set,      lambda obj, request: list(obj))
 
 

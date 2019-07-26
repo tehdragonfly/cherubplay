@@ -1,40 +1,35 @@
 from enum import Enum
 
 
-class JSONMixin(object):
-    def __json__(self, request=None):
-        return self.value
-
-
-class ChatMode(JSONMixin, Enum):
+class ChatMode(Enum):
     one_on_one = "one_on_one"
     group      = "group"
 
 
-class ChatSource(JSONMixin, Enum):
+class ChatSource(Enum):
     front_page      = "front_page"
     directory       = "directory"
     user_connection = "user_connection"
     admin           = "admin"
 
 
-class ChatUserStatus(JSONMixin, Enum):
+class ChatUserStatus(Enum):
     active  = "active"
     deleted = "deleted"
 
 
-class MessageType(JSONMixin, Enum):
+class MessageType(Enum):
     ic     = "ic"
     ooc    = "ooc"
     system = "system"
 
 
-class MessageFormat(JSONMixin, Enum):
+class MessageFormat(Enum):
     raw      = "raw"
     markdown = "markdown"
 
 
-class TagType(JSONMixin, Enum):
+class TagType(Enum):
     maturity         = "maturity"
     warning          = "warning"
     type             = "type"
