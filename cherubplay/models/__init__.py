@@ -544,8 +544,7 @@ class RequestTag(Base):
         return "<RequestTag: Request #%s, Tag #%s>" % (self.request_id, self.tag_id)
 
     def __json__(self, request=None):
-        tag_dict = self.tag.__json__(request)
-        return tag_dict
+        return self.tag.__json__(request)
 
 
 class BlacklistedTag(Base):
@@ -557,8 +556,7 @@ class BlacklistedTag(Base):
         return "<BlacklistedTag: User #%s, Tag #%s>" % (self.user_id, self.tag_id)
 
     def __json__(self, request=None):
-        tag_dict = self.tag.__json__(request)
-        return tag_dict
+        return self.tag.__json__(request)
 
 
 class Tag(Base):
