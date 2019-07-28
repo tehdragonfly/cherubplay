@@ -38,6 +38,8 @@ def chat_list(request):
         current_page = int(request.GET.get("page", 1))
     except ValueError:
         raise HTTPNotFound
+    if current_page < 1:
+        raise HTTPNotFound
 
     if "status" in request.matchdict:
         current_status = request.matchdict["status"]
