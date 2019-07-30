@@ -316,6 +316,8 @@ def directory_tag_list(request):
         current_page = int(request.GET.get("page", 1))
     except ValueError:
         raise HTTPNotFound
+    if current_page < 1:
+        raise HTTPNotFound
 
     db = request.find_service(name="db")
     tag_query = db.query(Tag)
