@@ -71,7 +71,7 @@ def _validate_request_slots(request):
     return slot_name, slot_descriptions
 
 
-def _request_tags_from_form(request, form, new_request):
+def _tags_from_form(request, form, new_request):
     tag_set = set()
     fandoms = set()
     for tag_type in Tag.type.type.python_type:
@@ -134,15 +134,22 @@ def _request_tags_from_form(request, form, new_request):
             continue
         used_ids.add(tag_id)
 
-        tag_list.append(RequestTag(tag_id=tag_id))
+        tag_list.append(tag_id)
 
     if bump_maturity or form.get("maturity") not in Tag.maturity_names:
         maturity_name = "NSFW extreme"
     else:
         maturity_name = form["maturity"]
-    tag_list.append(RequestTag(tag_id=tag_service.get_or_create(TagType.maturity, maturity_name).id))
+    tag_list.append(tag_service.get_or_create(TagType.maturity, maturity_name).id)
 
     return tag_list
+
+
+def _request_tags_from_form(request, form, new_request):
+    return [
+        RequestTag(tag_id=tag_id)
+        for tag_id in _tags_from_form(request, form, new_request)
+    ]
 
 
 def _trigger_update_request_tag_ids(request_id: int):
