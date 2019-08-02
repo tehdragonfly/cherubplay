@@ -74,7 +74,7 @@ def _validate_request_slots(request):
     return slot_name, slot_descriptions
 
 
-def _tags_from_form(request, form, new_request):
+def _tag_ids_from_form(request, form: dict, has_starter: bool):
     tag_set = set()
     fandoms = set()
     for tag_type in Tag.type.type.python_type:
@@ -105,7 +105,7 @@ def _tags_from_form(request, form, new_request):
                 fandoms.add(name.lower())
 
     # Meta types
-    if new_request.starter:
+    if has_starter:
         tag_set.add((TagType.type, u"Starter"))
     else:
         tag_set.add((TagType.type, u"No starter"))
@@ -140,7 +140,7 @@ def _tags_from_form(request, form, new_request):
         tag_list.append(tag_id)
 
     if bump_maturity and not request.user.show_nsfw:
-        raise ValidationError("blank_maturity")
+        raise ValidationError("cant_bump_maturity")
 
     if bump_maturity or form.get("maturity") not in Tag.maturity_names:
         maturity_name = "NSFW extreme"
@@ -149,13 +149,6 @@ def _tags_from_form(request, form, new_request):
     tag_list.append(tag_service.get_or_create(TagType.maturity, maturity_name).id)
 
     return tag_list
-
-
-def _request_tags_from_form(request, form, new_request):
-    return [
-        RequestTag(tag_id=tag_id)
-        for tag_id in _tags_from_form(request, form, new_request)
-    ]
 
 
 def _trigger_update_request_tag_ids(request_id: int):
@@ -664,6 +657,7 @@ def directory_new_post(request):
     try:
         colour, ooc_notes, starter = _validate_request_form(request)
         slot_name, slot_descriptions = _validate_request_slots(request)
+        tag_ids = _tag_ids_from_form(request, request.POST, bool(starter))
     except ValidationError as e:
         return {"form_data": request.POST, "error": e.message}
 
@@ -691,10 +685,7 @@ def directory_new_post(request):
 
     request.find_service(IRequestService).remove_duplicates(new_request)
 
-    try:
-        new_request.request_tags += _request_tags_from_form(request, request.POST, new_request)
-    except ValidationError as e:
-        raise HTTPBadRequest
+    new_request.request_tags += [RequestTag(tag_id=tag_id) for tag_id in tag_ids]
 
     if slot_name and slot_descriptions:
         db.add(RequestSlot(
@@ -1054,6 +1045,7 @@ def directory_request_edit_post(context: Request, request):
     try:
         colour, ooc_notes, starter   = _validate_request_form(request)
         slot_name, slot_descriptions = _validate_request_slots(request)
+        tag_ids = _tag_ids_from_form(request, request.POST, bool(starter))
     except ValidationError as e:
         return {"form_data": request.POST, "error": e.message}
 
@@ -1073,12 +1065,7 @@ def directory_request_edit_post(context: Request, request):
     db = request.find_service(name="db")
     db.query(RequestTag).filter(RequestTag.request_id == context.id).delete()
 
-    try:
-        new_tags = _request_tags_from_form(request, request.POST, context)
-    except ValidationError as e:
-        raise HTTPBadRequest
-
-    context.request_tags += new_tags
+    context.request_tags += [RequestTag(tag_id=tag_id) for tag_id in tag_ids]
     context.tag_ids = None
 
     if slot_name and slot_descriptions:

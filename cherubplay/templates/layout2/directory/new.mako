@@ -31,6 +31,9 @@ Write a new request
       % if error == "blank_maturity":
       <p class="error">Please choose a maturity for your prompt.</p>
       % endif
+      % if error == "cant_bump_maturity":
+      <p class="error">Some of the tags you chose aren't allowed in Safe for work requests.</p>
+      % endif
       <label>Content warnings:</label>
       % if request.registry.settings["checkbox_tags.warning"]:
         <p id="warning_checkboxes" class="tag_checkboxes" style="${"" if form_data.get("maturity") == "NSFW extreme" else "display: none;"}">
