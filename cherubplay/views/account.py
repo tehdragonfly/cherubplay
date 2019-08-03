@@ -12,7 +12,8 @@ from sqlalchemy.orm.exc import NoResultFound
 from uuid import uuid4
 
 from cherubplay.lib import email_validator, timezones, username_validator, reserved_usernames
-from cherubplay.models import BlacklistedTag, Chat, ChatExport, ChatUser, PushSubscription, Tag, User, UserConnection, UserExport
+from cherubplay.models import BlacklistedTag, Chat, ChatExport, ChatUser, PushSubscription, Request, RequestTag, Tag,\
+    User, UserConnection, UserExport, RequestTag
 from cherubplay.models.enums import ChatSource, ChatUserStatus, MessageFormat, TagType
 from cherubplay.services.tag import ITagService
 from cherubplay.services.user_connection import IUserConnectionService
@@ -155,15 +156,29 @@ def account_show_nsfw(request):
     if not show_nsfw:
         db = request.find_service(name="db")
         tag_service = request.find_service(ITagService)
-        for tag_name in Tag.maturity_names:
-            if tag_name == "Safe for work":
-                continue
-            tag = tag_service.get_or_create(TagType.maturity, tag_name)
+
+        nsfw_tags = [
+            tag_service.get_or_create(TagType.maturity, tag_name)
+            for tag_name in Tag.maturity_names
+            if tag_name != "Safe for work"
+        ]
+
+        # Add NSFW and NSFWE to the user's blacklist.
+        for tag in nsfw_tags:
             if db.query(func.count("*")).select_from(BlacklistedTag).filter(and_(
                 BlacklistedTag.user_id == request.user.id,
                 BlacklistedTag.tag_id == tag.id,
             )).scalar() == 0:
                 db.add(BlacklistedTag(user_id=request.user.id, tag_id=tag.id))
+
+        # Set any NSFW and NSFWE requests to drafts.
+        db.query(Request).filter(and_(
+            Request.user_id == request.user.id,
+            Request.status.in_(("posted", "locked")),
+            Request.id.in_(
+                db.query(RequestTag.request_id).filter(RequestTag.tag_id.in_(tag.id for tag in nsfw_tags))
+            ),
+        )).update({"status": "draft"}, synchronize_session=False)
 
     return HTTPFound(request.route_path("account"))
 
