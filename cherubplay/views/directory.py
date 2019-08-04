@@ -298,7 +298,10 @@ def directory_search_autocomplete(context, request):
     )
     if request.matched_route.name == "directory_tag_search_autocomplete":
         tag_query = tag_query.filter(~Tag.id.in_(_.id for _ in context.tags))
-    tag_query = tag_query.options(joinedload(Tag.synonym_of)).order_by(Tag.name, Tag.type).all()
+    tag_query = (
+        tag_query.options(joinedload(Tag.synonym_of))
+        .order_by(Tag.approved.desc(), Tag.name, Tag.type).all()
+    )
 
     for tag in tag_query:
         tag_to_add = tag.synonym_of if tag.synonym_id is not None else tag
