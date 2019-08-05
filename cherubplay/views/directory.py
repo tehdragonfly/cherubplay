@@ -715,7 +715,7 @@ def directory_new_autocomplete(request):
     tags = request.find_service(name="db").query(Tag).filter(and_(
         Tag.type == tag_type,
         func.lower(Tag.name).like(request.GET["name"].lower().replace("_", "\\_").replace("%", "\\%") + "%")
-    )).options(joinedload(Tag.synonym_of)).order_by(Tag.name)
+    )).options(joinedload(Tag.synonym_of)).order_by(Tag.approved.desc(), Tag.name)
 
     return sorted(list({
         # Use the original name if this tag is a synonym.
