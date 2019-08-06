@@ -19,13 +19,13 @@ from cherubplay.models import Message
 from cherubplay.services.message import pubsub_channel
 from cherubplay.services.redis import OnlineUserStore
 
-from cherubplay_live.db import config, db_session, get_chat, get_chat_user, get_user, publish_client
+from cherubplay_live.db import config, db_session, get_chat, get_chat_user, get_user, publish_redis
 
 
 sockets = set()
 
 
-online_user_store = OnlineUserStore(publish_client)
+online_user_store = OnlineUserStore(publish_redis)
 
 
 class ChatHandler(WebSocketHandler):
@@ -36,7 +36,7 @@ class ChatHandler(WebSocketHandler):
     socket_id = None
     redis_channels = ()
     ignore_next_message = False
-    redis_client = None
+    subscribe_redis = None
 
     def check_origin(self, origin):
         return origin == config.get("app:main", "cherubplay.socket_origin")
@@ -64,7 +64,7 @@ class ChatHandler(WebSocketHandler):
             # Fire online message, but only if this is the only tab we have open.
             online_handles = online_user_store.online_handles(self.chat)
             if self.chat_user.handle not in online_handles:
-                publish_client.publish(pubsub_channel(self.chat), json.dumps({
+                publish_redis.publish(pubsub_channel(self.chat), json.dumps({
                     "action": "online",
                     "handle": self.chat_user.handle,
                 }))
@@ -115,7 +115,7 @@ class ChatHandler(WebSocketHandler):
     def on_message(self, message_string):
         message = json.loads(message_string)
         if message["action"] in ("typing", "stopped_typing"):
-            publish_client.publish(pubsub_channel(self.chat), json.dumps({
+            publish_redis.publish(pubsub_channel(self.chat), json.dumps({
                 "action": message["action"],
                 "handle": self.chat_user.handle,
             }))
@@ -124,12 +124,12 @@ class ChatHandler(WebSocketHandler):
 
     def on_close(self):
         # Unsubscribe here and let the exit callback handle disconnecting.
-        if self.redis_client:
-            self.redis_client.unsubscribe(self.redis_channels)
+        if self.subscribe_redis:
+            self.subscribe_redis.unsubscribe(self.redis_channels)
         online_user_store.disconnect(self.chat, self.socket_id)
         # Fire offline message, but only if we don't have any other tabs open.
         if self.chat_user.handle not in online_user_store.online_handles(self.chat):
-            publish_client.publish(pubsub_channel(self.chat), json.dumps({
+            publish_redis.publish(pubsub_channel(self.chat), json.dumps({
                 "action": "offline",
                 "handle": self.chat_user.handle,
             }))
@@ -137,9 +137,9 @@ class ChatHandler(WebSocketHandler):
 
     @engine
     def redis_listen(self):
-        self.redis_client = Client(unix_socket_path=config.get("app:main", "cherubplay.socket_pubsub"))
-        yield Task(self.redis_client.subscribe, self.redis_channels)
-        self.redis_client.listen(self.on_redis_message, self.on_redis_unsubscribe)
+        self.subscribe_redis = Client(unix_socket_path=config.get("app:main", "cherubplay.socket_pubsub"))
+        yield Task(self.subscribe_redis.subscribe, self.redis_channels)
+        self.subscribe_redis.listen(self.on_redis_message, self.on_redis_unsubscribe)
 
     def on_redis_message(self, message):
         if message.kind == "message":
@@ -152,7 +152,7 @@ class ChatHandler(WebSocketHandler):
                 self.ignore_next_message = False
 
     def on_redis_unsubscribe(self, callback):
-        self.redis_client.disconnect()
+        self.subscribe_redis.disconnect()
 
 
 def sig_handler(sig, frame):

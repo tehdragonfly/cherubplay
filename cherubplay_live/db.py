@@ -41,14 +41,14 @@ def db_session():
         db.close()
 
 
-login_client   = make_redis_connection(config["app:main"], "login")
-publish_client = make_redis_connection(config["app:main"], "pubsub")
+login_redis   = make_redis_connection(config["app:main"], "login")
+publish_redis = make_redis_connection(config["app:main"], "pubsub")
 
 
 def get_user(db, cookies):
     if "cherubplay" not in cookies:
         return None
-    user_id = login_client.get("session:" + cookies["cherubplay"].value)
+    user_id = login_redis.get("session:" + cookies["cherubplay"].value)
     if user_id is None:
         return None
     try:

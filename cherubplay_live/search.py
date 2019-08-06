@@ -17,7 +17,7 @@ from cherubplay.lib.formatters import html_formatters
 from cherubplay.models import Chat, ChatUser, Message, PromptReport
 from cherubplay.models.enums import ChatSource, MessageFormat
 
-from cherubplay_live.db import config, db_session, get_user, login_client
+from cherubplay_live.db import config, db_session, get_user, login_redis
 
 prompters = {}
 searchers = {}
@@ -36,19 +36,19 @@ PROMPT_HASH_TIME = 86400 # 24 hours
 def check_answer_limit(user_id):
     key = "answer_limit:%s" % user_id
     current_time = time.time()
-    if login_client.llen(key) >= 12:
-        if current_time - float(login_client.lindex(key, 0)) < ANSWER_LIMIT_TIME:
+    if login_redis.llen(key) >= 12:
+        if current_time - float(login_redis.lindex(key, 0)) < ANSWER_LIMIT_TIME:
             raise AnswerDenied("User %s has exceeded the answer limit." % user_id)
-    login_client.rpush(key, current_time)
-    login_client.ltrim(key, -12, -1)
-    login_client.expire(key, ANSWER_LIMIT_TIME)
+    login_redis.rpush(key, current_time)
+    login_redis.ltrim(key, -12, -1)
+    login_redis.expire(key, ANSWER_LIMIT_TIME)
 
 
 def check_prompt_hash(user_id, prompt_hash):
     key = "answered:%s:%s" % (user_id, prompt_hash)
-    if login_client.exists(key):
+    if login_redis.exists(key):
         raise AnswerDenied("User %s has answered prompt %s too recently." % (user_id, prompt_hash))
-    login_client.setex(key, time=PROMPT_HASH_TIME, value="1")
+    login_redis.setex(key, time=PROMPT_HASH_TIME, value="1")
 
 
 def write_message_to_searchers(message, category, starter, level):
