@@ -41,3 +41,6 @@ Run the chat handler:
 
     cherubplay_chat development.ini
 
+Run the Celery worker:
+
+    celery worker -A pyramid_celery.celery_app --ini development.ini -l DEBUG
