@@ -1,9 +1,9 @@
-bcrypt==3.1.6
+bcrypt==3.1.7
 celery==4.3.0
 cryptography==2.6.1
-markdown==3.1
+markdown==3.1.1
 paginate==0.5.6
-psycopg2==2.8.2
+psycopg2==2.8.3
 PyJWT==1.7.1
 pyramid==1.9.4
 pyramid-celery==3.0.0
