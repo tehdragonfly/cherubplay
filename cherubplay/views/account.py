@@ -377,35 +377,21 @@ def account_connection_delete_post(context, request):
     return HTTPFound(request.route_path("account_connections"))
 
 
-EXPORT_ROLLOUT_START    = datetime.datetime(2019, 7, 8, 0, 0, 0)
-EXPORT_ROLLOUT_DURATION = 504 # 504 hours = 21 days
-
-
-def _export_rollout_time(user: User):
-    delay = (user.id % EXPORT_ROLLOUT_DURATION) * 60 * 60
-    return EXPORT_ROLLOUT_START + datetime.timedelta(0, delay)
-
-
 @view_config(route_name="account_export",     request_method="GET", permission="view", renderer="layout2/account/export.mako")
 @view_config(route_name="account_export_ext", request_method="GET", permission="view", extension="json", renderer="json")
 def account_export_get(request):
-    rollout_time = _export_rollout_time(request.user)
     db = request.find_service(name="db")
     export = db.query(UserExport).filter(UserExport.user_id == request.user.id).first()
     if request.matchdict.get("ext") == "json":
         return export
     return {
-        "can_export":   rollout_time <= datetime.datetime.now() or request.user.status == "admin",
-        "rollout_time": rollout_time,
+        "can_export":   True,
         "export":       export,
     }
 
 
 @view_config(route_name="account_export", request_method="POST", permission="view")
 def account_export_post(request):
-    if _export_rollout_time(request.user) > datetime.datetime.now() and request.user.status != "admin":
-        raise HTTPNotFound
-
     db = request.find_service(name="db")
 
     existing_user_export = db.query(UserExport).filter(UserExport.user_id == request.user.id).first()
