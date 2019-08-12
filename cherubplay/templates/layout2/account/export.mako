@@ -14,18 +14,13 @@
       <h3>Export in progress</h3>
       <p>Please wait while we export your account data. It could take a few minutes.</p>
     </section>
-  % elif can_export:
+  % else:
     <form class="tile2" action="${request.route_path("account_export")}" method="POST">
       <p>Here, you can export and then download all of your account data, including your chats, your prompts and your directory requests.</p>
       <div class="middle_actions">
         <button type="submit">Begin export</button>
       </div>
     </form>
-  % else:
-    <section class="tile2">
-      <p>This page will allow you to export all of your account data, including your chats, your prompts and your directory requests.</p>
-      <p>The export function is not available to you yet. You'll be able to use it on ${request.user.localise_time(rollout_time).strftime("%A %d %B at %H:%M")}.</p>
-    </section>
   % endif
 <%block name="scripts">
   % if export and not export.filename:
