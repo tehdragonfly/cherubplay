@@ -384,10 +384,7 @@ def account_export_get(request):
     export = db.query(UserExport).filter(UserExport.user_id == request.user.id).first()
     if request.matchdict.get("ext") == "json":
         return export
-    return {
-        "can_export":   True,
-        "export":       export,
-    }
+    return {"export": export}
 
 
 @view_config(route_name="account_export", request_method="POST", permission="view")
