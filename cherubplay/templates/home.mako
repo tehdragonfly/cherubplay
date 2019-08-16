@@ -1,6 +1,10 @@
 <%inherit file="base.mako" />\
 <% from cherubplay.lib import preset_colours, prompt_categories, prompt_starters, prompt_levels %>\
-% if request.user.status=="banned":
+% if "shutdown.front_page" in request.registry.settings:
+  <h2>Welcome to Cherubplay</h2>
+  <p>The front page is no longer available.</p>
+  <p>Please visit the account section to <a href="${request.route_path("account_export")}">export your account data</a>.</p>
+% elif request.user.status=="banned":
   <h2>Banned</h2>
 % if request.user.unban_date is not None:
 <% unban_delta = request.user.unban_delta %>
