@@ -37,11 +37,16 @@ def prompt_list(request):
 
 @view_config(route_name="new_prompt", request_method="GET", permission="view", renderer="layout2/new_prompt.mako")
 def new_prompt_get(request):
+    if "shutdown.prompts" in request.registry.settings:
+        raise HTTPNotFound
+
     return {}
 
 
 @view_config(route_name="new_prompt", request_method="POST", permission="view", renderer="layout2/new_prompt.mako")
 def new_prompt_post(request):
+    if "shutdown.prompts" in request.registry.settings:
+        raise HTTPNotFound
 
     trimmed_prompt_title = request.POST.get("prompt_title", "").strip()
     if trimmed_prompt_title == "":
@@ -96,11 +101,16 @@ def prompt_ext(context, request):
 
 @view_config(route_name="edit_prompt", request_method="GET", permission="prompt.edit", renderer="layout2/edit_prompt.mako")
 def edit_prompt_get(context, request):
+    if "shutdown.prompts" in request.registry.settings:
+        raise HTTPNotFound
+
     return {}
 
 
 @view_config(route_name="edit_prompt", request_method="POST", permission="prompt.edit", renderer="layout2/edit_prompt.mako")
 def edit_prompt_post(context, request):
+    if "shutdown.prompts" in request.registry.settings:
+        raise HTTPNotFound
 
     trimmed_prompt_title = request.POST.get("prompt_title", "").strip()
     if trimmed_prompt_title == "":
@@ -138,11 +148,17 @@ def edit_prompt_post(context, request):
 
 @view_config(route_name="delete_prompt", request_method="GET", permission="prompt.delete", renderer="layout2/delete_prompt.mako")
 def delete_prompt_get(context, request):
+    if "shutdown.prompts" in request.registry.settings:
+        raise HTTPNotFound
+
     return {}
 
 
 @view_config(route_name="delete_prompt", request_method="POST", permission="prompt.delete")
 def delete_prompt_post(context, request):
+    if "shutdown.prompts" in request.registry.settings:
+        raise HTTPNotFound
+
     db = request.find_service(name="db")
     db.delete(context)
     return HTTPFound(request.route_path("prompt_list"))
