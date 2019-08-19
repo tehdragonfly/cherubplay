@@ -10,7 +10,12 @@
   <div class="side_column"></div>
   <div class="side_column"></div>
   <div id="content">
-    <p>Here, you can write your prompts and save them for later. <a href="${request.route_path("new_prompt")}">Write a new prompt</a>.</p>
+    <p>
+      Here, you can write your prompts and save them for later.
+      % if "shutdown.prompts" not in request.registry.settings:
+        <a href="${request.route_path("new_prompt")}">Write a new prompt</a>.
+      % endif
+    </p>
 % if len(prompts)==0:
     <p>You have no prompts.</p>
 % else:

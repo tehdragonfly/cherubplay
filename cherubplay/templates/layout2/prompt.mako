@@ -11,10 +11,12 @@
     <section class="tile2">
       <p class="subtitle">${prompt_categories[request.context.category] if request.context.category else "<span class=\"error\">Category not set</span>"|n}, ${prompt_starters[request.context.starter]}, ${prompt_levels[request.context.level]}, written ${request.user.localise_time(request.context.created).strftime("%a %d %b %Y")}.</p>
       <div class="message" style="color: #${request.context.colour};">${request.context.text.as_html()}</div>
+% if "shutdown.prompts" not in request.registry.settings:
       <hr>
       <div class="actions">
         <div class="right"><a href="${request.route_path("edit_prompt", id=request.context.id)}">Edit</a> · <a href="${request.route_path("delete_prompt", id=request.context.id)}">Delete</a></div>
       </div>
+% endif
     </section>
   </div>
 </main>
