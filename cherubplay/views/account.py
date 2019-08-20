@@ -330,6 +330,9 @@ def account_connections(request):
 
 @view_config(route_name="account_connections_new", request_method="POST", permission="chat", renderer="layout2/account/connections.mako")
 def account_connections_new(request):
+    if "shutdown.user_connections" in request.registry.settings:
+        raise HTTPNotFound
+
     ucs = request.find_service(IUserConnectionService)
     to_username = request.POST.get("to", "").lower()
     if to_username == request.user.username:
@@ -343,6 +346,9 @@ def account_connections_new(request):
 
 @view_config(route_name="account_connection_chat", request_method="POST", permission="user_connection.chat")
 def account_connection_chat(context: UserConnection, request):
+    if "shutdown.user_connections" in request.registry.settings:
+        raise HTTPNotFound
+
     db = request.find_service(name="db")
     new_chat = Chat(url=str(uuid4()), source=ChatSource.user_connection)
     db.add(new_chat)
