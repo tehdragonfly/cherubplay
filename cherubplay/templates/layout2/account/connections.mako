@@ -4,6 +4,7 @@
     <p>Enter the username of someone you'd like to connect to, and when they do the same with your username you'll be able to begin a chat.</p>
     <section class="tile2">
       <ul class="tag_list">
+        % if "shutdown.user_connections" not in request.registry.settings:
         <li>
           <form id="account_connections_new" action="${request.route_path("account_connections_new")}" method="post">
             <input type="text" name="to" placeholder="Username..." maxlength="100">
@@ -15,6 +16,7 @@
             <span class="error">Sorry, you can't add yourself.</span>
           % endif
         </li>
+        % endif
         % for connection in connections:
           <li>
             <div class="actions">
@@ -25,6 +27,7 @@
                   ${connection.to_username} (pending)
                 % endif
               </div>
+              % if "shutdown.user_connections" not in request.registry.settings:
               <div class="right">
                 <a href="${request.route_path("account_connection_delete", username=connection.to_username)}">Delete</a>
                 ·
@@ -36,6 +39,7 @@
                   <button disabled title="You can't chat with this person until they accept the connection.">Chat</button>
                 % endif
               </div>
+              % endif
             </div>
           </li>
         % endfor
