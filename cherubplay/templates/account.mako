@@ -7,8 +7,8 @@
     <section class="tile">
       <ul>
         <li>Settings</li>
-        <li><a href="${request.route_path("account_connections")}">User connections</li>
-        <li><a href="${request.route_path("account_export")}">Export your account data</li>
+        <li><a href="${request.route_path("account_connections")}">User connections</a></li>
+        <li><a href="${request.route_path("account_export")}">Export your account data</a></li>
       </ul>
     </section>
     <form action="${request.route_path("account_layout_version")}" method="post">
