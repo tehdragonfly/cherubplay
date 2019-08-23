@@ -372,11 +372,17 @@ def account_connection_chat(context: UserConnection, request):
 
 @view_config(route_name="account_connection_delete", request_method="GET", permission="user_connection.delete", renderer="layout2/account/connection_delete.mako")
 def account_connection_delete_get(request):
+    if "shutdown.user_connections" in request.registry.settings:
+        raise HTTPNotFound
+
     return {}
 
 
 @view_config(route_name="account_connection_delete", request_method="POST", permission="user_connection.delete")
 def account_connection_delete_post(context, request):
+    if "shutdown.user_connections" in request.registry.settings:
+        raise HTTPNotFound
+
     request.find_service(name="db").delete(context)
     if request.is_xhr:
         return HTTPNoContent()
