@@ -645,11 +645,16 @@ def directory_random(request):
 
 @view_config(route_name="directory_new", request_method="GET", permission="directory.new_request", renderer="layout2/directory/new.mako")
 def directory_new_get(request):
+    if "shutdown.directory" in request.registry.settings:
+        raise HTTPNotFound
     return {"form_data": {"fandom_Homestuck": "on", "fandom_wanted_Homestuck": "on"}}
 
 
 @view_config(route_name="directory_new", request_method="POST", permission="directory.new_request", renderer="layout2/directory/new.mako")
 def directory_new_post(request):
+    if "shutdown.directory" in request.registry.settings:
+        raise HTTPNotFound
+
     try:
         colour, ooc_notes, starter = _validate_request_form(request)
         slot_name, slot_descriptions = _validate_request_slots(request)
@@ -769,6 +774,8 @@ def directory_blacklist_setup(request):
 
 @view_config(route_name="directory_blacklist_add", request_method="POST", permission="directory.read", renderer="layout2/directory/blacklist.mako")
 def directory_blacklist_add(request):
+    if "shutdown.directory" in request.registry.settings:
+        raise HTTPNotFound
 
     try:
         tag_type = TagType(request.POST.get("tag_type"))
@@ -809,6 +816,9 @@ def directory_blacklist_add(request):
 
 @view_config(route_name="directory_blacklist_remove", request_method="POST", permission="directory.read")
 def directory_blacklist_remove(request):
+    if "shutdown.directory" in request.registry.settings:
+        raise HTTPNotFound
+
     try:
         request.find_service(name="db").query(BlacklistedTag).filter(and_(
             BlacklistedTag.user_id == request.user.id,
@@ -879,6 +889,9 @@ def _get_current_slot(context: Request, request):
 
 @view_config(route_name="directory_request_answer", request_method="GET", permission="request.answer")
 def directory_request_answer_get(context: Request, request):
+    if "shutdown.directory" in request.registry.settings:
+        raise HTTPNotFound
+
     if not context.slots:
         raise HTTPNotFound
 
@@ -892,6 +905,9 @@ def directory_request_answer_get(context: Request, request):
 
 @view_config(route_name="directory_request_answer", request_method="POST", permission="request.answer")
 def directory_request_answer_post(context: Request, request):
+    if "shutdown.directory" in request.registry.settings:
+        raise HTTPNotFound
+
     login_store = request.find_service(name="redis_login")
 
     if (
@@ -933,6 +949,9 @@ def directory_request_answer_post(context: Request, request):
 
 @view_config(route_name="directory_request_unanswer", request_method="POST", permission="request.answer")
 def directory_request_unanswer_post(context: Request, request):
+    if "shutdown.directory" in request.registry.settings:
+        raise HTTPNotFound
+
     if request.user.id == context.user_id:
         raise HTTPNotFound
 
@@ -950,6 +969,9 @@ def directory_request_unanswer_post(context: Request, request):
 
 @view_config(route_name="directory_request_kick", request_method="POST", permission="request.edit")
 def directory_request_kick_post(context: Request, request):
+    if "shutdown.directory" in request.registry.settings:
+        raise HTTPNotFound
+
     try:
         order = int(request.POST.get("slot"))
     except (TypeError, ValueError):
@@ -969,6 +991,8 @@ def directory_request_kick_post(context: Request, request):
 
 @view_config(route_name="directory_request_edit", request_method="GET", permission="request.edit", renderer="layout2/directory/new.mako")
 def directory_request_edit_get(context: Request, request):
+    if "shutdown.directory" in request.registry.settings:
+        raise HTTPNotFound
 
     form_data = {
         "colour":    "#" + context.colour,
@@ -1005,6 +1029,8 @@ def directory_request_edit_get(context: Request, request):
 
 @view_config(route_name="directory_request_edit", request_method="POST", permission="request.edit", renderer="layout2/directory/new.mako")
 def directory_request_edit_post(context: Request, request):
+    if "shutdown.directory" in request.registry.settings:
+        raise HTTPNotFound
 
     try:
         colour, ooc_notes, starter   = _validate_request_form(request)
@@ -1062,11 +1088,15 @@ def directory_request_edit_post(context: Request, request):
 
 @view_config(route_name="directory_request_delete", request_method="GET", permission="request.delete", renderer="layout2/directory/request_delete.mako")
 def directory_request_delete_get(context: Request, request):
+    if "shutdown.directory" in request.registry.settings:
+        raise HTTPNotFound
     return {}
 
 
 @view_config(route_name="directory_request_delete", request_method="POST", permission="request.delete")
 def directory_request_delete_post(context: Request, request):
+    if "shutdown.directory" in request.registry.settings:
+        raise HTTPNotFound
     request.find_service(IRequestService).delete(context)
     return HTTPFound(request.route_path("directory_yours"))
 
