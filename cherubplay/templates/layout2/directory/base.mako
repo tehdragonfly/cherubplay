@@ -116,6 +116,8 @@ ${tag.name}\
               % endif
             </label>
 
+            % if "shutdown.directory" in request.registry.settings:
+              <% pass %>
             % if request.user.id != rq.user_id and slot.user_id == request.user.id:
               <form class="slot_unanswer" action="${request.route_path("directory_request_unanswer", id=rq.id)}" method="post">
                 <p class="slot_description ${"taken" if slot.taken else ""}">
@@ -159,6 +161,7 @@ ${tag.name}\
                 <form action="${request.route_path("directory_request_remove", id=rq.id)}" method="post"><button type="submit">Remove</button></form> ·
               % endif
             % endif
+            % if not "shutdown.directory" in request.registry.settings:
             % if rq.user_id == request.user.id:
               <a href="${request.route_path("directory_request_edit", id=rq.id)}">Edit</a>
               · <a href="${request.route_path("directory_request_delete", id=rq.id)}">Delete</a>
@@ -174,6 +177,7 @@ ${tag.name}\
               % elif not rq.slots:
                 · <form action="${request.route_path("directory_request_answer", id=rq.id)}" method="post"><button type="submit">Answer</button></form>
               % endif
+            % endif
             % endif
           </div>
         </div>
