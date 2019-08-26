@@ -7,6 +7,7 @@
     % endif
     <section class="tile2">
       <ul class="tag_list">
+        % if "shutdown.directory" not in request.registry.settings:
         <li>
           <form id="blacklist_add" action="${request.route_path("directory_blacklist_add")}" method="post">
             <select name="tag_type">
@@ -36,12 +37,15 @@
             <button type="submit">Add</button>
           </form>
         </li>
+        % endif
         % for tag in tags:
         <li>
+          % if "shutdown.directory" not in request.registry.settings:
           <form class="remove_form" action="${request.route_path("directory_blacklist_remove")}" method="post">
             <input type="hidden" name="tag_id" value="${tag.id}">
             <button type="submit">Remove</button>
           </form>
+          % endif
           ${tag.type.ui_value}:${tag.name}
         </li>
         % endfor

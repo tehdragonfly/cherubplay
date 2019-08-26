@@ -118,7 +118,7 @@ ${tag.name}\
 
             % if "shutdown.directory" in request.registry.settings:
               <% pass %>
-            % if request.user.id != rq.user_id and slot.user_id == request.user.id:
+            % elif request.user.id != rq.user_id and slot.user_id == request.user.id:
               <form class="slot_unanswer" action="${request.route_path("directory_request_unanswer", id=rq.id)}" method="post">
                 <p class="slot_description ${"taken" if slot.taken else ""}">
                   ${slot.description}
