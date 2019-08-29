@@ -205,10 +205,12 @@ ${tag.name}\
         % else:
           <li><a href="${request.route_path("directory_yours")}">Your requests</a></li>
         % endif
-        % if request.matched_route.name == "directory_new":
-          <li>New request</li>
-        % else:
-          <li><a href="${request.route_path("directory_new")}">New request</a></li>
+        % if "shutdown.directory" not in request.registry.settings:
+          % if request.matched_route.name == "directory_new":
+            <li>New request</li>
+          % else:
+            <li><a href="${request.route_path("directory_new")}">New request</a></li>
+          % endif
         % endif
       </ul>
       <h3>Lucky dip</h3>
