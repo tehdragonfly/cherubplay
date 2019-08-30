@@ -10,11 +10,21 @@
 </%block>
     % if len(requests) == 0:
       % if request.matched_route.name == "directory_yours":
-        <p>You have no requests. <a href="${request.route_path("directory_new")}">Write a new request</a>.</p>
+        <p>
+          You have no requests.
+          % if "shutdown.directory" not in request.registry.settings:
+            <a href="${request.route_path("directory_new")}">Write a new request</a>.
+          % endif
+        </p>
       % elif request.matched_route.name == "directory_user":
         <p>This user has no requests.</p>
       % else:
-        <p>There are no requests. <a href="${request.route_path("directory_new")}">Write a new request</a>.</p>
+        <p>
+          There are no requests.
+          % if "shutdown.directory" not in request.registry.settings:
+            <a href="${request.route_path("directory_new")}">Write a new request</a>.
+          % endif
+        </p>
       % endif
     % else:
     % if "before" in request.GET:
