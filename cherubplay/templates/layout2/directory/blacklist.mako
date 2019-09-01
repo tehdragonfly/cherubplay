@@ -38,6 +38,7 @@
           </form>
         </li>
         % endif
+        % if tags:
         % for tag in tags:
         <li>
           % if "shutdown.directory" not in request.registry.settings:
@@ -49,6 +50,9 @@
           ${tag.type.ui_value}:${tag.name}
         </li>
         % endfor
+        % else:
+        <li>Your blacklist is empty.</li>
+        % endif
       </ul>
     </section>
 <%block name="scripts">
