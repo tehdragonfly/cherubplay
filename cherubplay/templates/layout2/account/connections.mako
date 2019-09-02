@@ -17,6 +17,7 @@
           % endif
         </li>
         % endif
+        % if connections:
         % for connection in connections:
           <li>
             <div class="actions">
@@ -43,5 +44,8 @@
             </div>
           </li>
         % endfor
+        % else:
+          <li>You have no connections.</li>
+        % endif
       </ul>
     </section>
