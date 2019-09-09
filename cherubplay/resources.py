@@ -41,7 +41,6 @@ class ChatContext(object):
             ]
         if self.chat_user and self.chat.status == "ongoing":
             acl += [
-                (Allow, "active",        "chat.send"),
                 (Allow, "active",        "chat.change_name"),
                 (Allow, self.chat.op_id, "chat.remove_user"),
             ]
@@ -72,7 +71,7 @@ class ChatContext(object):
 
     @reify
     def is_continuable(self):
-        return self.chat.status == "ongoing" and self.request.has_permission("chat.send")
+        return False
 
     @reify
     def chat_users(self):
