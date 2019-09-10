@@ -40,7 +40,7 @@ ${request.context.chat_user.display_title} -
     <nav>
       % if request.context.chat_user:
         <ul>
-          % if request.context.chat.status == "ongoing":
+          % if request.context.is_continuable:
             % if page == "chat":
               <li>Chat</li>
             % else:
