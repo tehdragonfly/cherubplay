@@ -40,7 +40,7 @@
   <nav id="subnav">
     <section class="tile">
       <ul>
-% if request.context.chat.status == "ongoing":
+% if request.context.is_continuable:
 % if page == "chat":
         <li>Chat</li>
 % else:
