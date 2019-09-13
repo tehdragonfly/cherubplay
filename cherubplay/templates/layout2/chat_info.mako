@@ -24,7 +24,7 @@
     <ul class="tag_list">
       % for user_id, chat_user in request.context.chat_users.items():
         <li style="color: #${chat_user.last_colour}">
-          % if chat_user.user_id == request.user.id:
+          % if chat_user.user_id == request.user.id and request.user.has_permission("chat.change_name"):
             % if request.GET.get("error") == "name_taken":
               <p class="error">Someone else has already chosen that name. Please choose another.</p>
             % endif
