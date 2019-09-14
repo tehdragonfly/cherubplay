@@ -41,7 +41,6 @@ class ChatContext(object):
             ]
         if self.chat_user and self.chat.status == "ongoing":
             acl += [
-                (Allow, "active",        "chat.change_name"),
                 (Allow, self.chat.op_id, "chat.remove_user"),
             ]
         return acl
