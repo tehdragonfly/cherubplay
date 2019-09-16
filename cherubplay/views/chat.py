@@ -516,7 +516,10 @@ def chat_leave_post(context: ChatContext, request):
 
 @view_config(route_name="chat_info", request_method="GET", permission="chat.info")
 def chat_info_get(context: ChatContext, request):
-    template = "layout2/chat_info.mako" if request.user.layout_version == 2 else "chat_info.mako"
+    if request.user.layout_version == 2 or context.chat.mode == ChatMode.group:
+        template = "layout2/chat_info.mako"
+    else:
+        template = "chat_info.mako"
     return render_to_response(template, {"page": "info"}, request)
 
 
