@@ -575,6 +575,7 @@ var cherubplay = (function() {
 		},
 		"directory": function() {
 
+			/*
 			var dragged;
 			var blacklist_label = document.getElementById("blacklist_link");
 			if (blacklist_label) {
@@ -613,6 +614,7 @@ var cherubplay = (function() {
 					});
 				}
 			}, false);
+			*/
 
 			$(".directory_search").each(function(index, input) {
 
