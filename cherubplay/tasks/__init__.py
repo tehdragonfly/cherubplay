@@ -93,8 +93,15 @@ def update_missing_request_tag_ids():
 
 @app.task
 def check_tag_consistency():
+    """
+    Ensure that Request.tag_ids matches the RequestTag rows.
+    """
+    # You probably don't want to run this in its current state because it
+    # doesn't handle parent/child relationships properly - the parent tag IDs
+    # are stored in Request.tag_ids but don't exist as RequestTag rows.
+    # TODO Request.tag_ids isn't really necessary and should probably be
+    # removed.
     with db_session() as db:
-        # TODO check parent tags
         inconsistent_requests = db.execute("""
             select id
             from (
