@@ -447,7 +447,10 @@ class Request(Base):
     ooc_notes = FormattedField("_format", "_ooc_notes")
     _starter = Column("starter", UnicodeText, nullable=False, default=u"")
     starter = FormattedField("_format", "_starter")
-    tag_ids = Column(ARRAY(Integer)) # this makes tag filtering easier
+    # This stores a copy of the relevant values from RequestTags.tag_id.
+    # It was created to make tag searching easier but was probably a premature
+    # optimisation.
+    tag_ids = Column(ARRAY(Integer))
     duplicate_of_id = Column(Integer, ForeignKey("requests.id"))
 
     def __repr__(self):
@@ -507,6 +510,7 @@ class RequestSlot(Base):
     __tablename__ = "request_slots"
     __table_args__ = (
         UniqueConstraint("request_id", "user_id", name="request_slots_request_id_user_id_idx"),
+        # Slot 1 always belongs to the prompter and can't be empty.
         CheckConstraint("user_id IS NOT NULL OR \"order\" <> 1", name="request_slots_slot_1_taken"),
         CheckConstraint("(user_id IS NOT NULL) = (user_name IS NOT NULL)", name="request_slots_user_id_match"),
     )
