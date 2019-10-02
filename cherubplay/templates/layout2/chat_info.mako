@@ -63,4 +63,24 @@ ${chat_user.user.away_message}</p>
     </ul>
   </section>
 % endif
+% if request.context.chat.status == "ongoing" and len(request.context.active_chat_users) > 2:
+  <section class="tile2 danger">
+    <h3>Leave chat</h3>
+    <p>If you leave this chat it will no longer appear on your chats page and you won't be able to take part in it, but the other participants will be able to continue.</p>
+    <p>Leaving a chat is irreversible and cannot be undone, so please do not do this unless you're absolutely sure you're done with this chat.</p>
+    <p class="middle_actions"><a href="${request.route_path("chat_leave", url=request.matchdict["url"])}">Leave chat</a></p>
+  </section>
+% elif request.context.chat.status == "ongoing":
+  <section class="tile2 danger">
+    <h3>End or delete chat</h3>
+    <p>Ending a chat prevents any further messages from being sent, and deleting it also deletes it from the your chats page. These actions are both irreversible and cannot be undone, so please do not do them unless you're absolutely sure you're done with this chat.</p>
+    <p class="middle_actions"><a href="${request.route_path("chat_end", url=request.matchdict["url"])}">End chat</a> · <a href="${request.route_path("chat_delete", url=request.matchdict["url"])}">Delete chat</a></p>
+  </section>
+% else:
+  <section class="tile2 danger">
+    <h3>Delete chat</h3>
+    <p>Deleting a chat is irreversible and cannot be undone, so please do not do this unless you're absolutely sure you're done with this chat.</p>
+    <p class="middle_actions"><a href="${request.route_path("chat_delete", url=request.matchdict["url"])}">Delete chat</a></p>
+  </section>
+% endif
   <p><a href="${request.route_path("chat_list")}">Back to your chats</a></p>

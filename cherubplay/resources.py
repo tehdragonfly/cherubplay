@@ -41,6 +41,8 @@ class ChatContext(object):
             ]
         if self.chat_user and self.chat.status == "ongoing":
             acl += [
+                (Allow, "active",        "chat.send"),
+                (Allow, "active",        "chat.change_name"),
                 (Allow, self.chat.op_id, "chat.remove_user"),
             ]
         return acl
@@ -70,7 +72,7 @@ class ChatContext(object):
 
     @reify
     def is_continuable(self):
-        return False
+        return self.chat.status == "ongoing" and self.request.has_permission("chat.send")
 
     @reify
     def chat_users(self):
@@ -110,15 +112,15 @@ class ChatContext(object):
 
     @property
     def is_endable(self):
-        return False
+        return self.chat.status == "ongoing" and len(self.active_chat_users) <= 2
 
     @property
     def is_deletable(self):
-        return False
+        return self.chat.status == "ended" or self.is_endable
 
     @property
     def is_leavable(self):
-        return False
+        return self.chat.status == "ongoing" and len(self.active_chat_users) > 2
 
 
 def prompt_factory(request):
