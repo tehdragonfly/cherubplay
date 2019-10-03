@@ -126,7 +126,7 @@ class MessageService(object):
             # Only trigger notifications if the user has seen the most recent message.
             # This stops us from getting multiple notifications about the same chat.
             elif not most_recent_message or other_chat_user.visited > most_recent_message.posted:
-                self._publish(other_chat_user, {
+                self._publish(other_chat_user.user, {
                     "action": "notification",
                     "url": chat.url,
                     "title": other_chat_user.display_title,
