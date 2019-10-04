@@ -3,6 +3,7 @@ import datetime, json, logging
 from functools import singledispatch
 from redis import Redis
 from sqlalchemy import and_
+from sqlalchemy.orm import joinedload
 from typing import Dict, Union
 from zope.interface import Interface, implementer
 
@@ -120,7 +121,7 @@ class MessageService(object):
         for other_chat_user in self._db.query(ChatUser).filter(and_(
             ChatUser.chat_id == chat.id,
             ChatUser.status == ChatUserStatus.active,
-        )):
+        )).options(joinedload(ChatUser.user)):
             if other_chat_user.handle in online_handles:
                 other_chat_user.visited = posted_date
             # Only trigger notifications if the user has seen the most recent message.
