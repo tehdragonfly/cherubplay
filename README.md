@@ -43,4 +43,6 @@ Run the chat handler:
 
 Run the Celery worker:
 
-    celery worker -A pyramid_celery.celery_app --ini development.ini -l DEBUG
+    celery worker -A pyramid_celery.celery_app --ini development.ini -l DEBUG -Q celery,export,cleanup
+
+Note that using different Celery workers for the different queues is recommended in production. See `CONFIG.md` for more details.
