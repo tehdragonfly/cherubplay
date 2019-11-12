@@ -4,7 +4,8 @@ Config examples
 Supervisor config
 -----------------
 
-Cherubplay is currently run using [Supervisor](http://supervisord.org/). Suggested configuration:
+I ran the Cherubplay production server using [Supervisor](http://supervisord.org/).
+These are the Supervisor config entries:
 
 ### Main processes
 
@@ -37,7 +38,7 @@ Cherubplay is currently run using [Supervisor](http://supervisord.org/). Suggest
 
 ### Task runners
 
-Cherubplay uses two Celery workers: one for quick tasks like triggering push
+Cherubplay used two Celery workers: one for quick tasks like triggering push
 notifications and another for longer tasks like exporting chats and cleanup
 tasks. Celery recommends doing this so that quick tasks don't get stuck behind
 slower ones.
