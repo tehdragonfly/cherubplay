@@ -41,7 +41,10 @@ def _(destination: User):
 
 
 class IMessageService(Interface):
-    def send_message(self, chat_user: ChatUser, type: MessageType, colour: str, format: MessageFormat, text: str, action: str="message"):
+    def send_message(self,
+        chat_user: ChatUser, type: MessageType, colour: str,
+        format: MessageFormat, text: str, action: str="message",
+    ):
         pass
 
     def send_end_message(self, chat_user: ChatUser):
@@ -76,7 +79,10 @@ class MessageService(object):
         except ConnectionError:
             log.error("Failed to send pubsub message.")
 
-    def send_message(self, chat_user: ChatUser, type: MessageType, colour: str, format: MessageFormat, text: str, action: str="message"):
+    def send_message(self,
+        chat_user: ChatUser, type: MessageType, colour: str,
+        format: MessageFormat, text: str, action: str="message",
+    ):
         chat = chat_user.chat
 
         # Only trigger notifications if the user has seen the most recent message.
